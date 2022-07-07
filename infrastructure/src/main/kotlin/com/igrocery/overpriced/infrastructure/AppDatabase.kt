@@ -3,6 +3,7 @@ package com.igrocery.overpriced.infrastructure
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.PriceRecordDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
@@ -28,6 +29,8 @@ internal abstract class AppDatabase : RoomDatabase() {
     companion object {
         const val DB_NAME = "db"
     }
+
+    abstract fun categoryDao(): CategoryDao
 
     abstract fun productDao(): ProductDao
 

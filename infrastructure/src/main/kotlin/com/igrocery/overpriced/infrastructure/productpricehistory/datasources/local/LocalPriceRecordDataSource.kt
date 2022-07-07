@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class LocalPriceRecordDataSource @Inject constructor(
+internal class LocalPriceRecordDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalPriceRecordDataSource {
 

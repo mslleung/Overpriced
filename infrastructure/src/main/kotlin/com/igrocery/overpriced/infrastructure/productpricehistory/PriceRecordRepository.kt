@@ -15,9 +15,10 @@ import javax.inject.Singleton
 @Singleton
 class PriceRecordRepository @Inject internal constructor(
     @LocalDataSource private val localPriceRecordDataSource: ILocalPriceRecordDataSource,
-    private val priceRecordMapper: PriceRecordMapper,
     private val transaction: Transaction
 ) : IPriceRecordRepository {
+
+    private val priceRecordMapper = PriceRecordMapper()
 
     override suspend fun insert(item: PriceRecord): Long {
         return transaction.execute {

@@ -7,8 +7,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-internal class PriceRecordMapper @Inject constructor() {
+internal class PriceRecordMapper {
 
     fun mapToData(priceRecord: PriceRecord): PriceRecordRoomEntity {
         return PriceRecordRoomEntity(

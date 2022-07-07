@@ -22,10 +22,11 @@ private val log = Logger { }
 @Singleton
 class ProductRepository @Inject internal constructor(
     @LocalDataSource private val localProductDataSource: ILocalProductDataSource,
-    private val productMapper: ProductMapper,
     private val transaction: Transaction,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IProductRepository {
+
+    private val productMapper = ProductMapper()
 
     override suspend fun insert(item: Product): Long {
         return transaction.execute {

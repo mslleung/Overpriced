@@ -20,10 +20,11 @@ import javax.inject.Singleton
 @Singleton
 class StoreRepository @Inject internal constructor(
     @LocalDataSource private val localStoreDataSource: IStoreDataSource,
-    private val storeMapper: StoreMapper,
     private val transaction: Transaction,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IStoreRepository {
+
+    private val storeMapper = StoreMapper()
 
     override suspend fun insert(item: Store): Long {
         return transaction.execute {
