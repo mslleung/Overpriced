@@ -15,8 +15,11 @@ class Category : AggregateRoot {
         icon: CategoryIcon,
         name: String,
     ) : super(id, creationTimestamp, updateTimestamp) {
+        this.icon = icon
         this.name = name
     }
+
+    var icon: CategoryIcon
 
     var name: String
         set(value) {
