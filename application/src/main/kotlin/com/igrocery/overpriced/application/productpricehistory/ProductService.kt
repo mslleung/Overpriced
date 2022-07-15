@@ -23,6 +23,7 @@ class ProductService @Inject constructor(
     suspend fun createProductWithPriceRecord(
         productName: String,
         productDescription: String,
+        categoryId: Long,
         productBarcode: String?,
         priceAmountText: String,
         storeId: Long,
@@ -32,6 +33,7 @@ class ProductService @Inject constructor(
                 name = productName,
                 description = productDescription,
                 barcode = productBarcode,
+                categoryId = categoryId,
             )
 
             val productId = productRepository.insert(product)

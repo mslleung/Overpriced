@@ -46,6 +46,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
@@ -91,6 +92,7 @@ fun NewPriceScreen(
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.productsPagedFlow.collectAsLazyPagingItems()
     val attachedBarcode by newPriceScreenViewModel.attachedBarcodeFlow.collectAsState()
+    val productCategory by newPriceScreenViewModel.productCategoryFlow.collectAsState()
     val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
     val storesPagingItems = newPriceScreenViewModel.storesPagedFlow.collectAsLazyPagingItems()
@@ -101,6 +103,7 @@ fun NewPriceScreen(
         productName = productName,
         productDescription = productDescription,
         productSuggestionsPagingItems = productSuggestionsPagingItems,
+        productCategory = productCategory,
         attachedBarcode = attachedBarcode,
         preferredCurrency = preferredCurrency,
         selectedStore = selectedStore,
@@ -118,8 +121,9 @@ fun NewPriceScreen(
                 productName.trim(),
                 productDescription.trim(),
                 attachedBarcode?.trim(),
+                productCategory,
                 state.priceAmountText.trim(),
-                selectedStore?.id ?: 0,
+                selectedStore,
             )
         },
         onProductNameChange = {
@@ -220,6 +224,7 @@ private fun MainLayout(
     productDescription: String,
     productSuggestionsPagingItems: LazyPagingItems<Product>,
     attachedBarcode: String?,
+    productCategory: Category?,
     preferredCurrency: Currency,
     selectedStore: Store?,
     submitResult: SubmitFormResultState?,
@@ -320,11 +325,7 @@ private fun MainLayout(
 //                onAttachBarcodeButtonClick = onAttachBarcodeButtonClick
 //            )
 
-            FlowRow(
 
-            ) {
-                
-            }
 
             PriceHeader(
                 modifier = Modifier.padding(vertical = 6.dp)

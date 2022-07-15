@@ -16,6 +16,12 @@ internal abstract class RepositoryModule {
 
     @Singleton
     @Binds
+    abstract fun bindCategoryRepository(
+        categoryRepository: CategoryRepository,
+    ): ICategoryRepository
+
+    @Singleton
+    @Binds
     abstract fun bindProductRepository(
         productRepository: ProductRepository,
     ): IProductRepository

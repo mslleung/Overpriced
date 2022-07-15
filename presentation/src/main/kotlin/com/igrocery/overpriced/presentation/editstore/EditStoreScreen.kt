@@ -159,7 +159,6 @@ fun EditStoreScreen(
             onConfirm = {
                 state.isSaveDialogShown = false
                 viewModel.updateStore(
-                    storeId = storeId,
                     storeName = saveDialogState.storeName.trim(),
                     addressLines = saveDialogState.address.trim(),
                     latitude = state.cameraPosition.latitude,
