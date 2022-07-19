@@ -16,7 +16,7 @@ class NewPriceScreenStateHolder {
     var priceAmountText by mutableStateOf("")
 
     var isDiscardDialogShown by mutableStateOf(false)
-
+    var isSelectCategoryDialogShown by mutableStateOf(false)
     var isSelectStoreDialogShown by mutableStateOf(false)
 
     fun hasModifications(): Boolean {
@@ -31,6 +31,7 @@ class NewPriceScreenStateHolder {
                     it.wantToShowSuggestionBox,
                     it.priceAmountText,
                     it.isDiscardDialogShown,
+                    it.isSelectCategoryDialogShown,
                     it.isSelectStoreDialogShown
                 )
             },
@@ -40,7 +41,8 @@ class NewPriceScreenStateHolder {
                     wantToShowSuggestionBox = it[1] as Boolean
                     priceAmountText = it[2] as String
                     isDiscardDialogShown = it[3] as Boolean
-                    isSelectStoreDialogShown = it[4] as Boolean
+                    isSelectCategoryDialogShown = it[4] as Boolean
+                    isSelectStoreDialogShown = it[5] as Boolean
                 }
             }
         )

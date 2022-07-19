@@ -53,7 +53,7 @@ fun SelectStoreDialog(
                     key = { store -> store.id }
                 ) { store ->
                     if (store != null) {
-                        StoreLocationOprionLayout(
+                        StoreLocationOptionLayout(
                             store = store,
                             isSelected = state.selectedStoreId == store.id,
                             onStoreSelect = onStoreSelect,
@@ -79,7 +79,7 @@ fun SelectStoreDialog(
 }
 
 @Composable
-private fun StoreLocationOprionLayout(
+private fun StoreLocationOptionLayout(
     store: Store,
     isSelected: Boolean,
     onStoreSelect: (Store) -> Unit,

@@ -11,7 +11,7 @@
     <string name="settings_preferred_currency_label">Display currency</string>
 
     <string name="price_list_empty_list_image_content_description">No price records.</string>
-    <string name="price_list_empty_list_text">No price records found.\nRecord new pricing information by tapping the \"New Price Record\" button."</string>
+    <string name="price_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
     <string name="price_list_new_price_fab_text">New Price Record</string>
     <string name="price_list_new_price_fab_content_description">Add new price</string>
     <string name="price_list_bottom_nav_label">Food Prices</string>
@@ -28,12 +28,13 @@
     <string name="new_price_select_store_dialog_new_store_icon_content_description">New Store Location</string>
     <string name="new_price_select_store_dialog_new_store_text">New Store Location</string>
     <string name="new_price_product_info_header">Product Information</string>
-    <string name="new_price_product_name_label">Product Name (e.g. Orange juice)</string>
+    <string name="new_price_product_name_label">Product Name</string>
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
-    <string name="new_price_product_description_label">Product Description (e.g. Brand, Weight etc.)</string>
+    <string name="new_price_product_description_label">Product Description (optional)</string>
     <string name="new_price_product_barcode_attach_button_text">Attach Barcode</string>
     <string name="new_price_product_barcode_label">Barcode:</string>
     <string name="new_price_product_barcode_icon_content_description">Open camera to scan barcode</string>
+    <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
     <string name="new_price_amount_input_error_text">Invalid amount input.</string>
@@ -43,6 +44,10 @@
     <string name="new_price_store_button_content_description">Change store location</string>
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
+
+    <string name="uncategorized">Uncategorized</string>
+    <string name="select_category_dialog_title">Select Category</string>
+    <string name="select_category_dialog_new_category">New Category</string>
 
     <string name="scan_barcode_no_permission_message_text">Camera permission is required to scan barcodes.</string>
     <string name="scan_barcode_no_permission_button_text">Open Camera</string>

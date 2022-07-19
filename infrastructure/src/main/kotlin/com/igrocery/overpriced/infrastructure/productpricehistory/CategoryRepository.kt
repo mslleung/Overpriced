@@ -3,7 +3,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalCategoryDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalCategoryDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.mapper.CategoryMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Singleton
 class CategoryRepository @Inject internal constructor(
-    @LocalDataSource private val localCategoryDataSource: LocalCategoryDataSource,
+    @LocalDataSource private val localCategoryDataSource: ILocalCategoryDataSource,
     private val transaction: Transaction,
 ) : ICategoryRepository {
 

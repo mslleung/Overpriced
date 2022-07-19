@@ -2,6 +2,7 @@ package com.igrocery.overpriced.presentation.newprice
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -47,6 +49,7 @@ import androidx.paging.compose.items
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
@@ -143,10 +146,15 @@ fun NewPriceScreen(
             newPriceScreenViewModel.setProductName(it.name)
             newPriceScreenViewModel.setProductDescription(it.description)
             newPriceScreenViewModel.setBarcode(it.barcode)
+            newPriceScreenViewModel.setProductCategoryId(it.categoryId)
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
         },
         onAttachBarcodeButtonClick = navigateToScanBarcode,
+        onCategoryClick = {
+            keyboardController?.hide()
+            state.isSelectCategoryDialogShown = true
+        },
         onStoreButtonClick = {
             keyboardController?.hide()
             if (storesCount == 0) {
@@ -189,6 +197,12 @@ fun NewPriceScreen(
                 navigateToNewStore()
             },
         )
+    }
+    
+    if (state.isSelectCategoryDialogShown) {
+        AlertDialog(onDismissRequest = { /*TODO*/ }) {
+            
+        }
     }
 
     if (submitResult is SubmitFormResultState.Success) {
@@ -235,6 +249,7 @@ private fun MainLayout(
     onProductDescriptionChange: (String) -> Unit,
     onProductAutoSuggestClick: (Product) -> Unit,
     onAttachBarcodeButtonClick: () -> Unit,
+    onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarScrollState()
@@ -325,7 +340,14 @@ private fun MainLayout(
 //                onAttachBarcodeButtonClick = onAttachBarcodeButtonClick
 //            )
 
-
+            ProductCategory(
+                productCategory = productCategory,
+                onClick = onCategoryClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(top = 4.dp, bottom = 4.dp)
+            )
 
             PriceHeader(
                 modifier = Modifier.padding(vertical = 6.dp)
@@ -629,6 +651,36 @@ private fun BarcodeCameraButton(onClick: () -> Unit, modifier: Modifier = Modifi
 }
 
 @Composable
+private fun ProductCategory(
+    productCategory: Category?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onClick() },
+    ) {
+        val categoryIcon = productCategory?.icon ?: CategoryIcon.Uncategorized
+        val categoryName = productCategory?.name ?: stringResource(id = R.string.uncategorized)
+        Image(
+            painter = painterResource(id = categoryIcon.iconRes),
+            contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
+            modifier = Modifier
+                .padding(start = 6.dp, end = 6.dp)
+                .size(30.dp)
+        )
+
+        Text(
+            text = categoryName,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
+@Composable
 private fun PriceHeader(
     modifier: Modifier = Modifier
 ) {
@@ -722,7 +774,7 @@ private fun StoreLocation(
         ) {
 
             if (selectedStore == null) {
-                OutlinedButton(
+                FilledTonalButton(
                     onClick = onStoreButtonClick,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -794,6 +846,7 @@ private fun DefaultPreview() {
                     name = "Apple",
                     description = "Pack of 6",
                     barcode = null,
+                    categoryId = 0L,
                     creationTimestamp = 0,
                     updateTimestamp = 0,
                 )
@@ -806,6 +859,7 @@ private fun DefaultPreview() {
         productDescription = "",
         productSuggestionsPagingItems = productsPagingItems,
         attachedBarcode = "",
+        productCategory = Category(icon = CategoryIcon.Vegetables, name = "Vegetables"),
         preferredCurrency = Currency.getInstance(Locale.getDefault()),
         selectedStore = null,
         submitResult = null,
@@ -816,6 +870,7 @@ private fun DefaultPreview() {
         onProductDescriptionChange = {},
         onProductAutoSuggestClick = {},
         onAttachBarcodeButtonClick = {},
+        onCategoryClick = {},
         onStoreButtonClick = {}
     )
 }
