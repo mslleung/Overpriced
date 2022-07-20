@@ -35,6 +35,7 @@ import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScr
 import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScreenViewModel
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
@@ -155,9 +156,11 @@ fun App() {
                             navController.getBackStackEntry(NewPriceRecordRoute)
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                    val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
 
                     NewPriceScreen(
                         newPriceScreenViewModel = newPriceViewModel,
+                        selectCategoryDialogViewModel = selectCategoryDialogViewModel,
                         navigateUp = { navController.navigateUp() },
                         navigateToScanBarcode = { navController.navigate(ScanBarcode) },
                         navigateToNewStore = { navController.navigate(NewStore) },

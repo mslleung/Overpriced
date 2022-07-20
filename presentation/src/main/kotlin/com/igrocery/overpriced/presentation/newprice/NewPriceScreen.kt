@@ -22,7 +22,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -46,13 +45,14 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialog
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
@@ -68,6 +68,7 @@ private val log = Logger { }
 @Composable
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
+    selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
     navigateUp: () -> Unit,
     navigateToScanBarcode: () -> Unit,
     navigateToEditStore: (Store) -> Unit,
@@ -198,11 +199,19 @@ fun NewPriceScreen(
             },
         )
     }
-    
+
     if (state.isSelectCategoryDialogShown) {
-        AlertDialog(onDismissRequest = { /*TODO*/ }) {
-            
-        }
+        SelectCategoryDialog(
+            viewModel = selectCategoryDialogViewModel,
+            selectedCategoryId = productCategory?.id ?: 0L,
+            onDismiss = { state.isSelectCategoryDialogShown = false },
+            onCategorySelect = {
+                state.isSelectCategoryDialogShown = false
+                newPriceScreenViewModel.setProductCategoryId(it.id)
+            },
+            onEditCategoryClick = {},
+            onNewCategoryClick = {},
+        )
     }
 
     if (submitResult is SubmitFormResultState.Success) {

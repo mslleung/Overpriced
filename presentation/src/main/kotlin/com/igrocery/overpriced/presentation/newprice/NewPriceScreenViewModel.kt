@@ -67,19 +67,19 @@ class NewPriceScreenViewModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
+    val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = null as String?
+        )
+
     val productCategoryFlow = savedState.getStateFlow(KEY_PRODUCT_CATEGORY_ID, 0L)
         .flatMapLatest { categoryService.getCategoryById(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = null
-        )
-
-    val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null as String?
         )
 
     val preferredCurrencyFlow = preferenceService.getAppPreference()
