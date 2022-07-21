@@ -59,6 +59,8 @@
     <string name="select_currency_title">Select Currency</string>
     <string name="select_currency_selected_currency_content_description">Selected currency</string>
 
+    <string name="new_category_title">New Category Location</string>
+
     <string name="new_store_title">New Store Location</string>
     <string name="edit_store_title">Edit Store Location</string>
     <string name="store_save_button_text">Save</string>

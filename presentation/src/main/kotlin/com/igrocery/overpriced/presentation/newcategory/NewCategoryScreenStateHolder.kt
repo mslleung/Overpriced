@@ -16,12 +16,12 @@ class NewCategoryScreenStateHolder {
         val Saver: Saver<NewCategoryScreenStateHolder, *> = listSaver(
             save = {
                 listOf(
-                    it.isRequestingFirstFocus,
+                    it.categoryName,
                 )
             },
             restore = {
                 NewCategoryScreenStateHolder().apply {
-                    isRequestingFirstFocus = it[0] as Boolean
+                    categoryName = it[0] as String
                 }
             }
         )
