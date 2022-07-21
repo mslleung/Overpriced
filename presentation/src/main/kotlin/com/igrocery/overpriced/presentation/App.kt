@@ -17,6 +17,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
+import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
 import com.igrocery.overpriced.presentation.NavDestinations.ProductPriceList
@@ -27,6 +28,7 @@ import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
+import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
@@ -52,12 +54,14 @@ private object NavDestinations {
     const val EditStore_Arg_StoreId = "storeId"
     const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
 
+    const val NewCategory = "newCategory"
     const val NewPrice = "newPrice"
     const val NewStore = "newStore"
     const val ProductPriceList = "productPriceList"
     const val ScanBarcode = "scanBarcode"
     const val SelectCurrency = "selectCurrency"
     const val Settings = "settings"
+
 }
 
 private object NavRoutes {
@@ -184,6 +188,18 @@ fun App() {
                             newPriceViewModel.setBarcode(barcode)
                             navController.navigateUp()
                         })
+                }
+                composable(NewCategory) { backStackEntry ->
+                    val navGraphEntry =
+                        remember(backStackEntry) {
+                            navController.getBackStackEntry(
+                                NewPriceRecordRoute
+                            )
+                        }
+                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                    val newCategoryViewModel = hiltViewModel<NewPriceScreenViewModel>()
+
+                    NewCategoryScreen()
                 }
                 composable(NewStore) { backStackEntry ->
                     val navGraphEntry =

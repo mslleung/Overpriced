@@ -3,7 +3,9 @@ package com.igrocery.overpriced.domain.productpricehistory.models
 import androidx.annotation.DrawableRes
 import com.igrocery.overpriced.domain.R
 
-enum class CategoryIcon(@DrawableRes val iconRes: Int) {
+enum class CategoryIcon(
+    @DrawableRes val iconRes: Int,
+) {
     Uncategorized(R.drawable.ic_question_svgrepo_com),
     Vegetables(R.drawable.ic_carrot_svgrepo_com),
     Fruits(R.drawable.ic_apple_svgrepo_com),

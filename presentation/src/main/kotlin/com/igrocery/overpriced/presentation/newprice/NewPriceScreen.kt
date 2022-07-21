@@ -117,6 +117,7 @@ fun NewPriceScreen(
             if (state.hasModifications() || newPriceScreenViewModel.hasModifications()) {
                 state.isDiscardDialogShown = true
             } else {
+                keyboardController?.hide()
                 navigateUp()
             }
         },
@@ -151,7 +152,10 @@ fun NewPriceScreen(
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
         },
-        onAttachBarcodeButtonClick = navigateToScanBarcode,
+        onAttachBarcodeButtonClick = {
+            keyboardController?.hide()
+            navigateToScanBarcode()
+        },
         onCategoryClick = {
             keyboardController?.hide()
             state.isSelectCategoryDialogShown = true
@@ -159,6 +163,7 @@ fun NewPriceScreen(
         onStoreButtonClick = {
             keyboardController?.hide()
             if (storesCount == 0) {
+                keyboardController?.hide()
                 navigateToNewStore()
             } else {
                 state.isSelectStoreDialogShown = true
@@ -191,10 +196,12 @@ fun NewPriceScreen(
             },
             onEditStoreClick = {
                 state.isSelectStoreDialogShown = false
+                keyboardController?.hide()
                 navigateToEditStore(it)
             },
             onNewStoreClick = {
                 state.isSelectStoreDialogShown = false
+                keyboardController?.hide()
                 navigateToNewStore()
             },
         )
@@ -229,13 +236,6 @@ fun NewPriceScreen(
         } else {
             keyboardController?.hide()
             navigateUp()
-        }
-    }
-
-    // make sure the keyboard goes away when this screen is removed
-    DisposableEffect(Unit) {
-        onDispose {
-            keyboardController?.hide()
         }
     }
 }
