@@ -7,9 +7,6 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "categories",
-    indices = [
-        Index(value = ["name"], unique = true),
-    ]
 )
 internal data class CategoryRoomEntity (
     @PrimaryKey(autoGenerate = true)

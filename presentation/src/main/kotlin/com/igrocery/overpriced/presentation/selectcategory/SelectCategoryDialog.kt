@@ -110,7 +110,9 @@ private fun CategoryOptionLayout(
         Image(
             painter = painterResource(id = category.icon.iconRes),
             contentDescription = stringResource(id = R.string.select_category_dialog_category_icon_content_description),
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier
+                .padding(end = 6.dp)
+                .size(30.dp)
         )
 
         Text(

@@ -205,7 +205,7 @@ fun App() {
                         viewModel = newCategoryViewModel,
                         navigateUp = { navController.navigateUp() },
                         navigateDone = {
-                            newPriceViewModel.setProductCategoryId(it.id)
+                            newPriceViewModel.setProductCategoryId(it)
                             navController.navigateUp()
                         }
                     )

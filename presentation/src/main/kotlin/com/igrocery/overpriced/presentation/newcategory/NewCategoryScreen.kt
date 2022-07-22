@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.presentation.newcategory
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -8,13 +9,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -27,17 +26,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.flowlayout.MainAxisAlignment
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder
-import com.igrocery.overpriced.presentation.newprice.rememberNewPriceScreenState
-import com.igrocery.overpriced.presentation.newstore.NewStoreScreenStateHolder
 import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
+import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel.CreateCategoryResult
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
 
@@ -48,7 +41,7 @@ private val log = Logger { }
 fun NewCategoryScreen(
     viewModel: NewCategoryScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: (Category) -> Unit,
+    navigateDone: (categoryId: Long) -> Unit,
 ) {
     log.debug("Composing NewCategoryScreen")
 
@@ -71,9 +64,19 @@ fun NewCategoryScreen(
         state = state,
         onBackButtonClick = navigateUp,
         onSaveButtonClick = {
-
+            viewModel.createCategory(
+                categoryName = state.categoryName,
+                categoryIcon = state.categoryIcon
+            )
         }
     )
+
+    LaunchedEffect(key1 = viewModel.createCategoryResult) {
+        val result = viewModel.createCategoryResult
+        if (result is CreateCategoryResult.Success) {
+            navigateDone(result.categoryId)
+        }
+    }
 
     BackHandler {
         navigateUp()
@@ -83,7 +86,7 @@ fun NewCategoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    createCategoryResult: NewCategoryScreenViewModel.CreateCategoryResult?,
+    createCategoryResult: CreateCategoryResult?,
     state: NewCategoryScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
@@ -131,6 +134,7 @@ private fun MainLayout(
                 state = state,
                 modifier = Modifier
                     .padding(bottom = 12.dp)
+                    .fillMaxWidth()
             )
 
             Text(
@@ -181,34 +185,46 @@ private fun MainLayout(
 
 @Composable
 private fun CategoryNameTextField(
-    createCategoryResult: NewCategoryScreenViewModel.CreateCategoryResult?,
+    createCategoryResult: CreateCategoryResult?,
     state: NewCategoryScreenStateHolder,
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember { FocusRequester() }
-    OutlinedTextField(
-        value = state.categoryName,
-        onValueChange = {
-            state.categoryName = it.take(100)
-        },
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester),
-        singleLine = true,
-        label = {
-            Text(text = stringResource(id = R.string.new_category_name_label))
-        },
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
-            imeAction = ImeAction.Done
-        ),
-        isError = createCategoryResult is NewCategoryScreenViewModel.CreateCategoryResult.Error
-    )
-    if (state.isRequestingFirstFocus) {
-        LaunchedEffect(key1 = Unit) {
-            focusRequester.requestFocus()
+    ) {
+        val focusRequester = remember { FocusRequester() }
+        OutlinedTextField(
+            value = state.categoryName,
+            onValueChange = {
+                state.categoryName = it.take(100)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            singleLine = true,
+            label = {
+                Text(text = stringResource(id = R.string.new_category_name_label))
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Done
+            ),
+            isError = createCategoryResult is CreateCategoryResult.Error
+        )
+        if (state.isRequestingFirstFocus) {
+            LaunchedEffect(key1 = Unit) {
+                focusRequester.requestFocus()
+            }
+            state.isRequestingFirstFocus = false
         }
-        state.isRequestingFirstFocus = false
+
+        AnimatedVisibility(visible = createCategoryResult is CreateCategoryResult.Error) {
+            Text(
+                text = stringResource(id = R.string.new_category_name_empty_error_text),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 

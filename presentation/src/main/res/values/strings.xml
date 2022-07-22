@@ -61,6 +61,7 @@
 
     <string name="new_category_title">New Category</string>
     <string name="new_category_name_label">Category Name</string>
+    <string name="new_category_name_empty_error_text">Category name cannot be empty.</string>
     <string name="new_category_icon_header">Icon</string>
     <string name="new_category_icon_content_description">Icon</string>
 
