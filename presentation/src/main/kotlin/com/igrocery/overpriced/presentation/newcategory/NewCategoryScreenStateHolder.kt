@@ -7,11 +7,13 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 
 class NewCategoryScreenStateHolder {
 
     var isRequestingFirstFocus by mutableStateOf(true)
     var categoryName by mutableStateOf("")
+    var categoryIcon by mutableStateOf(CategoryIcon.Uncategorized)
 
     companion object {
         val Saver: Saver<NewCategoryScreenStateHolder, *> = listSaver(

@@ -15,8 +15,8 @@ class CategoryService @Inject constructor(
     private val transaction: Transaction
 ) {
 
-    suspend fun createCategory(icon: CategoryIcon, name: String) {
-        transaction.execute {
+    suspend fun createCategory(icon: CategoryIcon, name: String): Long {
+        return transaction.execute {
             val category = Category(
                 icon = icon,
                 name = name,

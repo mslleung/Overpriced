@@ -71,6 +71,7 @@ fun NewPriceScreen(
     selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
     navigateUp: () -> Unit,
     navigateToScanBarcode: () -> Unit,
+    navigateToNewCategory: () -> Unit,
     navigateToEditStore: (Store) -> Unit,
     navigateToNewStore: () -> Unit,
 ) {
@@ -217,7 +218,10 @@ fun NewPriceScreen(
                 newPriceScreenViewModel.setProductCategoryId(it.id)
             },
             onEditCategoryClick = {},
-            onNewCategoryClick = {},
+            onNewCategoryClick = {
+                state.isSelectCategoryDialogShown = false
+                navigateToNewCategory()
+            },
         )
     }
 
@@ -868,7 +872,7 @@ private fun DefaultPreview() {
         productDescription = "",
         productSuggestionsPagingItems = productsPagingItems,
         attachedBarcode = "",
-        productCategory = Category(icon = CategoryIcon.Vegetables, name = "Vegetables"),
+        productCategory = Category(icon = CategoryIcon.Carrot, name = "Vegetables"),
         preferredCurrency = Currency.getInstance(Locale.getDefault()),
         selectedStore = null,
         submitResult = null,

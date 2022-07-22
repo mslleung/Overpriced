@@ -29,6 +29,7 @@ import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
+import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
@@ -167,6 +168,7 @@ fun App() {
                         selectCategoryDialogViewModel = selectCategoryDialogViewModel,
                         navigateUp = { navController.navigateUp() },
                         navigateToScanBarcode = { navController.navigate(ScanBarcode) },
+                        navigateToNewCategory = { navController.navigate(NewCategory) },
                         navigateToNewStore = { navController.navigate(NewStore) },
                         navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
                     )
@@ -197,9 +199,16 @@ fun App() {
                             )
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val newCategoryViewModel = hiltViewModel<NewPriceScreenViewModel>()
+                    val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
 
-                    NewCategoryScreen()
+                    NewCategoryScreen(
+                        viewModel = newCategoryViewModel,
+                        navigateUp = { navController.navigateUp() },
+                        navigateDone = {
+                            newPriceViewModel.setProductCategoryId(it.id)
+                            navController.navigateUp()
+                        }
+                    )
                 }
                 composable(NewStore) { backStackEntry ->
                     val navGraphEntry =
