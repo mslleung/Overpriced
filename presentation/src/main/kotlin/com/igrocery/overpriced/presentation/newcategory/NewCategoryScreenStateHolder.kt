@@ -10,18 +10,21 @@ import androidx.compose.runtime.setValue
 
 class NewCategoryScreenStateHolder {
 
+    var isRequestingFirstFocus by mutableStateOf(true)
     var categoryName by mutableStateOf("")
 
     companion object {
         val Saver: Saver<NewCategoryScreenStateHolder, *> = listSaver(
             save = {
                 listOf(
+                    it.isRequestingFirstFocus,
                     it.categoryName,
                 )
             },
             restore = {
                 NewCategoryScreenStateHolder().apply {
-                    categoryName = it[0] as String
+                    isRequestingFirstFocus = it[0] as Boolean
+                    categoryName = it[1] as String
                 }
             }
         )
