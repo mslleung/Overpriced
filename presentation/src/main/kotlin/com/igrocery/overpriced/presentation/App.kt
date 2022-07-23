@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.annotation.RequiresPermission
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewMod
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
 import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme
@@ -77,8 +79,7 @@ fun App() {
     AppTheme {
         val navController = rememberAnimatedNavController()
 
-        // The default is Spring.StiffnessMediumLow (400f). It is a bit too slow for my taste.
-        val animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = 800f)
+        val animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
             startDestination = ProductPriceList,
@@ -162,10 +163,12 @@ fun App() {
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
                     val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
+                    val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
 
                     NewPriceScreen(
                         newPriceScreenViewModel = newPriceViewModel,
                         selectCategoryDialogViewModel = selectCategoryDialogViewModel,
+                        selectStoreDialogViewModel = selectStoreDialogViewModel,
                         navigateUp = { navController.navigateUp() },
                         navigateToScanBarcode = { navController.navigate(ScanBarcode) },
                         navigateToNewCategory = { navController.navigate(NewCategory) },

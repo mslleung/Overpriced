@@ -17,12 +17,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.ireceipt.receiptscanner.presentation.R
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SelectCategoryDialog(
     viewModel: SelectCategoryDialogViewModel,
@@ -34,6 +35,26 @@ fun SelectCategoryDialog(
 ) {
     val categoryList by viewModel.categoryListFlow.collectAsState()
 
+    MainLayout(
+        categoryList,
+        selectedCategoryId,
+        onDismiss,
+        onCategorySelect,
+        onEditCategoryClick,
+        onNewCategoryClick
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun MainLayout(
+    categoryList: List<Category>,
+    selectedCategoryId: Long,
+    onDismiss: () -> Unit,
+    onCategorySelect: (Category) -> Unit,
+    onEditCategoryClick: (Category) -> Unit,
+    onNewCategoryClick: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { },
@@ -161,4 +182,22 @@ private fun NewCategoryItemLayout(
             modifier = Modifier.weight(1f)
         )
     }
+}
+
+@Preview
+@Composable
+private fun DefaultPreview() {
+    val categoryList = listOf(
+        Category(id = 0, icon = CategoryIcon.Apple, name = "Fruits"),
+        Category(id = 1, icon = CategoryIcon.Broccoli, name = "Vegetables")
+    )
+
+    MainLayout(
+        categoryList = categoryList,
+        selectedCategoryId = 0,
+        onDismiss = {},
+        onCategorySelect = {},
+        onEditCategoryClick = {},
+        onNewCategoryClick = {},
+    )
 }

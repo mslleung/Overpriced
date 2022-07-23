@@ -21,12 +21,14 @@ class NewCategoryScreenStateHolder {
                 listOf(
                     it.isRequestingFirstFocus,
                     it.categoryName,
+                    it.categoryIcon.name
                 )
             },
             restore = {
                 NewCategoryScreenStateHolder().apply {
                     isRequestingFirstFocus = it[0] as Boolean
                     categoryName = it[1] as String
+                    categoryIcon = CategoryIcon.valueOf(it[2] as String)
                 }
             }
         )

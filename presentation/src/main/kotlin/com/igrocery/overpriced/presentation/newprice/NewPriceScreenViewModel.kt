@@ -97,16 +97,6 @@ class NewPriceScreenViewModel @Inject constructor(
             initialValue = 0
         )
 
-    val storesPagedFlow = Pager(
-        PagingConfig(
-            pageSize = 100,
-            prefetchDistance = 30
-        )
-    ) {
-        storeService.getStoresPagingSource()
-    }.flow
-        .cachedIn(viewModelScope)
-
     val selectedStoreFlow = savedState.getStateFlow(KEY_STORE_ID, 0L)
         .flatMapLatest {
             storeService.getStoreById(it)

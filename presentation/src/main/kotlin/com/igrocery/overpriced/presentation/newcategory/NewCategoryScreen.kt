@@ -3,23 +3,23 @@ package com.igrocery.overpriced.presentation.newcategory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -28,11 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
+import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel.CreateCategoryResult
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
-import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel.CreateCategoryResult
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
+import com.skydoves.landscapist.glide.GlideImage
 
 @Suppress("unused")
 private val log = Logger { }
@@ -118,16 +119,13 @@ private fun MainLayout(
             )
         }
     ) { scaffoldPadding ->
+        // do not place the text field as an item in the lazy grid, when it is scrolled off-screen,
+        // focus will be lost and keyboard will be hidden, which is weird to the user
         Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top,
             modifier = Modifier
                 .padding(scaffoldPadding)
-                .navigationBarsPadding()
-                .imePadding()
                 .padding(horizontal = 12.dp)
-                .fillMaxSize()
-                .nestedScroll(topBarScrollBehavior.nestedScrollConnection),
+                .fillMaxWidth() // no nested scroll
         ) {
             CategoryNameTextField(
                 createCategoryResult = createCategoryResult,
@@ -144,15 +142,19 @@ private fun MainLayout(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(bottom = 10.dp)
+                    .fillMaxWidth()
             )
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(60.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .fillMaxSize(),
             ) {
-                items (
+                items(
                     items = CategoryIcon.values(),
-                    key = { it.ordinal }
+                    key = { it.ordinal },
                 ) {
                     Button(
                         onClick = {
@@ -171,10 +173,12 @@ private fun MainLayout(
                         ),
                         contentPadding = PaddingValues(0.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = it.iconRes),
+                        GlideImage(
+                            imageModel = it.iconRes,
+                            modifier = Modifier.size(40.dp),
                             contentDescription = stringResource(id = R.string.new_category_icon_content_description),
-                            modifier = Modifier.size(30.dp)
+                            contentScale = ContentScale.Fit,
+                            previewPlaceholder = it.iconRes
                         )
                     }
                 }
@@ -183,6 +187,7 @@ private fun MainLayout(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun CategoryNameTextField(
     createCategoryResult: CreateCategoryResult?,
@@ -193,6 +198,7 @@ private fun CategoryNameTextField(
         modifier = modifier
     ) {
         val focusRequester = remember { FocusRequester() }
+        val keyboardController = LocalSoftwareKeyboardController.current
         OutlinedTextField(
             value = state.categoryName,
             onValueChange = {
@@ -209,11 +215,15 @@ private fun CategoryNameTextField(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Done
             ),
+            keyboardActions = KeyboardActions(onDone = {
+                keyboardController?.hide()
+            }),
             isError = createCategoryResult is CreateCategoryResult.Error
         )
         if (state.isRequestingFirstFocus) {
             LaunchedEffect(key1 = Unit) {
                 focusRequester.requestFocus()
+                keyboardController?.show()  // somehow the keyboard doesn't show up despite getting focus
             }
             state.isRequestingFirstFocus = false
         }

@@ -53,6 +53,8 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialog
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialog
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewModel
 import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
@@ -69,6 +71,7 @@ private val log = Logger { }
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
     selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
+    selectStoreDialogViewModel: SelectStoreDialogViewModel,
     navigateUp: () -> Unit,
     navigateToScanBarcode: () -> Unit,
     navigateToNewCategory: () -> Unit,
@@ -100,7 +103,6 @@ fun NewPriceScreen(
     val productCategory by newPriceScreenViewModel.productCategoryFlow.collectAsState()
     val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
-    val storesPagingItems = newPriceScreenViewModel.storesPagedFlow.collectAsLazyPagingItems()
     val selectedStore by newPriceScreenViewModel.selectedStoreFlow.collectAsState()
     val submitResult by newPriceScreenViewModel.submitFormResultStateFlow.collectAsState()
     val state by rememberNewPriceScreenState()
@@ -184,12 +186,9 @@ fun NewPriceScreen(
     }
 
     if (state.isSelectStoreDialogShown) {
-        val selectStoreDialogState by rememberSelectStoreDialogState(
-            selectedStoreId = selectedStore?.id ?: 0
-        )
         SelectStoreDialog(
-            storesPagingItems = storesPagingItems,
-            state = selectStoreDialogState,
+            selectStoreDialogViewModel = selectStoreDialogViewModel,
+            selectedStoreId = selectedStore?.id ?: 0,
             onDismiss = { state.isSelectStoreDialogShown = false },
             onStoreSelect = {
                 state.isSelectStoreDialogShown = false
@@ -217,7 +216,9 @@ fun NewPriceScreen(
                 state.isSelectCategoryDialogShown = false
                 newPriceScreenViewModel.setProductCategoryId(it.id)
             },
-            onEditCategoryClick = {},
+            onEditCategoryClick = {
+
+            },
             onNewCategoryClick = {
                 state.isSelectCategoryDialogShown = false
                 navigateToNewCategory()
