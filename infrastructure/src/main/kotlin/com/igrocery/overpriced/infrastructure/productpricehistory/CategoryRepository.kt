@@ -31,7 +31,6 @@ class CategoryRepository @Inject internal constructor(
 
     override suspend fun update(item: Category) {
         transaction.execute {
-            item.updateTimestamp = System.currentTimeMillis()
             localCategoryDataSource.update(categoryMapper.mapToData(item))
         }
     }

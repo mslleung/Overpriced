@@ -44,18 +44,8 @@ class NewPriceScreenViewModel @Inject constructor(
     }
 
     val productNameFlow = savedState.getStateFlow(KEY_PRODUCT_NAME, "")
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = ""
-        )
 
     val productDescriptionFlow = savedState.getStateFlow(KEY_PRODUCT_DESCRIPTION, "")
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = ""
-        )
 
     val productsPagedFlow = Pager(
         PagingConfig(
@@ -68,11 +58,6 @@ class NewPriceScreenViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null as String?
-        )
 
     val productCategoryFlow = savedState.getStateFlow(KEY_PRODUCT_CATEGORY_ID, 0L)
         .flatMapLatest { categoryService.getCategoryById(it) }
@@ -140,8 +125,8 @@ class NewPriceScreenViewModel @Inject constructor(
     fun hasModifications(): Boolean {
         return productNameFlow.value.isNotBlank()
                 || productDescriptionFlow.value.isNotBlank()
-                || productCategoryFlow.value != null
                 || attachedBarcodeFlow.value != null
+                || productCategoryFlow.value != null
                 || selectedStoreFlow.value != null
     }
 

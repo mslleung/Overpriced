@@ -75,8 +75,9 @@ fun NewPriceScreen(
     navigateUp: () -> Unit,
     navigateToScanBarcode: () -> Unit,
     navigateToNewCategory: () -> Unit,
-    navigateToEditStore: (Store) -> Unit,
+    navigateToEditCategory: (Category) -> Unit,
     navigateToNewStore: () -> Unit,
+    navigateToEditStore: (Store) -> Unit,
 ) {
     log.debug("Composing NewPriceScreen")
 
@@ -217,7 +218,8 @@ fun NewPriceScreen(
                 newPriceScreenViewModel.setProductCategoryId(it.id)
             },
             onEditCategoryClick = {
-
+                state.isSelectCategoryDialogShown = false
+                navigateToEditCategory(it)
             },
             onNewCategoryClick = {
                 state.isSelectCategoryDialogShown = false

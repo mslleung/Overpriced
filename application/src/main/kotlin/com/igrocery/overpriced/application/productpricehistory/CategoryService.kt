@@ -27,7 +27,7 @@ class CategoryService @Inject constructor(
 
     suspend fun updateCategory(category: Category) {
         transaction.execute {
-            categoryRepository.insert(category)
+            categoryRepository.update(category)
         }
     }
 

@@ -15,6 +15,9 @@ import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
@@ -27,6 +30,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
+import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
+import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
@@ -52,6 +57,10 @@ import com.igrocery.overpriced.shared.Logger
 private val log = Logger { }
 
 private object NavDestinations {
+
+    const val EditCategory = "editCategory"
+    const val EditCategory_Arg_CategoryId = "categoryId"
+    const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
 
     const val EditStore = "editStore"
     const val EditStore_Arg_StoreId = "storeId"
@@ -172,6 +181,7 @@ fun App() {
                         navigateUp = { navController.navigateUp() },
                         navigateToScanBarcode = { navController.navigate(ScanBarcode) },
                         navigateToNewCategory = { navController.navigate(NewCategory) },
+                        navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
                         navigateToNewStore = { navController.navigate(NewStore) },
                         navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
                     )
@@ -211,6 +221,21 @@ fun App() {
                             newPriceViewModel.setProductCategoryId(it)
                             navController.navigateUp()
                         }
+                    )
+                }
+                composable(
+                    EditCategory_With_Args,
+                    arguments = listOf(navArgument(EditCategory_Arg_CategoryId) { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
+
+                    val categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
+
+                    EditCategoryScreen(
+                        categoryId = categoryId,
+                        viewModel = editCategoryViewModel,
+                        navigateUp = { navController.navigateUp() },
+                        navigateDone = { navController.navigateUp() }
                     )
                 }
                 composable(NewStore) { backStackEntry ->

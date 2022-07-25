@@ -65,6 +65,8 @@
     <string name="new_category_icon_header">Icon</string>
     <string name="new_category_icon_content_description">Icon</string>
 
+    <string name="edit_category_title">Edit Category</string>
+
     <string name="new_store_title">New Store Location</string>
     <string name="edit_store_title">Edit Store Location</string>
     <string name="store_save_button_text">Save</string>
