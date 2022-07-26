@@ -40,8 +40,8 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScreen
-import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScreenViewModel
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
@@ -118,11 +118,11 @@ fun App() {
             }
         ) {
             composable(ProductPriceList) {
-                val productPriceListScreenViewModel =
-                    hiltViewModel<ProductPriceListScreenViewModel>()
+                val categoryListScreenViewModel =
+                    hiltViewModel<CategoryListScreenViewModel>()
 
-                ProductPriceListScreen(
-                    productPriceListScreenViewModel = productPriceListScreenViewModel,
+                CategoryListScreen(
+                    categoryListScreenViewModel = categoryListScreenViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }

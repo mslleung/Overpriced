@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.productpricelist
+package com.igrocery.overpriced.presentation.categorylist
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
@@ -6,19 +6,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 
-class ProductPriceListScreenStateHolder {
+class CategoryListScreenStateHolder {
 
-    var isLazyListPagingFirstLoad = true
+//    var isLazyListPagingFirstLoad = true
 
     companion object {
-        val Saver = Saver<ProductPriceListScreenStateHolder, Bundle>(
+        val Saver = Saver<CategoryListScreenStateHolder, Bundle>(
             save = {
                 Bundle().apply {
 //                    putBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD, it.isLazyListPagingFirstLoad)
                 }
             },
             restore = { bundle ->
-                ProductPriceListScreenStateHolder().apply {
+                CategoryListScreenStateHolder().apply {
 //                    isLazyListPagingFirstLoad = bundle.getBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD)
                 }
             }
@@ -27,10 +27,10 @@ class ProductPriceListScreenStateHolder {
 }
 
 @Composable
-fun rememberProductPriceListScreenState() = rememberSaveable(
-    stateSaver = ProductPriceListScreenStateHolder.Saver
+fun rememberCategoryListScreenState() = rememberSaveable(
+    stateSaver = CategoryListScreenStateHolder.Saver
 ) {
     // UiState is not designed to be mutable. It should NEVER be reassigned.
     // The only exception is activity config change and process recreation. Hence it is mutable.
-    mutableStateOf(ProductPriceListScreenStateHolder())
+    mutableStateOf(CategoryListScreenStateHolder())
 }

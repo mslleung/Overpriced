@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -25,5 +26,7 @@ internal interface ILocalProductDataSource {
     ): Flow<ProductRoomEntity?>
 
     suspend fun searchProductsPage(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
+
+    fun getProductCountWithCategory(category: Category): Flow<Int>
 
 }

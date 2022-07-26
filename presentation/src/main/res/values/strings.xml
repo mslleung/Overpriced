@@ -10,12 +10,13 @@
     <string name="settings_title">Settings</string>
     <string name="settings_preferred_currency_label">Display currency</string>
 
-    <string name="price_list_empty_list_image_content_description">No price records.</string>
-    <string name="price_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
-    <string name="price_list_new_price_fab_text">New Price Record</string>
-    <string name="price_list_new_price_fab_content_description">Add new price</string>
-    <string name="price_list_bottom_nav_label">Food Prices</string>
-    <string name="price_list_bottom_nav_content_description">Food Prices</string>
+    <string name="category_list_empty_list_image_content_description">No price records.</string>
+    <string name="category_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
+    <string name="category_list_category_item_icon_content_description">Category icon</string>
+    <string name="category_list_new_price_fab_text">New Price Record</string>
+    <string name="category_list_new_price_fab_content_description">Add new price</string>
+    <string name="category_list_bottom_nav_label">Food Prices</string>
+    <string name="category_list_bottom_nav_content_description">Food Prices</string>
 
     <string name="new_price_title">New Price Record</string>
     <string name="new_price_discard_changes_confirmation_dialog_icon_content_description">Discard</string>

@@ -64,4 +64,8 @@ class ProductService @Inject constructor(
         return productRepository.getProductByBarcode(barcode)
     }
 
+    fun getProductCountWithCategory(category: Category): Flow<Int> {
+        return productRepository.getProductCountWithCategory(category)
+    }
+
 }

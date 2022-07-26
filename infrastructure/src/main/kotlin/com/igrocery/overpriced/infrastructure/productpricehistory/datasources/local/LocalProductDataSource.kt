@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.shared.Logger
@@ -60,4 +61,7 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 
+    override fun getProductCountWithCategory(category: Category): Flow<Int> {
+        return db.productDao().getProductCountWithCategory(category.id)
+    }
 }
