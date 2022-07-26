@@ -75,7 +75,7 @@ dependencies {
     implementation(project(":shared"))
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     // hilt dependency injection
     val hiltVersion: String by rootProject.extra
@@ -99,12 +99,12 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.20.1")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
 
     implementation("androidx.test.ext:junit-ktx:1.1.3")
     testImplementation("junit:junit:4.13.2")
 
-    val kotestVersion = "5.3.2"
+    val kotestVersion = "5.4.0"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("androidx.test:runner:1.4.0")

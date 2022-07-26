@@ -6,8 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 // data mapper for the Product aggregate root
-@Singleton
-internal class ProductMapper @Inject constructor() {
+internal class ProductMapper {
 
     fun mapToData(product: Product): ProductRoomEntity {
         return ProductRoomEntity(

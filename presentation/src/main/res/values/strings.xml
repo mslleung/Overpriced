@@ -11,7 +11,7 @@
     <string name="settings_preferred_currency_label">Display currency</string>
 
     <string name="price_list_empty_list_image_content_description">No price records.</string>
-    <string name="price_list_empty_list_text">No price records found.\nRecord new pricing information by tapping the \"New Price Record\" button."</string>
+    <string name="price_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
     <string name="price_list_new_price_fab_text">New Price Record</string>
     <string name="price_list_new_price_fab_content_description">Add new price</string>
     <string name="price_list_bottom_nav_label">Food Prices</string>
@@ -28,12 +28,13 @@
     <string name="new_price_select_store_dialog_new_store_icon_content_description">New Store Location</string>
     <string name="new_price_select_store_dialog_new_store_text">New Store Location</string>
     <string name="new_price_product_info_header">Product Information</string>
-    <string name="new_price_product_name_label">Product Name (e.g. Orange juice)</string>
+    <string name="new_price_product_name_label">Product Name</string>
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
-    <string name="new_price_product_description_label">Product Description (e.g. Brand, Weight etc.)</string>
+    <string name="new_price_product_description_label">Product Description (optional)</string>
     <string name="new_price_product_barcode_attach_button_text">Attach Barcode</string>
     <string name="new_price_product_barcode_label">Barcode:</string>
     <string name="new_price_product_barcode_icon_content_description">Open camera to scan barcode</string>
+    <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
     <string name="new_price_amount_input_error_text">Invalid amount input.</string>
@@ -44,12 +45,28 @@
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
+    <string name="uncategorized">Uncategorized</string>
+    <string name="select_category_dialog_title">Select Category</string>
+    <string name="select_category_dialog_category_icon_content_description">Category icon</string>
+    <string name="select_category_dialog_edit_content_description">Edit Category</string>
+    <string name="select_category_dialog_new_category">New Category</string>
+    <string name="select_category_dialog_new_category_icon_content_description">New Category</string>
+
     <string name="scan_barcode_no_permission_message_text">Camera permission is required to scan barcodes.</string>
     <string name="scan_barcode_no_permission_button_text">Open Camera</string>
     <string name="scan_barcode_scan_help_text">Scan barcode using your device\'s camera</string>
 
     <string name="select_currency_title">Select Currency</string>
     <string name="select_currency_selected_currency_content_description">Selected currency</string>
+
+    <string name="new_category_title">New Category</string>
+    <string name="new_category_name_label">Category Name</string>
+    <string name="new_category_name_empty_error_text">Category name cannot be empty.</string>
+    <string name="new_category_icon_header">Icon</string>
+    <string name="new_category_icon_content_description">Icon</string>
+
+    <string name="edit_category_title">Edit Category</string>
+    <string name="edit_category_delete_dialog_message">Are you sure you want to delete this category? All products in this category will become uncategorized.</string>
 
     <string name="new_store_title">New Store Location</string>
     <string name="edit_store_title">Edit Store Location</string>
@@ -58,8 +75,6 @@
     <string name="store_map_selected_location_image_content_description">Selected location</string>
     <string name="store_loading_address">Loading address</string>
     <string name="store_delete_dialog_message">Are you sure you want to delete this store? All price records for this store will also be deleted.</string>
-    <string name="store_delete_dialog_confirm_button_text">Delete</string>
-    <string name="store_delete_dialog_dismiss_button_text">Cancel</string>
     <string name="store_save_dialog_store_name_label">Store name (e.g. Walmart)</string>
     <string name="store_save_dialog_address_label">Store address</string>
     <string name="store_save_dialog_confirm_button_text">Confirm</string>
@@ -69,6 +84,9 @@
 
     <string name="shopping_lists_bottom_nav_label">Shopping Lists</string>
     <string name="shopping_lists_bottom_nav_content_description">Shopping Lists</string>
+
+    <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
+    <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
 
     <!--  Permissions  -->
 <!--    <string name="permission_dialog_cancel">Cancel</string>-->

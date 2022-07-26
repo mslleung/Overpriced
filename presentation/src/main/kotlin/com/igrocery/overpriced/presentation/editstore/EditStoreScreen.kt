@@ -38,6 +38,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenStateHolder.GeocoderLoadState
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel.UpdateStoreResultState
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
 import com.igrocery.overpriced.presentation.shared.DeleteButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
@@ -142,7 +143,8 @@ fun EditStoreScreen(
 
                 assert(store != null)
                 store?.let { viewModel.deleteStore(it) }
-            }
+            },
+            messageText = stringResource(id = R.string.store_delete_dialog_message)
         )
     }
 
@@ -159,7 +161,6 @@ fun EditStoreScreen(
             onConfirm = {
                 state.isSaveDialogShown = false
                 viewModel.updateStore(
-                    storeId = storeId,
                     storeName = saveDialogState.storeName.trim(),
                     addressLines = saveDialogState.address.trim(),
                     latitude = state.cameraPosition.latitude,
@@ -230,7 +231,9 @@ private fun MainContent(
                 actions = {
                     DeleteButton(
                         onClick = onDeleteButtonClick,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(24.dp),
                         enabled = store != null
                     )
                     SaveButton(

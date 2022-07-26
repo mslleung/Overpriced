@@ -319,6 +319,7 @@ private fun DefaultPreview() {
                     name = "Apple",
                     description = "Pack of 6",
                     barcode = null,
+                    categoryId = 0L,
                     creationTimestamp = 0,
                     updateTimestamp = 0,
                 )

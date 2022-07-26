@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.StoreService
+import com.igrocery.overpriced.domain.productpricehistory.models.Address
+import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +51,6 @@ class EditStoreScreenViewModel @Inject constructor(
     val updateStoreResultStateFlow: StateFlow<UpdateStoreResultState> = _updateStoreResultStateFlow
 
     fun updateStore(
-        storeId: Long,
         storeName: String,
         addressLines: String,
         latitude: Double,
@@ -60,7 +61,18 @@ class EditStoreScreenViewModel @Inject constructor(
                 try {
                     emit(UpdateStoreResultState.Idle)
 
-                    storeService.updateStore(storeId, storeName, addressLines, latitude, longitude)
+                    val originalStore = storeFlow.value!!
+                    val updatedStore = Store(
+                        id = originalStore.id,
+                        creationTimestamp = originalStore.creationTimestamp,
+                        updateTimestamp = originalStore.updateTimestamp,
+                        name = storeName,
+                        address = Address(
+                            lines = addressLines,
+                            geoCoordinates = GeoCoordinates(latitude, longitude)
+                        )
+                    )
+                    storeService.updateStore(updatedStore)
 
                     emit(UpdateStoreResultState.Success)
                 } catch (e: Exception) {

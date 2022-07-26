@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.domain.productpricehistory.models
 
-import android.net.Uri
 import com.igrocery.overpriced.domain.AggregateRoot
 
 class Category : AggregateRoot {
@@ -15,14 +14,18 @@ class Category : AggregateRoot {
         icon: CategoryIcon,
         name: String,
     ) : super(id, creationTimestamp, updateTimestamp) {
-        this.name = name
+        this.icon = icon
+        this.name = name.trim()
     }
+
+    var icon: CategoryIcon
 
     var name: String
         set(value) {
-            if (value.isBlank()) throw BlankNameException()
-            if (value.length > 100) throw NameLengthExceededException()
-            field = value
+            val trimmedValue = value.trim()
+            if (trimmedValue.isBlank()) throw BlankNameException()
+            if (trimmedValue.length > 100) throw NameLengthExceededException()
+            field = trimmedValue
         }
 
     override fun equals(other: Any?): Boolean {

@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newprice
+package com.igrocery.overpriced.presentation.selectstore
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -15,22 +15,48 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.productpricehistory.models.Address
+import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.ireceipt.receiptscanner.presentation.R
+import kotlinx.coroutines.flow.flowOf
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SelectStoreDialog(
-    storesPagingItems: LazyPagingItems<Store>,
-    state: SelectStoreDialogStateHolder,
+    selectStoreDialogViewModel: SelectStoreDialogViewModel,
+    selectedStoreId: Long,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
     onNewStoreClick: () -> Unit,
+) {
+    val storesPagingItems = selectStoreDialogViewModel.storesPagedFlow.collectAsLazyPagingItems()
+    MainLayout(
+        storesPagingItems,
+        selectedStoreId,
+        onDismiss,
+        onStoreSelect,
+        onEditStoreClick,
+        onNewStoreClick
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun MainLayout(
+    storesPagingItems: LazyPagingItems<Store>,
+    selectedStoreId: Long,
+    onDismiss: () -> Unit,
+    onStoreSelect: (Store) -> Unit,
+    onEditStoreClick: (Store) -> Unit,
+    onNewStoreClick: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -53,9 +79,9 @@ fun SelectStoreDialog(
                     key = { store -> store.id }
                 ) { store ->
                     if (store != null) {
-                        StoreLocationOprionLayout(
+                        StoreLocationOptionLayout(
                             store = store,
-                            isSelected = state.selectedStoreId == store.id,
+                            isSelected = selectedStoreId == store.id,
                             onStoreSelect = onStoreSelect,
                             onEditStoreClick = onEditStoreClick,
                             modifier = Modifier
@@ -79,7 +105,7 @@ fun SelectStoreDialog(
 }
 
 @Composable
-private fun StoreLocationOprionLayout(
+private fun StoreLocationOptionLayout(
     store: Store,
     isSelected: Boolean,
     onStoreSelect: (Store) -> Unit,
@@ -166,4 +192,32 @@ private fun NewStoreLocationItemLayout(
             modifier = Modifier.weight(1f)
         )
     }
+}
+
+@Preview
+@Composable
+private fun DefaultPreview() {
+    val stores = flowOf(
+        PagingData.from(
+            listOf(
+                Store(
+                    id = 0,
+                    name = "Welcome",
+                    address = Address(
+                        "100 Happy Street, Mong Kok, HK",
+                        geoCoordinates = GeoCoordinates(0.0, 0.0)
+                    )
+                )
+            )
+        )
+    ).collectAsLazyPagingItems()
+
+    MainLayout(
+        storesPagingItems = stores,
+        selectedStoreId = 0,
+        onDismiss = {},
+        onStoreSelect = {},
+        onEditStoreClick = {},
+        onNewStoreClick = {}
+    )
 }

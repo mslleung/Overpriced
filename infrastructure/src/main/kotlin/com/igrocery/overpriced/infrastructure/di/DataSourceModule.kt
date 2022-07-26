@@ -2,9 +2,11 @@ package com.igrocery.overpriced.infrastructure.di
 
 import com.igrocery.overpriced.infrastructure.preference.datasources.IPreferenceDataSource
 import com.igrocery.overpriced.infrastructure.preference.datasources.datastore.PreferenceDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.*
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.IStoreDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalCategoryDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalProductDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalStoreDataSource
@@ -21,6 +23,12 @@ internal abstract class DataSourceModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class LocalDataSource
+
+    @LocalDataSource
+    @Binds
+    abstract fun bindLocalCategoryDataSource(
+        localCategoryDataSource: LocalCategoryDataSource
+    ): ILocalCategoryDataSource
 
     @LocalDataSource
     @Binds

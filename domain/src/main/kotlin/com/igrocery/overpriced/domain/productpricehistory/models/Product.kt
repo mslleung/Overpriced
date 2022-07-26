@@ -4,10 +4,13 @@ import com.igrocery.overpriced.domain.AggregateRoot
 
 class Product : AggregateRoot {
 
-    class BlankNameException: IllegalArgumentException("Name should not be blank.")
-    class NameLengthExceededException: IllegalArgumentException("Name exceeded maximum length.")
-    class DescriptionLengthExceededException: IllegalArgumentException("Description exceeded maximum length.")
-    class BarcodeLengthExceededException: IllegalArgumentException("Barcode exceeded maximum length.")
+    class BlankNameException : IllegalArgumentException("Name should not be blank.")
+    class NameLengthExceededException : IllegalArgumentException("Name exceeded maximum length.")
+    class DescriptionLengthExceededException :
+        IllegalArgumentException("Description exceeded maximum length.")
+
+    class BarcodeLengthExceededException :
+        IllegalArgumentException("Barcode exceeded maximum length.")
 
     constructor(
         id: Long = 0,
@@ -22,6 +25,17 @@ class Product : AggregateRoot {
         this.description = description
         this.barcode = barcode
         this.categoryId = categoryId
+    }
+
+    constructor(product: Product) : super(
+        product.id,
+        product.creationTimestamp,
+        product.updateTimestamp
+    ) {
+        this.name = product.name
+        this.description = product.description
+        this.barcode = product.barcode
+        this.categoryId = product.categoryId
     }
 
     var name: String

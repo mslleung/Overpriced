@@ -2,6 +2,7 @@ package com.igrocery.overpriced.presentation.newprice
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,11 +45,16 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialog
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialog
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewModel
 import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
@@ -64,10 +70,14 @@ private val log = Logger { }
 @Composable
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
+    selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
+    selectStoreDialogViewModel: SelectStoreDialogViewModel,
     navigateUp: () -> Unit,
     navigateToScanBarcode: () -> Unit,
-    navigateToEditStore: (Store) -> Unit,
+    navigateToNewCategory: () -> Unit,
+    navigateToEditCategory: (Category) -> Unit,
     navigateToNewStore: () -> Unit,
+    navigateToEditStore: (Store) -> Unit,
 ) {
     log.debug("Composing NewPriceScreen")
 
@@ -91,9 +101,9 @@ fun NewPriceScreen(
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.productsPagedFlow.collectAsLazyPagingItems()
     val attachedBarcode by newPriceScreenViewModel.attachedBarcodeFlow.collectAsState()
+    val productCategory by newPriceScreenViewModel.productCategoryFlow.collectAsState()
     val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
-    val storesPagingItems = newPriceScreenViewModel.storesPagedFlow.collectAsLazyPagingItems()
     val selectedStore by newPriceScreenViewModel.selectedStoreFlow.collectAsState()
     val submitResult by newPriceScreenViewModel.submitFormResultStateFlow.collectAsState()
     val state by rememberNewPriceScreenState()
@@ -101,6 +111,7 @@ fun NewPriceScreen(
         productName = productName,
         productDescription = productDescription,
         productSuggestionsPagingItems = productSuggestionsPagingItems,
+        productCategory = productCategory,
         attachedBarcode = attachedBarcode,
         preferredCurrency = preferredCurrency,
         selectedStore = selectedStore,
@@ -110,6 +121,7 @@ fun NewPriceScreen(
             if (state.hasModifications() || newPriceScreenViewModel.hasModifications()) {
                 state.isDiscardDialogShown = true
             } else {
+                keyboardController?.hide()
                 navigateUp()
             }
         },
@@ -118,8 +130,9 @@ fun NewPriceScreen(
                 productName.trim(),
                 productDescription.trim(),
                 attachedBarcode?.trim(),
+                productCategory,
                 state.priceAmountText.trim(),
-                selectedStore?.id ?: 0,
+                selectedStore,
             )
         },
         onProductNameChange = {
@@ -139,13 +152,22 @@ fun NewPriceScreen(
             newPriceScreenViewModel.setProductName(it.name)
             newPriceScreenViewModel.setProductDescription(it.description)
             newPriceScreenViewModel.setBarcode(it.barcode)
+            newPriceScreenViewModel.setProductCategoryId(it.categoryId)
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
         },
-        onAttachBarcodeButtonClick = navigateToScanBarcode,
+        onAttachBarcodeButtonClick = {
+            keyboardController?.hide()
+            navigateToScanBarcode()
+        },
+        onCategoryClick = {
+            keyboardController?.hide()
+            state.isSelectCategoryDialogShown = true
+        },
         onStoreButtonClick = {
             keyboardController?.hide()
             if (storesCount == 0) {
+                keyboardController?.hide()
                 navigateToNewStore()
             } else {
                 state.isSelectStoreDialogShown = true
@@ -165,12 +187,9 @@ fun NewPriceScreen(
     }
 
     if (state.isSelectStoreDialogShown) {
-        val selectStoreDialogState by rememberSelectStoreDialogState(
-            selectedStoreId = selectedStore?.id ?: 0
-        )
         SelectStoreDialog(
-            storesPagingItems = storesPagingItems,
-            state = selectStoreDialogState,
+            selectStoreDialogViewModel = selectStoreDialogViewModel,
+            selectedStoreId = selectedStore?.id ?: 0,
             onDismiss = { state.isSelectStoreDialogShown = false },
             onStoreSelect = {
                 state.isSelectStoreDialogShown = false
@@ -178,11 +197,33 @@ fun NewPriceScreen(
             },
             onEditStoreClick = {
                 state.isSelectStoreDialogShown = false
+                keyboardController?.hide()
                 navigateToEditStore(it)
             },
             onNewStoreClick = {
                 state.isSelectStoreDialogShown = false
+                keyboardController?.hide()
                 navigateToNewStore()
+            },
+        )
+    }
+
+    if (state.isSelectCategoryDialogShown) {
+        SelectCategoryDialog(
+            viewModel = selectCategoryDialogViewModel,
+            selectedCategoryId = productCategory?.id ?: 0L,
+            onDismiss = { state.isSelectCategoryDialogShown = false },
+            onCategorySelect = {
+                state.isSelectCategoryDialogShown = false
+                newPriceScreenViewModel.setProductCategoryId(it.id)
+            },
+            onEditCategoryClick = {
+                state.isSelectCategoryDialogShown = false
+                navigateToEditCategory(it)
+            },
+            onNewCategoryClick = {
+                state.isSelectCategoryDialogShown = false
+                navigateToNewCategory()
             },
         )
     }
@@ -204,13 +245,6 @@ fun NewPriceScreen(
             navigateUp()
         }
     }
-
-    // make sure the keyboard goes away when this screen is removed
-    DisposableEffect(Unit) {
-        onDispose {
-            keyboardController?.hide()
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -220,6 +254,7 @@ private fun MainLayout(
     productDescription: String,
     productSuggestionsPagingItems: LazyPagingItems<Product>,
     attachedBarcode: String?,
+    productCategory: Category?,
     preferredCurrency: Currency,
     selectedStore: Store?,
     submitResult: SubmitFormResultState?,
@@ -230,6 +265,7 @@ private fun MainLayout(
     onProductDescriptionChange: (String) -> Unit,
     onProductAutoSuggestClick: (Product) -> Unit,
     onAttachBarcodeButtonClick: () -> Unit,
+    onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarScrollState()
@@ -320,11 +356,14 @@ private fun MainLayout(
 //                onAttachBarcodeButtonClick = onAttachBarcodeButtonClick
 //            )
 
-            FlowRow(
-
-            ) {
-                
-            }
+            ProductCategory(
+                productCategory = productCategory,
+                onClick = onCategoryClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(top = 4.dp, bottom = 4.dp)
+            )
 
             PriceHeader(
                 modifier = Modifier.padding(vertical = 6.dp)
@@ -628,6 +667,36 @@ private fun BarcodeCameraButton(onClick: () -> Unit, modifier: Modifier = Modifi
 }
 
 @Composable
+private fun ProductCategory(
+    productCategory: Category?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onClick() },
+    ) {
+        val categoryIcon = productCategory?.icon ?: CategoryIcon.Uncategorized
+        val categoryName = productCategory?.name ?: stringResource(id = R.string.uncategorized)
+        Image(
+            painter = painterResource(id = categoryIcon.iconRes),
+            contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
+            modifier = Modifier
+                .padding(start = 6.dp, end = 12.dp)
+                .size(30.dp)
+        )
+
+        Text(
+            text = categoryName,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
+@Composable
 private fun PriceHeader(
     modifier: Modifier = Modifier
 ) {
@@ -721,7 +790,7 @@ private fun StoreLocation(
         ) {
 
             if (selectedStore == null) {
-                OutlinedButton(
+                FilledTonalButton(
                     onClick = onStoreButtonClick,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -793,6 +862,7 @@ private fun DefaultPreview() {
                     name = "Apple",
                     description = "Pack of 6",
                     barcode = null,
+                    categoryId = 0L,
                     creationTimestamp = 0,
                     updateTimestamp = 0,
                 )
@@ -805,6 +875,7 @@ private fun DefaultPreview() {
         productDescription = "",
         productSuggestionsPagingItems = productsPagingItems,
         attachedBarcode = "",
+        productCategory = Category(icon = CategoryIcon.Carrot, name = "Vegetables"),
         preferredCurrency = Currency.getInstance(Locale.getDefault()),
         selectedStore = null,
         submitResult = null,
@@ -815,6 +886,7 @@ private fun DefaultPreview() {
         onProductDescriptionChange = {},
         onProductAutoSuggestClick = {},
         onAttachBarcodeButtonClick = {},
+        onCategoryClick = {},
         onStoreButtonClick = {}
     )
 }

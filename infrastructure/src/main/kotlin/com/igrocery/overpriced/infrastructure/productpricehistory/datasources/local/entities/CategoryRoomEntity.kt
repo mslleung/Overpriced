@@ -7,9 +7,6 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "categories",
-    indices = [
-        Index(value = ["name"], unique = true),
-    ]
 )
 internal data class CategoryRoomEntity (
     @PrimaryKey(autoGenerate = true)
@@ -19,4 +16,8 @@ internal data class CategoryRoomEntity (
     val icon: String,
     @ColumnInfo(name = "name")
     val name: String,
+    @ColumnInfo(name = "creation_timestamp")
+    val creationTimestamp: Long,
+    @ColumnInfo(name = "update_timestamp")
+    val updateTimestamp: Long,
 )

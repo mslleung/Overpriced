@@ -1,20 +1,17 @@
 package com.igrocery.overpriced.presentation.newprice
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.preference.PreferenceService
+import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.PriceRecordService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
-import com.igrocery.overpriced.domain.productpricehistory.models.Money
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
-import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState.ErrorReason
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +28,7 @@ private val log = Logger { }
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
+    private val categoryService: CategoryService,
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
     private val storeService: StoreService,
@@ -40,23 +38,14 @@ class NewPriceScreenViewModel @Inject constructor(
     companion object {
         private const val KEY_PRODUCT_NAME = "KEY_PRODUCT_NAME"
         private const val KEY_PRODUCT_DESCRIPTION = "KEY_PRODUCT_DESCRIPTION"
+        private const val KEY_PRODUCT_CATEGORY_ID = "KEY_PRODUCT_CATEGORY_ID"
         private const val KEY_BARCODE = "KEY_BARCODE"
         private const val KEY_STORE_ID = "KEY_STORE_ID"
     }
 
     val productNameFlow = savedState.getStateFlow(KEY_PRODUCT_NAME, "")
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = ""
-        )
 
     val productDescriptionFlow = savedState.getStateFlow(KEY_PRODUCT_DESCRIPTION, "")
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = ""
-        )
 
     val productsPagedFlow = Pager(
         PagingConfig(
@@ -69,10 +58,13 @@ class NewPriceScreenViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
+
+    val productCategoryFlow = savedState.getStateFlow(KEY_PRODUCT_CATEGORY_ID, 0L)
+        .flatMapLatest { categoryService.getCategoryById(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = null as String?
+            initialValue = null
         )
 
     val preferredCurrencyFlow = preferenceService.getAppPreference()
@@ -90,16 +82,6 @@ class NewPriceScreenViewModel @Inject constructor(
             initialValue = 0
         )
 
-    val storesPagedFlow = Pager(
-        PagingConfig(
-            pageSize = 100,
-            prefetchDistance = 30
-        )
-    ) {
-        storeService.getStoresPagingSource()
-    }.flow
-        .cachedIn(viewModelScope)
-
     val selectedStoreFlow = savedState.getStateFlow(KEY_STORE_ID, 0L)
         .flatMapLatest {
             storeService.getStoreById(it)
@@ -116,6 +98,10 @@ class NewPriceScreenViewModel @Inject constructor(
 
     fun setProductDescription(productDescription: String?) {
         savedState[KEY_PRODUCT_DESCRIPTION] = productDescription
+    }
+
+    fun setProductCategoryId(categoryId: Long) {
+        savedState[KEY_PRODUCT_CATEGORY_ID] = categoryId
     }
 
     fun setBarcode(barcode: String?) {
@@ -140,6 +126,7 @@ class NewPriceScreenViewModel @Inject constructor(
         return productNameFlow.value.isNotBlank()
                 || productDescriptionFlow.value.isNotBlank()
                 || attachedBarcodeFlow.value != null
+                || productCategoryFlow.value != null
                 || selectedStoreFlow.value != null
     }
 
@@ -164,8 +151,9 @@ class NewPriceScreenViewModel @Inject constructor(
         productName: String,
         productDescription: String,
         productBarcode: String?,
+        productCategory: Category?,
         priceAmountText: String,
-        storeId: Long,
+        store: Store?,
     ) {
         viewModelScope.launch {
             with(_submitFormResultStateFlow) {
@@ -179,15 +167,22 @@ class NewPriceScreenViewModel @Inject constructor(
                         productService.createProductWithPriceRecord(
                             productName,
                             productDescription,
+                            productCategory?.id ?: 0L,
                             productBarcode,
                             priceAmountText,
-                            storeId,
+                            store?.id ?: 0L,
                         )
                     } else {
+                        // update product because category may be changed
+                        val updatedProduct = Product(existingProduct)
+                        updatedProduct.updateTimestamp = System.currentTimeMillis()
+                        updatedProduct.categoryId = productCategory?.id ?: 0L
+                        productService.updateProduct(updatedProduct)
+
                         priceRecordService.createPriceRecord(
                             priceAmountText,
                             existingProduct.id,
-                            storeId
+                            store?.id ?: 0L,
                         )
                     }
 

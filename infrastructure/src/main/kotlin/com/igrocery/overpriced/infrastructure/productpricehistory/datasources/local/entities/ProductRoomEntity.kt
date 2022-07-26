@@ -14,7 +14,8 @@ import androidx.room.*
     ],
     indices = [
         Index(value = ["name", "description"], unique = true),
-        Index(value = ["barcode"], unique = true)
+        Index(value = ["barcode"], unique = true),
+        Index(value = ["category_id"]),
     ]
 )
 internal data class ProductRoomEntity(

@@ -163,8 +163,9 @@ fun NewStoreScreen(
                     longitude = state.cameraPosition.longitude
                 )
             },
-            requestFocus = state.isRequestingFirstFocus
-        ) { state.isRequestingFirstFocus = false }
+            requestFocus = state.isRequestingFirstFocus,
+            onFocusRequested = { state.isRequestingFirstFocus = false }
+        )
     }
 
     if (createStoreResultState is CreateStoreResultState.Success) {

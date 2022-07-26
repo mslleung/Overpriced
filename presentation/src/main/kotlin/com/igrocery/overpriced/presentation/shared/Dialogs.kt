@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.editstore
+package com.igrocery.overpriced.presentation.shared
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +13,7 @@ import com.ireceipt.receiptscanner.presentation.R
 fun ConfirmDeleteDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    messageText: String,
     modifier: Modifier = Modifier,
 ) {
     AlertDialog(
@@ -22,7 +23,7 @@ fun ConfirmDeleteDialog(
                 onClick = onConfirm,
             ) {
                 Text(
-                    text = stringResource(id = R.string.store_delete_dialog_confirm_button_text),
+                    text = stringResource(id = R.string.confirm_delete_dialog_confirm_button_text),
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -31,11 +32,11 @@ fun ConfirmDeleteDialog(
             TextButton(
                 onClick = onDismiss,
             ) {
-                Text(text = stringResource(id = R.string.store_delete_dialog_dismiss_button_text))
+                Text(text = stringResource(id = R.string.confirm_delete_dialog_dismiss_button_text))
             }
         },
         text = {
-            Text(text = stringResource(id = R.string.store_delete_dialog_message))
+            Text(text = messageText)
         },
         modifier = modifier
     )

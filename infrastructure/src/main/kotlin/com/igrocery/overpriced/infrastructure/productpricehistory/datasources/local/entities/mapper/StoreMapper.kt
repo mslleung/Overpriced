@@ -7,8 +7,7 @@ import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.lo
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-internal class StoreMapper @Inject constructor() {
+internal class StoreMapper {
 
     fun mapToData(store: Store): StoreRoomEntity {
         return StoreRoomEntity(

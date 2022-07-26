@@ -39,22 +39,8 @@ class StoreService @Inject constructor(
         }
     }
 
-    suspend fun updateStore(
-        id: Long,
-        storeName: String,
-        addressLines: String,
-        latitude: Double,
-        longitude: Double
-    ) {
+    suspend fun updateStore(store: Store) {
         transaction.execute {
-            val store = Store(
-                id = id,
-                name = storeName,
-                address = Address(
-                    lines = addressLines,
-                    geoCoordinates = GeoCoordinates(latitude, longitude)
-                )
-            )
             storeRepository.update(store)
         }
     }
