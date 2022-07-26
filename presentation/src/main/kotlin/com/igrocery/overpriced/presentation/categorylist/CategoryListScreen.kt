@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -169,7 +170,8 @@ private fun MainContent(
 //                }
 
                 items(
-                    items = categoryWithCountList,
+                    items = categoryWithCountList
+                        .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
                     key = { categoryWithCount -> categoryWithCount.category.id }
                 ) { categoryWithCount ->
                     CategoryWithCountListItem(
@@ -245,21 +247,13 @@ private fun CategoryWithCountListItem(
             )
         }
 
-//        Column(
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.End,
-//            modifier = Modifier
-//                .fillMaxHeight()
-//                .fillMaxWidth()
-//        ) {
-//            // prices
-//            Text(
-//                text = product.name,
-//                style = MaterialTheme.typography.titleLarge,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis,
-//            )
-//        }
+        Text(
+            text = "$productCount ${stringResource(id = R.string.category_list_category_item_count_text)}",
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.alpha(0.6f)
+        )
     }
 
 }
