@@ -31,6 +31,12 @@ class CategoryService @Inject constructor(
         }
     }
 
+    suspend fun deleteCategory(category: Category) {
+        transaction.execute {
+            categoryRepository.delete(category)
+        }
+    }
+
     fun getCategoryById(id: Long): Flow<Category?> {
         return categoryRepository.getCategoryById(id)
     }

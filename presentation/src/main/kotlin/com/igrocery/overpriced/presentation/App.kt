@@ -171,8 +171,8 @@ fun App() {
                             navController.getBackStackEntry(NewPriceRecordRoute)
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
-                    val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
+                    val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
+                    val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
 
                     NewPriceScreen(
                         newPriceScreenViewModel = newPriceViewModel,

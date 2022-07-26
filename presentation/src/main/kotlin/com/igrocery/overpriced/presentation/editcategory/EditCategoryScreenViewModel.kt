@@ -70,4 +70,12 @@ class EditCategoryScreenViewModel @Inject constructor(
         }
     }
 
+    fun deleteCategory() {
+        viewModelScope.launch {
+            categoryFlow.value?.let {
+                categoryService.deleteCategory(it)
+            }
+        }
+    }
+
 }

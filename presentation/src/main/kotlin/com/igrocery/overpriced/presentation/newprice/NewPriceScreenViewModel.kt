@@ -173,6 +173,12 @@ class NewPriceScreenViewModel @Inject constructor(
                             store?.id ?: 0L,
                         )
                     } else {
+                        // update product because category may be changed
+                        val updatedProduct = Product(existingProduct)
+                        updatedProduct.updateTimestamp = System.currentTimeMillis()
+                        updatedProduct.categoryId = productCategory?.id ?: 0L
+                        productService.updateProduct(updatedProduct)
+
                         priceRecordService.createPriceRecord(
                             priceAmountText,
                             existingProduct.id,

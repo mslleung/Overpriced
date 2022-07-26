@@ -15,13 +15,16 @@ class EditCategoryScreenStateHolder {
     var categoryName by mutableStateOf("")
     var categoryIcon by mutableStateOf(CategoryIcon.Uncategorized)
 
+    var isConfirmDeleteDialogShown by mutableStateOf(false)
+
     companion object {
         val Saver: Saver<EditCategoryScreenStateHolder, *> = listSaver(
             save = {
                 listOf(
                     it.isInitialized,
                     it.categoryName,
-                    it.categoryIcon.name
+                    it.categoryIcon.name,
+                    it.isConfirmDeleteDialogShown,
                 )
             },
             restore = {
@@ -29,6 +32,7 @@ class EditCategoryScreenStateHolder {
                     isInitialized = it[0] as Boolean
                     categoryName = it[1] as String
                     categoryIcon = CategoryIcon.valueOf(it[2] as String)
+                    isConfirmDeleteDialogShown = it[3] as Boolean
                 }
             }
         )

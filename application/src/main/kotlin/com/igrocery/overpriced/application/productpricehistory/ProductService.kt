@@ -46,25 +46,11 @@ class ProductService @Inject constructor(
         }
     }
 
-//    suspend fun createOrUpdateProduct(product: Product) {
-//        val existingProduct =
-//            productRepository.getProductByNameAndDescription(product.name, product.description)
-//                .first()
-//
-//        if (existingProduct == null) {
-//            createProduct(product)
-//        } else {
-//            updateProduct(product)
-//        }
-//    }
-//
-//    suspend fun createProduct(product: Product) {
-//        productRepository.insert(product)
-//    }
-//
-//    suspend fun updateProduct(product: Product) {
-//        productRepository.update(product)
-//    }
+    suspend fun updateProduct(product: Product) {
+        transaction.execute {
+            productRepository.update(product)
+        }
+    }
 
     fun getProductsPagingSource(query: String? = null): PagingSource<Int, Product> {
         return productRepository.getProductsPagingSource(query)

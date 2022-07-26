@@ -683,7 +683,7 @@ private fun ProductCategory(
             painter = painterResource(id = categoryIcon.iconRes),
             contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
             modifier = Modifier
-                .padding(start = 6.dp, end = 6.dp)
+                .padding(start = 6.dp, end = 12.dp)
                 .size(30.dp)
         )
 

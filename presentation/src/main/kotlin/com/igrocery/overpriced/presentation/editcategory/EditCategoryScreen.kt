@@ -28,6 +28,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel.UpdateCategoryResult
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
+import com.igrocery.overpriced.presentation.shared.DeleteButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
@@ -63,6 +65,9 @@ fun EditCategoryScreen(
         updateCategoryResult = viewModel.updateCategoryResult,
         state = state,
         onBackButtonClick = navigateUp,
+        onDeleteButtonClick = {
+            state.isConfirmDeleteDialogShown = true
+        },
         onSaveButtonClick = {
             viewModel.updateCategory(
                 categoryName = state.categoryName,
@@ -79,10 +84,25 @@ fun EditCategoryScreen(
                     if (it != null) {
                         state.categoryName = it.name
                         state.categoryIcon = it.icon
+                        state.isInitialized = true
                     }
                 }
         }
-        state.isInitialized = true
+    }
+
+    if (state.isConfirmDeleteDialogShown) {
+        ConfirmDeleteDialog(
+            onDismiss = {
+                state.isConfirmDeleteDialogShown = false
+            },
+            onConfirm = {
+                state.isConfirmDeleteDialogShown = false
+                navigateUp()
+
+                viewModel.deleteCategory()
+            },
+            messageText = stringResource(id = R.string.edit_category_delete_dialog_message)
+        )
     }
 
     LaunchedEffect(key1 = viewModel.updateCategoryResult) {
@@ -103,6 +123,7 @@ private fun MainLayout(
     updateCategoryResult: UpdateCategoryResult?,
     state: EditCategoryScreenStateHolder,
     onBackButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarScrollState()
@@ -122,6 +143,12 @@ private fun MainLayout(
                     Text(text = stringResource(id = R.string.edit_category_title))
                 },
                 actions = {
+                    DeleteButton(
+                        onClick = onDeleteButtonClick,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(24.dp),
+                    )
                     SaveButton(
                         onClick = onSaveButtonClick,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 10.dp),
@@ -273,6 +300,7 @@ private fun DefaultPreview() {
         updateCategoryResult = null,
         state = EditCategoryScreenStateHolder(),
         onBackButtonClick = {},
-        onSaveButtonClick = {}
+        onDeleteButtonClick = {},
+        onSaveButtonClick = {},
     )
 }
