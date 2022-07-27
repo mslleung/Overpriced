@@ -13,7 +13,10 @@
     <string name="category_list_empty_list_image_content_description">No price records.</string>
     <string name="category_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
     <string name="category_list_category_item_icon_content_description">Category icon</string>
-    <string name="category_list_category_item_count_text">items</string>
+    <plurals name="category_list_category_item_count_text">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
     <string name="category_list_new_price_fab_text">New Price Record</string>
     <string name="category_list_new_price_fab_content_description">Add new price</string>
     <string name="category_list_bottom_nav_label">Food Prices</string>

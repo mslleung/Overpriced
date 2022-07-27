@@ -10,11 +10,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
@@ -53,7 +56,7 @@ fun CategoryListScreen(
     }
 
     val categoryWithCountList by
-        categoryListScreenViewModel.categoryListWithCountFlow.collectAsState()
+    categoryListScreenViewModel.categoryListWithCountFlow.collectAsState()
     val state by rememberCategoryListScreenState()
     MainContent(
         categoryWithCountList = categoryWithCountList,
@@ -217,7 +220,7 @@ private fun EmptyListContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CategoryWithCountListItem(
     categoryWithCount: CategoryWithProductCount,
@@ -231,31 +234,45 @@ private fun CategoryWithCountListItem(
         modifier = modifier
     ) {
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
+                .padding(horizontal = 12.dp, vertical = 10.dp)
                 .fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = category.icon.iconRes),
-                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description)
+                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(35.dp)
             )
 
-            Text(
-                text = category.name,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Text(
+                    text = pluralStringResource(
+                        id = R.plurals.category_list_category_item_count_text,
+                        count = productCount,
+                        productCount
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
         }
-
-        Text(
-            text = "$productCount ${stringResource(id = R.string.category_list_category_item_count_text)}",
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.alpha(0.6f)
-        )
     }
-
 }
 
 @Composable
@@ -276,9 +293,45 @@ private fun SettingsButton(
 
 @Preview
 @Composable
-private fun DefaultPreview() {
+private fun EmptyPreview() {
     MainContent(
         categoryWithCountList = emptyList(),
+        state = CategoryListScreenStateHolder(),
+        onCategoryClick = {},
+        onSettingsClick = {},
+        onFabClick = {},
+        onNavBarPlannerClick = {}
+    )
+}
+
+@Preview
+@Composable
+private fun DefaultPreview() {
+    val categoryWithCountList = listOf(
+        CategoryWithProductCount(
+            category = Category(id = 0, icon = CategoryIcon.Uncategorized, name = "Uncategorized"),
+            productCount = 25
+        ),
+        CategoryWithProductCount(
+            category = Category(id = 1, icon = CategoryIcon.Apple, name = "Fruits"),
+            productCount = 10
+        ),
+        CategoryWithProductCount(
+            category = Category(id = 2, icon = CategoryIcon.Carrot, name = "Vegetables"),
+            productCount = 500
+        ),
+        CategoryWithProductCount(
+            category = Category(id = 3, icon = CategoryIcon.Beer, name = "Beverages"),
+            productCount = 7
+        ),
+        CategoryWithProductCount(
+            category = Category(id = 4, icon = CategoryIcon.Cheese, name = "Dairy"),
+            productCount = 23
+        ),
+    )
+
+    MainContent(
+        categoryWithCountList = categoryWithCountList,
         state = CategoryListScreenStateHolder(),
         onCategoryClick = {},
         onSettingsClick = {},
