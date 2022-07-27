@@ -61,7 +61,11 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 
-    override fun getProductCountWithCategory(category: Category): Flow<Int> {
-        return db.productDao().getProductCountWithCategory(category.id)
+    override fun getProductCountWithCategory(category: Category?): Flow<Int> {
+        return if (category != null) {
+            db.productDao().getProductCountWithCategory(category.id)
+        } else {
+            db.productDao().getProductCountWithNoCategory()
+        }
     }
 }

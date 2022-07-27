@@ -1,12 +1,13 @@
-package com.igrocery.overpriced.presentation.categorylist
+package com.igrocery.overpriced.presentation.categorydetail
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,14 +34,14 @@ import com.ireceipt.receiptscanner.presentation.R
 private val log = Logger { }
 
 @Composable
-fun CategoryListScreen(
-    categoryListScreenViewModel: CategoryListScreenViewModel,
+fun CategoryDetailScreen(
+    categoryDetailScreenViewModel: CategoryDetailScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToAddPrice: () -> Unit,
     navigateToPlanner: () -> Unit
 ) {
-    log.debug("Composing ProductPriceListScreen")
+    log.debug("Composing CategoryDetailScreen")
 
     val systemUiController = rememberSystemUiController()
     val statusBarColor = MaterialTheme.colorScheme.surface
@@ -56,16 +57,16 @@ fun CategoryListScreen(
     }
 
     val categoryWithCountList by
-    categoryListScreenViewModel.categoryListWithCountFlow.collectAsState()
-    val state by rememberCategoryListScreenState()
-    MainContent(
-        categoryWithCountList = categoryWithCountList,
-        state = state,
-        onCategoryClick = { },
-        onSettingsClick = navigateToSettings,
-        onFabClick = navigateToAddPrice,
-        onNavBarPlannerClick = navigateToPlanner,
-    )
+    categoryDetailScreenViewModel.categoryListWithCountFlow.collectAsState()
+    val state by rememberCategoryDetailScreenState()
+//    MainContent(
+//        categoryWithCountList = categoryWithCountList,
+//        state = state,
+//        onCategoryClick = { },
+//        onSettingsClick = navigateToSettings,
+//        onFabClick = navigateToAddPrice,
+//        onNavBarPlannerClick = navigateToPlanner,
+//    )
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -76,7 +77,7 @@ fun CategoryListScreen(
 @Composable
 private fun MainContent(
     categoryWithCountList: List<CategoryWithProductCount>,
-    state: CategoryListScreenStateHolder,
+    state: CategoryDetailScreenStateHolder,
     onCategoryClick: (Category) -> Unit,
     onSettingsClick: () -> Unit,
     onFabClick: () -> Unit,
@@ -84,10 +85,7 @@ private fun MainContent(
 ) {
     val topBarScrollState = rememberTopAppBarScrollState()
     val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarScrollState
-        )
+        TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -165,31 +163,15 @@ private fun MainContent(
             )
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 120.dp
-                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                     .padding(it)
-                    .fillMaxSize()
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
-                stickyHeader {
-                    Surface(
-                        onClick = { },
-                        shape = RoundedCornerShape(percent = 100),
-                        tonalElevation = 8.dp,
-                        modifier = Modifier
-                            .padding(bottom = 4.dp)
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-
-                    }
-                }
+//                stickyHeader {
+//
+//                }
 
                 items(
                     items = categoryWithCountList
@@ -249,7 +231,7 @@ private fun CategoryWithCountListItem(
 ) {
     val (category, productCount) = categoryWithCount
 
-    Card(
+    ElevatedCard(
         onClick = { onClick(category) },
         modifier = modifier
     ) {
@@ -316,7 +298,7 @@ private fun SettingsButton(
 private fun EmptyPreview() {
     MainContent(
         categoryWithCountList = emptyList(),
-        state = CategoryListScreenStateHolder(),
+        state = CategoryDetailScreenStateHolder(),
         onCategoryClick = {},
         onSettingsClick = {},
         onFabClick = {},
@@ -352,7 +334,7 @@ private fun DefaultPreview() {
 
     MainContent(
         categoryWithCountList = categoryWithCountList,
-        state = CategoryListScreenStateHolder(),
+        state = CategoryDetailScreenStateHolder(),
         onCategoryClick = {},
         onSettingsClick = {},
         onFabClick = {},

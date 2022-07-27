@@ -105,7 +105,6 @@ fun NewPriceScreen(
     val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
     val selectedStore by newPriceScreenViewModel.selectedStoreFlow.collectAsState()
-    val submitResult by newPriceScreenViewModel.submitFormResultStateFlow.collectAsState()
     val state by rememberNewPriceScreenState()
     MainLayout(
         productName = productName,
@@ -115,7 +114,7 @@ fun NewPriceScreen(
         attachedBarcode = attachedBarcode,
         preferredCurrency = preferredCurrency,
         selectedStore = selectedStore,
-        submitResult = submitResult,
+        submitResult = newPriceScreenViewModel.submitFormResult,
         state = state,
         onCloseButtonClick = {
             if (state.hasModifications() || newPriceScreenViewModel.hasModifications()) {
@@ -172,7 +171,8 @@ fun NewPriceScreen(
             } else {
                 state.isSelectStoreDialogShown = true
             }
-        }
+        },
+        onSubmitErrorDismissed = { newPriceScreenViewModel.submitFormResult = null },
     )
 
     if (state.isDiscardDialogShown) {
@@ -228,7 +228,7 @@ fun NewPriceScreen(
         )
     }
 
-    if (submitResult is SubmitFormResultState.Success) {
+    if (newPriceScreenViewModel.submitFormResult is SubmitFormResultState.Success) {
         LaunchedEffect(key1 = Unit) {
             keyboardController?.hide()
             navigateUp()
@@ -267,6 +267,7 @@ private fun MainLayout(
     onAttachBarcodeButtonClick: () -> Unit,
     onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
+    onSubmitErrorDismissed: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarScrollState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
@@ -428,10 +429,16 @@ private fun MainLayout(
                     }
                     SubmitFormResultState.ErrorReason.UnknownError -> {
                         LaunchedEffect(Unit) {
-                            snackbarHostState.showSnackbar(
+                            val snackbarResult = snackbarHostState.showSnackbar(
                                 message = unknownErrorMessage,
                                 withDismissAction = true
                             )
+                            when (snackbarResult) {
+                                SnackbarResult.Dismissed -> {
+                                    onSubmitErrorDismissed()
+                                }
+                                else -> {}
+                            }
                         }
                     }
                 }
@@ -677,8 +684,8 @@ private fun ProductCategory(
         modifier = modifier
             .clickable { onClick() },
     ) {
-        val categoryIcon = productCategory?.icon ?: CategoryIcon.Uncategorized
-        val categoryName = productCategory?.name ?: stringResource(id = R.string.uncategorized)
+        val categoryIcon = productCategory?.icon ?: CategoryIcon.NoCategory
+        val categoryName = productCategory?.name ?: stringResource(id = R.string.no_category)
         Image(
             painter = painterResource(id = categoryIcon.iconRes),
             contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
@@ -887,6 +894,7 @@ private fun DefaultPreview() {
         onProductAutoSuggestClick = {},
         onAttachBarcodeButtonClick = {},
         onCategoryClick = {},
-        onStoreButtonClick = {}
+        onStoreButtonClick = {},
+        onSubmitErrorDismissed = {}
     )
 }

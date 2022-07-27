@@ -126,7 +126,7 @@ class ProductRepository @Inject internal constructor(
             .map { it?.let { productMapper.mapFromData(it) } }
     }
 
-    override fun getProductCountWithCategory(category: Category): Flow<Int> {
+    override fun getProductCountWithCategory(category: Category?): Flow<Int> {
         return localProductDataSource.getProductCountWithCategory(category)
     }
 

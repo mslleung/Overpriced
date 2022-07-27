@@ -16,7 +16,7 @@ internal class ProductMapper {
             barcode = product.barcode,
             creationTimestamp = product.creationTimestamp,
             updateTimestamp = product.updateTimestamp,
-            categoryId = product.categoryId
+            categoryId = product.categoryId,
         )
     }
 

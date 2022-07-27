@@ -20,7 +20,7 @@ interface IProductRepository : BaseRepository<Product> {
     ): Flow<Product?>
 
     fun getProductCountWithCategory(
-        category: Category
+        category: Category?
     ): Flow<Int>
 
 }

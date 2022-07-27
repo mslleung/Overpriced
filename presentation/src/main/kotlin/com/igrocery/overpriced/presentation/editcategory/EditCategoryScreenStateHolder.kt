@@ -13,7 +13,7 @@ class EditCategoryScreenStateHolder {
 
     var isInitialized by mutableStateOf(false)
     var categoryName by mutableStateOf("")
-    var categoryIcon by mutableStateOf(CategoryIcon.Uncategorized)
+    var categoryIcon by mutableStateOf(CategoryIcon.NoCategory)
 
     var isConfirmDeleteDialogShown by mutableStateOf(false)
 

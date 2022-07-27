@@ -1,5 +1,8 @@
 package com.igrocery.overpriced.presentation.newprice
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,8 +62,14 @@ class NewPriceScreenViewModel @Inject constructor(
 
     val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
 
-    val productCategoryFlow = savedState.getStateFlow(KEY_PRODUCT_CATEGORY_ID, 0L)
-        .flatMapLatest { categoryService.getCategoryById(it) }
+    val productCategoryFlow = savedState.getStateFlow<Long?>(KEY_PRODUCT_CATEGORY_ID, null)
+        .flatMapLatest {
+            if (it == null) {
+                flowOf(null)
+            } else {
+                categoryService.getCategoryById(it)
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -100,7 +109,7 @@ class NewPriceScreenViewModel @Inject constructor(
         savedState[KEY_PRODUCT_DESCRIPTION] = productDescription
     }
 
-    fun setProductCategoryId(categoryId: Long) {
+    fun setProductCategoryId(categoryId: Long?) {
         savedState[KEY_PRODUCT_CATEGORY_ID] = categoryId
     }
 
@@ -144,8 +153,7 @@ class NewPriceScreenViewModel @Inject constructor(
         data class Error(val reason: ErrorReason) : SubmitFormResultState
     }
 
-    private val _submitFormResultStateFlow = MutableStateFlow<SubmitFormResultState?>(null)
-    val submitFormResultStateFlow: StateFlow<SubmitFormResultState?> = _submitFormResultStateFlow
+    var submitFormResult by mutableStateOf<SubmitFormResultState?>(null)
 
     fun submitForm(
         productName: String,
@@ -156,53 +164,49 @@ class NewPriceScreenViewModel @Inject constructor(
         store: Store?,
     ) {
         viewModelScope.launch {
-            with(_submitFormResultStateFlow) {
-                try {
-                    emit(null)
+            try {
+                val existingProduct =
+                    productService.getProduct(productName, productDescription).first()
 
-                    val existingProduct =
-                        productService.getProduct(productName, productDescription).first()
+                if (existingProduct == null) {
+                    productService.createProductWithPriceRecord(
+                        productName,
+                        productDescription,
+                        productCategory?.id,
+                        productBarcode,
+                        priceAmountText,
+                        store?.id ?: 0L,
+                    )
+                } else {
+                    // update product because category may be changed
+                    val updatedProduct = Product(existingProduct)
+                    updatedProduct.updateTimestamp = System.currentTimeMillis()
+                    updatedProduct.categoryId = productCategory?.id
+                    productService.updateProduct(updatedProduct)
 
-                    if (existingProduct == null) {
-                        productService.createProductWithPriceRecord(
-                            productName,
-                            productDescription,
-                            productCategory?.id ?: 0L,
-                            productBarcode,
-                            priceAmountText,
-                            store?.id ?: 0L,
-                        )
-                    } else {
-                        // update product because category may be changed
-                        val updatedProduct = Product(existingProduct)
-                        updatedProduct.updateTimestamp = System.currentTimeMillis()
-                        updatedProduct.categoryId = productCategory?.id ?: 0L
-                        productService.updateProduct(updatedProduct)
-
-                        priceRecordService.createPriceRecord(
-                            priceAmountText,
-                            existingProduct.id,
-                            store?.id ?: 0L,
-                        )
-                    }
-
-                    emit(SubmitFormResultState.Success)
-                } catch (e: Product.BlankNameException) {
-                    log.error(e.toString())
-                    emit(SubmitFormResultState.Error(ErrorReason.NameEmptyError))
-                } catch (e: Money.InvalidAmountException) {
-                    log.error(e.toString())
-                    emit(SubmitFormResultState.Error(ErrorReason.PriceAmountInvalidError))
-                } catch (e: NumberFormatException) {
-                    log.error(e.toString())
-                    emit(SubmitFormResultState.Error(ErrorReason.PriceAmountInputError))
-                } catch (e: PriceRecord.InvalidStoreIdException) {
-                    log.error(e.toString())
-                    emit(SubmitFormResultState.Error(ErrorReason.StoreNotSelectedError))
-                } catch (e: Exception) {
-                    log.error(e.toString())
-                    emit(SubmitFormResultState.Error(ErrorReason.UnknownError))
+                    priceRecordService.createPriceRecord(
+                        priceAmountText,
+                        existingProduct.id,
+                        store?.id ?: 0L,
+                    )
                 }
+
+                submitFormResult = SubmitFormResultState.Success
+            } catch (e: Product.BlankNameException) {
+                log.error(e.toString())
+                submitFormResult = SubmitFormResultState.Error(ErrorReason.NameEmptyError)
+            } catch (e: Money.InvalidAmountException) {
+                log.error(e.toString())
+                submitFormResult = SubmitFormResultState.Error(ErrorReason.PriceAmountInvalidError)
+            } catch (e: NumberFormatException) {
+                log.error(e.toString())
+                submitFormResult = SubmitFormResultState.Error(ErrorReason.PriceAmountInputError)
+            } catch (e: PriceRecord.InvalidStoreIdException) {
+                log.error(e.toString())
+                submitFormResult = SubmitFormResultState.Error(ErrorReason.StoreNotSelectedError)
+            } catch (e: Exception) {
+                log.error(e.toString())
+                submitFormResult = SubmitFormResultState.Error(ErrorReason.UnknownError)
             }
         }
     }
