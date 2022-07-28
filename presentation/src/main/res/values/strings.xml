@@ -10,6 +10,8 @@
     <string name="settings_title">Settings</string>
     <string name="settings_preferred_currency_label">Display currency</string>
 
+    <string name="category_list_search_bar_icon_content_description">Search product</string>
+    <string name="category_list_search_bar_hint">Search product...</string>
     <string name="category_list_empty_list_image_content_description">No price records.</string>
     <string name="category_list_empty_list_text">Record new pricing information by tapping the \"New Price Record\" button."</string>
     <string name="category_list_category_item_icon_content_description">Category icon</string>

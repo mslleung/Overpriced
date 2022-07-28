@@ -28,10 +28,14 @@ import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 
 @Suppress("unused")
 private val log = Logger { }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
@@ -55,8 +59,26 @@ fun CategoryListScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val categoryWithCountList by
-    categoryListScreenViewModel.categoryListWithCountFlow.collectAsState()
+    val noCategoryString = stringResource(id = R.string.no_category)
+    val categoryWithCountList by categoryListScreenViewModel.categoryListWithCountFlow
+        .flatMapLatest { categoryWithCountList ->
+            categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
+                categoryWithCountList.toMutableList()
+                    .apply {
+                        add(
+                            0,
+                            CategoryWithProductCount(
+                                category = Category(
+                                    id = 0,
+                                    icon = CategoryIcon.NoCategory,
+                                    name = noCategoryString
+                                ),
+                                productCount = noCategoryCount
+                            )
+                        )
+                    }
+            }
+        }.collectAsState(initial = emptyList())
     val state by rememberCategoryListScreenState()
     MainContent(
         categoryWithCountList = categoryWithCountList,
@@ -182,12 +204,28 @@ private fun MainContent(
                         onClick = { },
                         shape = RoundedCornerShape(percent = 100),
                         tonalElevation = 8.dp,
+                        shadowElevation = 8.dp,
                         modifier = Modifier
                             .padding(bottom = 4.dp)
                             .fillMaxWidth()
-                            .height(50.dp)
+                            .height(40.dp)
                     ) {
-
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            
+                            Text(
+                                text = stringResource(id = )
+                            )
+                        }
                     }
                 }
 

@@ -39,6 +39,13 @@ class CategoryListScreenViewModel @Inject constructor(
         val productCount: Int,
     )
 
+    val productCountWithNoCategory = productService.getProductCountWithCategory(null)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = 0
+        )
+
     val categoryListWithCountFlow = categoryService.getAllCategories()
         .flatMapLatest { categoryList ->
             combine(categoryList.map { productService.getProductCountWithCategory(it) }) {
