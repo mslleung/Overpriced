@@ -65,17 +65,19 @@ fun CategoryListScreen(
             categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
                 categoryWithCountList.toMutableList()
                     .apply {
-                        add(
-                            0,
-                            CategoryWithProductCount(
-                                category = Category(
-                                    id = 0,
-                                    icon = CategoryIcon.NoCategory,
-                                    name = noCategoryString
-                                ),
-                                productCount = noCategoryCount
+                        if (noCategoryCount > 0) {
+                            add(
+                                0,
+                                CategoryWithProductCount(
+                                    category = Category(
+                                        id = 0,
+                                        icon = CategoryIcon.NoCategory,
+                                        name = noCategoryString
+                                    ),
+                                    productCount = noCategoryCount
+                                )
                             )
-                        )
+                        }
                     }
             }
         }.collectAsState(initial = emptyList())
@@ -206,7 +208,7 @@ private fun MainContent(
                         tonalElevation = 8.dp,
                         shadowElevation = 8.dp,
                         modifier = Modifier
-                            .padding(bottom = 4.dp)
+                            .padding(bottom = 8.dp)
                             .fillMaxWidth()
                             .height(40.dp)
                     ) {
@@ -219,11 +221,17 @@ private fun MainContent(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_search_24),
                                 contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier
+                                    .padding(end = 12.dp)
+                                    .size(24.dp)
                             )
-                            
+
                             Text(
-                                text = stringResource(id = )
+                                text = stringResource(id = R.string.category_list_search_bar_hint),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.alpha(0.6f)
                             )
                         }
                     }
@@ -367,7 +375,11 @@ private fun EmptyPreview() {
 private fun DefaultPreview() {
     val categoryWithCountList = listOf(
         CategoryWithProductCount(
-            category = Category(id = 0, icon = CategoryIcon.NoCategory, name = "Uncategorized"),
+            category = Category(
+                id = 0,
+                icon = CategoryIcon.NoCategory,
+                name = stringResource(id = R.string.no_category)
+            ),
             productCount = 25
         ),
         CategoryWithProductCount(

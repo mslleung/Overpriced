@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresPermission
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +39,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -245,9 +247,16 @@ private fun MainContent(
                 position = CameraPosition.fromLatLngZoom(unitedStates, 0f)
             }
 
+            val context = LocalContext.current
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
-                properties = state.mapProperties,
+                properties = state.mapProperties.copy(
+                    mapStyleOptions = if (isSystemInDarkTheme()) {
+                        MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_style_night)
+                    } else {
+                        null
+                    }
+                ),
                 uiSettings = MapUiSettings(
                     indoorLevelPickerEnabled = false,
                     mapToolbarEnabled = false,
