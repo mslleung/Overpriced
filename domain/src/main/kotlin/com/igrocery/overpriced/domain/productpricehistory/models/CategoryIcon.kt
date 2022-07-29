@@ -7,7 +7,7 @@ enum class CategoryIcon(
     @DrawableRes val iconRes: Int,
 ) {
     // unspecified
-    Uncategorized(R.drawable.ic_question_svgrepo_com),
+    NoCategory(R.drawable.ic_question_svgrepo_com),
     Groceries(R.drawable.ic_groceries_svgrepo_com),
 
     // vegetables

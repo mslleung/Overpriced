@@ -40,8 +40,8 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScreen
-import com.igrocery.overpriced.presentation.productpricelist.ProductPriceListScreenViewModel
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
@@ -118,11 +118,11 @@ fun App() {
             }
         ) {
             composable(ProductPriceList) {
-                val productPriceListScreenViewModel =
-                    hiltViewModel<ProductPriceListScreenViewModel>()
+                val categoryListScreenViewModel =
+                    hiltViewModel<CategoryListScreenViewModel>()
 
-                ProductPriceListScreen(
-                    productPriceListScreenViewModel = productPriceListScreenViewModel,
+                CategoryListScreen(
+                    categoryListScreenViewModel = categoryListScreenViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }
@@ -227,6 +227,13 @@ fun App() {
                     EditCategory_With_Args,
                     arguments = listOf(navArgument(EditCategory_Arg_CategoryId) { type = NavType.LongType })
                 ) { backStackEntry ->
+                    val navGraphEntry =
+                        remember(backStackEntry) {
+                            navController.getBackStackEntry(
+                                NewPriceRecordRoute
+                            )
+                        }
+                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
                     val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
                     val categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
@@ -235,7 +242,10 @@ fun App() {
                         categoryId = categoryId,
                         viewModel = editCategoryViewModel,
                         navigateUp = { navController.navigateUp() },
-                        navigateDone = { navController.navigateUp() }
+                        navigateDone = {
+                            newPriceViewModel.setProductCategoryId(categoryId)
+                            navController.navigateUp()
+                        }
                     )
                 }
                 composable(NewStore) { backStackEntry ->
@@ -259,6 +269,13 @@ fun App() {
                     EditStore_With_Args,
                     arguments = listOf(navArgument(EditStore_Arg_StoreId) { type = NavType.LongType })
                 ) { backStackEntry ->
+                    val navGraphEntry =
+                        remember(backStackEntry) {
+                            navController.getBackStackEntry(
+                                NewPriceRecordRoute
+                            )
+                        }
+                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
                     val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
                     
                     val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
@@ -267,7 +284,10 @@ fun App() {
                         storeId = storeId,
                         viewModel = editStoreViewModel,
                         navigateUp = { navController.navigateUp() },
-                        navigateDone = { navController.navigateUp() }
+                        navigateDone = {
+                            newPriceViewModel.selectStore(storeId)
+                            navController.navigateUp()
+                        }
                     )
                 }
             }

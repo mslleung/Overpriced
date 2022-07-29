@@ -96,7 +96,7 @@ private fun MainContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onPreferredCurrencyRowClick() }
-                    .padding(vertical = 6.dp, horizontal = 12.dp)
+                    .padding(vertical = 6.dp, horizontal = 16.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.settings_preferred_currency_label),
@@ -107,7 +107,7 @@ private fun MainContent(
 
                 Text(
                     text = preferredCurrency?.displayName ?: "",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.alpha(0.6f)

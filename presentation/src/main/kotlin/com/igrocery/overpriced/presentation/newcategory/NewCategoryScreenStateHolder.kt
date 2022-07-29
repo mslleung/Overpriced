@@ -13,7 +13,7 @@ class NewCategoryScreenStateHolder {
 
     var isRequestingFirstFocus by mutableStateOf(true)
     var categoryName by mutableStateOf("")
-    var categoryIcon by mutableStateOf(CategoryIcon.Uncategorized)
+    var categoryIcon by mutableStateOf(CategoryIcon.NoCategory)
 
     companion object {
         val Saver: Saver<NewCategoryScreenStateHolder, *> = listSaver(
