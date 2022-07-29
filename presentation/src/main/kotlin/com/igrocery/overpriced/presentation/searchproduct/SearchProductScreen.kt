@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categorylist
+package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.rememberSplineBasedDecay
@@ -37,15 +37,15 @@ private val log = Logger { }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun CategoryListScreen(
-    categoryListScreenViewModel: CategoryListScreenViewModel,
+fun SearchProductScreen(
+    searchProductScreenViewModel: SearchProductScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToAddPrice: () -> Unit,
     navigateToPlanner: () -> Unit
 ) {
-    log.debug("Composing ProductPriceListScreen")
+    log.debug("Composing SearchProductScreen")
 
     val systemUiController = rememberSystemUiController()
     val statusBarColor = MaterialTheme.colorScheme.surface
@@ -61,9 +61,9 @@ fun CategoryListScreen(
     }
 
     val noCategoryString = stringResource(id = R.string.no_category)
-    val categoryWithCountList by categoryListScreenViewModel.categoryListWithCountFlow
+    val categoryWithCountList by searchProductScreenViewModel.categoryListWithCountFlow
         .flatMapLatest { categoryWithCountList ->
-            categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
+            searchProductScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
                 categoryWithCountList.toMutableList()
                     .apply {
                         if (noCategoryCount > 0) {
@@ -82,7 +82,7 @@ fun CategoryListScreen(
                     }
             }
         }.collectAsState(initial = emptyList())
-    val state by rememberCategoryListScreenState()
+    val state by rememberSearchProductScreenState()
     MainContent(
         categoryWithCountList = categoryWithCountList,
         state = state,
@@ -102,7 +102,7 @@ fun CategoryListScreen(
 @Composable
 private fun MainContent(
     categoryWithCountList: List<CategoryWithProductCount>,
-    state: CategoryListScreenStateHolder,
+    state: SearchProductScreenStateHolder,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category) -> Unit,
@@ -365,7 +365,7 @@ private fun SettingsButton(
 private fun EmptyPreview() {
     MainContent(
         categoryWithCountList = emptyList(),
-        state = CategoryListScreenStateHolder(),
+        state = SearchProductScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
@@ -406,7 +406,7 @@ private fun DefaultPreview() {
 
     MainContent(
         categoryWithCountList = categoryWithCountList,
-        state = CategoryListScreenStateHolder(),
+        state = SearchProductScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},

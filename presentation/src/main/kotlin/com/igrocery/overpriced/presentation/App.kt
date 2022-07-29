@@ -24,8 +24,9 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
-import com.igrocery.overpriced.presentation.NavDestinations.ProductPriceList
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.NavDestinations.ScanBarcode
+import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
@@ -44,6 +45,7 @@ import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
+import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
@@ -69,8 +71,9 @@ private object NavDestinations {
     const val NewCategory = "newCategory"
     const val NewPrice = "newPrice"
     const val NewStore = "newStore"
-    const val ProductPriceList = "productPriceList"
+    const val CategoryList = "categoryList"
     const val ScanBarcode = "scanBarcode"
+    const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
     const val Settings = "settings"
 
@@ -91,7 +94,7 @@ fun App() {
         val animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = ProductPriceList,
+            startDestination = CategoryList,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -117,7 +120,7 @@ fun App() {
                 )
             }
         ) {
-            composable(ProductPriceList) {
+            composable(CategoryList) {
                 val categoryListScreenViewModel =
                     hiltViewModel<CategoryListScreenViewModel>()
 
@@ -141,6 +144,11 @@ fun App() {
 //                    restoreState = true
 //                }
                 }
+            }
+            composable(SearchProduct) {
+                val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
+
+                Search
             }
 
             navigation(route = SettingsRoute, startDestination = Settings) {
