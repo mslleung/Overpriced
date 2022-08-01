@@ -5,7 +5,6 @@ import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.infrastructure.Transaction
-import com.igrocery.overpriced.infrastructure.productpricehistory.ProductRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,8 +51,12 @@ class ProductService @Inject constructor(
         }
     }
 
-    fun getProductsPagingSource(query: String? = null): PagingSource<Int, Product> {
-        return productRepository.getProductsPagingSource(query)
+    fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
+        return productRepository.searchProductsByNamePaging(query)
+    }
+
+    fun searchProductsByNameOrderByCategoryPaging(query: String): PagingSource<Int, Product> {
+        return productRepository.searchProductsByNamePaging(query)
     }
 
     fun getProduct(name: String, description: String?): Flow<Product?> {

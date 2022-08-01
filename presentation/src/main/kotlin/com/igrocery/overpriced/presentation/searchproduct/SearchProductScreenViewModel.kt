@@ -40,8 +40,11 @@ class SearchProductScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        productService.getProductsPagingSource(queryFlow.value)
+        productService.searchProductsByNamePaging(queryFlow.value)
     }.flow
+//        .flatMapLatest {
+//            it.map {  }
+//        }
         .cachedIn(viewModelScope)
 
     data class CategoryWithProduct(

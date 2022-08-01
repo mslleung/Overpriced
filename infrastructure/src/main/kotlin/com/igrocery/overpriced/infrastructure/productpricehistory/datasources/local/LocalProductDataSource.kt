@@ -56,8 +56,7 @@ internal class LocalProductDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override suspend fun searchProductsPage(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity> {
-        log.debug("searchProductsPage(query = $query, offset = $offset, pageSize = $pageSize)")
+    override suspend fun searchProductsByNamePaging(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity> {
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 

@@ -56,7 +56,7 @@ class NewPriceScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        productService.getProductsPagingSource("${productNameFlow.value}*")
+        productService.searchProductsByNamePaging("${productNameFlow.value}*")
     }.flow
         .cachedIn(viewModelScope)
 

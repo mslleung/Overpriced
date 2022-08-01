@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IProductRepository : BaseRepository<Product> {
 
-    fun getProductsPagingSource(query: String? = null): PagingSource<Int, Product>
+    fun searchProductsByNamePaging(query: String): PagingSource<Int, Product>
 
     fun getProductByNameAndDescription(
         name: String,
