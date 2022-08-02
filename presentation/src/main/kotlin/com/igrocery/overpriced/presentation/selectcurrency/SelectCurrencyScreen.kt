@@ -71,7 +71,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onCurrencyRowClick: (Currency) -> Unit
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {

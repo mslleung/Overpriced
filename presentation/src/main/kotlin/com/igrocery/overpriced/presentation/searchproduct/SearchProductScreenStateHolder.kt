@@ -1,25 +1,30 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 
 class SearchProductScreenStateHolder {
 
-//    var isLazyListPagingFirstLoad = true
+    var isRequestingFirstFocus by mutableStateOf(true)
+    var query by mutableStateOf("")
 
     companion object {
-        val Saver = Saver<SearchProductScreenStateHolder, Bundle>(
+        val Saver : Saver<SearchProductScreenStateHolder, *> = listSaver(
             save = {
-                Bundle().apply {
-//                    putBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD, it.isLazyListPagingFirstLoad)
-                }
+                listOf(
+                    it.isRequestingFirstFocus,
+                    it.query,
+                )
             },
-            restore = { bundle ->
+            restore = {
                 SearchProductScreenStateHolder().apply {
-//                    isLazyListPagingFirstLoad = bundle.getBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD)
+                    isRequestingFirstFocus = it[0] as Boolean
+                    query = it[1] as String
                 }
             }
         )

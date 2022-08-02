@@ -269,7 +269,7 @@ private fun MainLayout(
     onStoreButtonClick: () -> Unit,
     onSubmitErrorDismissed: () -> Unit,
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -535,6 +535,7 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductNameTextField(
     productName: () -> String,
@@ -587,6 +588,7 @@ private fun ProductNameTextField(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductDescriptionTextField(
     productDescription: () -> String,
@@ -716,6 +718,7 @@ private fun PriceHeader(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PriceTextFieldButton(
     text: () -> String,

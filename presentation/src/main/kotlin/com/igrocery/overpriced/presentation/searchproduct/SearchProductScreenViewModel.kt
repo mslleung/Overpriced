@@ -16,19 +16,15 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchProductScreenViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
-    private val categoryService: CategoryService,
     private val productService: ProductService,
 ) : ViewModel() {
 
     companion object {
         private const val KEY_QUERY = "KEY_QUERY"
     }
-
-    val queryFlow = savedState.getStateFlow(KEY_QUERY, "")
 
     fun setQuery(query: String) {
         savedState[KEY_QUERY] = query
@@ -40,38 +36,9 @@ class SearchProductScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        productService.searchProductsByNamePaging(queryFlow.value)
+        val queryStr = savedState.get<String>(KEY_QUERY) ?: ""
+        productService.searchProductsByNamePaging(queryStr)
     }.flow
-//        .flatMapLatest {
-//            it.map {  }
-//        }
         .cachedIn(viewModelScope)
-
-    data class CategoryWithProduct(
-        val category: Category,
-        val productCount: Int,
-    )
-
-    val productCountWithNoCategory = productService.getProductCountWithCategory(null)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
-
-    val categoryListWithCountFlow = categoryService.getAllCategories()
-        .flatMapLatest { categoryList ->
-            combine(categoryList.map { productService.getProductCountWithCategory(it) }) {
-                val productCountList = it.asList()
-                categoryList.zip(productCountList) { category, count ->
-                    CategoryWithProductCount(category, count)
-                }
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
-        )
 
 }

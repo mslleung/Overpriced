@@ -45,6 +45,7 @@ import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
 import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
+import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
@@ -127,6 +128,7 @@ fun App() {
                 CategoryListScreen(
                     categoryListScreenViewModel = categoryListScreenViewModel,
                     navigateUp = { navController.navigateUp() },
+                    navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }
                 ) {
@@ -148,7 +150,11 @@ fun App() {
             composable(SearchProduct) {
                 val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
 
-                Search
+                SearchProductScreen(
+                    viewModel = searchProductScreenViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateToProductDetails = {  }
+                )
             }
 
             navigation(route = SettingsRoute, startDestination = Settings) {

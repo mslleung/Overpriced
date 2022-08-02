@@ -31,7 +31,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
         "SELECT * FROM products " +
                 "JOIN products_fts ON products.id = products_fts.rowid " +
                 "WHERE products_fts MATCH :query " +
-                "ORDER BY update_timestamp " +
+                "ORDER BY name " +
                 "LIMIT :pageSize OFFSET :offset "
     )
     suspend fun searchProducts(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>

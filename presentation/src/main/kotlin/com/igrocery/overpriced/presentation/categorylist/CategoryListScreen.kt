@@ -109,7 +109,7 @@ private fun MainContent(
     onFabClick: () -> Unit,
     onNavBarPlannerClick: () -> Unit
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             decayAnimationSpec = rememberSplineBasedDecay(),
@@ -304,7 +304,7 @@ private fun CategoryWithCountListItem(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
+            modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 10.dp)
                 .fillMaxWidth()
         ) {

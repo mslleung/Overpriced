@@ -92,7 +92,7 @@ private fun MainLayout(
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
@@ -187,7 +187,7 @@ private fun MainLayout(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryNameTextField(
     createCategoryResult: CreateCategoryResult?,

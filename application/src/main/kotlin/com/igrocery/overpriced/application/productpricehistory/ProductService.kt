@@ -55,10 +55,6 @@ class ProductService @Inject constructor(
         return productRepository.searchProductsByNamePaging(query)
     }
 
-    fun searchProductsByNameOrderByCategoryPaging(query: String): PagingSource<Int, Product> {
-        return productRepository.searchProductsByNamePaging(query)
-    }
-
     fun getProduct(name: String, description: String?): Flow<Product?> {
         return productRepository.getProductByNameAndDescription(name, description)
     }

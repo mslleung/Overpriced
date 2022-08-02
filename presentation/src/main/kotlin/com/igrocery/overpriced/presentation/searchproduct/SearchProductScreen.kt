@@ -1,49 +1,49 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun SearchProductScreen(
-    searchProductScreenViewModel: SearchProductScreenViewModel,
+    viewModel: SearchProductScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToSettings: () -> Unit,
-    navigateToSearchProduct: () -> Unit,
-    navigateToAddPrice: () -> Unit,
-    navigateToPlanner: () -> Unit
+    navigateToProductDetails: (Product) -> Unit,
 ) {
     log.debug("Composing SearchProductScreen")
 
@@ -60,37 +60,19 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val noCategoryString = stringResource(id = R.string.no_category)
-    val categoryWithCountList by searchProductScreenViewModel.categoryListWithCountFlow
-        .flatMapLatest { categoryWithCountList ->
-            searchProductScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
-                categoryWithCountList.toMutableList()
-                    .apply {
-                        if (noCategoryCount > 0) {
-                            add(
-                                0,
-                                CategoryWithProductCount(
-                                    category = Category(
-                                        id = 0,
-                                        icon = CategoryIcon.NoCategory,
-                                        name = noCategoryString
-                                    ),
-                                    productCount = noCategoryCount
-                                )
-                            )
-                        }
-                    }
-            }
-        }.collectAsState(initial = emptyList())
+    val productPagingItems = viewModel.productsPagedFlow.collectAsLazyPagingItems()
     val state by rememberSearchProductScreenState()
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        productPagingItems = productPagingItems,
         state = state,
-        onSettingsClick = navigateToSettings,
-        onSearchBarClick = navigateToSearchProduct,
-        onCategoryClick = { },
-        onFabClick = navigateToAddPrice,
-        onNavBarPlannerClick = navigateToPlanner,
+        onBackButtonClick = navigateUp,
+        onQueryChange = {
+            state.query = it
+
+            viewModel.setQuery(it)
+            productPagingItems.refresh()
+        },
+        onProductClick = navigateToProductDetails,
     )
 
     BackHandler(enabled = false) {
@@ -98,254 +80,132 @@ fun SearchProductScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalComposeUiApi::class
+)
 @Composable
 private fun MainContent(
-    categoryWithCountList: List<CategoryWithProductCount>,
+    productPagingItems: LazyPagingItems<Product>,
     state: SearchProductScreenStateHolder,
-    onSettingsClick: () -> Unit,
-    onSearchBarClick: () -> Unit,
-    onCategoryClick: (Category) -> Unit,
-    onFabClick: () -> Unit,
-    onNavBarPlannerClick: () -> Unit
+    onBackButtonClick: () -> Unit,
+    onQueryChange: (String) -> Unit,
+    onProductClick: (Product) -> Unit,
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
-    val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarScrollState
-        )
+    val topBarScrollState = rememberTopAppBarState()
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            SmallTopAppBar(
                 title = {
-                    // TODO replace with brand icon
-                    Text(text = stringResource(id = R.string.app_name))
+                    val focusRequester = remember { FocusRequester() }
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    TextField(
+                        value = state.query,
+                        onValueChange = {
+                            onQueryChange(it.take(100))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.search_product_search_bar_hint),
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
+                        trailingIcon = {
+                            if (state.query.isNotEmpty()) {
+                                ClearButton(
+                                    onClick = {
+                                        state.query = ""
+                                    },
+                                    modifier = Modifier
+                                        .padding(14.dp)
+                                        .size(24.dp, 24.dp)
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                keyboardController?.hide()
+                            }
+                        ),
+                        singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            containerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        )
+                    )
+                    if (state.isRequestingFirstFocus) {
+                        state.isRequestingFirstFocus = false
+                        LaunchedEffect(key1 = Unit) {
+                            focusRequester.requestFocus()
+                        }
+                    }
                 },
-                actions = {
-                    SettingsButton(
-                        onClick = onSettingsClick,
+                navigationIcon = {
+                    BackButton(
+                        onClick = onBackButtonClick,
                         modifier = Modifier
                             .padding(14.dp)
                             .size(24.dp, 24.dp)
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
                 modifier = Modifier.statusBarsPadding()
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onFabClick,
-            )
-        },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding(),
-            ) {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
-                    selected = true,
-                    onClick = { }
-                )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = onNavBarPlannerClick
-                )
-            }
-        }
     ) {
-        if (categoryWithCountList.isEmpty()) {
+        if (productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
+                    .navigationBarsPadding()
+                    .imePadding()
                     .fillMaxSize()
             )
         } else {
             LazyColumn(
                 contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
                     top = 8.dp,
                     bottom = 120.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                     .padding(it)
+                    .navigationBarsPadding()
+                    .imePadding()
                     .fillMaxSize()
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
-                stickyHeader {
-                    Surface(
-                        onClick = { onSearchBarClick() },
-                        shape = RoundedCornerShape(percent = 100),
-                        tonalElevation = 8.dp,
-                        shadowElevation = 8.dp,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .fillMaxWidth()
-                            .height(40.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                items(
+                    items = productPagingItems,
+                    key = { product -> product.id }
+                ) { product ->
+                    if (product != null) {
+                        ProductListItem(
+                            product = product,
+                            onClick = onProductClick,
                             modifier = Modifier
-                                .padding(horizontal = 8.dp)
+                                .animateItemPlacement()
                                 .fillMaxWidth()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .size(24.dp)
-                            )
-
-                            Text(
-                                text = stringResource(id = R.string.category_list_search_bar_hint),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.alpha(0.6f)
-                            )
-                        }
+                        )
                     }
                 }
-
-                items(
-                    items = categoryWithCountList
-                        .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
-                    key = { categoryWithCount -> categoryWithCount.category.id }
-                ) { categoryWithCount ->
-                    CategoryWithCountListItem(
-                        categoryWithCount = categoryWithCount,
-                        onClick = onCategoryClick,
-                        modifier = Modifier
-                            .animateItemPlacement()
-                            .fillMaxWidth()
-                    )
-                }
             }
         }
     }
 }
 
 @Composable
-private fun EmptyListContent(
-    modifier: Modifier = Modifier
-) {
-    val scrollState = rememberScrollState()
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(scrollState)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_price_tag),
-            contentDescription = stringResource(id = R.string.category_list_empty_list_image_content_description),
-            modifier = Modifier
-                .size(200.dp, 200.dp)
-                .padding(bottom = 36.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-        )
-
-        Text(
-            text = stringResource(id = R.string.category_list_empty_list_text),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .padding(bottom = 130.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
-@Composable
-private fun CategoryWithCountListItem(
-    categoryWithCount: CategoryWithProductCount,
-    onClick: (Category) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val (category, productCount) = categoryWithCount
-
-    Card(
-        onClick = { onClick(category) },
-        modifier = modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-                .fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(id = category.icon.iconRes),
-                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(35.dp)
-            )
-
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = category.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
-                    text = pluralStringResource(
-                        id = R.plurals.category_list_category_item_count_text,
-                        count = productCount,
-                        productCount
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsButton(
+private fun ClearButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -354,63 +214,78 @@ private fun SettingsButton(
         modifier = modifier
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
-            contentDescription = stringResource(R.string.settings_button_content_description)
+            painter = painterResource(id = R.drawable.ic_baseline_close_24),
+            contentDescription = stringResource(R.string.search_product_clear_button_content_description),
+        )
+    }
+}
+
+@Composable
+private fun EmptyListContent(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(id = R.string.search_product_no_result_text),
+            textAlign = TextAlign.Center,
+            modifier = modifier.padding(horizontal = 40.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+private fun ProductListItem(
+    product: Product,
+    onClick: (Product) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .clickable { onClick(product) }
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = product.name,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        Text(
+            text = product.description,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.alpha(0.6f)
         )
     }
 }
 
 @Preview
 @Composable
-private fun EmptyPreview() {
-    MainContent(
-        categoryWithCountList = emptyList(),
-        state = SearchProductScreenStateHolder(),
-        onSettingsClick = {},
-        onSearchBarClick = {},
-        onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
-    )
-}
-
-@Preview
-@Composable
 private fun DefaultPreview() {
-    val categoryWithCountList = listOf(
-        CategoryWithProductCount(
-            category = Category(
-                id = 0,
-                icon = CategoryIcon.NoCategory,
-                name = stringResource(id = R.string.no_category)
-            ),
-            productCount = 25
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 1, icon = CategoryIcon.Apple, name = "Fruits"),
-            productCount = 10
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 2, icon = CategoryIcon.Carrot, name = "Vegetables"),
-            productCount = 500
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 3, icon = CategoryIcon.Beer, name = "Beverages"),
-            productCount = 7
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 4, icon = CategoryIcon.Cheese, name = "Dairy"),
-            productCount = 23
-        ),
-    )
+    val products = flowOf(
+        PagingData.from(
+            listOf(
+                Product(
+                    name = "Apple",
+                    description = "Pack of 5",
+                    categoryId = null
+                )
+            )
+        )
+    ).collectAsLazyPagingItems()
 
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        productPagingItems = products,
         state = SearchProductScreenStateHolder(),
-        onSettingsClick = {},
-        onSearchBarClick = {},
-        onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
+        onBackButtonClick = {},
+        onQueryChange = {},
+        onProductClick = {},
     )
 }
