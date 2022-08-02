@@ -34,6 +34,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -66,14 +67,16 @@ fun SearchProductScreen(
         productPagingItems = productPagingItems,
         state = state,
         onBackButtonClick = navigateUp,
-        onQueryChange = {
-            state.query = it
-
-            viewModel.setQuery(it)
-            productPagingItems.refresh()
-        },
         onProductClick = navigateToProductDetails,
     )
+
+    LaunchedEffect(key1 = Unit) {
+        snapshotFlow { state.query }
+            .collect {
+                viewModel.setQuery(it)
+                productPagingItems.refresh()
+            }
+    }
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -90,7 +93,6 @@ private fun MainContent(
     productPagingItems: LazyPagingItems<Product>,
     state: SearchProductScreenStateHolder,
     onBackButtonClick: () -> Unit,
-    onQueryChange: (String) -> Unit,
     onProductClick: (Product) -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
@@ -104,7 +106,7 @@ private fun MainContent(
                     TextField(
                         value = state.query,
                         onValueChange = {
-                            onQueryChange(it.take(100))
+                            state.query = it.take(100)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -285,7 +287,6 @@ private fun DefaultPreview() {
         productPagingItems = products,
         state = SearchProductScreenStateHolder(),
         onBackButtonClick = {},
-        onQueryChange = {},
         onProductClick = {},
     )
 }

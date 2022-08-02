@@ -37,7 +37,7 @@ class SearchProductScreenViewModel @Inject constructor(
         )
     ) {
         val queryStr = savedState.get<String>(KEY_QUERY) ?: ""
-        productService.searchProductsByNamePaging(queryStr)
+        productService.searchProductsByNamePaging("$queryStr*")
     }.flow
         .cachedIn(viewModelScope)
 
