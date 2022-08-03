@@ -15,6 +15,8 @@ import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
@@ -31,6 +33,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
+import com.igrocery.overpriced.presentation.categorydetail.CategoryDetailScreen
+import com.igrocery.overpriced.presentation.categorydetail.CategoryDetailScreenViewModel
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
@@ -60,6 +64,10 @@ import com.igrocery.overpriced.shared.Logger
 private val log = Logger { }
 
 private object NavDestinations {
+
+    const val CategoryDetail = "categoryDetail"
+    const val CategoryDetail_Arg_CategoryId = "categoryId"
+    const val CategoryDetail_With_Args = "categoryDetail/{$CategoryDetail_Arg_CategoryId}"
 
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
@@ -92,7 +100,8 @@ fun App() {
     AppTheme {
         val navController = rememberAnimatedNavController()
 
-        val animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow)
+        val animationSpec: FiniteAnimationSpec<Float> =
+            spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
             startDestination = CategoryList,
@@ -130,6 +139,7 @@ fun App() {
                     navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
+                    navigateToCategoryDetail = {},
                     navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }
                 ) {
 //                navController.navigate(screen.route) {
@@ -153,7 +163,20 @@ fun App() {
                 SearchProductScreen(
                     viewModel = searchProductScreenViewModel,
                     navigateUp = { navController.navigateUp() },
-                    navigateToProductDetails = {  }
+                    navigateToProductDetails = { }
+                )
+            }
+            composable(
+                route = CategoryDetail_With_Args,
+                arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) { type = NavType.LongType })
+            ) { backStackEntry ->
+                val categoryDetailScreenViewModel = hiltViewModel<CategoryDetailScreenViewModel>()
+
+                val categoryId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+                CategoryDetailScreen(
+                    categoryId = categoryId,
+                    viewModel = categoryDetailScreenViewModel,
+                    navigateUp = { /*TODO*/ },
                 )
             }
 
@@ -185,8 +208,10 @@ fun App() {
                             navController.getBackStackEntry(NewPriceRecordRoute)
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
-                    val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
+                    val selectCategoryDialogViewModel =
+                        hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
+                    val selectStoreDialogViewModel =
+                        hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
 
                     NewPriceScreen(
                         newPriceScreenViewModel = newPriceViewModel,
@@ -239,7 +264,9 @@ fun App() {
                 }
                 composable(
                     EditCategory_With_Args,
-                    arguments = listOf(navArgument(EditCategory_Arg_CategoryId) { type = NavType.LongType })
+                    arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                        type = NavType.LongType
+                    })
                 ) { backStackEntry ->
                     val navGraphEntry =
                         remember(backStackEntry) {
@@ -250,7 +277,8 @@ fun App() {
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
                     val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
-                    val categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
+                    val categoryId =
+                        backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
 
                     EditCategoryScreen(
                         categoryId = categoryId,
@@ -281,7 +309,9 @@ fun App() {
                 }
                 composable(
                     EditStore_With_Args,
-                    arguments = listOf(navArgument(EditStore_Arg_StoreId) { type = NavType.LongType })
+                    arguments = listOf(navArgument(EditStore_Arg_StoreId) {
+                        type = NavType.LongType
+                    })
                 ) { backStackEntry ->
                     val navGraphEntry =
                         remember(backStackEntry) {
@@ -291,9 +321,9 @@ fun App() {
                         }
                     val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
                     val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
-                    
+
                     val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
-                    
+
                     EditStoreScreen(
                         storeId = storeId,
                         viewModel = editStoreViewModel,

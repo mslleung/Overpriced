@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
@@ -35,11 +36,9 @@ private val log = Logger { }
 
 @Composable
 fun CategoryDetailScreen(
-    categoryDetailScreenViewModel: CategoryDetailScreenViewModel,
+    categoryId: Long,
+    viewModel: CategoryDetailScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToSettings: () -> Unit,
-    navigateToAddPrice: () -> Unit,
-    navigateToPlanner: () -> Unit
 ) {
     log.debug("Composing CategoryDetailScreen")
 
@@ -56,17 +55,22 @@ fun CategoryDetailScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val categoryWithCountList by
-    categoryDetailScreenViewModel.categoryListWithCountFlow.collectAsState()
+    LaunchedEffect(key1 = Unit) {
+        viewModel.setCategoryId(categoryId)
+    }
+
+    val category by viewModel.categoryFlow.collectAsState()
+    val products = viewModel.productsPagedFlow.collectAsLazyPagingItems()
     val state by rememberCategoryDetailScreenState()
-//    MainContent(
-//        categoryWithCountList = categoryWithCountList,
-//        state = state,
-//        onCategoryClick = { },
-//        onSettingsClick = navigateToSettings,
-//        onFabClick = navigateToAddPrice,
-//        onNavBarPlannerClick = navigateToPlanner,
-//    )
+    MainContent(
+        category = category,
+        productsPagingItems = products,
+        state = state,
+        onCategoryClick = { },
+        onSettingsClick = navigateToSettings,
+        onFabClick = navigateToAddPrice,
+        onNavBarPlannerClick = navigateToPlanner,
+    )
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -76,6 +80,7 @@ fun CategoryDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
+    category: Category?,
     categoryWithCountList: List<CategoryWithProductCount>,
     state: CategoryDetailScreenStateHolder,
     onCategoryClick: (Category) -> Unit,

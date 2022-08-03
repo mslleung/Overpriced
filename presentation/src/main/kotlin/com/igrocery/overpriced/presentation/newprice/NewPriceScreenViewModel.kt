@@ -159,7 +159,7 @@ class NewPriceScreenViewModel @Inject constructor(
         productName: String,
         productDescription: String,
         productBarcode: String?,
-        productCategory: Category?,
+        productCategoryId: Long,
         priceAmountText: String,
         store: Store?,
     ) {
@@ -172,7 +172,7 @@ class NewPriceScreenViewModel @Inject constructor(
                     productService.createProductWithPriceRecord(
                         productName,
                         productDescription,
-                        productCategory?.id,
+                        productCategoryId,
                         productBarcode,
                         priceAmountText,
                         store?.id ?: 0L,
@@ -181,7 +181,7 @@ class NewPriceScreenViewModel @Inject constructor(
                     // update product because category may be changed
                     val updatedProduct = Product(existingProduct)
                     updatedProduct.updateTimestamp = System.currentTimeMillis()
-                    updatedProduct.categoryId = productCategory?.id
+                    updatedProduct.categoryId = productCategoryId
                     productService.updateProduct(updatedProduct)
 
                     priceRecordService.createPriceRecord(

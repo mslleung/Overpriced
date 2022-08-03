@@ -55,10 +55,15 @@ class ProductRepository @Inject internal constructor(
     }
 
     override fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
-        return ProductsPagingSource(localProductDataSource, productMapper, ioDispatcher, query)
+        return SearchProductsPagingSource(
+            localProductDataSource,
+            productMapper,
+            ioDispatcher,
+            query
+        )
     }
 
-    private class ProductsPagingSource(
+    private class SearchProductsPagingSource(
         private val localProductDataSource: ILocalProductDataSource,
         private val productMapper: ProductMapper,
         private val ioDispatcher: CoroutineDispatcher,
@@ -84,7 +89,11 @@ class ProductRepository @Inject internal constructor(
                     val pageData = if (queryStr.isBlank()) {
                         emptyList()
                     } else {
-                        localProductDataSource.searchProductsByNamePaging(queryStr, offset, params.loadSize)
+                        localProductDataSource.searchProductsByNamePaging(
+                            queryStr,
+                            offset,
+                            params.loadSize
+                        )
                     }
                     LoadResult.Page(
                         data = pageData.map { productMapper.mapFromData(it) },
@@ -125,8 +134,62 @@ class ProductRepository @Inject internal constructor(
             .map { it?.let { productMapper.mapFromData(it) } }
     }
 
-    override fun getProductCountWithCategory(category: Category?): Flow<Int> {
-        return localProductDataSource.getProductCountWithCategory(category)
+    override fun getProductCountByCategoryId(categoryId: Long): Flow<Int> {
+        return localProductDataSource.getProductCountByCategoryId(categoryId)
     }
 
+    override fun getProductsByCategoryIdPaging(categoryId: Long): PagingSource<Int, Product> {
+        return ProductsByCategoryPagingSource(
+            localProductDataSource,
+            productMapper,
+            ioDispatcher,
+            categoryId
+        )
+    }
+
+    private class ProductsByCategoryPagingSource(
+        private val localProductDataSource: ILocalProductDataSource,
+        private val productMapper: ProductMapper,
+        private val ioDispatcher: CoroutineDispatcher,
+        private val categoryId: Long,
+    ) : PagingSource<Int, Product>(), InvalidationObserverDelegate.InvalidationObserver {
+
+        init {
+            localProductDataSource.addInvalidationObserver(this)
+        }
+
+        override fun onInvalidate() {
+            // invalidates this datasource when the underlying tables change
+            invalidate()
+        }
+
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Product> {
+            return withContext(ioDispatcher) {
+                try {
+                    val pageNumber = params.key ?: 1
+                    val offset = (pageNumber - 1) * params.loadSize // all the previous pages
+
+                    val pageData = localProductDataSource.getProductByCategoryIdPaging(
+                        categoryId,
+                        offset,
+                        params.loadSize
+                    )
+                    LoadResult.Page(
+                        data = pageData.map { productMapper.mapFromData(it) },
+                        prevKey = if (pageNumber <= 1) null else pageNumber - 1,
+                        nextKey = if (pageData.isEmpty()) null else pageNumber + 1
+                    )
+                } catch (e: Exception) {
+                    LoadResult.Error(e)
+                }
+            }
+        }
+
+        override fun getRefreshKey(state: PagingState<Int, Product>): Int? {
+            return state.anchorPosition?.let { anchorPosition ->
+                val anchorPage = state.closestPageToPosition(anchorPosition)
+                anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
+            }
+        }
+    }
 }

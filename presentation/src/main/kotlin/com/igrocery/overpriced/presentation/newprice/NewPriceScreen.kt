@@ -129,7 +129,7 @@ fun NewPriceScreen(
                 productName.trim(),
                 productDescription.trim(),
                 attachedBarcode?.trim(),
-                productCategory,
+                productCategory?.id ?: 0L,
                 state.priceAmountText.trim(),
                 selectedStore,
             )

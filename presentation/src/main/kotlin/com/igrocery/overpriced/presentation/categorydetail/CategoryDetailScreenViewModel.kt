@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
-import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.application.productpricehistory.ProductService
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @Suppress("unused")
@@ -24,34 +26,31 @@ class CategoryDetailScreenViewModel @Inject constructor(
     private val productService: ProductService,
 ) : ViewModel() {
 
-//    val productsPagedFlow = Pager(
-//        PagingConfig(
-//            pageSize = 100,
-//            prefetchDistance = 30
-//        )
-//    ) {
-//        productService.getProductsPagingSource()
-//    }.flow
-//        .cachedIn(viewModelScope)
+    private companion object {
+        private const val KEY_CATEGORY_ID = "KEY_CATEGORY_ID"
+    }
 
-    data class CategoryWithProductCount(
-        val category: Category,
-        val productCount: Int,
-    )
+    fun setCategoryId(categoryId: Long) {
+        savedState[KEY_CATEGORY_ID] = categoryId
+    }
 
-    val categoryListWithCountFlow = categoryService.getAllCategories()
-        .flatMapLatest { categoryList ->
-            combine(categoryList.map { productService.getProductCountWithCategory(it) }) {
-                val productCountList = it.asList()
-                categoryList.zip(productCountList) { category, count ->
-                    CategoryWithProductCount(category, count)
-                }
-            }
-        }
+    val categoryFlow = savedState.getStateFlow(KEY_CATEGORY_ID, -1L)
+        .flatMapLatest { categoryService.getCategoryById(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
+            initialValue = null
         )
+
+    val productsPagedFlow = Pager(
+        PagingConfig(
+            pageSize = 100,
+            prefetchDistance = 30
+        )
+    ) {
+        val categoryId = savedState.get<Long>(KEY_CATEGORY_ID) ?: -1L
+        productService.getProductsByCategoryIdPaging(categoryId)
+    }.flow
+        .cachedIn(viewModelScope)
 
 }

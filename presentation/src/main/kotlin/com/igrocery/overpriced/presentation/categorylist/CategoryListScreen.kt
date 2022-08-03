@@ -42,6 +42,7 @@ fun CategoryListScreen(
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
+    navigateToCategoryDetail: (Category) -> Unit,
     navigateToAddPrice: () -> Unit,
     navigateToPlanner: () -> Unit
 ) {

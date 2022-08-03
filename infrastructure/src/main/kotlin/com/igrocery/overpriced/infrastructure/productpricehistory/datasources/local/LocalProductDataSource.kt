@@ -56,15 +56,31 @@ internal class LocalProductDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override suspend fun searchProductsByNamePaging(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity> {
+    override suspend fun searchProductsByNamePaging(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity> {
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 
-    override fun getProductCountWithCategory(category: Category?): Flow<Int> {
-        return if (category != null) {
-            db.productDao().getProductCountWithCategory(category.id)
+    override fun getProductCountByCategoryId(categoryId: Long): Flow<Int> {
+        return if (categoryId != 0L) {
+            db.productDao().getProductCountByCategory(categoryId)
         } else {
             db.productDao().getProductCountWithNoCategory()
+        }
+    }
+
+    override fun getProductByCategoryIdPaging(
+        categoryId: Long,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity> {
+        return if (categoryId != 0L) {
+            db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
+        } else {
+            db.productDao().getProductWithNoCategoryPaging(offset, pageSize)
         }
     }
 }

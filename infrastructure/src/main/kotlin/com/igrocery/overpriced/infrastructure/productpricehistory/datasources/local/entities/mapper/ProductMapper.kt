@@ -2,8 +2,6 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // data mapper for the Product aggregate root
 internal class ProductMapper {
@@ -16,7 +14,7 @@ internal class ProductMapper {
             barcode = product.barcode,
             creationTimestamp = product.creationTimestamp,
             updateTimestamp = product.updateTimestamp,
-            categoryId = product.categoryId,
+            categoryId = if (product.categoryId == 0L) null else product.categoryId,
         )
     }
 
@@ -28,7 +26,7 @@ internal class ProductMapper {
             barcode = productRoomEntity.barcode,
             creationTimestamp = productRoomEntity.creationTimestamp,
             updateTimestamp = productRoomEntity.updateTimestamp,
-            categoryId = productRoomEntity.categoryId
+            categoryId = productRoomEntity.categoryId ?: 0L
         )
     }
 }

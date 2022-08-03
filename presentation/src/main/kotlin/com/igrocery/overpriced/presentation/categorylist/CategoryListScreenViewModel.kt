@@ -3,7 +3,6 @@ package com.igrocery.overpriced.presentation.categorylist
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.application.productpricehistory.ProductService
@@ -39,7 +38,7 @@ class CategoryListScreenViewModel @Inject constructor(
         val productCount: Int,
     )
 
-    val productCountWithNoCategory = productService.getProductCountWithCategory(null)
+    val productCountWithNoCategory = productService.getProductCountByCategoryId(0L)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -48,7 +47,7 @@ class CategoryListScreenViewModel @Inject constructor(
 
     val categoryListWithCountFlow = categoryService.getAllCategories()
         .flatMapLatest { categoryList ->
-            combine(categoryList.map { productService.getProductCountWithCategory(it) }) {
+            combine(categoryList.map { productService.getProductCountByCategoryId(it.id) }) {
                 val productCountList = it.asList()
                 categoryList.zip(productCountList) { category, count ->
                     CategoryWithProductCount(category, count)

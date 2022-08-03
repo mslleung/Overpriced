@@ -4,22 +4,26 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenStateHolder
 
 class CategoryDetailScreenStateHolder {
 
-//    var isLazyListPagingFirstLoad = true
+    var isLazyListPagingFirstLoad = true
 
     companion object {
-        val Saver = Saver<CategoryDetailScreenStateHolder, Bundle>(
+        val Saver : Saver<CategoryDetailScreenStateHolder, *> = listSaver(
             save = {
-                Bundle().apply {
-//                    putBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD, it.isLazyListPagingFirstLoad)
-                }
+                listOf(
+                    it.isLazyListPagingFirstLoad,
+//                    it.query,
+                )
             },
-            restore = { bundle ->
+            restore = {
                 CategoryDetailScreenStateHolder().apply {
-//                    isLazyListPagingFirstLoad = bundle.getBoolean(KEY_IS_LAZY_LIST_PAGING_FIRST_LOAD)
+                    isLazyListPagingFirstLoad = it[0] as Boolean
+//                    query = it[1] as String
                 }
             }
         )

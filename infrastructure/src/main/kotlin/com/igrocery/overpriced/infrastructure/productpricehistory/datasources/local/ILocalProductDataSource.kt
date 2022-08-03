@@ -27,6 +27,8 @@ internal interface ILocalProductDataSource {
 
     suspend fun searchProductsByNamePaging(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
 
-    fun getProductCountWithCategory(category: Category?): Flow<Int>
+    fun getProductCountByCategoryId(categoryId: Long): Flow<Int>
+
+    fun getProductByCategoryIdPaging(categoryId: Long, offset: Int, pageSize: Int): List<ProductRoomEntity>
 
 }

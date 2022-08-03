@@ -19,8 +19,10 @@ interface IProductRepository : BaseRepository<Product> {
         barcode: String
     ): Flow<Product?>
 
-    fun getProductCountWithCategory(
-        category: Category?
+    fun getProductCountByCategoryId(
+        categoryId: Long
     ): Flow<Int>
+
+    fun getProductsByCategoryIdPaging(categoryId: Long): PagingSource<Int, Product>
 
 }
