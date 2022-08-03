@@ -2,6 +2,7 @@ package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -179,7 +180,6 @@ private fun MainContent(
                     top = 8.dp,
                     bottom = 120.dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
                     .padding(it)
                     .navigationBarsPadding()
@@ -198,6 +198,7 @@ private fun MainContent(
                             modifier = Modifier
                                 .animateItemPlacement()
                                 .fillMaxWidth()
+                                .height(60.dp)
                         )
                     }
                 }
@@ -232,8 +233,7 @@ private fun EmptyListContent(
     ) {
         Text(
             text = stringResource(id = R.string.search_product_no_result_text),
-            textAlign = TextAlign.Center,
-            modifier = modifier.padding(horizontal = 40.dp),
+            modifier = modifier.wrapContentSize(),
             style = MaterialTheme.typography.bodyLarge
         )
     }
@@ -249,22 +249,24 @@ private fun ProductListItem(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .clickable { onClick(product) }
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 24.dp)
     ) {
         Text(
             text = product.name,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
 
-        Text(
-            text = product.description,
-            style = MaterialTheme.typography.titleLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.alpha(0.6f)
-        )
+        if (product.description.isNotBlank()) {
+            Text(
+                text = product.description,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.alpha(0.6f)
+            )
+        }
     }
 }
 
