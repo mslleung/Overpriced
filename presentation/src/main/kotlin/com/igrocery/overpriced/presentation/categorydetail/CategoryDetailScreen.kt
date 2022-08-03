@@ -83,7 +83,7 @@ private fun MainContent(
     onFabClick: () -> Unit,
     onNavBarPlannerClick: () -> Unit
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarScrollState)
     Scaffold(

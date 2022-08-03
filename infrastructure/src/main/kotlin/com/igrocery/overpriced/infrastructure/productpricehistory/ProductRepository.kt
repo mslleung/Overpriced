@@ -1,19 +1,20 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
-import androidx.paging.*
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
+import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
 import com.igrocery.overpriced.infrastructure.di.IoDispatcher
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.mapper.ProductMapper
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -53,7 +54,7 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun getProductsPagingSource(query: String?): PagingSource<Int, Product> {
+    override fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
         return ProductsPagingSource(localProductDataSource, productMapper, ioDispatcher, query)
     }
 
@@ -61,7 +62,7 @@ class ProductRepository @Inject internal constructor(
         private val localProductDataSource: ILocalProductDataSource,
         private val productMapper: ProductMapper,
         private val ioDispatcher: CoroutineDispatcher,
-        private val query: String? = null,
+        private val query: String,
     ) : PagingSource<Int, Product>(), InvalidationObserverDelegate.InvalidationObserver {
 
         init {
@@ -80,12 +81,10 @@ class ProductRepository @Inject internal constructor(
                     val offset = (pageNumber - 1) * params.loadSize // all the previous pages
 
                     val queryStr = query
-                    val pageData = if (queryStr == null) {
-                        localProductDataSource.getProductsPage(offset, params.loadSize)
-                    } else if (queryStr.isBlank()) {
+                    val pageData = if (queryStr.isBlank()) {
                         emptyList()
                     } else {
-                        localProductDataSource.searchProductsPage(queryStr, offset, params.loadSize)
+                        localProductDataSource.searchProductsByNamePaging(queryStr, offset, params.loadSize)
                     }
                     LoadResult.Page(
                         data = pageData.map { productMapper.mapFromData(it) },

@@ -41,6 +41,7 @@ fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
+    navigateToSearchProduct: () -> Unit,
     navigateToAddPrice: () -> Unit,
     navigateToPlanner: () -> Unit
 ) {
@@ -85,8 +86,9 @@ fun CategoryListScreen(
     MainContent(
         categoryWithCountList = categoryWithCountList,
         state = state,
-        onCategoryClick = { },
         onSettingsClick = navigateToSettings,
+        onSearchBarClick = navigateToSearchProduct,
+        onCategoryClick = { },
         onFabClick = navigateToAddPrice,
         onNavBarPlannerClick = navigateToPlanner,
     )
@@ -101,12 +103,13 @@ fun CategoryListScreen(
 private fun MainContent(
     categoryWithCountList: List<CategoryWithProductCount>,
     state: CategoryListScreenStateHolder,
-    onCategoryClick: (Category) -> Unit,
     onSettingsClick: () -> Unit,
+    onSearchBarClick: () -> Unit,
+    onCategoryClick: (Category) -> Unit,
     onFabClick: () -> Unit,
     onNavBarPlannerClick: () -> Unit
 ) {
-    val topBarScrollState = rememberTopAppBarScrollState()
+    val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             decayAnimationSpec = rememberSplineBasedDecay(),
@@ -203,7 +206,7 @@ private fun MainContent(
             ) {
                 stickyHeader {
                     Surface(
-                        onClick = { },
+                        onClick = { onSearchBarClick() },
                         shape = RoundedCornerShape(percent = 100),
                         tonalElevation = 8.dp,
                         shadowElevation = 8.dp,
@@ -301,7 +304,7 @@ private fun CategoryWithCountListItem(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
+            modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 10.dp)
                 .fillMaxWidth()
         ) {
@@ -363,8 +366,9 @@ private fun EmptyPreview() {
     MainContent(
         categoryWithCountList = emptyList(),
         state = CategoryListScreenStateHolder(),
-        onCategoryClick = {},
         onSettingsClick = {},
+        onSearchBarClick = {},
+        onCategoryClick = {},
         onFabClick = {},
         onNavBarPlannerClick = {}
     )
@@ -403,8 +407,9 @@ private fun DefaultPreview() {
     MainContent(
         categoryWithCountList = categoryWithCountList,
         state = CategoryListScreenStateHolder(),
-        onCategoryClick = {},
         onSettingsClick = {},
+        onSearchBarClick = {},
+        onCategoryClick = {},
         onFabClick = {},
         onNavBarPlannerClick = {}
     )

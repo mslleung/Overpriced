@@ -99,12 +99,12 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0-alpha03")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha14")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha15")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
-    implementation("androidx.activity:activity-compose:1.5.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.activity:activity-compose:1.5.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
 
     // data store
     implementation("androidx.datastore:datastore:1.0.0")
@@ -131,7 +131,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // accompanist
-    val accompanistVersion = "0.24.13-rc"
+    val accompanistVersion = "0.26.0-alpha"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -141,12 +141,12 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.13.2")
     kapt("com.github.bumptech.glide:compiler:4.13.2")
-    implementation("com.github.skydoves:landscapist-glide:1.5.3")
+    implementation("com.github.skydoves:landscapist-glide:1.6.0")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:20.0.0")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.5.2")
+    implementation("com.google.maps.android:maps-compose:2.5.3")
 
     // MP Android Chart
 //    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
