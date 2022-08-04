@@ -24,6 +24,9 @@
     <string name="category_list_bottom_nav_label">Food Prices</string>
     <string name="category_list_bottom_nav_content_description">Food Prices</string>
 
+    <string name="category_detail_search_button_content_description">Search</string>
+    <string name="category_detail_edit_button_content_description">Edit Category</string>
+
     <string name="search_product_search_bar_hint">Search product…</string>
     <string name="search_product_clear_button_content_description">Clear</string>
     <string name="search_product_no_result_text">No result"</string>

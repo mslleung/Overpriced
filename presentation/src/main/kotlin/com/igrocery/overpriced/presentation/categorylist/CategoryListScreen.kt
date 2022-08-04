@@ -89,7 +89,7 @@ fun CategoryListScreen(
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
-        onCategoryClick = { },
+        onCategoryClick = navigateToCategoryDetail,
         onFabClick = navigateToAddPrice,
         onNavBarPlannerClick = navigateToPlanner,
     )

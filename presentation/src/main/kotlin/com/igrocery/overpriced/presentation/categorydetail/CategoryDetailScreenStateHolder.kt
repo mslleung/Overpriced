@@ -1,12 +1,10 @@
 package com.igrocery.overpriced.presentation.categorydetail
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenStateHolder
 
 class CategoryDetailScreenStateHolder {
 
@@ -17,13 +15,11 @@ class CategoryDetailScreenStateHolder {
             save = {
                 listOf(
                     it.isLazyListPagingFirstLoad,
-//                    it.query,
                 )
             },
             restore = {
                 CategoryDetailScreenStateHolder().apply {
                     isLazyListPagingFirstLoad = it[0] as Boolean
-//                    query = it[1] as String
                 }
             }
         )

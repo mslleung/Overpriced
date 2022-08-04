@@ -176,10 +176,6 @@ private fun MainContent(
             )
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 120.dp
-                ),
                 modifier = Modifier
                     .padding(it)
                     .navigationBarsPadding()
@@ -279,7 +275,7 @@ private fun DefaultPreview() {
                 Product(
                     name = "Apple",
                     description = "Pack of 5",
-                    categoryId = null
+                    categoryId = 0L
                 )
             )
         )

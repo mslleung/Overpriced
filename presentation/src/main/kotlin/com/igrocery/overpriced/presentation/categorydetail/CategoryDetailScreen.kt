@@ -23,11 +23,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
+import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.NewPriceRecordFloatingActionButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
 
@@ -39,6 +45,9 @@ fun CategoryDetailScreen(
     categoryId: Long,
     viewModel: CategoryDetailScreenViewModel,
     navigateUp: () -> Unit,
+    navigateToSearchProduct: () -> Unit,
+    navigateToEditCategory: () -> Unit,
+    navigateToNewPrice: () -> Unit,
 ) {
     log.debug("Composing CategoryDetailScreen")
 
@@ -66,10 +75,11 @@ fun CategoryDetailScreen(
         category = category,
         productsPagingItems = products,
         state = state,
-        onCategoryClick = { },
-        onSettingsClick = navigateToSettings,
-        onFabClick = navigateToAddPrice,
-        onNavBarPlannerClick = navigateToPlanner,
+        onBackButtonClick = navigateUp,
+        onSearchButtonClick = navigateToSearchProduct,
+        onEditButtonClick = navigateToEditCategory,
+        onProductClick = {},
+        onFabClick = navigateToNewPrice,
     )
 
     BackHandler(enabled = false) {
@@ -81,121 +91,126 @@ fun CategoryDetailScreen(
 @Composable
 private fun MainContent(
     category: Category?,
-    categoryWithCountList: List<CategoryWithProductCount>,
+    productsPagingItems: LazyPagingItems<Product>,
     state: CategoryDetailScreenStateHolder,
-    onCategoryClick: (Category) -> Unit,
-    onSettingsClick: () -> Unit,
+    onBackButtonClick: () -> Unit,
+    onSearchButtonClick: () -> Unit,
+    onEditButtonClick: () -> Unit,
+    onProductClick: (Product) -> Unit,
     onFabClick: () -> Unit,
-    onNavBarPlannerClick: () -> Unit
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            LargeTopAppBar(
                 title = {
-                    // TODO replace with brand icon
-                    Text(text = stringResource(id = R.string.app_name))
+                    if (category != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = category.icon.iconRes),
+                                contentDescription = category.name,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(30.dp)
+                            )
+
+                            Text(text = category.name)
+                        }
+                    }
                 },
                 actions = {
-                    SettingsButton(
-                        onClick = onSettingsClick,
+                    IconButton(
+                        onClick = onSearchButtonClick,
                         modifier = Modifier
-                            .padding(14.dp)
-                            .size(24.dp, 24.dp)
+                            .size(48.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                            contentDescription = stringResource(id = R.string.category_detail_search_button_content_description)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onEditButtonClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+                            contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
+                        )
+                    }
+                },
+                navigationIcon = {
+                    BackButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                            .size(48.dp)
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
                 modifier = Modifier.statusBarsPadding()
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
+            NewPriceRecordFloatingActionButton(
                 onClick = onFabClick,
+                modifier = Modifier.navigationBarsPadding()
             )
         },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding(),
-            ) {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
-                    selected = true,
-                    onClick = { }
-                )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = onNavBarPlannerClick
-                )
+    ) {
+        if (state.isLazyListPagingFirstLoad && productsPagingItems.loadState.refresh is LoadState.Loading) {
+            LaunchedEffect(key1 = productsPagingItems.loadState.refresh) {
+                state.isLazyListPagingFirstLoad = false
             }
         }
-    ) {
-        if (categoryWithCountList.isEmpty()) {
-            EmptyListContent(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-            )
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .padding(it)
-                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-            ) {
-//                stickyHeader {
-//
-//                }
+        val isLoading by derivedStateOf {
+            state.isLazyListPagingFirstLoad || productsPagingItems.loadState.refresh is LoadState.Loading
+        }
 
-                items(
-                    items = categoryWithCountList
-                        .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
-                    key = { categoryWithCount -> categoryWithCount.category.id }
-                ) { categoryWithCount ->
-                    CategoryWithCountListItem(
-                        categoryWithCount = categoryWithCount,
-                        onClick = onCategoryClick,
-                        modifier = Modifier
-                            .animateItemPlacement()
-                            .fillMaxWidth()
-                    )
+        if (isLoading) {
+            // TODO display loading state
+        } else {
+            if (productsPagingItems.itemCount == 0) {
+                EmptyListContent(
+                    modifier = Modifier
+                        .padding(it)
+                        .navigationBarsPadding()
+                        .fillMaxSize()
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(it)
+                        .navigationBarsPadding()
+                        .padding(bottom = 200.dp)
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    items(
+                        items = productsPagingItems,
+                        key = { product -> product.id }
+                    ) { product ->
+                        if (product != null) {
+                            CategoryWithCountListItem(
+                                product = product,
+                                onClick = onProductClick,
+                                modifier = Modifier
+                                    .animateItemPlacement()
+                                    .fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+// TODO same as category list?
 @Composable
 private fun EmptyListContent(
     modifier: Modifier = Modifier
@@ -230,119 +245,102 @@ private fun EmptyListContent(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CategoryWithCountListItem(
-    categoryWithCount: CategoryWithProductCount,
-    onClick: (Category) -> Unit,
+    product: Product,
+    onClick: (Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (category, productCount) = categoryWithCount
 
-    ElevatedCard(
-        onClick = { onClick(category) },
-        modifier = modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-                .fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(id = category.icon.iconRes),
-                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(35.dp)
-            )
-
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = category.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
-                    text = pluralStringResource(
-                        id = R.plurals.category_list_category_item_count_text,
-                        count = productCount,
-                        productCount
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
-            contentDescription = stringResource(R.string.settings_button_content_description)
-        )
-    }
+//    ElevatedCard(
+//        onClick = { onClick(category) },
+//        modifier = modifier
+//    ) {
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = modifier
+//                .padding(horizontal = 12.dp, vertical = 10.dp)
+//                .fillMaxWidth()
+//        ) {
+//            Image(
+//                painter = painterResource(id = category.icon.iconRes),
+//                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
+//                modifier = Modifier
+//                    .padding(end = 16.dp)
+//                    .size(35.dp)
+//            )
+//
+//            Column(
+//                horizontalAlignment = Alignment.Start,
+//                verticalArrangement = Arrangement.Center,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text(
+//                    text = category.name,
+//                    style = MaterialTheme.typography.titleLarge,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                )
+//
+//                Text(
+//                    text = pluralStringResource(
+//                        id = R.plurals.category_list_category_item_count_text,
+//                        count = productCount,
+//                        productCount
+//                    ),
+//                    style = MaterialTheme.typography.titleMedium,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis,
+//                    modifier = Modifier.alpha(0.6f)
+//                )
+//            }
+//        }
+//    }
 }
 
 @Preview
 @Composable
 private fun EmptyPreview() {
-    MainContent(
-        categoryWithCountList = emptyList(),
-        state = CategoryDetailScreenStateHolder(),
-        onCategoryClick = {},
-        onSettingsClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
-    )
+//    MainContent(
+//        categoryWithCountList = emptyList(),
+//        state = CategoryDetailScreenStateHolder(),
+//        onCategoryClick = {},
+//        onSettingsClick = {},
+//        onFabClick = {},
+//        onNavBarPlannerClick = {}
+//    )
 }
 
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val categoryWithCountList = listOf(
-        CategoryWithProductCount(
-            category = Category(id = 0, icon = CategoryIcon.NoCategory, name = "Uncategorized"),
-            productCount = 25
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 1, icon = CategoryIcon.Apple, name = "Fruits"),
-            productCount = 10
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 2, icon = CategoryIcon.Carrot, name = "Vegetables"),
-            productCount = 500
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 3, icon = CategoryIcon.Beer, name = "Beverages"),
-            productCount = 7
-        ),
-        CategoryWithProductCount(
-            category = Category(id = 4, icon = CategoryIcon.Cheese, name = "Dairy"),
-            productCount = 23
-        ),
-    )
-
-    MainContent(
-        categoryWithCountList = categoryWithCountList,
-        state = CategoryDetailScreenStateHolder(),
-        onCategoryClick = {},
-        onSettingsClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
-    )
+//    val categoryWithCountList = listOf(
+//        CategoryWithProductCount(
+//            category = Category(id = 0, icon = CategoryIcon.NoCategory, name = "Uncategorized"),
+//            productCount = 25
+//        ),
+//        CategoryWithProductCount(
+//            category = Category(id = 1, icon = CategoryIcon.Apple, name = "Fruits"),
+//            productCount = 10
+//        ),
+//        CategoryWithProductCount(
+//            category = Category(id = 2, icon = CategoryIcon.Carrot, name = "Vegetables"),
+//            productCount = 500
+//        ),
+//        CategoryWithProductCount(
+//            category = Category(id = 3, icon = CategoryIcon.Beer, name = "Beverages"),
+//            productCount = 7
+//        ),
+//        CategoryWithProductCount(
+//            category = Category(id = 4, icon = CategoryIcon.Cheese, name = "Dairy"),
+//            productCount = 23
+//        ),
+//    )
+//
+//    MainContent(
+//        categoryWithCountList = categoryWithCountList,
+//        state = CategoryDetailScreenStateHolder(),
+//        onCategoryClick = {},
+//        onSettingsClick = {},
+//        onFabClick = {},
+//        onNavBarPlannerClick = {}
+//    )
 }

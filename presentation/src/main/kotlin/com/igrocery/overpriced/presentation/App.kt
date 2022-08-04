@@ -15,6 +15,7 @@ import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
@@ -139,7 +140,7 @@ fun App() {
                     navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
-                    navigateToCategoryDetail = {},
+                    navigateToCategoryDetail = { navController.navigate("$CategoryDetail/${it.id}") },
                     navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }
                 ) {
 //                navController.navigate(screen.route) {
@@ -168,15 +169,21 @@ fun App() {
             }
             composable(
                 route = CategoryDetail_With_Args,
-                arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) { type = NavType.LongType })
+                arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) {
+                    type = NavType.LongType
+                })
             ) { backStackEntry ->
                 val categoryDetailScreenViewModel = hiltViewModel<CategoryDetailScreenViewModel>()
 
-                val categoryId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+                val categoryId = backStackEntry.arguments?.getLong(CategoryDetail_Arg_CategoryId)
+                    ?: throw IllegalArgumentException("Category id must not be null.")
                 CategoryDetailScreen(
                     categoryId = categoryId,
                     viewModel = categoryDetailScreenViewModel,
-                    navigateUp = { /*TODO*/ },
+                    navigateUp = { navController.navigateUp() },
+                    navigateToSearchProduct = {},
+                    navigateToEditCategory = {},
+                    navigateToNewPrice = {},
                 )
             }
 
