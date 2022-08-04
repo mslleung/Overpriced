@@ -1,24 +1,23 @@
 package com.igrocery.overpriced.presentation.categorydetail
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,7 +86,9 @@ fun CategoryDetailScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalTextApi::class
+)
 @Composable
 private fun MainContent(
     category: Category?,
@@ -115,7 +116,7 @@ private fun MainContent(
                                 contentDescription = category.name,
                                 modifier = Modifier
                                     .padding(end = 8.dp)
-                                    .size(30.dp)
+                                    .size(30.dp),
                             )
 
                             Text(text = category.name)
@@ -242,58 +243,52 @@ private fun EmptyListContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CategoryWithCountListItem(
     product: Product,
     onClick: (Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onClick(product) }
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = product.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyLarge
+            )
 
-//    ElevatedCard(
-//        onClick = { onClick(category) },
-//        modifier = modifier
-//    ) {
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = modifier
-//                .padding(horizontal = 12.dp, vertical = 10.dp)
-//                .fillMaxWidth()
-//        ) {
-//            Image(
-//                painter = painterResource(id = category.icon.iconRes),
-//                contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
-//                modifier = Modifier
-//                    .padding(end = 16.dp)
-//                    .size(35.dp)
+            if (product.description.isNotBlank()) {
+                Text(
+                    text = product.description,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
+        }
+
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+//            Text(
+//                text = product.,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis,
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier.alpha(0.6f)
 //            )
-//
-//            Column(
-//                horizontalAlignment = Alignment.Start,
-//                verticalArrangement = Arrangement.Center,
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Text(
-//                    text = category.name,
-//                    style = MaterialTheme.typography.titleLarge,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis,
-//                )
-//
-//                Text(
-//                    text = pluralStringResource(
-//                        id = R.plurals.category_list_category_item_count_text,
-//                        count = productCount,
-//                        productCount
-//                    ),
-//                    style = MaterialTheme.typography.titleMedium,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis,
-//                    modifier = Modifier.alpha(0.6f)
-//                )
-//            }
-//        }
-//    }
+        }
+    }
 }
 
 @Preview
