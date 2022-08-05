@@ -1,21 +1,18 @@
 package com.igrocery.overpriced.presentation.categorydetail
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.style.TextAlign
@@ -28,14 +25,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
 import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.NewPriceRecordFloatingActionButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
-import kotlin.math.abs
 
 @Suppress("unused")
 private val log = Logger { }
@@ -47,7 +40,6 @@ fun CategoryDetailScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
-    navigateToNewPrice: () -> Unit,
 ) {
     log.debug("Composing CategoryDetailScreen")
 
@@ -79,7 +71,6 @@ fun CategoryDetailScreen(
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
         onProductClick = {},
-        onFabClick = navigateToNewPrice,
     )
 
     BackHandler(enabled = false) {
@@ -87,9 +78,7 @@ fun CategoryDetailScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalTextApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     category: Category?,
@@ -99,7 +88,6 @@ private fun MainContent(
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onProductClick: (Product) -> Unit,
-    onFabClick: () -> Unit,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -159,12 +147,6 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
-        floatingActionButton = {
-            NewPriceRecordFloatingActionButton(
-                onClick = onFabClick,
-                modifier = Modifier.navigationBarsPadding()
-            )
-        },
     ) {
         if (state.isLazyListPagingFirstLoad && productsPagingItems.loadState.refresh is LoadState.Loading) {
             LaunchedEffect(key1 = productsPagingItems.loadState.refresh) {
@@ -176,7 +158,7 @@ private fun MainContent(
         }
 
         if (isLoading) {
-            // TODO display loading state
+            // loading state - show nothing
         } else {
             if (productsPagingItems.itemCount == 0) {
                 EmptyListContent(
@@ -214,36 +196,18 @@ private fun MainContent(
     }
 }
 
-// TODO same as category list?
 @Composable
 private fun EmptyListContent(
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(scrollState)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_price_tag),
-            contentDescription = stringResource(id = R.string.category_list_empty_list_image_content_description),
-            modifier = Modifier
-                .size(200.dp, 200.dp)
-                .padding(bottom = 36.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-        )
-
-        Text(
-            text = stringResource(id = R.string.category_list_empty_list_text),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(horizontal = 40.dp)
-                .padding(bottom = 130.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
+    Text(
+        text = stringResource(id = R.string.category_detail_empty_text),
+        textAlign = TextAlign.Center,
+        modifier = modifier,
+        style = MaterialTheme.typography.bodyLarge,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -256,6 +220,8 @@ private fun CategoryWithCountListItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clickable { onClick(product) }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(40.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,

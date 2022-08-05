@@ -6,10 +6,21 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -60,6 +71,7 @@ import com.igrocery.overpriced.presentation.settings.SettingsScreen
 import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme
 import com.igrocery.overpriced.shared.Logger
+import com.ireceipt.receiptscanner.presentation.R
 
 @Suppress("unused")
 private val log = Logger { }
@@ -94,252 +106,362 @@ private object NavRoutes {
     const val NewPriceRecordRoute = "newPriceRecordRoute"
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun App() {
     AppTheme {
         val navController = rememberAnimatedNavController()
 
-        val animationSpec: FiniteAnimationSpec<Float> =
-            spring(stiffness = Spring.StiffnessMediumLow)
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = CategoryList,
-            enterTransition = {
-                fadeIn(animationSpec) + scaleIn(
-                    animationSpec,
-                    initialScale = 0.9f
-                )
-            },
-            exitTransition = {
-                fadeOut(animationSpec) + scaleOut(
-                    animationSpec,
-                    targetScale = 1.1f
-                )
-            },
-            popEnterTransition = {
-                fadeIn(animationSpec) + scaleIn(
-                    animationSpec,
-                    initialScale = 1.1f
-                )
-            },
-            popExitTransition = {
-                fadeOut(animationSpec) + scaleOut(
-                    animationSpec,
-                    targetScale = 0.9f
-                )
+        // states belonging to the global scaffold
+        val coroutineScope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val isFabExpanded by remember { mutableStateOf(true) }
+
+        // Global scaffold, this contains common elements that are not tied to a particular screen
+        val currentRoute by navController.currentBackStackEntryAsState()
+        Scaffold(
+//            bottomBar = {
+//                when (currentRoute?.destination?.route) {
+//                    CategoryList -> {
+//                        NavigationBar(
+//                            modifier = Modifier
+//                                .navigationBarsPadding()
+//                                .imePadding(),
+//                        ) {
+//                            NavigationBarItem(
+//                                icon = {
+//                                    Icon(
+//                                        painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
+//                                        contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
+//                                        modifier = Modifier.size(24.dp)
+//                                    )
+//                                },
+//                                label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
+//                                selected = true,
+//                                onClick = { }
+//                            )
+//                            NavigationBarItem(
+//                                icon = {
+//                                    Icon(
+//                                        painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
+//                                        contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
+//                                        modifier = Modifier.size(24.dp)
+//                                    )
+//                                },
+//                                label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
+//                                selected = false,
+//                                onClick = { }
+//                            )
+//                        }
+//                    }
+//                    else -> {
+//                        // No bottom bar
+//                    }
+//                }
+//            },
+//            snackbarHost = {
+//                SnackbarHost(
+//                    hostState = snackbarHostState,
+//                    modifier = Modifier
+//                        .navigationBarsPadding()
+//                        .imePadding()
+//                )
+//            },
+            floatingActionButton = {
+                AnimatedContent(
+                    targetState = currentRoute?.destination?.route,
+                    transitionSpec = {
+                        scaleIn(
+                            initialScale = 0.4f,
+                            transformOrigin = TransformOrigin(1f, 1f)
+                        ) + fadeIn() with scaleOut(
+                            targetScale = 0.4f,
+                            transformOrigin = TransformOrigin(1f, 0.8f)
+                        ) + fadeOut() using SizeTransform()
+                    },
+                    contentAlignment = Alignment.BottomEnd,
+                ) {
+                    when (it) {
+                        CategoryList -> {
+                            log.error("CategoryList FAB")
+                            ExtendedFloatingActionButton(
+                                text = {
+                                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                                },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                        contentDescription = stringResource(
+                                            id = R.string.category_list_new_price_fab_content_description
+                                        ),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                },
+                                expanded = isFabExpanded,
+                                onClick = { navController.navigate(NewPriceRecordRoute) },
+                                modifier = Modifier
+                                    .navigationBarsPadding()
+                                    .imePadding()
+                            )
+                        }
+                        CategoryDetail_With_Args -> {
+                            FloatingActionButton(
+                                onClick = { }, // TODO
+                                modifier = Modifier
+                                    .navigationBarsPadding()
+                                    .imePadding(),
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                    contentDescription = stringResource(
+                                        id = R.string.category_list_new_price_fab_content_description
+                                    ),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        else -> {
+                            // No fab
+                            log.error("No FAB")
+                        }
+                    }
+                }
             }
         ) {
-            composable(CategoryList) {
-                val categoryListScreenViewModel =
-                    hiltViewModel<CategoryListScreenViewModel>()
 
-                CategoryListScreen(
-                    categoryListScreenViewModel = categoryListScreenViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                    navigateToSettings = { navController.navigate(SettingsRoute) },
-                    navigateToCategoryDetail = { navController.navigate("$CategoryDetail/${it.id}") },
-                    navigateToAddPrice = { navController.navigate(NewPriceRecordRoute) }
-                ) {
-//                navController.navigate(screen.route) {
-//                    // Pop up to the start destination of the graph to
-//                    // avoid building up a large stack of destinations
-//                    // on the back stack as users select items
-//                    popUpTo(navController.graph.findStartDestination().id) {
-//                        saveState = true
-//                    }
-//                    // Avoid multiple copies of the same destination when
-//                    // reselecting the same item
-//                    launchSingleTop = true
-//                    // Restore state when reselecting a previously selected item
-//                    restoreState = true
-//                }
-                }
-            }
-            composable(SearchProduct) {
-                val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
-
-                SearchProductScreen(
-                    viewModel = searchProductScreenViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateToProductDetails = { }
-                )
-            }
-            composable(
-                route = CategoryDetail_With_Args,
-                arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) {
-                    type = NavType.LongType
-                })
-            ) { backStackEntry ->
-                val categoryDetailScreenViewModel = hiltViewModel<CategoryDetailScreenViewModel>()
-
-                val categoryId = backStackEntry.arguments?.getLong(CategoryDetail_Arg_CategoryId)
-                    ?: throw IllegalArgumentException("Category id must not be null.")
-                CategoryDetailScreen(
-                    categoryId = categoryId,
-                    viewModel = categoryDetailScreenViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateToSearchProduct = {},
-                    navigateToEditCategory = {},
-                    navigateToNewPrice = {},
-                )
-            }
-
-            navigation(route = SettingsRoute, startDestination = Settings) {
-                composable(Settings) {
-                    val settingsViewModel = hiltViewModel<SettingsScreenViewModel>()
-
-                    SettingsScreen(
-                        viewModel = settingsViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateToSelectCurrencyScreen = { navController.navigate(SelectCurrency) }
+            val animationSpec: FiniteAnimationSpec<Float> =
+                spring(stiffness = Spring.StiffnessMediumLow)
+            AnimatedNavHost(
+                navController = navController,
+                startDestination = CategoryList,
+                enterTransition = {
+                    fadeIn(animationSpec) + scaleIn(
+                        animationSpec,
+                        initialScale = 0.9f
+                    )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec) + scaleOut(
+                        animationSpec,
+                        targetScale = 1.1f
+                    )
+                },
+                popEnterTransition = {
+                    fadeIn(animationSpec) + scaleIn(
+                        animationSpec,
+                        initialScale = 1.1f
+                    )
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec) + scaleOut(
+                        animationSpec,
+                        targetScale = 0.9f
                     )
                 }
+            ) {
+                composable(CategoryList) {
+                    val categoryListScreenViewModel =
+                        hiltViewModel<CategoryListScreenViewModel>()
 
-                composable(SelectCurrency) {
-                    val selectCurrencyViewModel = hiltViewModel<SelectCurrencyScreenViewModel>()
-
-                    SelectCurrencyScreen(
-                        viewModel = selectCurrencyViewModel,
+                    CategoryListScreen(
+                        categoryListScreenViewModel = categoryListScreenViewModel,
                         navigateUp = { navController.navigateUp() },
+                        navigateToSearchProduct = { navController.navigate(SearchProduct) },
+                        navigateToSettings = { navController.navigate(SettingsRoute) },
+                        navigateToCategoryDetail = { navController.navigate("$CategoryDetail/${it.id}") },
                     )
                 }
-            }
+                composable(SearchProduct) {
+                    val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
 
-            navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
-                composable(NewPrice) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(NewPriceRecordRoute)
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val selectCategoryDialogViewModel =
-                        hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
-                    val selectStoreDialogViewModel =
-                        hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
-
-                    NewPriceScreen(
-                        newPriceScreenViewModel = newPriceViewModel,
-                        selectCategoryDialogViewModel = selectCategoryDialogViewModel,
-                        selectStoreDialogViewModel = selectStoreDialogViewModel,
+                    SearchProductScreen(
+                        viewModel = searchProductScreenViewModel,
                         navigateUp = { navController.navigateUp() },
-                        navigateToScanBarcode = { navController.navigate(ScanBarcode) },
-                        navigateToNewCategory = { navController.navigate(NewCategory) },
-                        navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
-                        navigateToNewStore = { navController.navigate(NewStore) },
-                        navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
-                    )
-                }
-                composable(ScanBarcode) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val scanBarcodeScreenViewModel = hiltViewModel<ScanBarcodeScreenViewModel>()
-
-                    ScanBarcodeScreen(
-                        viewModel = scanBarcodeScreenViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = { barcode ->
-                            newPriceViewModel.setBarcode(barcode)
-                            navController.navigateUp()
-                        })
-                }
-                composable(NewCategory) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
-
-                    NewCategoryScreen(
-                        viewModel = newCategoryViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.setProductCategoryId(it)
-                            navController.navigateUp()
-                        }
+                        navigateToProductDetails = { }
                     )
                 }
                 composable(
-                    EditCategory_With_Args,
-                    arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                    route = CategoryDetail_With_Args,
+                    arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) {
                         type = NavType.LongType
                     })
                 ) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
+                    val categoryDetailScreenViewModel =
+                        hiltViewModel<CategoryDetailScreenViewModel>()
 
                     val categoryId =
-                        backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
-
-                    EditCategoryScreen(
+                        backStackEntry.arguments?.getLong(CategoryDetail_Arg_CategoryId)
+                            ?: throw IllegalArgumentException("Category id must not be null.")
+                    CategoryDetailScreen(
                         categoryId = categoryId,
-                        viewModel = editCategoryViewModel,
+                        viewModel = categoryDetailScreenViewModel,
                         navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.setProductCategoryId(categoryId)
-                            navController.navigateUp()
-                        }
+                        navigateToSearchProduct = {},
+                        navigateToEditCategory = {},
                     )
                 }
-                composable(NewStore) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(NewPriceRecordRoute)
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
 
-                    NewStoreScreen(
-                        newStoreViewModel = newStoreViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.selectStore(it)
-                            navController.navigateUp()
-                        }
-                    )
+                navigation(route = SettingsRoute, startDestination = Settings) {
+                    composable(Settings) {
+                        val settingsViewModel = hiltViewModel<SettingsScreenViewModel>()
+
+                        SettingsScreen(
+                            viewModel = settingsViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateToSelectCurrencyScreen = { navController.navigate(SelectCurrency) }
+                        )
+                    }
+
+                    composable(SelectCurrency) {
+                        val selectCurrencyViewModel = hiltViewModel<SelectCurrencyScreenViewModel>()
+
+                        SelectCurrencyScreen(
+                            viewModel = selectCurrencyViewModel,
+                            navigateUp = { navController.navigateUp() },
+                        )
+                    }
                 }
-                composable(
-                    EditStore_With_Args,
-                    arguments = listOf(navArgument(EditStore_Arg_StoreId) {
-                        type = NavType.LongType
-                    })
-                ) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
 
-                    val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+                navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
+                    composable(NewPrice) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(NewPriceRecordRoute)
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val selectCategoryDialogViewModel =
+                            hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
+                        val selectStoreDialogViewModel =
+                            hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
 
-                    EditStoreScreen(
-                        storeId = storeId,
-                        viewModel = editStoreViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.selectStore(storeId)
-                            navController.navigateUp()
-                        }
-                    )
+                        NewPriceScreen(
+                            newPriceScreenViewModel = newPriceViewModel,
+                            selectCategoryDialogViewModel = selectCategoryDialogViewModel,
+                            selectStoreDialogViewModel = selectStoreDialogViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateToScanBarcode = { navController.navigate(ScanBarcode) },
+                            navigateToNewCategory = { navController.navigate(NewCategory) },
+                            navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
+                            navigateToNewStore = { navController.navigate(NewStore) },
+                            navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
+                        )
+                    }
+                    composable(ScanBarcode) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(
+                                    NewPriceRecordRoute
+                                )
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val scanBarcodeScreenViewModel = hiltViewModel<ScanBarcodeScreenViewModel>()
+
+                        ScanBarcodeScreen(
+                            viewModel = scanBarcodeScreenViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateDone = { barcode ->
+                                newPriceViewModel.setBarcode(barcode)
+                                navController.navigateUp()
+                            })
+                    }
+                    composable(NewCategory) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(
+                                    NewPriceRecordRoute
+                                )
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
+
+                        NewCategoryScreen(
+                            viewModel = newCategoryViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateDone = {
+                                newPriceViewModel.setProductCategoryId(it)
+                                navController.navigateUp()
+                            }
+                        )
+                    }
+                    composable(
+                        EditCategory_With_Args,
+                        arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                            type = NavType.LongType
+                        })
+                    ) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(
+                                    NewPriceRecordRoute
+                                )
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
+
+                        val categoryId =
+                            backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
+
+                        EditCategoryScreen(
+                            categoryId = categoryId,
+                            viewModel = editCategoryViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateDone = {
+                                newPriceViewModel.setProductCategoryId(categoryId)
+                                navController.navigateUp()
+                            }
+                        )
+                    }
+                    composable(NewStore) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(NewPriceRecordRoute)
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
+
+                        NewStoreScreen(
+                            newStoreViewModel = newStoreViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateDone = {
+                                newPriceViewModel.selectStore(it)
+                                navController.navigateUp()
+                            }
+                        )
+                    }
+                    composable(
+                        EditStore_With_Args,
+                        arguments = listOf(navArgument(EditStore_Arg_StoreId) {
+                            type = NavType.LongType
+                        })
+                    ) { backStackEntry ->
+                        val navGraphEntry =
+                            remember(backStackEntry) {
+                                navController.getBackStackEntry(
+                                    NewPriceRecordRoute
+                                )
+                            }
+                        val newPriceViewModel =
+                            hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+                        val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
+
+                        val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+
+                        EditStoreScreen(
+                            storeId = storeId,
+                            viewModel = editStoreViewModel,
+                            navigateUp = { navController.navigateUp() },
+                            navigateDone = {
+                                newPriceViewModel.selectStore(storeId)
+                                navController.navigateUp()
+                            }
+                        )
+                    }
                 }
             }
         }

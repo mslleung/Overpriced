@@ -6,6 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -33,7 +33,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlin.math.abs
 
 @Suppress("unused")
 private val log = Logger { }
@@ -46,8 +45,6 @@ fun CategoryListScreen(
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToCategoryDetail: (Category) -> Unit,
-    navigateToAddPrice: () -> Unit,
-    navigateToPlanner: () -> Unit
 ) {
     log.debug("Composing ProductPriceListScreen")
 
@@ -94,8 +91,6 @@ fun CategoryListScreen(
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToCategoryDetail,
-        onFabClick = navigateToAddPrice,
-        onNavBarPlannerClick = navigateToPlanner,
     )
 
     BackHandler(enabled = false) {
@@ -111,14 +106,12 @@ private fun MainContent(
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category) -> Unit,
-    onFabClick: () -> Unit,
-    onNavBarPlannerClick: () -> Unit
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarState
+            state = topBarState,
         )
     Scaffold(
         topBar = {
@@ -140,57 +133,9 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onFabClick,
-            )
-        },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding(),
-            ) {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
-                    selected = true,
-                    onClick = { }
-                )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = onNavBarPlannerClick
-                )
-            }
-        }
     ) {
         if (categoryWithCountList == null) {
-            // Loading state
+            // Loading state - show nothing
         } else if (categoryWithCountList.isEmpty()) {
             EmptyListContent(
                 modifier = Modifier
@@ -388,8 +333,6 @@ private fun EmptyPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
     )
 }
 
@@ -429,7 +372,5 @@ private fun DefaultPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
     )
 }

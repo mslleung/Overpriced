@@ -26,6 +26,7 @@
 
     <string name="category_detail_search_button_content_description">Search</string>
     <string name="category_detail_edit_button_content_description">Edit Category</string>
+    <string name="category_detail_empty_text">No product in this category.</string>
 
     <string name="search_product_search_bar_hint">Search product…</string>
     <string name="search_product_clear_button_content_description">Clear</string>
