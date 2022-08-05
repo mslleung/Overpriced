@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -31,6 +32,7 @@ import com.ireceipt.receiptscanner.presentation.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlin.math.abs
 
 @Suppress("unused")
 private val log = Logger { }
@@ -110,11 +112,11 @@ private fun MainContent(
     onFabClick: () -> Unit,
     onNavBarPlannerClick: () -> Unit
 ) {
-    val topBarScrollState = rememberTopAppBarState()
+    val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarScrollState
+            state = topBarState
         )
     Scaffold(
         topBar = {

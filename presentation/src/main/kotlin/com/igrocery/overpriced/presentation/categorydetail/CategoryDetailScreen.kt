@@ -35,6 +35,7 @@ import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.NewPriceRecordFloatingActionButton
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
+import kotlin.math.abs
 
 @Suppress("unused")
 private val log = Logger { }
@@ -100,9 +101,9 @@ private fun MainContent(
     onProductClick: (Product) -> Unit,
     onFabClick: () -> Unit,
 ) {
-    val topBarScrollState = rememberTopAppBarState()
+    val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarScrollState)
+        TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarState)
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -115,8 +116,9 @@ private fun MainContent(
                                 painter = painterResource(id = category.icon.iconRes),
                                 contentDescription = category.name,
                                 modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .size(30.dp),
+                                    .padding(end = 12.dp)
+                                    .size(30.dp)
+                                    .alpha(LocalContentColor.current.alpha),
                             )
 
                             Text(text = category.name)
@@ -185,10 +187,11 @@ private fun MainContent(
                 )
             } else {
                 LazyColumn(
+                    contentPadding = PaddingValues(bottom = 120.dp),
                     modifier = Modifier
                         .padding(it)
                         .navigationBarsPadding()
-                        .padding(bottom = 200.dp)
+                        .fillMaxSize()
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
