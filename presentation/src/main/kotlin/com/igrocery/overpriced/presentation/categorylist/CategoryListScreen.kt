@@ -30,6 +30,7 @@ import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewM
 import com.igrocery.overpriced.shared.Logger
 import com.ireceipt.receiptscanner.presentation.R
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlin.math.abs
@@ -65,9 +66,10 @@ fun CategoryListScreen(
 
     val noCategoryString = stringResource(id = R.string.no_category)
     val categoryWithCountList by categoryListScreenViewModel.categoryListWithCountFlow
+        .filter { it != null }
         .flatMapLatest { categoryWithCountList ->
             categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
-                categoryWithCountList.toMutableList()
+                categoryWithCountList!!.toMutableList()
                     .apply {
                         if (noCategoryCount > 0) {
                             add(
@@ -84,7 +86,7 @@ fun CategoryListScreen(
                         }
                     }
             }
-        }.collectAsState(initial = emptyList())
+        }.collectAsState(initial = null)
     val state by rememberCategoryListScreenState()
     MainContent(
         categoryWithCountList = categoryWithCountList,
@@ -104,7 +106,7 @@ fun CategoryListScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    categoryWithCountList: List<CategoryWithProductCount>,
+    categoryWithCountList: List<CategoryWithProductCount>?,
     state: CategoryListScreenStateHolder,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
@@ -187,7 +189,9 @@ private fun MainContent(
             }
         }
     ) {
-        if (categoryWithCountList.isEmpty()) {
+        if (categoryWithCountList == null) {
+            // Loading state
+        } else if (categoryWithCountList.isEmpty()) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
@@ -208,39 +212,13 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 stickyHeader {
-                    Surface(
-                        onClick = { onSearchBarClick() },
-                        shape = RoundedCornerShape(percent = 100),
-                        tonalElevation = 8.dp,
-                        shadowElevation = 8.dp,
+                    SearchBar(
+                        onClick = onSearchBarClick,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                             .height(40.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .size(24.dp)
-                            )
-
-                            Text(
-                                text = stringResource(id = R.string.category_list_search_bar_hint),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.alpha(0.6f)
-                            )
-                        }
-                    }
+                    )
                 }
 
                 items(
@@ -289,6 +267,44 @@ private fun EmptyListContent(
                 .padding(bottom = 130.dp),
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchBar(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = { onClick() },
+        shape = RoundedCornerShape(percent = 100),
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp,
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(24.dp)
+            )
+
+            Text(
+                text = stringResource(id = R.string.category_list_search_bar_hint),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.alpha(0.6f)
+            )
+        }
     }
 }
 
