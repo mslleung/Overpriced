@@ -93,7 +93,7 @@ dependencies {
     implementation(project(":shared"))
 
     // android core UI
-    val composeVersion = "1.3.0-alpha01"
+    val composeVersion = "1.3.0-alpha02"
     implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("com.google.android.material:material:1.7.0-alpha03")
@@ -110,7 +110,7 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.5.0"
+    val navigationVersion = "2.5.1"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")
@@ -155,7 +155,7 @@ dependencies {
     implementation("com.google.mlkit:barcode-scanning:17.0.2")
 
     // CameraX
-    val cameraxVersion = "1.2.0-alpha03"
+    val cameraxVersion = "1.2.0-alpha04"
     implementation("androidx.camera:camera-camera2:${cameraxVersion}")
     implementation("androidx.camera:camera-view:${cameraxVersion}")
     implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")

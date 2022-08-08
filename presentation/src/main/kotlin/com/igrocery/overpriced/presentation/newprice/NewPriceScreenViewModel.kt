@@ -159,7 +159,7 @@ class NewPriceScreenViewModel @Inject constructor(
         productName: String,
         productDescription: String,
         productBarcode: String?,
-        productCategoryId: Long,
+        productCategoryId: Long?,
         priceAmountText: String,
         store: Store?,
     ) {

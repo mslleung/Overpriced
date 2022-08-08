@@ -41,4 +41,7 @@ internal class LocalCategoryDataSource @Inject internal constructor(
         return db.categoryDao().getAllCategories()
     }
 
+    override fun getAllCategoriesWithProductCount(): Flow<Map<CategoryRoomEntity?, Int>> {
+        return db.categoryDao().getCategoryWithProductCount()
+    }
 }

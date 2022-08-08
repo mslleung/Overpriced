@@ -35,14 +35,16 @@ fun SelectCategoryDialog(
 ) {
     val categoryList by viewModel.categoryListFlow.collectAsState()
 
-    MainLayout(
-        categoryList,
-        selectedCategoryId,
-        onDismiss,
-        onCategorySelect,
-        onEditCategoryClick,
-        onNewCategoryClick
-    )
+    categoryList?.let {
+        MainLayout(
+            it,
+            selectedCategoryId,
+            onDismiss,
+            onCategorySelect,
+            onEditCategoryClick,
+            onNewCategoryClick
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

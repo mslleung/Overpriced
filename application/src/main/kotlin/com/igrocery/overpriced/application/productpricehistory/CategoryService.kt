@@ -44,4 +44,14 @@ class CategoryService @Inject constructor(
     fun getAllCategories(): Flow<List<Category>> {
         return categoryRepository.getAllCategories()
     }
+
+    /**
+     * Return all categories with their product count. Category can be null to indicate products
+     * without category.
+     *
+     * @return The categories with their respective product count in a map.
+     */
+    fun getAllCategoriesWithProductCount(): Flow<Map<Category?, Int>> {
+        return categoryRepository.getAllCategoriesWithProductCount()
+    }
 }

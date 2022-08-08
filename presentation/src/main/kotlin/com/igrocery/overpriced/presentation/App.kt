@@ -228,7 +228,7 @@ fun App() {
                     }
                 }
             }
-        ) {
+        ) { scaffoldPadding ->
 
             val animationSpec: FiniteAnimationSpec<Float> =
                 spring(stiffness = Spring.StiffnessMediumLow)

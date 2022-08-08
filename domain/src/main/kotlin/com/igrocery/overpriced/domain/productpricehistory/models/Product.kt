@@ -19,7 +19,7 @@ class Product : AggregateRoot {
         name: String,
         description: String,   // the product brand, weight/size/flavor etc.
         barcode: String? = null,
-        categoryId: Long,
+        categoryId: Long?,
     ) : super(id, creationTimestamp, updateTimestamp) {
         this.name = name
         this.description = description
@@ -59,7 +59,7 @@ class Product : AggregateRoot {
             field = value
         }
 
-    var categoryId: Long
+    var categoryId: Long?
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

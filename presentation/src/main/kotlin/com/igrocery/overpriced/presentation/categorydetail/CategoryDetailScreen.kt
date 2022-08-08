@@ -14,7 +14,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -153,8 +152,10 @@ private fun MainContent(
                 state.isLazyListPagingFirstLoad = false
             }
         }
-        val isLoading by derivedStateOf {
-            state.isLazyListPagingFirstLoad || productsPagingItems.loadState.refresh is LoadState.Loading
+        val isLoading by remember {
+            derivedStateOf {
+                state.isLazyListPagingFirstLoad || productsPagingItems.loadState.refresh is LoadState.Loading
+            }
         }
 
         if (isLoading) {

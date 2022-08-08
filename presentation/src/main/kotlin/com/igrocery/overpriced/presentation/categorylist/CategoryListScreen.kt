@@ -62,31 +62,10 @@ fun CategoryListScreen(
     }
 
     val noCategoryString = stringResource(id = R.string.no_category)
-    val categoryWithCountList by categoryListScreenViewModel.categoryListWithCountFlow
-        .filter { it != null }
-        .flatMapLatest { categoryWithCountList ->
-            categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
-                categoryWithCountList!!.toMutableList()
-                    .apply {
-                        if (noCategoryCount > 0) {
-                            add(
-                                0,
-                                CategoryWithProductCount(
-                                    category = Category(
-                                        id = 0,
-                                        icon = CategoryIcon.NoCategory,
-                                        name = noCategoryString
-                                    ),
-                                    productCount = noCategoryCount
-                                )
-                            )
-                        }
-                    }
-            }
-        }.collectAsState(initial = null)
+    val categoryWithCountList by categoryListScreenViewModel.categoryWithProductCount.collectAsState()
     val state by rememberCategoryListScreenState()
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        categoryWithCountList = emptyList(),
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,

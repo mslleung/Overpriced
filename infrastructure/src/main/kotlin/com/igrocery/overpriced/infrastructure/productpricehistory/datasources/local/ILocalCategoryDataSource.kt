@@ -17,4 +17,6 @@ internal interface ILocalCategoryDataSource {
 
     fun getAllCategories(): Flow<List<CategoryRoomEntity>>
 
+    fun getAllCategoriesWithProductCount(): Flow<Map<CategoryRoomEntity?, Int>>
+
 }

@@ -34,7 +34,7 @@ class CategoryDetailScreenViewModel @Inject constructor(
         savedState[KEY_CATEGORY_ID] = categoryId
     }
 
-    val categoryFlow = savedState.getStateFlow(KEY_CATEGORY_ID, -1L)
+    val categoryFlow = savedState.getStateFlow(KEY_CATEGORY_ID, 0L)
         .flatMapLatest { categoryService.getCategoryById(it) }
         .stateIn(
             scope = viewModelScope,
@@ -48,7 +48,7 @@ class CategoryDetailScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        val categoryId = savedState.get<Long>(KEY_CATEGORY_ID) ?: -1L
+        val categoryId = savedState.get<Long>(KEY_CATEGORY_ID)
         productService.getProductsByCategoryIdPaging(categoryId)
     }.flow
         .cachedIn(viewModelScope)

@@ -14,7 +14,7 @@ internal class ProductMapper {
             barcode = product.barcode,
             creationTimestamp = product.creationTimestamp,
             updateTimestamp = product.updateTimestamp,
-            categoryId = if (product.categoryId == 0L) null else product.categoryId,
+            categoryId = product.categoryId,
         )
     }
 
@@ -26,7 +26,7 @@ internal class ProductMapper {
             barcode = productRoomEntity.barcode,
             creationTimestamp = productRoomEntity.creationTimestamp,
             updateTimestamp = productRoomEntity.updateTimestamp,
-            categoryId = productRoomEntity.categoryId ?: 0L
+            categoryId = productRoomEntity.categoryId
         )
     }
 }

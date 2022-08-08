@@ -134,11 +134,7 @@ class ProductRepository @Inject internal constructor(
             .map { it?.let { productMapper.mapFromData(it) } }
     }
 
-    override fun getProductCountByCategoryId(categoryId: Long): Flow<Int> {
-        return localProductDataSource.getProductCountByCategoryId(categoryId)
-    }
-
-    override fun getProductsByCategoryIdPaging(categoryId: Long): PagingSource<Int, Product> {
+    override fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
         return ProductsByCategoryPagingSource(
             localProductDataSource,
             productMapper,
@@ -151,7 +147,7 @@ class ProductRepository @Inject internal constructor(
         private val localProductDataSource: ILocalProductDataSource,
         private val productMapper: ProductMapper,
         private val ioDispatcher: CoroutineDispatcher,
-        private val categoryId: Long,
+        private val categoryId: Long?,
     ) : PagingSource<Int, Product>(), InvalidationObserverDelegate.InvalidationObserver {
 
         init {

@@ -37,23 +37,30 @@ class CategoryListScreenViewModel @Inject constructor(
         val category: Category,
         val productCount: Int,
     )
+//
+//    private val productCountWithNoCategory = productService.getProductCountByCategoryId(0L)
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(),
+//            initialValue = 0
+//        )
+//
+//    private val categoryListWithCountFlow = categoryService.getAllCategories()
+//        .flatMapLatest { categoryList ->
+//            combine(categoryList.map { productService.getProductCountByCategoryId(it.id) }) {
+//                val productCountList = it.asList()
+//                categoryList.zip(productCountList) { category, count ->
+//                    CategoryWithProductCount(category, count)
+//                }
+//            }
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(),
+//            initialValue = null
+//        )
 
-    val productCountWithNoCategory = productService.getProductCountByCategoryId(0L)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
-
-    val categoryListWithCountFlow = categoryService.getAllCategories()
-        .flatMapLatest { categoryList ->
-            combine(categoryList.map { productService.getProductCountByCategoryId(it.id) }) {
-                val productCountList = it.asList()
-                categoryList.zip(productCountList) { category, count ->
-                    CategoryWithProductCount(category, count)
-                }
-            }
-        }
+    val categoryWithProductCount = categoryService.getAllCategoriesWithProductCount()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

@@ -17,7 +17,7 @@ class SelectCategoryDialogViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
+            initialValue = null
         )
 
 }

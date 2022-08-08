@@ -50,4 +50,15 @@ class CategoryRepository @Inject internal constructor(
         return localCategoryDataSource.getAllCategories()
             .map { it.map { category -> categoryMapper.mapFromData(category) } }
     }
+
+    override fun getAllCategoriesWithProductCount(): Flow<Map<Category?, Int>> {
+        return localCategoryDataSource.getAllCategoriesWithProductCount()
+            .map {
+                it.mapKeys { entry ->
+                    entry.key?.let { key ->
+                        categoryMapper.mapFromData(key)
+                    }
+                }
+            }
+    }
 }

@@ -22,7 +22,7 @@ class ProductService @Inject constructor(
     suspend fun createProductWithPriceRecord(
         productName: String,
         productDescription: String,
-        categoryId: Long,
+        categoryId: Long?,
         productBarcode: String?,
         priceAmountText: String,
         storeId: Long,
@@ -63,11 +63,7 @@ class ProductService @Inject constructor(
         return productRepository.getProductByBarcode(barcode)
     }
 
-    fun getProductCountByCategoryId(categoryId: Long): Flow<Int> {
-        return productRepository.getProductCountByCategoryId(categoryId)
-    }
-
-    fun getProductsByCategoryIdPaging(categoryId: Long): PagingSource<Int, Product> {
+    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
         return productRepository.getProductsByCategoryIdPaging(categoryId)
     }
 

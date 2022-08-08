@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.shared.Logger
@@ -64,23 +63,11 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 
-    override fun getProductCountByCategoryId(categoryId: Long): Flow<Int> {
-        return if (categoryId != 0L) {
-            db.productDao().getProductCountByCategory(categoryId)
-        } else {
-            db.productDao().getProductCountWithNoCategory()
-        }
-    }
-
     override fun getProductByCategoryIdPaging(
-        categoryId: Long,
+        categoryId: Long?,
         offset: Int,
         pageSize: Int
     ): List<ProductRoomEntity> {
-        return if (categoryId != 0L) {
-            db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
-        } else {
-            db.productDao().getProductWithNoCategoryPaging(offset, pageSize)
-        }
+        return db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
     }
 }

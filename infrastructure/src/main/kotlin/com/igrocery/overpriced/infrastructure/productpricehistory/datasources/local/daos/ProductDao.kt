@@ -36,22 +36,10 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     )
     suspend fun searchProducts(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
 
-    @Query("SELECT COUNT(id) FROM products WHERE category_id = :categoryId")
-    fun getProductCountByCategory(categoryId: Long): Flow<Int>
-
-    @Query("SELECT COUNT(id) FROM products WHERE category_id IS NULL")
-    fun getProductCountWithNoCategory(): Flow<Int>
-
     @Query("SELECT * FROM products " +
-            "WHERE category_id = :categoryId " +
+            "WHERE category_id IS :categoryId " +
             "ORDER BY name, description " +
             "LIMIT :pageSize OFFSET :offset")
-    fun getProductByCategoryPaging(categoryId: Long, offset: Int, pageSize: Int): List<ProductRoomEntity>
-
-    @Query("SELECT * FROM products " +
-            "WHERE category_id IS NULL " +
-            "ORDER BY name, description " +
-            "LIMIT :pageSize OFFSET :offset")
-    fun getProductWithNoCategoryPaging(offset: Int, pageSize: Int): List<ProductRoomEntity>
+    fun getProductByCategoryPaging(categoryId: Long?, offset: Int, pageSize: Int): List<ProductRoomEntity>
 
 }
