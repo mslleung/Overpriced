@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 
 @Composable
 fun SelectCategoryDialog(

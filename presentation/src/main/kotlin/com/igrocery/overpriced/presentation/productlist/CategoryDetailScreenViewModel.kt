@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categorydetail
+package com.igrocery.overpriced.presentation.productlist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
-import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi

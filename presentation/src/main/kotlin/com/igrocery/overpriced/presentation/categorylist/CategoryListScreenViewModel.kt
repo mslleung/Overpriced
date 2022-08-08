@@ -23,44 +23,18 @@ class CategoryListScreenViewModel @Inject constructor(
     private val productService: ProductService,
 ) : ViewModel() {
 
-//    val productsPagedFlow = Pager(
-//        PagingConfig(
-//            pageSize = 100,
-//            prefetchDistance = 30
-//        )
-//    ) {
-//        productService.getProductsPagingSource()
-//    }.flow
-//        .cachedIn(viewModelScope)
-
     data class CategoryWithProductCount(
-        val category: Category,
+        val category: Category?,
         val productCount: Int,
     )
-//
-//    private val productCountWithNoCategory = productService.getProductCountByCategoryId(0L)
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(),
-//            initialValue = 0
-//        )
-//
-//    private val categoryListWithCountFlow = categoryService.getAllCategories()
-//        .flatMapLatest { categoryList ->
-//            combine(categoryList.map { productService.getProductCountByCategoryId(it.id) }) {
-//                val productCountList = it.asList()
-//                categoryList.zip(productCountList) { category, count ->
-//                    CategoryWithProductCount(category, count)
-//                }
-//            }
-//        }
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(),
-//            initialValue = null
-//        )
 
     val categoryWithProductCount = categoryService.getAllCategoriesWithProductCount()
+//        .map {
+//            val
+//            it.forEach {
+//
+//            }
+//        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

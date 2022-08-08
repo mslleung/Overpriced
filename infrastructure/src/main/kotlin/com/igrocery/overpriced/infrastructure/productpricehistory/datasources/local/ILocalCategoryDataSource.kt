@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,6 @@ internal interface ILocalCategoryDataSource {
 
     fun getAllCategories(): Flow<List<CategoryRoomEntity>>
 
-    fun getAllCategoriesWithProductCount(): Flow<Map<CategoryRoomEntity?, Int>>
+    fun getAllCategoriesWithProductCount(): Flow<List<CategoryDao.CategoryWithProductCount>>
 
 }

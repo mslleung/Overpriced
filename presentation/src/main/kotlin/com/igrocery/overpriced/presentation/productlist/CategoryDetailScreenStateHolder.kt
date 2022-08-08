@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categorydetail
+package com.igrocery.overpriced.presentation.productlist
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

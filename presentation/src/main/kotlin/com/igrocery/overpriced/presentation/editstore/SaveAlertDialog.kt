@@ -15,7 +15,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

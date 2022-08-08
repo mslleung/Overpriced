@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categorydetail
+package com.igrocery.overpriced.presentation.productlist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -27,7 +27,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 
 @Suppress("unused")
 private val log = Logger { }
@@ -70,6 +70,7 @@ fun CategoryDetailScreen(
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
         onProductClick = {},
+        onFabClick = {}
     )
 
     BackHandler(enabled = false) {
@@ -87,6 +88,7 @@ private fun MainContent(
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onProductClick: (Product) -> Unit,
+    onFabClick: () -> Unit,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -146,6 +148,22 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onFabClick,
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding(),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                    contentDescription = stringResource(
+                        id = R.string.category_list_new_price_fab_content_description
+                    ),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
     ) {
         if (state.isLazyListPagingFirstLoad && productsPagingItems.loadState.refresh is LoadState.Loading) {
             LaunchedEffect(key1 = productsPagingItems.loadState.refresh) {

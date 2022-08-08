@@ -48,7 +48,7 @@ import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel.Cre
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

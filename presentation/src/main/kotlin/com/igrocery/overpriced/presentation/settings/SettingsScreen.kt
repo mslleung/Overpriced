@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 import java.util.*
 
 @Suppress("unused")

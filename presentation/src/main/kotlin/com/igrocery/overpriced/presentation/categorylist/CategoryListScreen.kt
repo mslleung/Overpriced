@@ -2,14 +2,19 @@ package com.igrocery.overpriced.presentation.categorylist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,23 +33,20 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import com.igrocery.overpriced.presentation.R
 
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToCategoryDetail: (Category) -> Unit,
+    navigateToCategoryDetail: (Category?) -> Unit,
+    navigateToNewPrice: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductPriceListScreen")
 
@@ -61,7 +63,6 @@ fun CategoryListScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val noCategoryString = stringResource(id = R.string.no_category)
     val categoryWithCountList by categoryListScreenViewModel.categoryWithProductCount.collectAsState()
     val state by rememberCategoryListScreenState()
     MainContent(
@@ -70,6 +71,8 @@ fun CategoryListScreen(
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToCategoryDetail,
+        onFabClick = navigateToNewPrice,
+        modifier = modifier,
     )
 
     BackHandler(enabled = false) {
@@ -84,7 +87,9 @@ private fun MainContent(
     state: CategoryListScreenStateHolder,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
-    onCategoryClick: (Category) -> Unit,
+    onCategoryClick: (Category?) -> Unit,
+    onFabClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -112,6 +117,56 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = {
+                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = stringResource(
+                            id = R.string.category_list_new_price_fab_content_description
+                        ),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                onClick = onFabClick,
+            )
+        },
+        bottomBar = {
+            NavigationBar(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .imePadding(),
+            ) {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
+                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
+                    selected = true,
+                    onClick = { }
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
+                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
+                    selected = false,
+                    onClick = { }
+                )
+            }
+        },
+        modifier = modifier,
     ) {
         if (categoryWithCountList == null) {
             // Loading state - show nothing
@@ -148,7 +203,7 @@ private fun MainContent(
                 items(
                     items = categoryWithCountList
                         .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
-                    key = { categoryWithCount -> categoryWithCount.category.id }
+                    key = { categoryWithCount -> categoryWithCount.category?.id ?: 0 }
                 ) { categoryWithCount ->
                     CategoryWithCountListItem(
                         categoryWithCount = categoryWithCount,
@@ -236,7 +291,7 @@ private fun SearchBar(
 @Composable
 private fun CategoryWithCountListItem(
     categoryWithCount: CategoryWithProductCount,
-    onClick: (Category) -> Unit,
+    onClick: (Category?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val (category, productCount) = categoryWithCount
@@ -252,7 +307,9 @@ private fun CategoryWithCountListItem(
                 .fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(id = category.icon.iconRes),
+                painter = painterResource(
+                    id = category?.icon?.iconRes ?: R.drawable.ic_question_svgrepo_com
+                ),
                 contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
                 modifier = Modifier
                     .padding(end = 16.dp)
@@ -265,7 +322,7 @@ private fun CategoryWithCountListItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = category.name,
+                    text = category?.name ?: stringResource(id = R.string.no_category),
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -312,6 +369,7 @@ private fun EmptyPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
+        onFabClick = {},
     )
 }
 
@@ -351,5 +409,6 @@ private fun DefaultPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
+        onFabClick = {},
     )
 }

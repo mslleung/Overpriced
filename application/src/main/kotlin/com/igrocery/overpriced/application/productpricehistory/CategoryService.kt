@@ -4,6 +4,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
+import com.igrocery.overpriced.infrastructure.productpricehistory.CategoryRepository
 import com.igrocery.overpriced.infrastructure.productpricehistory.ICategoryRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -51,7 +52,7 @@ class CategoryService @Inject constructor(
      *
      * @return The categories with their respective product count in a map.
      */
-    fun getAllCategoriesWithProductCount(): Flow<Map<Category?, Int>> {
+    fun getAllCategoriesWithProductCount(): Flow<List<CategoryRepository.CategoryWithProductCount>> {
         return categoryRepository.getAllCategoriesWithProductCount()
     }
 }

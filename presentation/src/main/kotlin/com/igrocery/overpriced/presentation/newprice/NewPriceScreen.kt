@@ -58,7 +58,7 @@ import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewMod
 import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import kotlin.math.roundToInt
@@ -129,7 +129,7 @@ fun NewPriceScreen(
                 productName.trim(),
                 productDescription.trim(),
                 attachedBarcode?.trim(),
-                productCategory?.id ?: 0L,
+                productCategory?.id,
                 state.priceAmountText.trim(),
                 selectedStore,
             )

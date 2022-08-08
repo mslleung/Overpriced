@@ -10,6 +10,6 @@ interface ICategoryRepository: BaseRepository<Category> {
 
     fun getAllCategories(): Flow<List<Category>>
 
-    fun getAllCategoriesWithProductCount(): Flow<Map<Category?, Int>>
+    fun getAllCategoriesWithProductCount(): Flow<List<CategoryRepository.CategoryWithProductCount>>
 
 }

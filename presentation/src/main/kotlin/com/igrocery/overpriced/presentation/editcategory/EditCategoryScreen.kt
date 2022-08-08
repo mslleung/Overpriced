@@ -32,7 +32,7 @@ import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
 import com.igrocery.overpriced.presentation.shared.DeleteButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 import com.skydoves.landscapist.glide.GlideImage
 
 @Suppress("unused")

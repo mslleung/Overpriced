@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -27,7 +26,7 @@ import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -42,14 +41,16 @@ fun SelectStoreDialog(
     val storesPagingItems = selectStoreDialogViewModel.storesPagedFlow.collectAsLazyPagingItems()
 
     // TODO check if this work across config changes
-    var isLoaded by remember { mutableStateOf(false) }
-    LaunchedEffect(key1 = storesPagingItems.loadState.refresh) {
-        if (storesPagingItems.loadState.refresh is LoadState.Loading) {
-            isLoaded = true
+    var isFirstLoadTriggered by remember { mutableStateOf(false) }
+    if (!isFirstLoadTriggered) {
+        LaunchedEffect(key1 = storesPagingItems.loadState.refresh) {
+            if (storesPagingItems.loadState.refresh is LoadState.Loading) {
+                isFirstLoadTriggered = true
+            }
         }
     }
 
-    if (isLoaded) {
+    if (isFirstLoadTriggered && storesPagingItems.loadState.refresh is LoadState.NotLoading) {
         MainLayout(
             storesPagingItems,
             selectedStoreId,

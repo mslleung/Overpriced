@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.MapInfo
 import androidx.room.Query
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
@@ -17,10 +18,15 @@ internal interface CategoryDao : BaseDao<CategoryRoomEntity> {
 
     // right join is not supported
     // we need to use a left join so products without category can still be counted
-    @MapInfo(valueColumn = "productCount")
     @Query("SELECT categories.*, COUNT(products.category_id) AS productCount FROM products " +
             "LEFT JOIN categories ON products.category_id = categories.id " +
-            "GROUP BY products.category_id")
-    fun getCategoryWithProductCount(): Flow<Map<CategoryRoomEntity?, Int>>
+            "GROUP BY products.category_id " +
+            "ORDER BY categories.name")
+    fun getCategoryWithProductCount(): Flow<List<CategoryWithProductCount>>
+
+    data class CategoryWithProductCount(
+        @Embedded val categoryRoomEntity: CategoryRoomEntity?,
+        val productCount: Int
+    )
 
 }

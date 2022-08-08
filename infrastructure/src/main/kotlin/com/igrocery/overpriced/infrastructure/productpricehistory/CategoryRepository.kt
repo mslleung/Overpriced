@@ -51,12 +51,25 @@ class CategoryRepository @Inject internal constructor(
             .map { it.map { category -> categoryMapper.mapFromData(category) } }
     }
 
-    override fun getAllCategoriesWithProductCount(): Flow<Map<Category?, Int>> {
+    data class CategoryWithProductCount(
+        val category: Category?,
+        val productCount: Int
+    )
+
+    override fun getAllCategoriesWithProductCount(): Flow<List<CategoryWithProductCount>> {
         return localCategoryDataSource.getAllCategoriesWithProductCount()
             .map {
-                it.mapKeys { entry ->
-                    entry.key?.let { key ->
-                        categoryMapper.mapFromData(key)
+                it.map { data ->
+                    if (data.categoryRoomEntity != null) {
+                        CategoryWithProductCount(
+                            categoryMapper.mapFromData(data.categoryRoomEntity),
+                            data.productCount
+                        )
+                    } else {
+                        CategoryWithProductCount(
+                            null,
+                            data.productCount
+                        )
                     }
                 }
             }

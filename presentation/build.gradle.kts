@@ -69,7 +69,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    namespace = "com.ireceipt.receiptscanner.presentation"
+    namespace = "com.igrocery.overpriced.presentation"
     bundle {
         language {
             // include all language files to allow the user to switch languages
