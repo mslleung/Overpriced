@@ -29,7 +29,7 @@ class ProductListScreenViewModel @Inject constructor(
         private const val KEY_CATEGORY_ID = "KEY_CATEGORY_ID"
     }
 
-    fun setCategoryId(categoryId: Long) {
+    fun setCategoryId(categoryId: Long?) {
         savedState[KEY_CATEGORY_ID] = categoryId
     }
 
@@ -47,7 +47,7 @@ class ProductListScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        val categoryId = savedState.get<Long>(KEY_CATEGORY_ID)
+        val categoryId = savedState.get<Long?>(KEY_CATEGORY_ID)
         productService.getProductsByCategoryIdPaging(categoryId)
     }.flow
         .cachedIn(viewModelScope)

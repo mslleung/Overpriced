@@ -37,7 +37,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     suspend fun searchProducts(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
 
     @Query("SELECT * FROM products " +
-            "WHERE category_id IS :categoryId " +
+            "WHERE category_id = :categoryId OR (category_id IS NULL AND :categoryId IS NULL) " +
             "ORDER BY name, description " +
             "LIMIT :pageSize OFFSET :offset")
     fun getProductByCategoryPaging(categoryId: Long?, offset: Int, pageSize: Int): List<ProductRoomEntity>

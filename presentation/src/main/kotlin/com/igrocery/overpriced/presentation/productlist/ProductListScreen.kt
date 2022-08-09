@@ -1,9 +1,7 @@
 package com.igrocery.overpriced.presentation.productlist
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -11,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +59,10 @@ fun ProductListScreen(
     val products = viewModel.productsPagedFlow.collectAsLazyPagingItems()
     val state by rememberProductListScreenState()
     if (categoryId == null) {
+        LaunchedEffect(key1 = Unit) {
+            viewModel.setCategoryId(null)
+        }
+
         MainContent(
             category = NoCategory,
             productsPagingItems = products,
@@ -68,7 +71,8 @@ fun ProductListScreen(
             onSearchButtonClick = navigateToSearchProduct,
             onEditButtonClick = navigateToEditCategory,
             onProductClick = {},
-            onFabClick = {}
+            onFabClick = {},
+            modifier = modifier
         )
     } else {
         LaunchedEffect(key1 = Unit) {
@@ -84,7 +88,8 @@ fun ProductListScreen(
             onSearchButtonClick = navigateToSearchProduct,
             onEditButtonClick = navigateToEditCategory,
             onProductClick = {},
-            onFabClick = {}
+            onFabClick = {},
+            modifier = modifier
         )
     }
 
@@ -104,6 +109,7 @@ private fun MainContent(
     onEditButtonClick: () -> Unit,
     onProductClick: (Product) -> Unit,
     onFabClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -164,21 +170,26 @@ private fun MainContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
+                text = {
+                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = stringResource(
+                            id = R.string.category_list_new_price_fab_content_description
+                        ),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
                 onClick = onFabClick,
                 modifier = Modifier
                     .navigationBarsPadding()
                     .imePadding(),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                    contentDescription = stringResource(
-                        id = R.string.category_list_new_price_fab_content_description
-                    ),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
+            )
+        },
+        modifier = modifier
     ) {
         if (state.isLazyListPagingFirstLoad && productsPagingItems.loadState.refresh is LoadState.Loading) {
             LaunchedEffect(key1 = productsPagingItems.loadState.refresh) {
@@ -195,11 +206,14 @@ private fun MainContent(
             // loading state - show nothing
         } else {
             if (productsPagingItems.itemCount == 0) {
+                val scrollState = rememberScrollState()
                 EmptyListContent(
                     modifier = Modifier
                         .padding(it)
                         .navigationBarsPadding()
                         .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                        .verticalScroll(scrollState)
                 )
             } else {
                 LazyColumn(
@@ -234,14 +248,18 @@ private fun MainContent(
 private fun EmptyListContent(
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(id = R.string.category_detail_empty_text),
-        textAlign = TextAlign.Center,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier,
-        style = MaterialTheme.typography.bodyLarge,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+    ) {
+        Text(
+            text = stringResource(id = R.string.category_detail_empty_text),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Composable
@@ -281,7 +299,7 @@ private fun CategoryWithCountListItem(
 
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.wrapContentWidth()
         ) {
 //            Text(
 //                text = product.,

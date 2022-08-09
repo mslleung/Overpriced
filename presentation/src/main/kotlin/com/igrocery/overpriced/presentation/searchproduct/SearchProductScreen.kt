@@ -229,7 +229,7 @@ private fun EmptyListContent(
     ) {
         Text(
             text = stringResource(id = R.string.search_product_no_result_text),
-            modifier = modifier.wrapContentSize(),
+            modifier = Modifier.wrapContentSize(),
             style = MaterialTheme.typography.bodyLarge
         )
     }
