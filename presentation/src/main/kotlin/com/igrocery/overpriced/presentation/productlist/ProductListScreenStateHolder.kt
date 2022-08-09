@@ -6,19 +6,19 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
-class CategoryDetailScreenStateHolder {
+class ProductListScreenStateHolder {
 
     var isLazyListPagingFirstLoad = true
 
     companion object {
-        val Saver : Saver<CategoryDetailScreenStateHolder, *> = listSaver(
+        val Saver : Saver<ProductListScreenStateHolder, *> = listSaver(
             save = {
                 listOf(
                     it.isLazyListPagingFirstLoad,
                 )
             },
             restore = {
-                CategoryDetailScreenStateHolder().apply {
+                ProductListScreenStateHolder().apply {
                     isLazyListPagingFirstLoad = it[0] as Boolean
                 }
             }
@@ -28,9 +28,9 @@ class CategoryDetailScreenStateHolder {
 
 @Composable
 fun rememberCategoryDetailScreenState() = rememberSaveable(
-    stateSaver = CategoryDetailScreenStateHolder.Saver
+    stateSaver = ProductListScreenStateHolder.Saver
 ) {
     // UiState is not designed to be mutable. It should NEVER be reassigned.
     // The only exception is activity config change and process recreation. Hence it is mutable.
-    mutableStateOf(CategoryDetailScreenStateHolder())
+    mutableStateOf(ProductListScreenStateHolder())
 }

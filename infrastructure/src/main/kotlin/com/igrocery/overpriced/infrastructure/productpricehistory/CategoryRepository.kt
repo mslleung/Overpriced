@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
+import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
@@ -50,11 +51,6 @@ class CategoryRepository @Inject internal constructor(
         return localCategoryDataSource.getAllCategories()
             .map { it.map { category -> categoryMapper.mapFromData(category) } }
     }
-
-    data class CategoryWithProductCount(
-        val category: Category?,
-        val productCount: Int
-    )
 
     override fun getAllCategoriesWithProductCount(): Flow<List<CategoryWithProductCount>> {
         return localCategoryDataSource.getAllCategoriesWithProductCount()

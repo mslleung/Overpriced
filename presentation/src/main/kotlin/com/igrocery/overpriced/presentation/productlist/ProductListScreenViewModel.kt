@@ -19,7 +19,7 @@ private val log = Logger { }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class CategoryDetailScreenViewModel @Inject constructor(
+class ProductListScreenViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,

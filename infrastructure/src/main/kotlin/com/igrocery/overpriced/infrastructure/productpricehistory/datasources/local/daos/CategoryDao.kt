@@ -18,10 +18,13 @@ internal interface CategoryDao : BaseDao<CategoryRoomEntity> {
 
     // right join is not supported
     // we need to use a left join so products without category can still be counted
-    @Query("SELECT categories.*, COUNT(products.category_id) AS productCount FROM products " +
-            "LEFT JOIN categories ON products.category_id = categories.id " +
-            "GROUP BY products.category_id " +
-            "ORDER BY categories.name")
+    @Query(
+        "SELECT categories.*, COUNT(case when products.category_id IS NULL then 1 else 1 end) AS productCount " +
+                "FROM products " +
+                "LEFT JOIN categories ON products.category_id = categories.id " +
+                "GROUP BY products.category_id " +
+                "ORDER BY categories.name"
+    )
     fun getCategoryWithProductCount(): Flow<List<CategoryWithProductCount>>
 
     data class CategoryWithProductCount(

@@ -29,11 +29,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
-import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
 private val log = Logger { }
@@ -48,7 +48,7 @@ fun CategoryListScreen(
     navigateToNewPrice: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    log.debug("Composing ProductPriceListScreen")
+    log.debug("Composing CategoryListScreen")
 
     val systemUiController = rememberSystemUiController()
     val statusBarColor = MaterialTheme.colorScheme.surface
@@ -66,7 +66,7 @@ fun CategoryListScreen(
     val categoryWithCountList by categoryListScreenViewModel.categoryWithProductCount.collectAsState()
     val state by rememberCategoryListScreenState()
     MainContent(
-        categoryWithCountList = emptyList(),
+        categoryWithCountList = categoryWithCountList,
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,

@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "com.igrocery.overpriced"
         minSdk = 21
-        targetSdk = 32
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0.0"   // {major.feature.patches}, preferably major version should never change
 

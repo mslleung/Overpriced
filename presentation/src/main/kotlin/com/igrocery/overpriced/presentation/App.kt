@@ -34,8 +34,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
-import com.igrocery.overpriced.presentation.productlist.CategoryDetailScreen
-import com.igrocery.overpriced.presentation.productlist.CategoryDetailScreenViewModel
+import com.igrocery.overpriced.presentation.productlist.ProductListScreen
+import com.igrocery.overpriced.presentation.productlist.ProductListScreenViewModel
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
@@ -165,14 +165,14 @@ fun App() {
                     type = NavType.LongType
                 })
             ) { backStackEntry ->
-                val categoryDetailScreenViewModel =
-                    hiltViewModel<CategoryDetailScreenViewModel>()
+                val productListScreenViewModel =
+                    hiltViewModel<ProductListScreenViewModel>()
 
                 val categoryId = backStackEntry.arguments?.getLong(CategoryDetail_Arg_CategoryId)
                     ?: 0    // TODO!!!
-                CategoryDetailScreen(
+                ProductListScreen(
                     categoryId = categoryId,
-                    viewModel = categoryDetailScreenViewModel,
+                    viewModel = productListScreenViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = {},
                     navigateToEditCategory = {},

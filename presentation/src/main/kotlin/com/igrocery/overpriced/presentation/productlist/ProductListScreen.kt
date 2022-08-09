@@ -33,14 +33,14 @@ import com.igrocery.overpriced.presentation.R
 private val log = Logger { }
 
 @Composable
-fun CategoryDetailScreen(
+fun ProductListScreen(
     categoryId: Long,
-    viewModel: CategoryDetailScreenViewModel,
+    viewModel: ProductListScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
 ) {
-    log.debug("Composing CategoryDetailScreen")
+    log.debug("Composing ProductListScreen")
 
     val systemUiController = rememberSystemUiController()
     val statusBarColor = MaterialTheme.colorScheme.surface
@@ -83,7 +83,7 @@ fun CategoryDetailScreen(
 private fun MainContent(
     category: Category?,
     productsPagingItems: LazyPagingItems<Product>,
-    state: CategoryDetailScreenStateHolder,
+    state: ProductListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
