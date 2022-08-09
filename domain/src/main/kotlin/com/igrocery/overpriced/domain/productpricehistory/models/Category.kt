@@ -35,6 +35,7 @@ class Category : AggregateRoot {
 
         other as Category
 
+        if (icon != other.icon) return false
         if (name != other.name) return false
 
         return true
@@ -42,6 +43,7 @@ class Category : AggregateRoot {
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + icon.hashCode()
         result = 31 * result + name.hashCode()
         return result
     }

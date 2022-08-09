@@ -40,7 +40,6 @@ fun SelectStoreDialog(
 ) {
     val storesPagingItems = selectStoreDialogViewModel.storesPagedFlow.collectAsLazyPagingItems()
 
-    // TODO check if this work across config changes
     var isFirstLoadTriggered by remember { mutableStateOf(false) }
     if (!isFirstLoadTriggered) {
         LaunchedEffect(key1 = storesPagingItems.loadState.refresh) {

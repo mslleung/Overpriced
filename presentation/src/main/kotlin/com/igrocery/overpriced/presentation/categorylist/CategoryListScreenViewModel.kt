@@ -21,9 +21,6 @@ class CategoryListScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val categoryWithProductCount = categoryService.getAllCategoriesWithProductCount()
-        .onEach {
-            log.debug(it.toString())
-        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

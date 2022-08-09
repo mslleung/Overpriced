@@ -28,17 +28,19 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.NoCategory
 
 @Suppress("unused")
 private val log = Logger { }
 
 @Composable
 fun ProductListScreen(
-    categoryId: Long,
+    categoryId: Long?,
     viewModel: ProductListScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductListScreen")
 
@@ -55,23 +57,36 @@ fun ProductListScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.setCategoryId(categoryId)
-    }
-
-    val category by viewModel.categoryFlow.collectAsState()
     val products = viewModel.productsPagedFlow.collectAsLazyPagingItems()
-    val state by rememberCategoryDetailScreenState()
-    MainContent(
-        category = category,
-        productsPagingItems = products,
-        state = state,
-        onBackButtonClick = navigateUp,
-        onSearchButtonClick = navigateToSearchProduct,
-        onEditButtonClick = navigateToEditCategory,
-        onProductClick = {},
-        onFabClick = {}
-    )
+    val state by rememberProductListScreenState()
+    if (categoryId == null) {
+        MainContent(
+            category = NoCategory,
+            productsPagingItems = products,
+            state = state,
+            onBackButtonClick = navigateUp,
+            onSearchButtonClick = navigateToSearchProduct,
+            onEditButtonClick = navigateToEditCategory,
+            onProductClick = {},
+            onFabClick = {}
+        )
+    } else {
+        LaunchedEffect(key1 = Unit) {
+            viewModel.setCategoryId(categoryId)
+        }
+
+        val category by viewModel.categoryFlow.collectAsState()
+        MainContent(
+            category = category,
+            productsPagingItems = products,
+            state = state,
+            onBackButtonClick = navigateUp,
+            onSearchButtonClick = navigateToSearchProduct,
+            onEditButtonClick = navigateToEditCategory,
+            onProductClick = {},
+            onFabClick = {}
+        )
+    }
 
     BackHandler(enabled = false) {
         navigateUp()

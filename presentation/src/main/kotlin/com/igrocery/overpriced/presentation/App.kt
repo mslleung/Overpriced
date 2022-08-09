@@ -15,9 +15,9 @@ import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_Arg_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryDetail_With_Args
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
@@ -66,9 +66,9 @@ private val log = Logger { }
 
 private object NavDestinations {
 
-    const val CategoryDetail = "categoryDetail"
-    const val CategoryDetail_Arg_CategoryId = "categoryId"
-    const val CategoryDetail_With_Args = "categoryDetail/{$CategoryDetail_Arg_CategoryId}"
+    const val ProductList = "productList"
+    const val ProductList_Arg_CategoryId = "categoryId"
+    const val ProductList_With_Args = "$ProductList?$ProductList_Arg_CategoryId={$ProductList_Arg_CategoryId}"
 
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
@@ -140,11 +140,11 @@ fun App() {
                     navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToSettings = { navController.navigate(SettingsRoute) },
-                    navigateToCategoryDetail = {
+                    navigateToProductList = {
                         if (it != null) {
-                            navController.navigate("$CategoryDetail/${it.id}")
+                            navController.navigate("$ProductList?$ProductList_Arg_CategoryId=${it.id}")
                         } else {
-                            navController.navigate(CategoryDetail)
+                            navController.navigate(ProductList)
                         }
                     },
                     navigateToNewPrice = { navController.navigate(NewPriceRecordRoute) }
@@ -160,18 +160,18 @@ fun App() {
                 )
             }
             composable(
-                route = CategoryDetail_With_Args,
-                arguments = listOf(navArgument(CategoryDetail_Arg_CategoryId) {
+                route = ProductList_With_Args,
+                arguments = listOf(navArgument(ProductList_Arg_CategoryId) {
                     type = NavType.LongType
+                    defaultValue = 0L
                 })
             ) { backStackEntry ->
                 val productListScreenViewModel =
                     hiltViewModel<ProductListScreenViewModel>()
 
-                val categoryId = backStackEntry.arguments?.getLong(CategoryDetail_Arg_CategoryId)
-                    ?: 0    // TODO!!!
+                val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId) ?: 0L
                 ProductListScreen(
-                    categoryId = categoryId,
+                    categoryId = if (categoryId == 0L) null else categoryId,
                     viewModel = productListScreenViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = {},

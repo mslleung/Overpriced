@@ -59,6 +59,7 @@ import com.igrocery.overpriced.presentation.shared.CloseButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.NoCategory
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import kotlin.math.roundToInt
@@ -686,10 +687,9 @@ private fun ProductCategory(
         modifier = modifier
             .clickable { onClick() },
     ) {
-        val categoryIcon = productCategory?.icon ?: CategoryIcon.NoCategory
-        val categoryName = productCategory?.name ?: stringResource(id = R.string.no_category)
+        val category = productCategory ?: NoCategory
         Image(
-            painter = painterResource(id = categoryIcon.iconRes),
+            painter = painterResource(id = category.icon.iconRes),
             contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
             modifier = Modifier
                 .padding(start = 6.dp, end = 12.dp)
@@ -697,7 +697,7 @@ private fun ProductCategory(
         )
 
         Text(
-            text = categoryName,
+            text = category.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = MaterialTheme.typography.labelLarge

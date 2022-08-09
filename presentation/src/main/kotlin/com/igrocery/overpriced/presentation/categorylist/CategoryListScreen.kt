@@ -33,6 +33,7 @@ import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProdu
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.NoCategory
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
@@ -44,7 +45,7 @@ fun CategoryListScreen(
     navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToCategoryDetail: (Category?) -> Unit,
+    navigateToProductList: (Category?) -> Unit,
     navigateToNewPrice: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,7 +71,7 @@ fun CategoryListScreen(
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
-        onCategoryClick = navigateToCategoryDetail,
+        onCategoryClick = navigateToProductList,
         onFabClick = navigateToNewPrice,
         modifier = modifier,
     )
@@ -294,7 +295,8 @@ private fun CategoryWithCountListItem(
     onClick: (Category?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (category, productCount) = categoryWithCount
+    val category = categoryWithCount.category ?: NoCategory
+    val productCount = categoryWithCount.productCount
 
     Card(
         onClick = { onClick(category) },
@@ -307,9 +309,7 @@ private fun CategoryWithCountListItem(
                 .fillMaxWidth()
         ) {
             Image(
-                painter = painterResource(
-                    id = category?.icon?.iconRes ?: R.drawable.ic_question_svgrepo_com
-                ),
+                painter = painterResource(id = category.icon.iconRes),
                 contentDescription = stringResource(id = R.string.category_list_category_item_icon_content_description),
                 modifier = Modifier
                     .padding(end = 16.dp)
@@ -322,7 +322,7 @@ private fun CategoryWithCountListItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = category?.name ?: stringResource(id = R.string.no_category),
+                    text = category.name,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -378,11 +378,7 @@ private fun EmptyPreview() {
 private fun DefaultPreview() {
     val categoryWithCountList = listOf(
         CategoryWithProductCount(
-            category = Category(
-                id = 0,
-                icon = CategoryIcon.NoCategory,
-                name = stringResource(id = R.string.no_category)
-            ),
+            category = NoCategory,
             productCount = 25
         ),
         CategoryWithProductCount(
