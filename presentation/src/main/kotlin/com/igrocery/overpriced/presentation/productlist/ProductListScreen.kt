@@ -68,7 +68,7 @@ fun ProductListScreen(
             state = state,
             onBackButtonClick = navigateUp,
             onSearchButtonClick = navigateToSearchProduct,
-            onEditButtonClick = navigateToEditCategory,
+            onEditButtonClick = { throw IllegalArgumentException("Trying to edit null category") },
             onProductClick = {},
             modifier = modifier
         )
@@ -143,15 +143,17 @@ private fun MainContent(
                         )
                     }
 
-                    IconButton(
-                        onClick = onEditButtonClick,
-                        modifier = Modifier
-                            .size(48.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                            contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
-                        )
+                    if (category != NoCategory) {
+                        IconButton(
+                            onClick = onEditButtonClick,
+                            modifier = Modifier
+                                .size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+                                contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
+                            )
+                        }
                     }
                 },
                 navigationIcon = {

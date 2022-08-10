@@ -9,9 +9,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.navigation.navigation
+import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -85,7 +83,7 @@ private object NavRoutes {
     const val NewPriceRecordRoute = "newPriceRecordRoute"
 }
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalAnimationApi::class)
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun App() {
@@ -126,11 +124,12 @@ fun App() {
                 CategoryProductScreen(
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                    navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
+                    navigateToEditCategory = { categoryId ->
+                        navController.navigate("$EditCategory/$categoryId")
+                    },
                     navigateToNewPrice = { navController.navigate(NewPriceRecordRoute) },
                     navigateToShoppingList = { /*TODO*/ })
             }
-            
             composable(SearchProduct) {
                 val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
 
@@ -140,169 +139,197 @@ fun App() {
                     navigateToProductDetails = { }
                 )
             }
+            composable(
+                EditCategory_With_Args,
+                arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                    type = NavType.LongType
+                })
+            ) { backStackEntry ->
+                val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
-            navigation(route = SettingsRoute, startDestination = Settings) {
-                composable(Settings) {
-                    val settingsViewModel = hiltViewModel<SettingsScreenViewModel>()
+                val categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId)
+                    ?: throw IllegalArgumentException("categoryId cannot be null")
 
-                    SettingsScreen(
-                        viewModel = settingsViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateToSelectCurrencyScreen = { navController.navigate(SelectCurrency) }
-                    )
-                }
-
-                composable(SelectCurrency) {
-                    val selectCurrencyViewModel = hiltViewModel<SelectCurrencyScreenViewModel>()
-
-                    SelectCurrencyScreen(
-                        viewModel = selectCurrencyViewModel,
-                        navigateUp = { navController.navigateUp() },
-                    )
-                }
+                EditCategoryScreen(
+                    categoryId = categoryId,
+                    viewModel = editCategoryViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateDone = {
+                        navController.navigateUp()
+                    }
+                )
             }
 
-            navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
-                composable(NewPrice) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(NewPriceRecordRoute)
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val selectCategoryDialogViewModel =
-                        hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
-                    val selectStoreDialogViewModel =
-                        hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
-
-                    NewPriceScreen(
-                        newPriceScreenViewModel = newPriceViewModel,
-                        selectCategoryDialogViewModel = selectCategoryDialogViewModel,
-                        selectStoreDialogViewModel = selectStoreDialogViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateToScanBarcode = { navController.navigate(ScanBarcode) },
-                        navigateToNewCategory = { navController.navigate(NewCategory) },
-                        navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
-                        navigateToNewStore = { navController.navigate(NewStore) },
-                        navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
-                    )
-                }
-                composable(ScanBarcode) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val scanBarcodeScreenViewModel = hiltViewModel<ScanBarcodeScreenViewModel>()
-
-                    ScanBarcodeScreen(
-                        viewModel = scanBarcodeScreenViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = { barcode ->
-                            newPriceViewModel.setBarcode(barcode)
-                            navController.navigateUp()
-                        })
-                }
-                composable(NewCategory) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
-
-                    NewCategoryScreen(
-                        viewModel = newCategoryViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.setProductCategoryId(it)
-                            navController.navigateUp()
-                        }
-                    )
-                }
-                composable(
-                    EditCategory_With_Args,
-                    arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
-                        type = NavType.LongType
-                    })
-                ) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
-
-                    val categoryId =
-                        backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
-
-                    EditCategoryScreen(
-                        categoryId = categoryId,
-                        viewModel = editCategoryViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.setProductCategoryId(categoryId)
-                            navController.navigateUp()
-                        }
-                    )
-                }
-                composable(NewStore) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(NewPriceRecordRoute)
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
-
-                    NewStoreScreen(
-                        newStoreViewModel = newStoreViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.selectStore(it)
-                            navController.navigateUp()
-                        }
-                    )
-                }
-                composable(
-                    EditStore_With_Args,
-                    arguments = listOf(navArgument(EditStore_Arg_StoreId) {
-                        type = NavType.LongType
-                    })
-                ) { backStackEntry ->
-                    val navGraphEntry =
-                        remember(backStackEntry) {
-                            navController.getBackStackEntry(
-                                NewPriceRecordRoute
-                            )
-                        }
-                    val newPriceViewModel =
-                        hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-                    val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
-
-                    val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
-
-                    EditStoreScreen(
-                        storeId = storeId,
-                        viewModel = editStoreViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateDone = {
-                            newPriceViewModel.selectStore(storeId)
-                            navController.navigateUp()
-                        }
-                    )
-                }
-            }
+            settingsGraph(navController)
+            newPriceRecordGraph(navController)
         }
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
+    navigation(route = SettingsRoute, startDestination = Settings) {
+        composable(Settings) {
+            val settingsViewModel = hiltViewModel<SettingsScreenViewModel>()
+
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateToSelectCurrencyScreen = { navController.navigate(SelectCurrency) }
+            )
+        }
+        composable(SelectCurrency) {
+            val selectCurrencyViewModel = hiltViewModel<SelectCurrencyScreenViewModel>()
+
+            SelectCurrencyScreen(
+                viewModel = selectCurrencyViewModel,
+                navigateUp = { navController.navigateUp() },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
+private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController) {
+    navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
+        composable(NewPrice) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(NewPriceRecordRoute)
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val selectCategoryDialogViewModel =
+                hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
+            val selectStoreDialogViewModel =
+                hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
+
+            NewPriceScreen(
+                newPriceScreenViewModel = newPriceViewModel,
+                selectCategoryDialogViewModel = selectCategoryDialogViewModel,
+                selectStoreDialogViewModel = selectStoreDialogViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateToScanBarcode = { navController.navigate(ScanBarcode) },
+                navigateToNewCategory = { navController.navigate(NewCategory) },
+                navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
+                navigateToNewStore = { navController.navigate(NewStore) },
+                navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
+            )
+        }
+        composable(ScanBarcode) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(
+                        NewPriceRecordRoute
+                    )
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val scanBarcodeScreenViewModel = hiltViewModel<ScanBarcodeScreenViewModel>()
+
+            ScanBarcodeScreen(
+                viewModel = scanBarcodeScreenViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = { barcode ->
+                    newPriceViewModel.setBarcode(barcode)
+                    navController.navigateUp()
+                })
+        }
+        composable(NewCategory) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(
+                        NewPriceRecordRoute
+                    )
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
+
+            NewCategoryScreen(
+                viewModel = newCategoryViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.setProductCategoryId(it)
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(
+            EditCategory_With_Args,
+            arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(
+                        NewPriceRecordRoute
+                    )
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
+
+            val categoryId =
+                backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
+
+            EditCategoryScreen(
+                categoryId = categoryId,
+                viewModel = editCategoryViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.setProductCategoryId(categoryId)
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(NewStore) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(NewPriceRecordRoute)
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
+
+            NewStoreScreen(
+                newStoreViewModel = newStoreViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.selectStore(it)
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(
+            EditStore_With_Args,
+            arguments = listOf(navArgument(EditStore_Arg_StoreId) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(
+                        NewPriceRecordRoute
+                    )
+                }
+            val newPriceViewModel =
+                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
+
+            val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+
+            EditStoreScreen(
+                storeId = storeId,
+                viewModel = editStoreViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.selectStore(storeId)
+                    navController.navigateUp()
+                }
+            )
+        }
+    }
+}

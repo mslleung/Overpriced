@@ -95,7 +95,7 @@ fun ScanBarcodeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun MainContent(
+private fun MainContent(
     state: ScanBarcodeScreenStateHolder,
     onBackButtonClick: () -> Unit,
 ) {

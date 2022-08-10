@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -21,7 +22,6 @@ import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
@@ -39,7 +39,7 @@ private val log = Logger { }
 fun CategoryProductScreen(
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
+    navigateToEditCategory: (categoryId: Long) -> Unit,
     navigateToNewPrice: () -> Unit,
     navigateToShoppingList: () -> Unit,
     modifier: Modifier = Modifier,
@@ -72,7 +72,7 @@ private object NavDestinations {
 private fun MainContent(
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
+    navigateToEditCategory: (categoryId: Long) -> Unit,
     onFabClick: () -> Unit,
     onBottomBarShoppingListClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -152,7 +152,7 @@ private fun NestedNavGraph(
     navController: NavHostController,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
+    navigateToEditCategory: (categoryId: Long) -> Unit,
     modifier: Modifier
 ) {
     val animationSpec: FiniteAnimationSpec<Float> =
@@ -191,7 +191,6 @@ private fun NestedNavGraph(
 
             CategoryListScreen(
                 categoryListScreenViewModel = categoryListScreenViewModel,
-//                navigateUp = { navController.navigateUp() },
                 navigateToSettings = navigateToSettings,
                 navigateToSearchProduct = navigateToSearchProduct,
                 navigateToProductList = {
@@ -201,7 +200,6 @@ private fun NestedNavGraph(
                         navController.navigate(NavDestinations.ProductList)
                     }
                 },
-//                navigateToNewPrice = { navController.navigate(NavRoutes.NewPriceRecordRoute) }
             )
         }
         composable(
@@ -214,27 +212,28 @@ private fun NestedNavGraph(
             val productListScreenViewModel =
                 hiltViewModel<ProductListScreenViewModel>()
 
-            val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId) ?: 0L
+            val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId)
             ProductListScreen(
                 categoryId = if (categoryId == 0L) null else categoryId,
                 viewModel = productListScreenViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateToSearchProduct = navigateToSearchProduct,
-                navigateToEditCategory = {},
+                navigateToEditCategory = {
+                    navigateToEditCategory(categoryId!!)
+                },
             )
         }
     }
 }
 
-//@Preview
-//@Composable
-//private fun EmptyPreview() {
-//    MainContent(
-//        categoryWithCountList = emptyList(),
-//        state = CategoryListScreenStateHolder(),
-//        onSettingsClick = {},
-//        onSearchBarClick = {},
-//        onCategoryClick = {},
-//        onFabClick = {},
-//    )
-//}
+@Preview
+@Composable
+private fun EmptyPreview() {
+    MainContent(
+        navigateToSettings = {},
+        navigateToSearchProduct = {},
+        navigateToEditCategory = {},
+        onFabClick = {},
+        onBottomBarShoppingListClick = {}
+    )
+}
