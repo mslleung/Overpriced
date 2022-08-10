@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -172,13 +171,13 @@ private fun MainContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                    Text(text = stringResource(id = R.string.category_product_new_price_fab_text))
                 },
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_add_24),
                         contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
+                            id = R.string.category_product_new_price_fab_content_description
                         ),
                         modifier = Modifier.size(24.dp)
                     )

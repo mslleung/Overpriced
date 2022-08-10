@@ -121,13 +121,13 @@ private fun MainContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                    Text(text = stringResource(id = R.string.category_product_new_price_fab_text))
                 },
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_add_24),
                         contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
+                            id = R.string.category_product_new_price_fab_content_description
                         ),
                         modifier = Modifier.size(24.dp)
                     )
@@ -145,11 +145,11 @@ private fun MainContent(
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
+                            contentDescription = stringResource(id = R.string.category_product_bottom_nav_content_description),
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
+                    label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
                     selected = true,
                     onClick = { }
                 )
