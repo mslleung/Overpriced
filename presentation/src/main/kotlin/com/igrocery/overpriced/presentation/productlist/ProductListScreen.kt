@@ -70,7 +70,6 @@ fun ProductListScreen(
             onSearchButtonClick = navigateToSearchProduct,
             onEditButtonClick = navigateToEditCategory,
             onProductClick = {},
-            onFabClick = {},
             modifier = modifier
         )
     } else {
@@ -87,7 +86,6 @@ fun ProductListScreen(
             onSearchButtonClick = navigateToSearchProduct,
             onEditButtonClick = navigateToEditCategory,
             onProductClick = {},
-            onFabClick = {},
             modifier = modifier
         )
     }
@@ -107,7 +105,6 @@ private fun MainContent(
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onProductClick: (Product) -> Unit,
-    onFabClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -166,26 +163,6 @@ private fun MainContent(
                 },
                 scrollBehavior = topBarScrollBehavior,
                 modifier = Modifier.statusBarsPadding()
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_product_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_product_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onFabClick,
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .imePadding(),
             )
         },
         modifier = modifier

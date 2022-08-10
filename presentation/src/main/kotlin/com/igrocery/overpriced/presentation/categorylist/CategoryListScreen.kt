@@ -42,11 +42,9 @@ private val log = Logger { }
 @Composable
 fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
-    navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
-    navigateToNewPrice: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
@@ -72,13 +70,8 @@ fun CategoryListScreen(
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToProductList,
-        onFabClick = navigateToNewPrice,
         modifier = modifier,
     )
-
-    BackHandler(enabled = false) {
-        navigateUp()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -89,7 +82,6 @@ private fun MainContent(
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category?) -> Unit,
-    onFabClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -117,55 +109,6 @@ private fun MainContent(
                 scrollBehavior = topBarScrollBehavior,
                 modifier = Modifier.statusBarsPadding()
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_product_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_product_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onFabClick,
-            )
-        },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .imePadding(),
-            ) {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_product_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
-                    selected = true,
-                    onClick = { }
-                )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = { }
-                )
-            }
         },
         modifier = modifier,
     ) {
@@ -369,7 +312,6 @@ private fun EmptyPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
     )
 }
 
@@ -405,6 +347,5 @@ private fun DefaultPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
     )
 }
