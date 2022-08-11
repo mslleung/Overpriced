@@ -114,9 +114,11 @@ private fun MainContent(
                     label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
                     selected = true,
                     onClick = {
-                        // TODO check the backstack
-                        navController.navigate(CategoryList) {
-                            launchSingleTop = true
+                        val currentBackStackEntry = navController.currentBackStackEntry
+                        currentBackStackEntry?.destination?.route.let {
+                            if (it == ProductList_With_Args) {
+                                navController.navigateUp()
+                            }
                         }
                     }
                 )
