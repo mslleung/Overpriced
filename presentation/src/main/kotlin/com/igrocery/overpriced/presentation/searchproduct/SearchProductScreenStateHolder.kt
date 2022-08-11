@@ -8,11 +8,10 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-class SearchProductScreenStateHolder {
-
-    var isRequestingFirstFocus by mutableStateOf(true)
-    var query by mutableStateOf("")
-
+data class SearchProductScreenStateHolder(
+    val isRequestingFirstFocus: Boolean = true,
+    val query: String = "",
+) {
     companion object {
         val Saver : Saver<SearchProductScreenStateHolder, *> = listSaver(
             save = {
@@ -22,10 +21,10 @@ class SearchProductScreenStateHolder {
                 )
             },
             restore = {
-                SearchProductScreenStateHolder().apply {
-                    isRequestingFirstFocus = it[0] as Boolean
+                SearchProductScreenStateHolder(
+                    isRequestingFirstFocus = it[0] as Boolean,
                     query = it[1] as String
-                }
+                )
             }
         )
     }

@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.presentation.selectcurrency
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,9 +21,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.R
 import java.util.*
 
 @Suppress("unused")
@@ -92,47 +91,95 @@ private fun MainContent(
             )
         },
     ) { scaffoldPaddings ->
-        val allCurrencies = state.availableCurrencies
-
-        if (preferredCurrency != null) {
-            val scrollState = rememberLazyListState(
-                initialFirstVisibleItemIndex = (allCurrencies.indexOf(preferredCurrency) - 4)
-                    .coerceAtLeast(0)
-            )
-
-            var itemHeight = remember { 0 }
-            LazyColumn(
-                state = scrollState,
-                contentPadding = PaddingValues(vertical = 8.dp),
+        Column(
+            modifier = Modifier
+                .padding(scaffoldPaddings)
+                .navigationBarsPadding()
+                .fillMaxSize()
+        ) {
+            Surface(
+                shadowElevation = 8.dp,
                 modifier = Modifier
-                    .padding(scaffoldPaddings)
-                    .navigationBarsPadding()
-                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                items(
-                    items = allCurrencies,
-                    key = { it.currencyCode }
-                ) { currency ->
-                    CurrencyItem(
-                        isSelected = preferredCurrency == currency,
-                        currency = currency,
-                        onRowClick = onCurrencyRowClick,
-                        modifier = Modifier.onGloballyPositioned {
-                            itemHeight = it.size.height
-                        }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_info_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+
+                    Text(
+                        text = stringResource(id = R.string.select_currency_display_info),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
 
-            LaunchedEffect(key1 = itemHeight) {
-                val scrollOffsetY = (-itemHeight * scrollState.firstVisibleItemIndex).toFloat()
-                topBarScrollBehavior.nestedScrollConnection.onPostScroll(
-                    consumed = Offset(0f, scrollOffsetY),
-                    available = Offset(0f, scrollOffsetY),
-                    source = NestedScrollSource.Drag
+            if (preferredCurrency != null) {
+                CurrencyLazyColumn(
+                    allCurrencies = state.availableCurrencies,
+                    preferredCurrency = preferredCurrency,
+                    topBarScrollBehavior = topBarScrollBehavior,
+                    onCurrencyRowClick = onCurrencyRowClick,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CurrencyLazyColumn(
+    allCurrencies: List<Currency>,
+    preferredCurrency: Currency?,
+    topBarScrollBehavior: TopAppBarScrollBehavior,
+    onCurrencyRowClick: (Currency) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = (allCurrencies.indexOf(preferredCurrency) - 4)
+            .coerceAtLeast(0)
+    )
+
+    var itemHeight = remember { 0 }
+    LazyColumn(
+        state = scrollState,
+        contentPadding = PaddingValues(vertical = 8.dp),
+        modifier = modifier
+            .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+    ) {
+        items(
+            items = allCurrencies,
+            key = { it.currencyCode }
+        ) { currency ->
+            CurrencyItem(
+                isSelected = preferredCurrency == currency,
+                currency = currency,
+                onRowClick = onCurrencyRowClick,
+                modifier = Modifier.onGloballyPositioned {
+                    itemHeight = it.size.height
+                }
+            )
+        }
+    }
+
+    LaunchedEffect(key1 = itemHeight) {
+        val scrollOffsetY = (-itemHeight * scrollState.firstVisibleItemIndex).toFloat()
+        topBarScrollBehavior.nestedScrollConnection.onPostScroll(
+            consumed = Offset(0f, scrollOffsetY),
+            available = Offset(0f, scrollOffsetY),
+            source = NestedScrollSource.Drag
+        )
     }
 }
 

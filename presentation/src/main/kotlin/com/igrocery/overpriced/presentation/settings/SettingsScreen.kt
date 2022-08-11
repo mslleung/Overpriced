@@ -44,10 +44,8 @@ fun SettingsScreen(
     }
 
     val preferredCurrency by viewModel.preferredCurrencyFlow.collectAsState()
-    val state by rememberSettingsScreenState()
     MainContent(
         preferredCurrency = preferredCurrency,
-        state = state,
         onBackButtonClick = navigateUp,
         onPreferredCurrencyRowClick = navigateToSelectCurrencyScreen
     )
@@ -57,7 +55,6 @@ fun SettingsScreen(
 @Composable
 private fun MainContent(
     preferredCurrency: Currency?,
-    state: SettingsScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onPreferredCurrencyRowClick: () -> Unit
 ) {
@@ -122,7 +119,6 @@ private fun MainContent(
 private fun DefaultPreview() {
     MainContent(
         preferredCurrency = Currency.getInstance(Locale.getDefault()),
-        state = SettingsScreenStateHolder(),
         onBackButtonClick = {},
         onPreferredCurrencyRowClick = {}
     )

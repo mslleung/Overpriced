@@ -74,6 +74,7 @@
 
     <string name="select_currency_title">Select Currency</string>
     <string name="select_currency_selected_currency_content_description">Selected currency</string>
+    <string name="select_currency_display_info">This only affects the currency displayed. No currency conversion will happen.</string>
 
     <string name="new_category_title">New Category</string>
     <string name="new_category_name_label">Category Name</string>

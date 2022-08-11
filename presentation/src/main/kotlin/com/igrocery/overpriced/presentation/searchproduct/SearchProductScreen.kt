@@ -63,11 +63,16 @@ fun SearchProductScreen(
     }
 
     val productPagingItems = viewModel.productsPagedFlow.collectAsLazyPagingItems()
-    val state by rememberSearchProductScreenState()
+    var state by rememberSearchProductScreenState()
     MainContent(
         productPagingItems = productPagingItems,
         state = state,
         onBackButtonClick = navigateUp,
+        onQueryChanged = {
+            state = state.copy(
+                query = it.take(100)
+            )
+        },
         onProductClick = navigateToProductDetails,
     )
 
@@ -94,6 +99,7 @@ private fun MainContent(
     productPagingItems: LazyPagingItems<Product>,
     state: SearchProductScreenStateHolder,
     onBackButtonClick: () -> Unit,
+    onQueryChanged: (String) -> Unit,
     onProductClick: (Product) -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
@@ -106,9 +112,7 @@ private fun MainContent(
                     val keyboardController = LocalSoftwareKeyboardController.current
                     TextField(
                         value = state.query,
-                        onValueChange = {
-                            state.query = it.take(100)
-                        },
+                        onValueChange = onQueryChanged,
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester),
@@ -125,7 +129,7 @@ private fun MainContent(
                             if (state.query.isNotEmpty()) {
                                 ClearButton(
                                     onClick = {
-                                        state.query = ""
+                                        onQueryChanged("")
                                     },
                                     modifier = Modifier
                                         .padding(14.dp)
