@@ -151,7 +151,7 @@ private fun MainContent(
                         )
                     )
                     if (state.isRequestingFirstFocus) {
-                        state.isRequestingFirstFocus = false
+//                       TODO state.isRequestingFirstFocus = false
                         LaunchedEffect(key1 = Unit) {
                             focusRequester.requestFocus()
                         }
@@ -289,6 +289,7 @@ private fun DefaultPreview() {
         productPagingItems = products,
         state = SearchProductScreenStateHolder(),
         onBackButtonClick = {},
+        onQueryChanged = {},
         onProductClick = {},
     )
 }

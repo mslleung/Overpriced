@@ -189,7 +189,7 @@ fun NewPriceScreen(
 
     if (state.isSelectStoreDialogShown) {
         SelectStoreDialog(
-            selectStoreDialogViewModel = selectStoreDialogViewModel,
+            viewModel = selectStoreDialogViewModel,
             selectedStoreId = selectedStore?.id ?: 0,
             onDismiss = { state.isSelectStoreDialogShown = false },
             onStoreSelect = {

@@ -9,7 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 data class SearchProductScreenStateHolder(
-    val isRequestingFirstFocus: Boolean = true,
+    var isRequestingFirstFocus: Boolean = true,
     val query: String = "",
 ) {
     companion object {

@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -14,10 +15,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.R
-import java.util.*
 
 @Suppress("unused")
 private val log = Logger { }
@@ -43,9 +43,9 @@ fun SettingsScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val preferredCurrency by viewModel.preferredCurrencyFlow.collectAsState()
+    val viewModelState = viewModel.uiState
     MainContent(
-        preferredCurrency = preferredCurrency,
+        viewModelState = viewModelState,
         onBackButtonClick = navigateUp,
         onPreferredCurrencyRowClick = navigateToSelectCurrencyScreen
     )
@@ -54,7 +54,7 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    preferredCurrency: Currency?,
+    viewModelState: SettingsScreenViewModel.ViewModelState,
     onBackButtonClick: () -> Unit,
     onPreferredCurrencyRowClick: () -> Unit
 ) {
@@ -103,7 +103,9 @@ private fun MainContent(
                 )
 
                 Text(
-                    text = preferredCurrency?.displayName ?: "",
+                    text = if (viewModelState.isPreferredCurrencyLoaded) {
+                        viewModelState.preferredCurrency.displayName
+                    } else "",
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -118,7 +120,7 @@ private fun MainContent(
 @Composable
 private fun DefaultPreview() {
     MainContent(
-        preferredCurrency = Currency.getInstance(Locale.getDefault()),
+        viewModelState = SettingsScreenViewModel.ViewModelState(),
         onBackButtonClick = {},
         onPreferredCurrencyRowClick = {}
     )

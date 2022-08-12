@@ -49,10 +49,10 @@ fun SelectCurrencyScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val preferredCurrency by viewModel.preferredCurrencyFlow.collectAsState()
+    val viewModelState = viewModel.uiState
     val state by rememberSelectCurrencyScreenState()
     MainContent(
-        preferredCurrency = preferredCurrency,
+        viewModelState = viewModelState,
         state = state,
         onBackButtonClick = navigateUp,
         onCurrencyRowClick = {
@@ -65,7 +65,7 @@ fun SelectCurrencyScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    preferredCurrency: Currency?,
+    viewModelState: SelectCurrencyScreenViewModel.ViewModelState,
     state: SelectCurrencyScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onCurrencyRowClick: (Currency) -> Unit
@@ -124,10 +124,10 @@ private fun MainContent(
                 }
             }
 
-            if (preferredCurrency != null) {
+            if (viewModelState.isPreferredCurrencyLoaded) {
                 CurrencyLazyColumn(
                     allCurrencies = state.availableCurrencies,
-                    preferredCurrency = preferredCurrency,
+                    preferredCurrency = viewModelState.preferredCurrency,
                     topBarScrollBehavior = topBarScrollBehavior,
                     onCurrencyRowClick = onCurrencyRowClick,
                     modifier = Modifier.fillMaxSize()
@@ -221,7 +221,7 @@ fun CurrencyItem(
 @Composable
 private fun DefaultPreview() {
     MainContent(
-        preferredCurrency = Currency.getInstance(Locale.getDefault()),
+        viewModelState = SelectCurrencyScreenViewModel.ViewModelState(),
         state = SelectCurrencyScreenStateHolder(),
         onBackButtonClick = {},
         onCurrencyRowClick = {}

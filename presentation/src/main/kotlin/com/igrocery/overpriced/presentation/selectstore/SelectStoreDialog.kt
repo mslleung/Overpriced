@@ -27,19 +27,19 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun SelectStoreDialog(
-    selectStoreDialogViewModel: SelectStoreDialogViewModel,
+    viewModel: SelectStoreDialogViewModel,
     selectedStoreId: Long,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
     onNewStoreClick: () -> Unit,
 ) {
-    val storesPagingItems = selectStoreDialogViewModel.storesPagedFlow.collectAsLazyPagingItems()
-
+    val storesPagingItems = viewModel.uiState.storesPagingDataFlow.collectAsLazyPagingItems()
     var isFirstLoadTriggered by remember { mutableStateOf(false) }
     if (!isFirstLoadTriggered) {
         LaunchedEffect(key1 = storesPagingItems.loadState.refresh) {
@@ -59,6 +59,10 @@ fun SelectStoreDialog(
             onNewStoreClick
         )
     }
+}
+
+fun <T : Any> Flow<PagingData<T>>.test() {
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
