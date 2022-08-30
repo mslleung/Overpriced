@@ -33,11 +33,9 @@ fun SelectCategoryDialog(
     onEditCategoryClick: (Category) -> Unit,
     onNewCategoryClick: () -> Unit,
 ) {
-    val categoryList by viewModel.categoryListFlow.collectAsState()
-
-    categoryList?.let {
+    if (viewModel.uiState.isAllCategoriesLoaded) {
         MainLayout(
-            it,
+            viewModel.uiState.allCategories,
             selectedCategoryId,
             onDismiss,
             onCategorySelect,
