@@ -24,7 +24,6 @@ class SelectStoreDialogViewModel @Inject constructor(
 
     @Stable
     data class ViewModelState(
-        val isPreferredCurrencyLoaded: Boolean = false,
         val storesPagingDataFlow: Flow<PagingData<Store>> = emptyFlow(),
     )
 

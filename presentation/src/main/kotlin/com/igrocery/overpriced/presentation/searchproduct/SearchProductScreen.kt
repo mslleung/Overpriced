@@ -62,12 +62,17 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val productPagingItems = viewModel.productsPagedFlow.collectAsLazyPagingItems()
+    val viewModelState = viewModel.uiState
     var state by rememberSearchProductScreenState()
     MainContent(
-        productPagingItems = productPagingItems,
+        viewModelState = viewModelState,
         state = state,
         onBackButtonClick = navigateUp,
+        onFirstFocusRequest = {
+            state = state.copy(
+                isRequestingFirstFocus = false
+            )
+        },
         onQueryChanged = {
             state = state.copy(
                 query = it.take(100)
@@ -79,8 +84,8 @@ fun SearchProductScreen(
     LaunchedEffect(key1 = Unit) {
         snapshotFlow { state.query }
             .collect {
-                viewModel.setQuery(it)
-                productPagingItems.refresh()
+                viewModel.updateQuery(it)
+//                productPagingItems.refresh()
             }
     }
 
@@ -96,9 +101,10 @@ fun SearchProductScreen(
 )
 @Composable
 private fun MainContent(
-    productPagingItems: LazyPagingItems<Product>,
+    viewModelState: SearchProductScreenViewModel.ViewModelState,
     state: SearchProductScreenStateHolder,
     onBackButtonClick: () -> Unit,
+    onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onProductClick: (Product) -> Unit,
 ) {
@@ -151,7 +157,7 @@ private fun MainContent(
                         )
                     )
                     if (state.isRequestingFirstFocus) {
-//                       TODO state.isRequestingFirstFocus = false
+                        onFirstFocusRequest()
                         LaunchedEffect(key1 = Unit) {
                             focusRequester.requestFocus()
                         }
@@ -170,6 +176,7 @@ private fun MainContent(
             )
         },
     ) {
+        val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
         if (productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
@@ -273,22 +280,11 @@ private fun ProductListItem(
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val products = flowOf(
-        PagingData.from(
-            listOf(
-                Product(
-                    name = "Apple",
-                    description = "Pack of 5",
-                    categoryId = 0L
-                )
-            )
-        )
-    ).collectAsLazyPagingItems()
-
     MainContent(
-        productPagingItems = products,
+        viewModelState = SearchProductScreenViewModel.ViewModelState(),
         state = SearchProductScreenStateHolder(),
         onBackButtonClick = {},
+        onFirstFocusRequest = {},
         onQueryChanged = {},
         onProductClick = {},
     )

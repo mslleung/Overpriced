@@ -1,5 +1,9 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +12,8 @@ import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -18,27 +24,33 @@ private val log = Logger { }
 
 @HiltViewModel
 class SearchProductScreenViewModel @Inject constructor(
-    private val savedState: SavedStateHandle,
     private val productService: ProductService,
 ) : ViewModel() {
 
-    companion object {
-        private const val KEY_QUERY = "KEY_QUERY"
+    @Stable
+    data class ViewModelState(
+        val productsPagingDataFlow: Flow<PagingData<Product>> = emptyFlow()
+    )
+
+    var uiState by mutableStateOf(ViewModelState())
+        private set
+
+    init {
+        updateQuery("")
     }
 
-    fun setQuery(query: String) {
-        savedState[KEY_QUERY] = query
-    }
-
-    val productsPagedFlow = Pager(
-        PagingConfig(
-            pageSize = 100,
-            prefetchDistance = 30
+    fun updateQuery(query: String) {
+        uiState = uiState.copy(
+            productsPagingDataFlow = Pager(
+                PagingConfig(
+                    pageSize = 100,
+                    prefetchDistance = 30
+                )
+            ) {
+                productService.searchProductsByNamePaging("$query*")
+            }.flow
+                .cachedIn(viewModelScope)
         )
-    ) {
-        val queryStr = savedState.get<String>(KEY_QUERY) ?: ""
-        productService.searchProductsByNamePaging("$queryStr*")
-    }.flow
-        .cachedIn(viewModelScope)
+    }
 
 }
