@@ -77,17 +77,10 @@ fun SearchProductScreen(
             state = state.copy(
                 query = it.take(100)
             )
+            viewModel.updateQuery(state.query)
         },
         onProductClick = navigateToProductDetails,
     )
-
-    LaunchedEffect(key1 = Unit) {
-        snapshotFlow { state.query }
-            .collect {
-                viewModel.updateQuery(it)
-//                productPagingItems.refresh()
-            }
-    }
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -210,6 +203,13 @@ private fun MainContent(
                     }
                 }
             }
+        }
+
+        LaunchedEffect(key1 = Unit) {
+            snapshotFlow { state.query }
+                .collect {
+                    productPagingItems.refresh()
+                }
         }
     }
 }
