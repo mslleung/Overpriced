@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.presentation.selectcurrency
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,25 +21,23 @@ class SelectCurrencyScreenViewModel @Inject constructor(
     private val preferenceService: PreferenceService
 ) : ViewModel() {
 
-    @Stable
-    data class ViewModelState(
-        val isPreferredCurrencyLoaded: Boolean = false,
-        val preferredCurrency: Currency = Currency.getInstance(Locale.getDefault())
-    )
+    class ViewModelState {
+        var isPreferredCurrencyLoaded by mutableStateOf(false)
+        var preferredCurrency: Currency by mutableStateOf(Currency.getInstance(Locale.getDefault()))
+    }
 
-    var uiState by mutableStateOf(ViewModelState())
-        private set
+    val uiState = ViewModelState()
 
     init {
-        viewModelScope.launch {
-            preferenceService.getAppPreference()
-                .map { it.preferredCurrency }
-                .collect {
-                    uiState = uiState.copy(
-                        isPreferredCurrencyLoaded = true,
+        with(uiState) {
+            viewModelScope.launch {
+                preferenceService.getAppPreference()
+                    .map { it.preferredCurrency }
+                    .collect {
+                        isPreferredCurrencyLoaded = true
                         preferredCurrency = it
-                    )
-                }
+                    }
+            }
         }
     }
 

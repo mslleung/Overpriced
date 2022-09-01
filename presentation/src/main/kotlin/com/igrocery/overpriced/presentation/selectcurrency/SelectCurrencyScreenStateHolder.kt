@@ -1,20 +1,17 @@
 package com.igrocery.overpriced.presentation.selectcurrency
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import java.util.*
 
-@Stable
-data class SelectCurrencyScreenStateHolder(
-    val isInitialScroll: Boolean = true,
+class SelectCurrencyScreenStateHolder {
+    var isInitialScroll by mutableStateOf(true)
     val availableCurrencies: List<Currency> = Currency.getAvailableCurrencies()
         .sortedBy {
             it.currencyCode
-        },
-)
+        }
+}
 
 @Composable
 fun rememberSelectCurrencyScreenState() = rememberSaveable(
@@ -25,9 +22,9 @@ fun rememberSelectCurrencyScreenState() = rememberSaveable(
             )
         },
         restore = {
-            SelectCurrencyScreenStateHolder(
+            SelectCurrencyScreenStateHolder().apply {
                 isInitialScroll = it[0]
-            )
+            }
         }
     )
 ) {

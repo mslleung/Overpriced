@@ -62,11 +62,10 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val viewModelState = viewModel.uiState
     var state by rememberSearchProductScreenState()
     MainContent(
-        viewModelState = viewModelState,
-        state = state,
+        viewModelState = viewModel.uiState,
+        state = { state },
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
             state = state.copy(
@@ -77,7 +76,7 @@ fun SearchProductScreen(
             state = state.copy(
                 query = it.take(100)
             )
-            viewModel.updateQuery(state.query)
+//            viewModel.updateQuery(state.query)
         },
         onProductClick = navigateToProductDetails,
     )
@@ -95,7 +94,7 @@ fun SearchProductScreen(
 @Composable
 private fun MainContent(
     viewModelState: SearchProductScreenViewModel.ViewModelState,
-    state: SearchProductScreenStateHolder,
+    state: () -> SearchProductScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -110,7 +109,7 @@ private fun MainContent(
                     val focusRequester = remember { FocusRequester() }
                     val keyboardController = LocalSoftwareKeyboardController.current
                     TextField(
-                        value = state.query,
+                        value = state().query,
                         onValueChange = onQueryChanged,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -125,7 +124,7 @@ private fun MainContent(
                             )
                         },
                         trailingIcon = {
-                            if (state.query.isNotEmpty()) {
+                            if (state().query.isNotEmpty()) {
                                 ClearButton(
                                     onClick = {
                                         onQueryChanged("")
@@ -149,7 +148,7 @@ private fun MainContent(
                             unfocusedIndicatorColor = Color.Transparent,
                         )
                     )
-                    if (state.isRequestingFirstFocus) {
+                    if (state().isRequestingFirstFocus) {
                         onFirstFocusRequest()
                         LaunchedEffect(key1 = Unit) {
                             focusRequester.requestFocus()
@@ -203,13 +202,6 @@ private fun MainContent(
                     }
                 }
             }
-        }
-
-        LaunchedEffect(key1 = Unit) {
-            snapshotFlow { state.query }
-                .collect {
-                    productPagingItems.refresh()
-                }
         }
     }
 }
@@ -282,7 +274,7 @@ private fun ProductListItem(
 private fun DefaultPreview() {
     MainContent(
         viewModelState = SearchProductScreenViewModel.ViewModelState(),
-        state = SearchProductScreenStateHolder(),
+        state = { SearchProductScreenStateHolder() },
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},

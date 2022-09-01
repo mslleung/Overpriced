@@ -49,10 +49,9 @@ fun SelectCurrencyScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val viewModelState = viewModel.uiState
     val state by rememberSelectCurrencyScreenState()
     MainContent(
-        viewModelState = viewModelState,
+        viewModelState = viewModel.uiState,
         state = state,
         onBackButtonClick = navigateUp,
         onCurrencyRowClick = {

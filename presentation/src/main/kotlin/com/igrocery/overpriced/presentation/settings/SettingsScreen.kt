@@ -43,9 +43,8 @@ fun SettingsScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val viewModelState = viewModel.uiState
     MainContent(
-        viewModelState = viewModelState,
+        viewModelState = viewModel.uiState,
         onBackButtonClick = navigateUp,
         onPreferredCurrencyRowClick = navigateToSelectCurrencyScreen
     )

@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.presentation.selectstore
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,16 +21,14 @@ class SelectStoreDialogViewModel @Inject constructor(
     private val storeService: StoreService,
 ) : ViewModel() {
 
-    @Stable
-    data class ViewModelState(
-        val storesPagingDataFlow: Flow<PagingData<Store>> = emptyFlow(),
-    )
+    class ViewModelState {
+        var storesPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Store>>())
+    }
 
-    var uiState by mutableStateOf(ViewModelState())
-        private set
+    val uiState = ViewModelState()
 
     init {
-        uiState = uiState.copy(
+        with(uiState) {
             storesPagingDataFlow = Pager(
                 PagingConfig(
                     pageSize = 100,
@@ -41,7 +38,7 @@ class SelectStoreDialogViewModel @Inject constructor(
                 storeService.getStoresPagingSource()
             }.flow
                 .cachedIn(viewModelScope)
-        )
+        }
     }
 
 }

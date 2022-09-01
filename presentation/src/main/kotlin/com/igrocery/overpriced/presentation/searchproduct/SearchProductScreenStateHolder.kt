@@ -6,11 +6,10 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenStateHolder
 
-@Stable
-data class SearchProductScreenStateHolder(
-    val isRequestingFirstFocus: Boolean = true,
-    val query: String = "",
-)
+class SearchProductScreenStateHolder {
+    val isRequestingFirstFocus: Boolean = true
+    val query: String = ""
+}
 
 @Composable
 fun rememberSearchProductScreenState() = rememberSaveable(
