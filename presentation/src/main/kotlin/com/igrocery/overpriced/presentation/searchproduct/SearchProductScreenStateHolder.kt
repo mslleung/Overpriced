@@ -1,14 +1,12 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenStateHolder
 
 class SearchProductScreenStateHolder {
-    val isRequestingFirstFocus: Boolean = true
-    val query: String = ""
+    var isRequestingFirstFocus by mutableStateOf(true)
+    var query by mutableStateOf("")
 }
 
 @Composable
@@ -21,10 +19,10 @@ fun rememberSearchProductScreenState() = rememberSaveable(
             )
         },
         restore = {
-            SearchProductScreenStateHolder(
-                isRequestingFirstFocus = it[0] as Boolean,
+            SearchProductScreenStateHolder().apply {
+                isRequestingFirstFocus = it[0] as Boolean
                 query = it[1] as String
-            )
+            }
         }
     )
 ) {

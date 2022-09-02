@@ -2,7 +2,6 @@ package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,21 +21,17 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.R
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
 private val log = Logger { }
@@ -62,21 +57,17 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    var state by rememberSearchProductScreenState()
+    val state by rememberSearchProductScreenState()
     MainContent(
         viewModelState = viewModel.uiState,
-        state = { state },
+        state = state,
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
-            state = state.copy(
-                isRequestingFirstFocus = false
-            )
+            state.isRequestingFirstFocus = false
         },
         onQueryChanged = {
-            state = state.copy(
-                query = it.take(100)
-            )
-//            viewModel.updateQuery(state.query)
+            state.query = it.take(100)
+            viewModel.updateQuery(state.query)
         },
         onProductClick = navigateToProductDetails,
     )
@@ -94,7 +85,7 @@ fun SearchProductScreen(
 @Composable
 private fun MainContent(
     viewModelState: SearchProductScreenViewModel.ViewModelState,
-    state: () -> SearchProductScreenStateHolder,
+    state: SearchProductScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -109,7 +100,7 @@ private fun MainContent(
                     val focusRequester = remember { FocusRequester() }
                     val keyboardController = LocalSoftwareKeyboardController.current
                     TextField(
-                        value = state().query,
+                        value = state.query,
                         onValueChange = onQueryChanged,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,7 +115,7 @@ private fun MainContent(
                             )
                         },
                         trailingIcon = {
-                            if (state().query.isNotEmpty()) {
+                            if (state.query.isNotEmpty()) {
                                 ClearButton(
                                     onClick = {
                                         onQueryChanged("")
@@ -148,7 +139,7 @@ private fun MainContent(
                             unfocusedIndicatorColor = Color.Transparent,
                         )
                     )
-                    if (state().isRequestingFirstFocus) {
+                    if (state.isRequestingFirstFocus) {
                         onFirstFocusRequest()
                         LaunchedEffect(key1 = Unit) {
                             focusRequester.requestFocus()
@@ -274,7 +265,7 @@ private fun ProductListItem(
 private fun DefaultPreview() {
     MainContent(
         viewModelState = SearchProductScreenViewModel.ViewModelState(),
-        state = { SearchProductScreenStateHolder() },
+        state = SearchProductScreenStateHolder(),
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
