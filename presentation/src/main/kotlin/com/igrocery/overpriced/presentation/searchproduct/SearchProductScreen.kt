@@ -93,6 +93,8 @@ private fun MainContent(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -101,7 +103,10 @@ private fun MainContent(
                     val keyboardController = LocalSoftwareKeyboardController.current
                     TextField(
                         value = state.query,
-                        onValueChange = onQueryChanged,
+                        onValueChange = {
+                            onQueryChanged(it)
+                            productPagingItems.refresh()
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester),
@@ -159,7 +164,6 @@ private fun MainContent(
             )
         },
     ) {
-        val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
         if (productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier

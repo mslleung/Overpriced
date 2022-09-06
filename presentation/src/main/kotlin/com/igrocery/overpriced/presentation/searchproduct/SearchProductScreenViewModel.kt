@@ -39,7 +39,6 @@ class SearchProductScreenViewModel @Inject constructor(
             productService.searchProductsByNamePaging("$query*")
         }.flow
             .cachedIn(viewModelScope)
-        updateQuery("")
     }
 
     fun updateQuery(query: String) {
