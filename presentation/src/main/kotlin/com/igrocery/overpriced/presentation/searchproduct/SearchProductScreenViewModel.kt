@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.searchproduct
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
@@ -18,8 +19,13 @@ private val log = Logger { }
 
 @HiltViewModel
 class SearchProductScreenViewModel @Inject constructor(
+    savedState: SavedStateHandle,
     private val productService: ProductService,
 ) : ViewModel() {
+
+    private companion object {
+        private const val KEY_QUERY = "KEY_QUERY"
+    }
 
     class ViewModelState {
         var productsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
@@ -27,7 +33,7 @@ class SearchProductScreenViewModel @Inject constructor(
 
     val uiState = ViewModelState()
 
-    private var query = ""
+    private var query: String = savedState[KEY_QUERY] ?: ""
 
     init {
         uiState.productsPagingDataFlow = Pager(

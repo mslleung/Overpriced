@@ -99,7 +99,7 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0-beta01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha16")
+    implementation("androidx.compose.material3:material3:1.0.0-beta01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
     implementation("androidx.activity:activity-compose:1.5.1")
@@ -150,19 +150,10 @@ dependencies {
     // google play services
     implementation("com.google.android.gms:play-services-location:20.0.0")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.5.3")
+    implementation("com.google.maps.android:maps-compose:2.7.0")
 
     // MP Android Chart
 //    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
-    // ML Kit
-    implementation("com.google.mlkit:barcode-scanning:17.0.2")
-
-    // CameraX
-    val cameraxVersion = "1.2.0-alpha04"
-    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
-    implementation("androidx.camera:camera-view:${cameraxVersion}")
-    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
 
     // junit
     testImplementation("junit:junit:4.13.2")

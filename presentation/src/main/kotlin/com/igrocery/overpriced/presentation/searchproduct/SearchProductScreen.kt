@@ -31,7 +31,6 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.flow.collect
 
 @Suppress("unused")
 private val log = Logger { }
