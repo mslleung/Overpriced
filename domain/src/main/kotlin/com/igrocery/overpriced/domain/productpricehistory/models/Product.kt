@@ -9,21 +9,16 @@ class Product : AggregateRoot {
     class DescriptionLengthExceededException :
         IllegalArgumentException("Description exceeded maximum length.")
 
-    class BarcodeLengthExceededException :
-        IllegalArgumentException("Barcode exceeded maximum length.")
-
     constructor(
         id: Long = 0,
         creationTimestamp: Long = 0,
         updateTimestamp: Long = 0,
         name: String,
         description: String,   // the product brand, weight/size/flavor etc.
-        barcode: String? = null,
         categoryId: Long?,
     ) : super(id, creationTimestamp, updateTimestamp) {
         this.name = name
         this.description = description
-        this.barcode = barcode
         this.categoryId = categoryId
     }
 
@@ -34,7 +29,6 @@ class Product : AggregateRoot {
     ) {
         this.name = product.name
         this.description = product.description
-        this.barcode = product.barcode
         this.categoryId = product.categoryId
     }
 
@@ -51,14 +45,6 @@ class Product : AggregateRoot {
             field = value
         }
 
-    var barcode: String?
-        set(value) {
-            value?.let {
-                if (it.length > 500) throw BarcodeLengthExceededException()
-            }
-            field = value
-        }
-
     var categoryId: Long?
 
     override fun equals(other: Any?): Boolean {
@@ -70,7 +56,6 @@ class Product : AggregateRoot {
 
         if (name != other.name) return false
         if (description != other.description) return false
-        if (barcode != other.barcode) return false
         if (categoryId != other.categoryId) return false
 
         return true
@@ -80,7 +65,6 @@ class Product : AggregateRoot {
         var result = super.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + description.hashCode()
-        result = 31 * result + (barcode?.hashCode() ?: 0)
         result = 31 * result + categoryId.hashCode()
         return result
     }

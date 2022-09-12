@@ -11,7 +11,6 @@ internal class ProductMapper {
             id = product.id,
             name = product.name,
             description = product.description,
-            barcode = product.barcode,
             creationTimestamp = product.creationTimestamp,
             updateTimestamp = product.updateTimestamp,
             categoryId = product.categoryId,
@@ -23,7 +22,6 @@ internal class ProductMapper {
             id = productRoomEntity.id,
             name = productRoomEntity.name,
             description = productRoomEntity.description,
-            barcode = productRoomEntity.barcode,
             creationTimestamp = productRoomEntity.creationTimestamp,
             updateTimestamp = productRoomEntity.updateTimestamp,
             categoryId = productRoomEntity.categoryId

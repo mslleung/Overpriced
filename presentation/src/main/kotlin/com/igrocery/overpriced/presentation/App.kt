@@ -6,7 +6,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
@@ -23,7 +22,6 @@ import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
-import com.igrocery.overpriced.presentation.NavDestinations.ScanBarcode
 import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
@@ -40,8 +38,6 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
 import com.igrocery.overpriced.presentation.categoryproduct.CategoryProductScreen
-import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreen
-import com.igrocery.overpriced.presentation.scanbarcode.ScanBarcodeScreenViewModel
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
@@ -71,7 +67,6 @@ private object NavDestinations {
     const val NewCategory = "newCategory"
     const val NewPrice = "newPrice"
     const val NewStore = "newStore"
-    const val ScanBarcode = "scanBarcode"
     const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
     const val Settings = "settings"
@@ -210,31 +205,11 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 selectCategoryDialogViewModel = selectCategoryDialogViewModel,
                 selectStoreDialogViewModel = selectStoreDialogViewModel,
                 navigateUp = { navController.navigateUp() },
-                navigateToScanBarcode = { navController.navigate(ScanBarcode) },
                 navigateToNewCategory = { navController.navigate(NewCategory) },
                 navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
                 navigateToNewStore = { navController.navigate(NewStore) },
                 navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
             )
-        }
-        composable(ScanBarcode) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val scanBarcodeScreenViewModel = hiltViewModel<ScanBarcodeScreenViewModel>()
-
-            ScanBarcodeScreen(
-                viewModel = scanBarcodeScreenViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = { barcode ->
-                    newPriceViewModel.setBarcode(barcode)
-                    navController.navigateUp()
-                })
         }
         composable(NewCategory) { backStackEntry ->
             val navGraphEntry =

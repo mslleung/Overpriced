@@ -1,7 +1,5 @@
 package com.igrocery.overpriced.presentation.categorylist
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -86,10 +84,7 @@ private fun MainContent(
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarState,
-        )
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

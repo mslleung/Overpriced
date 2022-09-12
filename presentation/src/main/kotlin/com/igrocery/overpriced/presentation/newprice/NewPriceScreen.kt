@@ -74,7 +74,6 @@ fun NewPriceScreen(
     selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
     selectStoreDialogViewModel: SelectStoreDialogViewModel,
     navigateUp: () -> Unit,
-    navigateToScanBarcode: () -> Unit,
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (Category) -> Unit,
     navigateToNewStore: () -> Unit,
@@ -101,7 +100,6 @@ fun NewPriceScreen(
     val productDescription by newPriceScreenViewModel.productDescriptionFlow.collectAsState()
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.productsPagedFlow.collectAsLazyPagingItems()
-    val attachedBarcode by newPriceScreenViewModel.attachedBarcodeFlow.collectAsState()
     val productCategory by newPriceScreenViewModel.productCategoryFlow.collectAsState()
     val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
@@ -112,7 +110,6 @@ fun NewPriceScreen(
         productDescription = productDescription,
         productSuggestionsPagingItems = productSuggestionsPagingItems,
         productCategory = productCategory,
-        attachedBarcode = attachedBarcode,
         preferredCurrency = preferredCurrency,
         selectedStore = selectedStore,
         submitResult = newPriceScreenViewModel.submitFormResult,
@@ -129,7 +126,6 @@ fun NewPriceScreen(
             newPriceScreenViewModel.submitForm(
                 productName.trim(),
                 productDescription.trim(),
-                attachedBarcode?.trim(),
                 productCategory?.id,
                 state.priceAmountText.trim(),
                 selectedStore,
@@ -151,14 +147,9 @@ fun NewPriceScreen(
         onProductAutoSuggestClick = {
             newPriceScreenViewModel.setProductName(it.name)
             newPriceScreenViewModel.setProductDescription(it.description)
-            newPriceScreenViewModel.setBarcode(it.barcode)
             newPriceScreenViewModel.setProductCategoryId(it.categoryId)
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
-        },
-        onAttachBarcodeButtonClick = {
-            keyboardController?.hide()
-            navigateToScanBarcode()
         },
         onCategoryClick = {
             keyboardController?.hide()
@@ -254,7 +245,6 @@ private fun MainLayout(
     productName: String,
     productDescription: String,
     productSuggestionsPagingItems: LazyPagingItems<Product>,
-    attachedBarcode: String?,
     productCategory: Category?,
     preferredCurrency: Currency,
     selectedStore: Store?,
@@ -265,7 +255,6 @@ private fun MainLayout(
     onProductNameChange: (String) -> Unit,
     onProductDescriptionChange: (String) -> Unit,
     onProductAutoSuggestClick: (Product) -> Unit,
-    onAttachBarcodeButtonClick: () -> Unit,
     onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
     onSubmitErrorDismissed: () -> Unit,
@@ -275,7 +264,7 @@ private fun MainLayout(
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = {
                     CloseButton(
                         onClick = onCloseButtonClick,
@@ -616,67 +605,6 @@ private fun ProductDescriptionTextField(
 }
 
 @Composable
-private fun ProductBarcode(
-    productBarcode: String,
-    onAttachBarcodeButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    if (productBarcode.isBlank()) {
-        TextButton(
-            onClick = onAttachBarcodeButtonClick,
-            modifier = modifier
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_camera_alt_24),
-                contentDescription = stringResource(id = R.string.new_price_product_barcode_icon_content_description),
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(24.dp)
-            )
-            Text(text = stringResource(id = R.string.new_price_product_barcode_attach_button_text))
-        }
-    } else {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier.padding(vertical = 8.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.new_price_product_barcode_label),
-                modifier = Modifier.padding(end = 4.dp)
-            )
-            Text(
-                text = productBarcode,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
-            )
-            BarcodeCameraButton(
-                onClick = onAttachBarcodeButtonClick,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun BarcodeCameraButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier,
-        colors = IconButtonDefaults.iconButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
-        )
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_camera_alt_24),
-            contentDescription = stringResource(id = R.string.new_price_product_barcode_icon_content_description)
-        )
-    }
-}
-
-@Composable
 private fun ProductCategory(
     productCategory: Category?,
     onClick: () -> Unit,
@@ -871,7 +799,6 @@ private fun DefaultPreview() {
                     id = 0,
                     name = "Apple",
                     description = "Pack of 6",
-                    barcode = null,
                     categoryId = 0L,
                     creationTimestamp = 0,
                     updateTimestamp = 0,
@@ -884,7 +811,6 @@ private fun DefaultPreview() {
         productName = "",
         productDescription = "",
         productSuggestionsPagingItems = productsPagingItems,
-        attachedBarcode = "",
         productCategory = Category(icon = CategoryIcon.Carrot, name = "Vegetables"),
         preferredCurrency = Currency.getInstance(Locale.getDefault()),
         selectedStore = null,
@@ -895,7 +821,6 @@ private fun DefaultPreview() {
         onProductNameChange = {},
         onProductDescriptionChange = {},
         onProductAutoSuggestClick = {},
-        onAttachBarcodeButtonClick = {},
         onCategoryClick = {},
         onStoreButtonClick = {},
         onSubmitErrorDismissed = {}

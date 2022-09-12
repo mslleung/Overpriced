@@ -1,10 +1,10 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
-import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
-import com.igrocery.overpriced.domain.productpricehistory.models.*
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
+import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
+import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +23,6 @@ class ProductService @Inject constructor(
         productName: String,
         productDescription: String,
         categoryId: Long?,
-        productBarcode: String?,
         priceAmountText: String,
         storeId: Long,
     ) {
@@ -31,7 +30,6 @@ class ProductService @Inject constructor(
             val product = Product(
                 name = productName,
                 description = productDescription,
-                barcode = productBarcode,
                 categoryId = categoryId,
             )
 
@@ -57,10 +55,6 @@ class ProductService @Inject constructor(
 
     fun getProduct(name: String, description: String?): Flow<Product?> {
         return productRepository.getProductByNameAndDescription(name, description)
-    }
-
-    fun getProduct(barcode: String): Flow<Product?> {
-        return productRepository.getProductByBarcode(barcode)
     }
 
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {

@@ -50,11 +50,6 @@ internal class LocalProductDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override fun getProductByBarcode(barcode: String): Flow<ProductRoomEntity?> {
-        return db.productDao().getProductByBarcode(barcode)
-            .distinctUntilChanged()
-    }
-
     override suspend fun searchProductsByNamePaging(
         query: String,
         offset: Int,

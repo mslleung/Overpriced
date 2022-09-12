@@ -42,7 +42,6 @@ class NewPriceScreenViewModel @Inject constructor(
         private const val KEY_PRODUCT_NAME = "KEY_PRODUCT_NAME"
         private const val KEY_PRODUCT_DESCRIPTION = "KEY_PRODUCT_DESCRIPTION"
         private const val KEY_PRODUCT_CATEGORY_ID = "KEY_PRODUCT_CATEGORY_ID"
-        private const val KEY_BARCODE = "KEY_BARCODE"
         private const val KEY_STORE_ID = "KEY_STORE_ID"
     }
 
@@ -59,8 +58,6 @@ class NewPriceScreenViewModel @Inject constructor(
         productService.searchProductsByNamePaging("${productNameFlow.value}*")
     }.flow
         .cachedIn(viewModelScope)
-
-    val attachedBarcodeFlow = savedState.getStateFlow(KEY_BARCODE, null as String?)
 
     val productCategoryFlow = savedState.getStateFlow<Long?>(KEY_PRODUCT_CATEGORY_ID, null)
         .flatMapLatest {
@@ -113,20 +110,6 @@ class NewPriceScreenViewModel @Inject constructor(
         savedState[KEY_PRODUCT_CATEGORY_ID] = categoryId
     }
 
-    fun setBarcode(barcode: String?) {
-        savedState[KEY_BARCODE] = barcode
-
-        if (barcode != null) {
-            viewModelScope.launch {
-                val product = productService.getProduct(barcode).first()
-                if (product != null) {
-                    setProductName(product.name)
-                    setProductDescription(product.description)
-                }
-            }
-        }
-    }
-
     fun selectStore(storeId: Long) {
         savedState[KEY_STORE_ID] = storeId
     }
@@ -134,7 +117,6 @@ class NewPriceScreenViewModel @Inject constructor(
     fun hasModifications(): Boolean {
         return productNameFlow.value.isNotBlank()
                 || productDescriptionFlow.value.isNotBlank()
-                || attachedBarcodeFlow.value != null
                 || productCategoryFlow.value != null
                 || selectedStoreFlow.value != null
     }
@@ -158,7 +140,6 @@ class NewPriceScreenViewModel @Inject constructor(
     fun submitForm(
         productName: String,
         productDescription: String,
-        productBarcode: String?,
         productCategoryId: Long?,
         priceAmountText: String,
         store: Store?,
@@ -173,7 +154,6 @@ class NewPriceScreenViewModel @Inject constructor(
                         productName,
                         productDescription,
                         productCategoryId,
-                        productBarcode,
                         priceAmountText,
                         store?.id ?: 0L,
                     )

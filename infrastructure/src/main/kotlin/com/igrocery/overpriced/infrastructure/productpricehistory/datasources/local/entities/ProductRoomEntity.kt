@@ -14,7 +14,6 @@ import androidx.room.*
     ],
     indices = [
         Index(value = ["name", "description"], unique = true),
-        Index(value = ["barcode"], unique = true),
         Index(value = ["category_id"]),
     ]
 )
@@ -26,8 +25,6 @@ internal data class ProductRoomEntity(
     val name: String,
     @ColumnInfo(name = "description")
     val description: String,
-    @ColumnInfo(name = "barcode")
-    val barcode: String?,
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
     @ColumnInfo(name = "creation_timestamp")

@@ -24,9 +24,6 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
         description: String?
     ): Flow<ProductRoomEntity?>
 
-    @Query("SELECT * FROM products WHERE products.barcode = :barcode ")
-    fun getProductByBarcode(barcode: String): Flow<ProductRoomEntity?>
-
     @Query(
         "SELECT * FROM products " +
                 "JOIN products_fts ON products.id = products_fts.rowid " +

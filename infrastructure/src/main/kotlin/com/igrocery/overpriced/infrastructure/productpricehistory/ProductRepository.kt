@@ -2,7 +2,6 @@ package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
@@ -126,11 +125,6 @@ class ProductRepository @Inject internal constructor(
         description: String?
     ): Flow<Product?> {
         return localProductDataSource.getProductByNameAndDescription(name, description)
-            .map { it?.let { productMapper.mapFromData(it) } }
-    }
-
-    override fun getProductByBarcode(barcode: String): Flow<Product?> {
-        return localProductDataSource.getProductByBarcode(barcode)
             .map { it?.let { productMapper.mapFromData(it) } }
     }
 
