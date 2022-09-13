@@ -1,15 +1,14 @@
 package com.igrocery.overpriced.presentation.settings
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.preference.PreferenceService
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
 import java.util.*
 import javax.inject.Inject
 
@@ -22,22 +21,16 @@ class SettingsScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var isPreferredCurrencyLoaded by mutableStateOf(false)
-        var preferredCurrency: Currency by mutableStateOf(Currency.getInstance(Locale.getDefault()))
+        lateinit var preferredCurrencyFlow: StateFlow<Currency?>
     }
 
-    val uiState = ViewModelState()
-
-    init {
-        with(uiState) {
-            viewModelScope.launch {
-                preferenceService.getAppPreference()
-                    .map { it.preferredCurrency }
-                    .collect {
-                        isPreferredCurrencyLoaded = true
-                        preferredCurrency = it
-                    }
-            }
-        }
+    val uiState = ViewModelState().apply {
+        preferredCurrencyFlow =  preferenceService.getAppPreference()
+            .map { it.preferredCurrency }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = null
+            )
     }
 }

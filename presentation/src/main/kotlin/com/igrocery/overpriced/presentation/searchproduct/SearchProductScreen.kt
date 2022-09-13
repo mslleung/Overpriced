@@ -96,7 +96,7 @@ private fun MainContent(
     val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = {
                     val focusRequester = remember { FocusRequester() }
                     val keyboardController = LocalSoftwareKeyboardController.current

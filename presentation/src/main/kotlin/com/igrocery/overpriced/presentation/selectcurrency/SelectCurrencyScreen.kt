@@ -73,7 +73,7 @@ private fun MainContent(
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = {
                     BackButton(
                         onClick = onBackButtonClick,

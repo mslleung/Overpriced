@@ -56,7 +56,7 @@ fun CategoryProductScreen(
     )
 }
 
-private object NavDestinations {
+object NavDestinations {
 
     const val CategoryList = "categoryList"
 
@@ -216,7 +216,7 @@ private fun NestedNavGraph(
 
             val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId)
             ProductListScreen(
-                categoryId = if (categoryId == 0L) null else categoryId,
+                categoryId = categoryId,
                 viewModel = productListScreenViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateToSearchProduct = navigateToSearchProduct,
