@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -72,7 +73,6 @@ private val log = Logger { }
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
     selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
-    selectStoreDialogViewModel: SelectStoreDialogViewModel,
     navigateUp: () -> Unit,
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (Category) -> Unit,
@@ -179,6 +179,7 @@ fun NewPriceScreen(
     }
 
     if (state.isSelectStoreDialogShown) {
+        val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
         SelectStoreDialog(
             viewModel = selectStoreDialogViewModel,
             selectedStoreId = selectedStore?.id ?: 0,

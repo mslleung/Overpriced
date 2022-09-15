@@ -6,9 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.preference.PreferenceService
+import com.igrocery.overpriced.presentation.shared.LoadState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -22,22 +23,22 @@ class SelectCurrencyScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var isPreferredCurrencyLoaded by mutableStateOf(false)
-        var preferredCurrency: Currency by mutableStateOf(Currency.getInstance(Locale.getDefault()))
+        var preferredCurrencyFlow: StateFlow<LoadState<Currency>> by mutableStateOf(
+            MutableStateFlow(LoadState.Loading())
+        )
     }
 
     val uiState = ViewModelState()
 
     init {
         with(uiState) {
-            viewModelScope.launch {
-                preferenceService.getAppPreference()
-                    .map { it.preferredCurrency }
-                    .collect {
-                        isPreferredCurrencyLoaded = true
-                        preferredCurrency = it
-                    }
-            }
+            preferredCurrencyFlow = preferenceService.getAppPreference()
+                .map { LoadState.Success(it.preferredCurrency) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadState.Loading()
+                )
         }
     }
 

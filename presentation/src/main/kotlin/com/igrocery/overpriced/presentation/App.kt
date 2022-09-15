@@ -193,17 +193,15 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 remember(backStackEntry) {
                     navController.getBackStackEntry(NewPriceRecordRoute)
                 }
+            // TODO these should be created inside the screen, passing navGraphEntry as an argument
             val newPriceViewModel =
                 hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val selectCategoryDialogViewModel =
                 hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
-            val selectStoreDialogViewModel =
-                hiltViewModel<SelectStoreDialogViewModel>(navGraphEntry)
 
             NewPriceScreen(
                 newPriceScreenViewModel = newPriceViewModel,
                 selectCategoryDialogViewModel = selectCategoryDialogViewModel,
-                selectStoreDialogViewModel = selectStoreDialogViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateToNewCategory = { navController.navigate(NewCategory) },
                 navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },

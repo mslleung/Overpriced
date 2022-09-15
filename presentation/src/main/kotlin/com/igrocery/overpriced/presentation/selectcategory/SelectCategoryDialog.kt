@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -21,6 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.LoadState
 
 @Composable
 fun SelectCategoryDialog(
@@ -31,15 +34,18 @@ fun SelectCategoryDialog(
     onEditCategoryClick: (Category) -> Unit,
     onNewCategoryClick: () -> Unit,
 ) {
-    if (viewModel.uiState.isAllCategoriesLoaded) {
-        MainLayout(
-            viewModel.uiState.allCategories,
-            selectedCategoryId,
-            onDismiss,
-            onCategorySelect,
-            onEditCategoryClick,
-            onNewCategoryClick
-        )
+    val allCategories by viewModel.uiState.allCategoriesFlow.collectAsState()
+    allCategories.let {
+        if (it is LoadState.Success) {
+            MainLayout(
+                it.data,
+                selectedCategoryId,
+                onDismiss,
+                onCategorySelect,
+                onEditCategoryClick,
+                onNewCategoryClick
+            )
+        }
     }
 }
 

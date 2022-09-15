@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.presentation.shared.LoadState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,21 +18,20 @@ class SelectCategoryDialogViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var isAllCategoriesLoaded by mutableStateOf(false)
-        var allCategories by mutableStateOf(emptyList<Category>())
+        var allCategoriesFlow: StateFlow<LoadState<List<Category>>> by mutableStateOf(MutableStateFlow(LoadState.Loading()))
     }
 
     val uiState = ViewModelState()
 
     init {
         with(uiState) {
-            viewModelScope.launch {
-                categoryService.getAllCategories()
-                    .collect {
-                        isAllCategoriesLoaded = true
-                        allCategories = it
-                    }
-            }
+            allCategoriesFlow = categoryService.getAllCategories()
+                .map { LoadState.Success(it) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadState.Loading()
+                )
         }
     }
 

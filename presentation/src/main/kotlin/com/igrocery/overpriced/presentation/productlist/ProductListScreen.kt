@@ -33,7 +33,7 @@ private val log = Logger { }
 
 @Composable
 fun ProductListScreen(
-    categoryId: Long?,
+    categoryId: Long,
     viewModel: ProductListScreenViewModel,
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
@@ -55,40 +55,40 @@ fun ProductListScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val products = viewModel.productsPagedFlow.collectAsLazyPagingItems()
     val state by rememberProductListScreenState()
-    if (categoryId == null) {
-        LaunchedEffect(key1 = Unit) {
-            viewModel.setCategoryId(null)
-        }
-
-        MainContent(
-            category = NoCategory,
-            productsPagingItems = products,
-            state = state,
-            onBackButtonClick = navigateUp,
-            onSearchButtonClick = navigateToSearchProduct,
-            onEditButtonClick = { throw IllegalArgumentException("Trying to edit null category") },
-            onProductClick = {},
-            modifier = modifier
-        )
-    } else {
-        LaunchedEffect(key1 = Unit) {
-            viewModel.setCategoryId(categoryId)
-        }
-
-        val category by viewModel.categoryFlow.collectAsState()
-        MainContent(
-            category = category,
-            productsPagingItems = products,
-            state = state,
-            onBackButtonClick = navigateUp,
-            onSearchButtonClick = navigateToSearchProduct,
-            onEditButtonClick = navigateToEditCategory,
-            onProductClick = {},
-            modifier = modifier
-        )
-    }
+    MainContent(
+        viewModelState = viewModel.uiState,
+        state = state,
+        onBackButtonClick = navigateUp,
+        onSearchButtonClick = navigateToSearchProduct,
+        onEditButtonClick = navigateToEditCategory,
+        onProductClick = {},
+        modifier = modifier
+    )
+//    if (categoryId == null) {
+//        MainContent(
+//            category = NoCategory,
+//            productsPagingItems = products,
+//            state = state,
+//            onBackButtonClick = navigateUp,
+//            onSearchButtonClick = navigateToSearchProduct,
+//            onEditButtonClick = { throw IllegalArgumentException("Trying to edit null category") },
+//            onProductClick = {},
+//            modifier = modifier
+//        )
+//    } else {
+//        val category by viewModel.categoryFlow.collectAsState()
+//        MainContent(
+//            category = category,
+//            productsPagingItems = products,
+//            state = state,
+//            onBackButtonClick = navigateUp,
+//            onSearchButtonClick = navigateToSearchProduct,
+//            onEditButtonClick = navigateToEditCategory,
+//            onProductClick = {},
+//            modifier = modifier
+//        )
+//    }
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -98,8 +98,7 @@ fun ProductListScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    category: Category?,
-    productsPagingItems: LazyPagingItems<Product>,
+    viewModelState: ProductListScreenViewModel.ViewModelState,
     state: ProductListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,

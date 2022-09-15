@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.LoadState
 import com.igrocery.overpriced.shared.Logger
 import java.util.*
 
@@ -123,14 +124,17 @@ private fun MainContent(
                 }
             }
 
-            if (viewModelState.isPreferredCurrencyLoaded) {
-                CurrencyLazyColumn(
-                    allCurrencies = state.availableCurrencies,
-                    preferredCurrency = viewModelState.preferredCurrency,
-                    topBarScrollBehavior = topBarScrollBehavior,
-                    onCurrencyRowClick = onCurrencyRowClick,
-                    modifier = Modifier.fillMaxSize()
-                )
+            val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
+            preferredCurrency.let {
+                if (it is LoadState.Success) {
+                    CurrencyLazyColumn(
+                        allCurrencies = state.availableCurrencies,
+                        preferredCurrency = it.data,
+                        topBarScrollBehavior = topBarScrollBehavior,
+                        onCurrencyRowClick = onCurrencyRowClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

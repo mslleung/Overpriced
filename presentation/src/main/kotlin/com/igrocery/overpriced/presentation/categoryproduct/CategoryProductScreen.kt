@@ -214,14 +214,14 @@ private fun NestedNavGraph(
             val productListScreenViewModel =
                 hiltViewModel<ProductListScreenViewModel>()
 
-            val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId)
+            val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId) ?: 0L
             ProductListScreen(
                 categoryId = categoryId,
                 viewModel = productListScreenViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateToSearchProduct = navigateToSearchProduct,
                 navigateToEditCategory = {
-                    navigateToEditCategory(categoryId!!)
+                    navigateToEditCategory(categoryId)
                 },
             )
         }
