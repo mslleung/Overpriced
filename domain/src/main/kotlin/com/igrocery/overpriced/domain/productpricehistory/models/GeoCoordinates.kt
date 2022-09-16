@@ -4,14 +4,14 @@ data class GeoCoordinates(
     val latitude: Double,
     val longitude: Double
 ) {
-    class InvalidGeoCoordinatesException: IllegalArgumentException("Geo coordinates are not valid.")
 
     init {
-        if (latitude !in -90.0..90.0 || longitude !in -180.0..180.0)
-            throw InvalidGeoCoordinatesException()
+        require(latitude in -90.0..90.0)
+        require(longitude in -180.0..180.0)
     }
 
     override fun toString(): String {
         return "$latitude, $longitude"
     }
+
 }
