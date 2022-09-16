@@ -58,7 +58,7 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().searchProducts(query, offset, pageSize)
     }
 
-    override fun getProductByCategoryIdPaging(
+    override suspend fun getProductByCategoryIdPaging(
         categoryId: Long?,
         offset: Int,
         pageSize: Int

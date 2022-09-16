@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.preference.PreferenceService
-import com.igrocery.overpriced.presentation.shared.LoadState
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,8 +22,8 @@ class SettingsScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var preferredCurrencyFlow: StateFlow<LoadState<Currency>> by mutableStateOf(
-            MutableStateFlow(LoadState.Loading())
+        var preferredCurrencyFlow: StateFlow<LoadingState<Currency>> by mutableStateOf(
+            MutableStateFlow(LoadingState.Loading())
         )
     }
 
@@ -32,11 +32,11 @@ class SettingsScreenViewModel @Inject constructor(
     init {
         with(uiState) {
             preferredCurrencyFlow = preferenceService.getAppPreference()
-                .map { LoadState.Success(it.preferredCurrency) }
+                .map { LoadingState.Success(it.preferredCurrency) }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadState.Loading()
+                    initialValue = LoadingState.Loading()
                 )
         }
     }

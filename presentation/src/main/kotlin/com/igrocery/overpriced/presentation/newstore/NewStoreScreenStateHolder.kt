@@ -2,6 +2,7 @@ package com.igrocery.overpriced.presentation.newstore
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.IntentSender
 import android.location.Geocoder
 import android.location.Location
@@ -24,7 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-class NewStoreScreenStateHolder {
+class NewStoreScreenStateHolder(context: Context) {
 
     private val locationRequest = LocationRequest.create().apply {
         interval = 5000
@@ -34,9 +35,9 @@ class NewStoreScreenStateHolder {
     private val settingsRequestBuilder = LocationSettingsRequest.Builder()
         .addLocationRequest(locationRequest)
 
-    lateinit var settingsClient: SettingsClient
-    lateinit var fusedLocationClient: FusedLocationProviderClient
-    lateinit var geoCoder: Geocoder
+    private val settingsClient = LocationServices.getSettingsClient(context)
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    private val geoCoder = Geocoder(context)
 
     var mapProperties by mutableStateOf(
         MapProperties(
@@ -152,36 +153,32 @@ class NewStoreScreenStateHolder {
             }
         }
     }
-
-    companion object {
-        val Saver : Saver<NewStoreScreenStateHolder, *> = listSaver(
-            save = {
-                listOf(
-                    it.liveLocation,
-                    it.isFirstLocationUpdate,
-                    it.isSaveDialogShown,
-                    it.isRequestingFirstFocus,
-                    it.storeName,
-                    it.dialogStoreAddress,
-                )
-            },
-            restore = {
-                NewStoreScreenStateHolder().apply {
-                    liveLocation = it[0] as Location?
-                    isFirstLocationUpdate = it[1] as Boolean
-                    isSaveDialogShown = it[2] as Boolean
-                    isRequestingFirstFocus = it[3] as Boolean
-                    storeName = it[4] as String
-                    dialogStoreAddress = it[5] as String
-                }
-            }
-        )
-    }
 }
 
 @Composable
-fun rememberNewStoreScreenState() = rememberSaveable(
-    stateSaver = NewStoreScreenStateHolder.Saver
+fun rememberNewStoreScreenState(context: Context) = rememberSaveable(
+    stateSaver = listSaver(
+        save = {
+            listOf(
+                it.liveLocation,
+                it.isFirstLocationUpdate,
+                it.isSaveDialogShown,
+                it.isRequestingFirstFocus,
+                it.storeName,
+                it.dialogStoreAddress,
+            )
+        },
+        restore = {
+            NewStoreScreenStateHolder(context).apply {
+                liveLocation = it[0] as Location?
+                isFirstLocationUpdate = it[1] as Boolean
+                isSaveDialogShown = it[2] as Boolean
+                isRequestingFirstFocus = it[3] as Boolean
+                storeName = it[4] as String
+                dialogStoreAddress = it[5] as String
+            }
+        }
+    )
 ) {
     mutableStateOf(NewStoreScreenStateHolder())
 }

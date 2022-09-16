@@ -23,7 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.shared.LoadState
+import com.igrocery.overpriced.presentation.shared.LoadingState
 
 @Composable
 fun SelectCategoryDialog(
@@ -36,7 +36,7 @@ fun SelectCategoryDialog(
 ) {
     val allCategories by viewModel.uiState.allCategoriesFlow.collectAsState()
     allCategories.let {
-        if (it is LoadState.Success) {
+        if (it is LoadingState.Success) {
             MainLayout(
                 it.data,
                 selectedCategoryId,

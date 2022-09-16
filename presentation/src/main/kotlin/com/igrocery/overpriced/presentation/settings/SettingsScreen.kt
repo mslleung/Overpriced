@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.LoadState
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
@@ -107,7 +107,7 @@ private fun MainContent(
                 val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
                 preferredCurrency.let {
                     Text(
-                        text = if (it is LoadState.Success) it.data.displayName else "",
+                        text = if (it is LoadingState.Success) it.data.displayName else "",
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

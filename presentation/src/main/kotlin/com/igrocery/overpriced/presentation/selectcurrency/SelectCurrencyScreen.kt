@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.LoadState
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import java.util.*
 
@@ -126,7 +126,7 @@ private fun MainContent(
 
             val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
             preferredCurrency.let {
-                if (it is LoadState.Success) {
+                if (it is LoadingState.Success) {
                     CurrencyLazyColumn(
                         allCurrencies = state.availableCurrencies,
                         preferredCurrency = it.data,

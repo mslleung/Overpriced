@@ -80,13 +80,7 @@ fun NewStoreScreen(
     }
 
     val createStoreResultState by newStoreViewModel.createStoreResultStateFlow.collectAsState()
-    val context = LocalContext.current
-    val state by rememberNewStoreScreenState().apply {
-        value.settingsClient = remember(context) { LocationServices.getSettingsClient(context) }
-        value.fusedLocationClient =
-            remember(context) { LocationServices.getFusedLocationProviderClient(context) }
-        value.geoCoder = remember(context) { Geocoder(context) }
-    }
+    val state by rememberNewStoreScreenState(LocalContext.current)
     val activity = LocalContext.current as ComponentActivity
     val locationPermissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -513,7 +507,7 @@ private fun SaveAlertDialog(
 private fun DefaultPreview() {
     MainContent(
         createStoreResultState = null,
-        state = NewStoreScreenStateHolder(),
+        state = NewStoreScreenStateHolder(LocalContext.current),
         onBackButtonClick = {},
         onSaveButtonClick = {},
         onMyLocationClick = {},
