@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.presentation.newstore
 
 import android.Manifest
+import android.location.Geocoder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresPermission
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -42,8 +44,12 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
+import com.igrocery.overpriced.presentation.editstore.rememberEditStoreScreenState
+import com.igrocery.overpriced.presentation.editstore.rememberSaveAlertDialogState
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenStateHolder.GeocoderLoadState
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
@@ -63,47 +69,6 @@ fun NewStoreScreen(
     navigateDone: (newStoreId: Long) -> Unit,
 ) {
     log.debug("Composing NewStoreScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
-    val state by rememberNewStoreScreenState(LocalContext.current)
-    val activity = LocalContext.current as ComponentActivity
-    val locationPermissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ),
-        onPermissionsResult = { result ->
-            val hasLocationPermission =
-                result.getOrElse(Manifest.permission.ACCESS_COARSE_LOCATION) { false }
-                        || result.getOrElse(Manifest.permission.ACCESS_FINE_LOCATION) { false }
-            if (hasLocationPermission) {
-                // has at least Manifest.permission.ACCESS_COARSE_LOCATION, can proceed to get location
-                state.tryUpdateLiveLocation(activity)
-
-                state.mapProperties = state.mapProperties.copy(
-                    isMyLocationEnabled = true
-                )
-            }
-        }
-    )
-
-    if (state.isFirstLocationUpdate) {
-        LaunchedEffect(key1 = Unit) {
-            locationPermissionsState.launchMultiplePermissionRequest()
-        }
-    }
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -181,6 +146,182 @@ fun NewStoreScreen(
             else -> {}
         }
     }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
+@Composable
+fun EditStoreScreen(
+    storeId: Long,
+    viewModel: EditStoreScreenViewModel,
+    navigateUp: () -> Unit,
+    navigateDone: () -> Unit,
+) {
+    com.igrocery.overpriced.presentation.editstore.log.debug("Composing EditStoreScreen")
+
+    val systemUiController = rememberSystemUiController()
+    val statusBarColor = MaterialTheme.colorScheme.surface
+    val navBarColor = MaterialTheme.colorScheme.surface
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            statusBarColor,
+            transformColorForLightContent = { color -> color })
+        systemUiController.setNavigationBarColor(
+            navBarColor,
+            navigationBarContrastEnforced = false,
+            transformColorForLightContent = { color -> color })
+    }
+
+    val store by viewModel.storeFlow.collectAsState()
+    val updateStoreResultState by viewModel.updateStoreResultStateFlow.collectAsState()
+    val context = LocalContext.current
+    val state by rememberEditStoreScreenState().apply {
+        value.settingsClient = remember(context) { LocationServices.getSettingsClient(context) }
+        value.fusedLocationClient =
+            remember(context) { LocationServices.getFusedLocationProviderClient(context) }
+        value.geoCoder = remember(context) { Geocoder(context) }
+    }
+    val activity = LocalContext.current as ComponentActivity
+    val locationPermissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+        onPermissionsResult = { result ->
+            val hasLocationPermission =
+                result.getOrElse(Manifest.permission.ACCESS_COARSE_LOCATION) { false }
+                        || result.getOrElse(Manifest.permission.ACCESS_FINE_LOCATION) { false }
+            if (hasLocationPermission) {
+                // has at least Manifest.permission.ACCESS_COARSE_LOCATION, can proceed to get location
+                state.tryUpdateLiveLocation(activity)
+
+                state.mapProperties = state.mapProperties.copy(
+                    isMyLocationEnabled = true
+                )
+            }
+        }
+    )
+
+    val coroutineScope = rememberCoroutineScope()
+    com.igrocery.overpriced.presentation.editstore.MainContent(
+        store = store,
+        updateStoreResultState = updateStoreResultState,
+        state = state,
+        onBackButtonClick = navigateUp,
+        onDeleteButtonClick = {
+            state.isConfirmDeleteDialogShown = true
+        },
+        onSaveButtonClick = {
+            state.isSaveDialogShown = true
+        },
+        onMyLocationClick = { locationPermissionsState.launchMultiplePermissionRequest() },
+        onCameraPositionChanged = {
+            state.cameraPosition = it
+
+            state.geocoderJob?.cancel()
+            state.geocoderJob = coroutineScope.launch {
+                state.resolveAddress(it)
+            }
+        }
+    )
+
+    if (state.isConfirmDeleteDialogShown) {
+        ConfirmDeleteDialog(
+            onDismiss = {
+                state.isConfirmDeleteDialogShown = false
+            },
+            onConfirm = {
+                state.isConfirmDeleteDialogShown = false
+                navigateUp()
+
+                assert(store != null)
+                store?.let { viewModel.deleteStore(it) }
+            },
+            messageText = stringResource(id = R.string.store_delete_dialog_message)
+        )
+    }
+
+    if (state.isSaveDialogShown) {
+        val saveDialogState by rememberSaveAlertDialogState(
+            initialStoreName = store?.name ?: "",
+            initialAddress = state.address
+        )
+        com.igrocery.overpriced.presentation.editstore.SaveAlertDialog(
+            state = saveDialogState,
+            onDismiss = {
+                state.isSaveDialogShown = false
+            },
+            onConfirm = {
+                state.isSaveDialogShown = false
+                viewModel.updateStore(
+                    storeName = saveDialogState.storeName.trim(),
+                    addressLines = saveDialogState.address.trim(),
+                    latitude = state.cameraPosition.latitude,
+                    longitude = state.cameraPosition.longitude
+                )
+            },
+        )
+    }
+
+    if (updateStoreResultState is UpdateStoreResultState.Success) {
+        LaunchedEffect(key1 = Unit) {
+            navigateDone()
+        }
+    }
+
+    BackHandler {
+        navigateUp()
+    }
+}
+
+@ExperimentalPermissionsApi
+@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
+@Composable
+private fun StoreScreen(
+    navigateUp: () -> Unit,
+    navigateDone: (newStoreId: Long) -> Unit,
+) {
+    val systemUiController = rememberSystemUiController()
+    val statusBarColor = MaterialTheme.colorScheme.surface
+    val navBarColor = MaterialTheme.colorScheme.surface
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            statusBarColor,
+            transformColorForLightContent = { color -> color })
+        systemUiController.setNavigationBarColor(
+            navBarColor,
+            navigationBarContrastEnforced = false,
+            transformColorForLightContent = { color -> color })
+    }
+
+    val state by rememberStoreScreenState(LocalContext.current)
+    val activity = LocalContext.current as ComponentActivity
+    val locationPermissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+        onPermissionsResult = { result ->
+            val hasLocationPermission =
+                result.getOrElse(Manifest.permission.ACCESS_COARSE_LOCATION) { false }
+                        || result.getOrElse(Manifest.permission.ACCESS_FINE_LOCATION) { false }
+            if (hasLocationPermission) {
+                // has at least Manifest.permission.ACCESS_COARSE_LOCATION, can proceed to get location
+                state.tryUpdateLiveLocation(activity)
+
+                state.mapProperties = state.mapProperties.copy(
+                    isMyLocationEnabled = true
+                )
+            }
+        }
+    )
+
+    if (state.isInitialPermissionRequest) {
+        LaunchedEffect(key1 = Unit) {
+            locationPermissionsState.launchMultiplePermissionRequest()
+            state.isInitialPermissionRequest = false
+        }
+    }
 
     BackHandler {
         navigateUp()
@@ -192,7 +333,7 @@ fun NewStoreScreen(
 @Composable
 private fun MainContent(
     snackbarHostState: SnackbarHostState,
-    state: NewStoreScreenStateHolder,
+    state: StoreScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
     onMyLocationClick: () -> Unit,
