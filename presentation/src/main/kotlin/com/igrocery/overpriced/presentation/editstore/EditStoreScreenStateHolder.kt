@@ -158,8 +158,23 @@ class EditStoreScreenStateHolder {
 }
 
 @Composable
-fun rememberEditStoreScreenState() = rememberSaveable(
-    stateSaver = EditStoreScreenStateHolder.Saver
+fun rememberEditStoreScreenState(context: Context) = rememberSaveable(
+    stateSaver = listSaver(
+        save = {
+            listOf(
+                it.liveLocation,
+                it.isConfirmDeleteDialogShown,
+                it.isSaveDialogShown,
+            )
+        },
+        restore = {
+            EditStoreScreenStateHolder().apply {
+                liveLocation = it[0] as Location?
+                isConfirmDeleteDialogShown = it[1] as Boolean
+                isSaveDialogShown = it[2] as Boolean
+            }
+        }
+    )
 ) {
     mutableStateOf(EditStoreScreenStateHolder())
 }

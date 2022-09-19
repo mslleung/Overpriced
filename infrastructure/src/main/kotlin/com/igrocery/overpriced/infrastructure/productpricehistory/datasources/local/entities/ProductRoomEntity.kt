@@ -20,6 +20,10 @@ import androidx.room.*
 internal data class ProductRoomEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
+    @ColumnInfo(name = "creation_timestamp")
+    val creationTimestamp: Long,
+    @ColumnInfo(name = "update_timestamp")
+    val updateTimestamp: Long,
 
     @ColumnInfo(name = "name")
     val name: String,
@@ -27,8 +31,4 @@ internal data class ProductRoomEntity(
     val description: String,
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
-    @ColumnInfo(name = "creation_timestamp")
-    val creationTimestamp: Long,
-    @ColumnInfo(name = "update_timestamp")
-    val updateTimestamp: Long,
 )

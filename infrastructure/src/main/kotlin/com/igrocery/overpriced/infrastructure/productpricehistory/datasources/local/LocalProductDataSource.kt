@@ -23,13 +23,23 @@ internal class LocalProductDataSource @Inject internal constructor(
     }
 
     override suspend fun insert(productRoomEntity: ProductRoomEntity): Long {
-        val rowId = db.productDao().insert(productRoomEntity)
+        val time = System.nanoTime()
+        val entity = productRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val rowId = db.productDao().insert(entity)
         require(rowId > 0)
         return rowId
     }
 
     override suspend fun update(productRoomEntity: ProductRoomEntity) {
-        val rowsUpdated = db.productDao().update(productRoomEntity)
+        val entity = productRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.productDao().update(entity)
         require(rowsUpdated == 1)
     }
 

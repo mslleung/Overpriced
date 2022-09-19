@@ -7,7 +7,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
 
 /**
- * A convenience object to create a category object representing "No category".
+ * A convenience way to create a category object representing "No category".
  * This is because "No category" is usually displayed just like an actual category.
  */
 val NoCategory: Category

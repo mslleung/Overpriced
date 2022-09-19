@@ -12,12 +12,12 @@ internal class StoreMapper {
     fun mapToData(store: Store): StoreRoomEntity {
         return StoreRoomEntity(
             id = store.id,
+            creationTimestamp = store.creationTimestamp,
+            updateTimestamp = store.updateTimestamp,
             name = store.name,
             addressLines = store.address.lines,
             latitude = store.address.geoCoordinates.latitude,
             longitude = store.address.geoCoordinates.longitude,
-            creationTimestamp = store.creationTimestamp,
-            updateTimestamp = store.updateTimestamp,
         )
     }
 
@@ -28,10 +28,10 @@ internal class StoreMapper {
         )
         return Store(
             id = storeRoomEntity.id,
-            name = storeRoomEntity.name,
-            address = address,
             creationTimestamp = storeRoomEntity.creationTimestamp,
             updateTimestamp = storeRoomEntity.updateTimestamp,
+            name = storeRoomEntity.name,
+            address = address,
         )
     }
 

@@ -27,6 +27,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
 internal data class PriceRecordRoomEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
+    @ColumnInfo(name = "creation_timestamp")
+    val creationTimestamp: Long,
+    @ColumnInfo(name = "update_timestamp")
+    val updateTimestamp: Long,
 
     @ColumnInfo(name = "product_id")
     var productId: Long,
@@ -37,8 +41,4 @@ internal data class PriceRecordRoomEntity(
     val price: Double,
     @ColumnInfo(name = "currency")
     val currency: String,
-    @ColumnInfo(name = "creation_timestamp")
-    val creationTimestamp: Long,
-    @ColumnInfo(name = "update_timestamp")
-    val updateTimestamp: Long,
 )

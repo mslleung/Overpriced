@@ -1,7 +1,6 @@
 package com.igrocery.overpriced.presentation.newstore
 
 import android.Manifest
-import android.location.Geocoder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresPermission
@@ -35,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -43,12 +41,12 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenStateHolder.GeocoderLoadState
-import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel.CreateStoreResultState
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -79,7 +77,6 @@ fun NewStoreScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val createStoreResultState by newStoreViewModel.createStoreResultStateFlow.collectAsState()
     val state by rememberNewStoreScreenState(LocalContext.current)
     val activity = LocalContext.current as ComponentActivity
     val locationPermissionsState = rememberMultiplePermissionsState(
@@ -109,8 +106,9 @@ fun NewStoreScreen(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     MainContent(
-        createStoreResultState = createStoreResultState,
+        snackbarHostState = snackbarHostState,
         state = state,
         onBackButtonClick = navigateUp,
         onSaveButtonClick = {
@@ -164,9 +162,23 @@ fun NewStoreScreen(
         )
     }
 
-    if (createStoreResultState is CreateStoreResultState.Success) {
-        LaunchedEffect(key1 = Unit) {
-            navigateDone((createStoreResultState as CreateStoreResultState.Success).id)
+    newStoreViewModel.uiState.createStoreResultState.let {
+        when (it) {
+            is LoadingState.Success -> {
+                LaunchedEffect(key1 = Unit) {
+                    navigateDone(it.data)
+                }
+            }
+            is LoadingState.Error -> {
+                val message = stringResource(id = R.string.new_store_create_failed_message)
+                LaunchedEffect(it) {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        withDismissAction = true
+                    )
+                }
+            }
+            else -> {}
         }
     }
 
@@ -179,27 +191,16 @@ fun NewStoreScreen(
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 private fun MainContent(
-    createStoreResultState: CreateStoreResultState?,
+    snackbarHostState: SnackbarHostState,
     state: NewStoreScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
     onMyLocationClick: () -> Unit,
     onCameraPositionChanged: (LatLng) -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    if (createStoreResultState is CreateStoreResultState.Error) {
-        val message = stringResource(id = R.string.new_store_create_failed_message)
-        LaunchedEffect(createStoreResultState) {
-            snackbarHostState.showSnackbar(
-                message = message,
-                withDismissAction = true
-            )
-        }
-    }
-
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = {
                     BackButton(
                         onClick = onBackButtonClick,
@@ -387,7 +388,6 @@ private fun GeocoderBox(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MyLocationButton(
     onMyLocationClick: () -> Unit,
@@ -506,7 +506,7 @@ private fun SaveAlertDialog(
 @Composable
 private fun DefaultPreview() {
     MainContent(
-        createStoreResultState = null,
+        snackbarHostState = SnackbarHostState(),
         state = NewStoreScreenStateHolder(LocalContext.current),
         onBackButtonClick = {},
         onSaveButtonClick = {},

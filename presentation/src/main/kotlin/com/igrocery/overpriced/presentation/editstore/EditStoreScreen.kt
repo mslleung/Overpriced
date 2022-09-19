@@ -76,10 +76,6 @@ fun EditStoreScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    LaunchedEffect(key1 = storeId) {
-        viewModel.setStoreId(storeId)
-    }
-
     val store by viewModel.storeFlow.collectAsState()
     val updateStoreResultState by viewModel.updateStoreResultStateFlow.collectAsState()
     val context = LocalContext.current

@@ -21,12 +21,7 @@ class CategoryRepository @Inject internal constructor(
 
     override suspend fun insert(item: Category): Long {
         return transaction.execute {
-            item.creationTimestamp = System.currentTimeMillis()
-            item.updateTimestamp = item.creationTimestamp
-
-            val id = localCategoryDataSource.insert(categoryMapper.mapToData(item))
-            item.id = id
-            id
+            localCategoryDataSource.insert(categoryMapper.mapToData(item))
         }
     }
 

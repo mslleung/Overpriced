@@ -12,26 +12,26 @@ internal class PriceRecordMapper {
     fun mapToData(priceRecord: PriceRecord): PriceRecordRoomEntity {
         return PriceRecordRoomEntity(
             id = priceRecord.id,
+            creationTimestamp = priceRecord.creationTimestamp,
+            updateTimestamp = priceRecord.updateTimestamp,
             productId = priceRecord.productId,
             price = priceRecord.price.amount,
             currency = priceRecord.price.currency.currencyCode,
             storeId = priceRecord.storeId,
-            creationTimestamp = priceRecord.creationTimestamp,
-            updateTimestamp = priceRecord.updateTimestamp,
         )
     }
 
     fun mapFromData(priceRecordRoomEntity: PriceRecordRoomEntity): PriceRecord {
         return PriceRecord(
             id = priceRecordRoomEntity.id,
+            creationTimestamp = priceRecordRoomEntity.creationTimestamp,
+            updateTimestamp = priceRecordRoomEntity.updateTimestamp,
             productId = priceRecordRoomEntity.productId,
             price = Money(
                 amount = priceRecordRoomEntity.price,
                 currency = Currency.getInstance(priceRecordRoomEntity.currency)
             ),
             storeId = priceRecordRoomEntity.storeId,
-            creationTimestamp = priceRecordRoomEntity.creationTimestamp,
-            updateTimestamp = priceRecordRoomEntity.updateTimestamp,
         )
     }
 

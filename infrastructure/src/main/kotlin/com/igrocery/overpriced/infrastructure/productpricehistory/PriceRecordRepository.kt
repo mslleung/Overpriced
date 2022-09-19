@@ -22,18 +22,12 @@ class PriceRecordRepository @Inject internal constructor(
 
     override suspend fun insert(item: PriceRecord): Long {
         return transaction.execute {
-            item.creationTimestamp = System.currentTimeMillis()
-            item.updateTimestamp = item.creationTimestamp
-
-            val id = localPriceRecordDataSource.insertPriceRecord(priceRecordMapper.mapToData(item))
-            item.id = id
-            id
+            localPriceRecordDataSource.insertPriceRecord(priceRecordMapper.mapToData(item))
         }
     }
 
     override suspend fun update(item: PriceRecord) {
         transaction.execute {
-            item.updateTimestamp = System.currentTimeMillis()
             localPriceRecordDataSource.updatePriceRecord(priceRecordMapper.mapToData(item))
         }
     }

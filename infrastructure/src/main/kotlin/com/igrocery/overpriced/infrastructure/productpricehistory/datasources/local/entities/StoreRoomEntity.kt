@@ -8,6 +8,10 @@ import androidx.room.PrimaryKey
 internal data class StoreRoomEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
+    @ColumnInfo(name = "creation_timestamp")
+    val creationTimestamp: Long,
+    @ColumnInfo(name = "update_timestamp")
+    val updateTimestamp: Long,
 
     @ColumnInfo(name = "name")
     val name: String,
@@ -17,8 +21,4 @@ internal data class StoreRoomEntity(
     val latitude: Double,
     @ColumnInfo(name = "address_longitude")
     val longitude: Double,
-    @ColumnInfo(name = "creation_timestamp")
-    val creationTimestamp: Long,
-    @ColumnInfo(name = "update_timestamp")
-    val updateTimestamp: Long,
 )

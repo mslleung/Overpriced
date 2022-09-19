@@ -31,18 +31,12 @@ class ProductRepository @Inject internal constructor(
 
     override suspend fun insert(item: Product): Long {
         return transaction.execute {
-            item.creationTimestamp = System.currentTimeMillis()
-            item.updateTimestamp = item.creationTimestamp
-
-            val id = localProductDataSource.insert(productMapper.mapToData(item))
-            item.id = id
-            id
+            localProductDataSource.insert(productMapper.mapToData(item))
         }
     }
 
     override suspend fun update(item: Product) {
         transaction.execute {
-            item.updateTimestamp = System.currentTimeMillis()
             localProductDataSource.update(productMapper.mapToData(item))
         }
     }

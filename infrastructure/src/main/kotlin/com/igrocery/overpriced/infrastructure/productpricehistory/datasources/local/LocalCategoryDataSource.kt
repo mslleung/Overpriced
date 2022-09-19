@@ -19,13 +19,23 @@ internal class LocalCategoryDataSource @Inject internal constructor(
     }
 
     override suspend fun insert(categoryRoomEntity: CategoryRoomEntity): Long {
-        val rowId = db.categoryDao().insert(categoryRoomEntity)
+        val time = System.nanoTime()
+        val entity = categoryRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val rowId = db.categoryDao().insert(entity)
         require(rowId > 0)
         return rowId
     }
 
     override suspend fun update(categoryRoomEntity: CategoryRoomEntity) {
-        val rowsUpdated = db.categoryDao().update(categoryRoomEntity)
+        val entity = categoryRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.categoryDao().update(entity)
         require(rowsUpdated == 1)
     }
 

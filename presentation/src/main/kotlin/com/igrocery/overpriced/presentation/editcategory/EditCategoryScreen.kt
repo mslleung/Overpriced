@@ -11,12 +11,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,15 +26,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bumptech.glide.request.RequestOptions
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel.UpdateCategoryResult
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
 import com.igrocery.overpriced.presentation.shared.DeleteButton
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.R
+import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 
 @Suppress("unused")
@@ -130,7 +134,7 @@ private fun MainLayout(
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = {
                     BackButton(
                         onClick = onBackButtonClick,
@@ -284,8 +288,12 @@ private fun CategoryIconGrid(
                 GlideImage(
                     imageModel = it.iconRes,
                     modifier = Modifier.size(40.dp),
-                    contentDescription = stringResource(id = R.string.new_category_icon_content_description),
-                    contentScale = ContentScale.Fit,
+                    requestOptions = {
+                        RequestOptions.fitCenterTransform()
+                    },
+                    imageOptions = ImageOptions(
+                        contentDescription = stringResource(id = R.string.new_category_icon_content_description),
+                    ),
                     previewPlaceholder = it.iconRes
                 )
             }

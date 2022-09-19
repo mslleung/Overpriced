@@ -31,6 +31,7 @@ import com.igrocery.overpriced.presentation.shared.NoCategory
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
 private val log = Logger { }
@@ -95,7 +96,7 @@ private fun MainContent(
                     val category by viewModelState.categoryFlow.collectAsState()
                     category.let {
                         if (it is LoadingState.Success) {
-                            val displayCategory = it.data ?: NoCategory;
+                            val displayCategory = it.data ?: NoCategory
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -283,9 +284,13 @@ private fun EmptyPreview() {
 private fun DefaultPreview() {
     val viewModelState = ProductListScreenViewModel.ViewModelState()
     viewModelState.categoryFlow = MutableStateFlow(LoadingState.Success(NoCategory))
-    viewModelState.productsPagingDataFlow = PagingData.from(listOf(
-        Product()
-    ))
+    viewModelState.productsPagingDataFlow = flowOf(
+        PagingData.from(
+            listOf(
+                Product(name = "Apples", description = "Pack of 6", categoryId = null)
+            )
+        )
+    )
 
     MainContent(
         viewModelState = ProductListScreenViewModel.ViewModelState(),

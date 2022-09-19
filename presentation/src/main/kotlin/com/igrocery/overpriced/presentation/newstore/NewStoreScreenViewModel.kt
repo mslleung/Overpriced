@@ -1,12 +1,14 @@
 package com.igrocery.overpriced.presentation.newstore
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.StoreService
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,13 +20,11 @@ class NewStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService
 ) : ViewModel() {
 
-    open class CreateStoreResultState private constructor() {
-        class Success(val id: Long) :CreateStoreResultState()
-        class Error: CreateStoreResultState()
+    class ViewModelState {
+        var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.Loading())
     }
 
-    private val _createStoreResultStateFlow = MutableStateFlow<CreateStoreResultState?>(null)
-    val createStoreResultStateFlow: StateFlow<CreateStoreResultState?> = _createStoreResultStateFlow
+    val uiState = ViewModelState()
 
     fun createStore(
         storeName: String,
@@ -33,17 +33,12 @@ class NewStoreScreenViewModel @Inject constructor(
         longitude: Double
     ) {
         viewModelScope.launch {
-            with (_createStoreResultStateFlow) {
-                try {
-                    emit(null)
-
-                    val id = storeService.createStore(storeName, addressLines, latitude, longitude)
-
-                    emit(CreateStoreResultState.Success(id))
-                } catch (e: Exception) {
-                    log.error(e.toString())
-                    emit(CreateStoreResultState.Error())
-                }
+            try {
+                val id = storeService.createStore(storeName, addressLines, latitude, longitude)
+                uiState.createStoreResultState = LoadingState.Success(id)
+            } catch (e: Exception) {
+                log.error(e.toString())
+                uiState.createStoreResultState = LoadingState.Error(e)
             }
         }
     }

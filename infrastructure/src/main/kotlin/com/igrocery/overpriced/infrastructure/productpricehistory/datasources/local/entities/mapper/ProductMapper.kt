@@ -9,10 +9,10 @@ internal class ProductMapper {
     fun mapToData(product: Product): ProductRoomEntity {
         return ProductRoomEntity(
             id = product.id,
-            name = product.name,
-            description = product.description,
             creationTimestamp = product.creationTimestamp,
             updateTimestamp = product.updateTimestamp,
+            name = product.name,
+            description = product.description,
             categoryId = product.categoryId,
         )
     }
@@ -20,10 +20,10 @@ internal class ProductMapper {
     fun mapFromData(productRoomEntity: ProductRoomEntity): Product {
         return Product(
             id = productRoomEntity.id,
-            name = productRoomEntity.name,
-            description = productRoomEntity.description,
             creationTimestamp = productRoomEntity.creationTimestamp,
             updateTimestamp = productRoomEntity.updateTimestamp,
+            name = productRoomEntity.name,
+            description = productRoomEntity.description,
             categoryId = productRoomEntity.categoryId
         )
     }

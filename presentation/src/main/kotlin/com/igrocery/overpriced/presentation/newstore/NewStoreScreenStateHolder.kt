@@ -27,6 +27,10 @@ import kotlinx.coroutines.withContext
 
 class NewStoreScreenStateHolder(context: Context) {
 
+    private val settingsClient = LocationServices.getSettingsClient(context)
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    private val geoCoder = Geocoder(context)
+
     private val locationRequest = LocationRequest.create().apply {
         interval = 5000
         fastestInterval = 3000
@@ -34,10 +38,6 @@ class NewStoreScreenStateHolder(context: Context) {
     }
     private val settingsRequestBuilder = LocationSettingsRequest.Builder()
         .addLocationRequest(locationRequest)
-
-    private val settingsClient = LocationServices.getSettingsClient(context)
-    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    private val geoCoder = Geocoder(context)
 
     var mapProperties by mutableStateOf(
         MapProperties(
@@ -180,5 +180,5 @@ fun rememberNewStoreScreenState(context: Context) = rememberSaveable(
         }
     )
 ) {
-    mutableStateOf(NewStoreScreenStateHolder())
+    mutableStateOf(NewStoreScreenStateHolder(context))
 }

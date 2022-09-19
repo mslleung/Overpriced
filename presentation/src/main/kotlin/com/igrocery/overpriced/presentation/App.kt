@@ -52,7 +52,7 @@ import com.igrocery.overpriced.shared.Logger
 @Suppress("unused")
 private val log = Logger { }
 
-private object NavDestinations {
+object NavDestinations {
 
     const val CategoryProduct = "categoryProduct"
 
@@ -288,8 +288,7 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                         NewPriceRecordRoute
                     )
                 }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
 
             val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L

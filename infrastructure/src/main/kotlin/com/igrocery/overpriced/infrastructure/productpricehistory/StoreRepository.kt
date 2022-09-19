@@ -28,18 +28,12 @@ class StoreRepository @Inject internal constructor(
 
     override suspend fun insert(item: Store): Long {
         return transaction.execute {
-            item.creationTimestamp = System.currentTimeMillis()
-            item.updateTimestamp = item.creationTimestamp
-
-            val id = localStoreDataSource.insertStore(storeMapper.mapToData(item))
-            item.id = id
-            id
+            localStoreDataSource.insertStore(storeMapper.mapToData(item))
         }
     }
 
     override suspend fun update(item: Store) {
         transaction.execute {
-            item.updateTimestamp = System.currentTimeMillis()
             localStoreDataSource.updateStore(storeMapper.mapToData(item))
         }
     }
