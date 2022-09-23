@@ -14,17 +14,21 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.MapProperties
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.format
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-class StoreScreenStateHolder(context: Context) {
+class StoreGoogleMapStateHolder(context: Context) {
 
     var isInitialPermissionRequest by mutableStateOf(true)
 
@@ -49,25 +53,14 @@ class StoreScreenStateHolder(context: Context) {
         )
     )
 
-    enum class LiveLocationLoadState { Idle, Loading }
-
-    var liveLocationLoadState by mutableStateOf(LiveLocationLoadState.Idle)
-    var liveLocation by mutableStateOf<Location?>(null)
+    var liveLocationLoadState: LoadingState<Location> by mutableStateOf(LoadingState.Success())
     var isFirstLocationUpdate by mutableStateOf(true)
 
     enum class GeocoderLoadState { Loading, Finished }
 
-    var cameraPosition by mutableStateOf(LatLng(0.0, 0.0))
     var geocoderJob: Job? = null
     var geocoderLoadState by mutableStateOf(GeocoderLoadState.Loading)
     var address by mutableStateOf("")
-
-//    var isConfirmDeleteDialogShown by mutableStateOf(false)
-    var isSaveDialogShown by mutableStateOf(false)
-
-//    var isRequestingFirstFocus by mutableStateOf(true)
-//    var storeName by mutableStateOf("")
-//    var dialogStoreAddress by mutableStateOf("")
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     private fun checkLocationSettings(activity: Activity, onSuccess: () -> Unit) {
@@ -138,6 +131,7 @@ class StoreScreenStateHolder(context: Context) {
             var resolvedAddress = "$lat,$lng"   // default
 
             runCatching {
+                // use blocking api so we can perform coroutine cancellation
                 val resultAddresses =
                     geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)  // blocking
                 if (resultAddresses != null && resultAddresses.isNotEmpty()) {
@@ -159,29 +153,21 @@ class StoreScreenStateHolder(context: Context) {
 }
 
 @Composable
-fun rememberStoreScreenState(context: Context) = rememberSaveable(
+fun rememberStoreGoogleMapState(context: Context) = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
                 it.liveLocation,
                 it.isFirstLocationUpdate,
-                it.isSaveDialogShown,
-                it.isRequestingFirstFocus,
-                it.storeName,
-                it.dialogStoreAddress,
             )
         },
         restore = {
-            StoreScreenStateHolder(context).apply {
+            StoreGoogleMapStateHolder(context).apply {
                 liveLocation = it[0] as Location?
                 isFirstLocationUpdate = it[1] as Boolean
-                isSaveDialogShown = it[2] as Boolean
-                isRequestingFirstFocus = it[3] as Boolean
-                storeName = it[4] as String
-                dialogStoreAddress = it[5] as String
             }
         }
     )
 ) {
-    mutableStateOf(StoreScreenStateHolder(context))
+    mutableStateOf(StoreGoogleMapStateHolder(context))
 }

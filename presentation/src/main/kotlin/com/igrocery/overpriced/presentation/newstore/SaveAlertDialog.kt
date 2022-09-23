@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.editstore
+package com.igrocery.overpriced.presentation.newstore
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

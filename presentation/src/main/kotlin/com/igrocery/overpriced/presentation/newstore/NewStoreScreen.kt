@@ -60,7 +60,6 @@ import kotlinx.coroutines.launch
 @Suppress("unused")
 private val log = Logger {}
 
-@OptIn(ExperimentalPermissionsApi::class)
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun NewStoreScreen(
@@ -70,25 +69,32 @@ fun NewStoreScreen(
 ) {
     log.debug("Composing NewStoreScreen")
 
-    val coroutineScope = rememberCoroutineScope()
+    val systemUiController = rememberSystemUiController()
+    val statusBarColor = MaterialTheme.colorScheme.surface
+    val navBarColor = MaterialTheme.colorScheme.surface
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            statusBarColor,
+            transformColorForLightContent = { color -> color })
+        systemUiController.setNavigationBarColor(
+            navBarColor,
+            navigationBarContrastEnforced = false,
+            transformColorForLightContent = { color -> color })
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val state by rememberNewStoreScreenState()
     MainContent(
         snackbarHostState = snackbarHostState,
         state = state,
+        onCameraPositionChanged = {
+            state.cameraPosition = it
+        },
         onBackButtonClick = navigateUp,
         onSaveButtonClick = {
             state.isRequestingFirstFocus = true
             state.dialogStoreAddress = state.address
             state.isSaveDialogShown = true
-        },
-        onMyLocationClick = { locationPermissionsState.launchMultiplePermissionRequest() },
-        onCameraPositionChanged = {
-            state.cameraPosition = it
-
-            state.geocoderJob?.cancel()
-            state.geocoderJob = coroutineScope.launch {
-                state.resolveAddress(it)
-            }
         }
     )
 
@@ -146,182 +152,6 @@ fun NewStoreScreen(
             else -> {}
         }
     }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
-@Composable
-fun EditStoreScreen(
-    storeId: Long,
-    viewModel: EditStoreScreenViewModel,
-    navigateUp: () -> Unit,
-    navigateDone: () -> Unit,
-) {
-    com.igrocery.overpriced.presentation.editstore.log.debug("Composing EditStoreScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
-    val store by viewModel.storeFlow.collectAsState()
-    val updateStoreResultState by viewModel.updateStoreResultStateFlow.collectAsState()
-    val context = LocalContext.current
-    val state by rememberEditStoreScreenState().apply {
-        value.settingsClient = remember(context) { LocationServices.getSettingsClient(context) }
-        value.fusedLocationClient =
-            remember(context) { LocationServices.getFusedLocationProviderClient(context) }
-        value.geoCoder = remember(context) { Geocoder(context) }
-    }
-    val activity = LocalContext.current as ComponentActivity
-    val locationPermissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ),
-        onPermissionsResult = { result ->
-            val hasLocationPermission =
-                result.getOrElse(Manifest.permission.ACCESS_COARSE_LOCATION) { false }
-                        || result.getOrElse(Manifest.permission.ACCESS_FINE_LOCATION) { false }
-            if (hasLocationPermission) {
-                // has at least Manifest.permission.ACCESS_COARSE_LOCATION, can proceed to get location
-                state.tryUpdateLiveLocation(activity)
-
-                state.mapProperties = state.mapProperties.copy(
-                    isMyLocationEnabled = true
-                )
-            }
-        }
-    )
-
-    val coroutineScope = rememberCoroutineScope()
-    com.igrocery.overpriced.presentation.editstore.MainContent(
-        store = store,
-        updateStoreResultState = updateStoreResultState,
-        state = state,
-        onBackButtonClick = navigateUp,
-        onDeleteButtonClick = {
-            state.isConfirmDeleteDialogShown = true
-        },
-        onSaveButtonClick = {
-            state.isSaveDialogShown = true
-        },
-        onMyLocationClick = { locationPermissionsState.launchMultiplePermissionRequest() },
-        onCameraPositionChanged = {
-            state.cameraPosition = it
-
-            state.geocoderJob?.cancel()
-            state.geocoderJob = coroutineScope.launch {
-                state.resolveAddress(it)
-            }
-        }
-    )
-
-    if (state.isConfirmDeleteDialogShown) {
-        ConfirmDeleteDialog(
-            onDismiss = {
-                state.isConfirmDeleteDialogShown = false
-            },
-            onConfirm = {
-                state.isConfirmDeleteDialogShown = false
-                navigateUp()
-
-                assert(store != null)
-                store?.let { viewModel.deleteStore(it) }
-            },
-            messageText = stringResource(id = R.string.store_delete_dialog_message)
-        )
-    }
-
-    if (state.isSaveDialogShown) {
-        val saveDialogState by rememberSaveAlertDialogState(
-            initialStoreName = store?.name ?: "",
-            initialAddress = state.address
-        )
-        com.igrocery.overpriced.presentation.editstore.SaveAlertDialog(
-            state = saveDialogState,
-            onDismiss = {
-                state.isSaveDialogShown = false
-            },
-            onConfirm = {
-                state.isSaveDialogShown = false
-                viewModel.updateStore(
-                    storeName = saveDialogState.storeName.trim(),
-                    addressLines = saveDialogState.address.trim(),
-                    latitude = state.cameraPosition.latitude,
-                    longitude = state.cameraPosition.longitude
-                )
-            },
-        )
-    }
-
-    if (updateStoreResultState is UpdateStoreResultState.Success) {
-        LaunchedEffect(key1 = Unit) {
-            navigateDone()
-        }
-    }
-
-    BackHandler {
-        navigateUp()
-    }
-}
-
-@ExperimentalPermissionsApi
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
-@Composable
-private fun StoreScreen(
-    navigateUp: () -> Unit,
-    navigateDone: (newStoreId: Long) -> Unit,
-) {
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
-    val state by rememberStoreScreenState(LocalContext.current)
-    val activity = LocalContext.current as ComponentActivity
-    val locationPermissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ),
-        onPermissionsResult = { result ->
-            val hasLocationPermission =
-                result.getOrElse(Manifest.permission.ACCESS_COARSE_LOCATION) { false }
-                        || result.getOrElse(Manifest.permission.ACCESS_FINE_LOCATION) { false }
-            if (hasLocationPermission) {
-                // has at least Manifest.permission.ACCESS_COARSE_LOCATION, can proceed to get location
-                state.tryUpdateLiveLocation(activity)
-
-                state.mapProperties = state.mapProperties.copy(
-                    isMyLocationEnabled = true
-                )
-            }
-        }
-    )
-
-    if (state.isInitialPermissionRequest) {
-        LaunchedEffect(key1 = Unit) {
-            locationPermissionsState.launchMultiplePermissionRequest()
-            state.isInitialPermissionRequest = false
-        }
-    }
 
     BackHandler {
         navigateUp()
@@ -333,12 +163,12 @@ private fun StoreScreen(
 @Composable
 private fun MainContent(
     snackbarHostState: SnackbarHostState,
-    state: StoreScreenStateHolder,
+    state: NewStoreScreenStateHolder,
+    onCameraPositionChanged: (LatLng) -> Unit,
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
-    onMyLocationClick: () -> Unit,
-    onCameraPositionChanged: (LatLng) -> Unit
 ) {
+    val storeMapState by rememberStoreGoogleMapState(context = LocalContext.current)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -357,7 +187,7 @@ private fun MainContent(
                     SaveButton(
                         onClick = onSaveButtonClick,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 10.dp),
-                        enabled = state.geocoderLoadState == GeocoderLoadState.Finished
+                        enabled = storeMapState.geocoderLoadState == StoreGoogleMapStateHolder.GeocoderLoadState.Finished
                     )
                 },
                 modifier = Modifier.statusBarsPadding()
@@ -372,190 +202,14 @@ private fun MainContent(
             )
         }
     ) {
-        Box(
+        StoreGoogleMap(
+            state = storeMapState,
+            onCameraPositionChanged = onCameraPositionChanged,
             modifier = Modifier
                 .padding(it)
                 .navigationBarsPadding()
         ) {
-            val cameraPositionState = rememberCameraPositionState {
-                // initial default camera position
-                val unitedStates = LatLng(37.0902, 95.7129)
-                position = CameraPosition.fromLatLngZoom(unitedStates, 0f)
-            }
-
-            val context = LocalContext.current
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                properties = state.mapProperties.copy(
-                    mapStyleOptions = if (isSystemInDarkTheme()) {
-                        MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_style_night)
-                    } else {
-                        null
-                    }
-                ),
-                uiSettings = MapUiSettings(
-                    indoorLevelPickerEnabled = false,
-                    mapToolbarEnabled = false,
-                    myLocationButtonEnabled = false,    // we provide a better-looking button ourselves
-                    tiltGesturesEnabled = false,
-                    zoomControlsEnabled = false
-                ),
-                cameraPositionState = cameraPositionState
-            ) {
-            }
-
-            LaunchedEffect(key1 = Unit) {
-                snapshotFlow { cameraPositionState.position }
-                    .map { cameraPosition -> cameraPosition.target }
-                    .collectLatest { latLng ->
-                        onCameraPositionChanged(latLng)
-                    }
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .padding(horizontal = 40.dp)
-                    .fillMaxWidth()
-            ) {
-                GeocoderBox(
-                    loadState = state.geocoderLoadState,
-                    address = state.address,
-                )
-            }
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_baseline_place_24),
-                    contentDescription = stringResource(id = R.string.store_map_selected_location_image_content_description),
-                    modifier = Modifier
-                        .padding(bottom = 48.dp)
-                        .size(48.dp),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                )
-            }
-
-            Box(
-                contentAlignment = Alignment.BottomEnd,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MyLocationButton(
-                    onMyLocationClick = onMyLocationClick,
-                    loadState = state.liveLocationLoadState,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .size(48.dp)
-                        .shadow(elevation = 8.dp, shape = CircleShape)
-                )
-            }
-
-            LaunchedEffect(key1 = state.liveLocationLoadState) {
-                state.liveLocation?.let { location ->
-                    val newCameraPositionLatLng = LatLng(location.latitude, location.longitude)
-                    if (state.isFirstLocationUpdate) {
-                        cameraPositionState.move(
-                            CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, 16f)
-                        )
-                        state.isFirstLocationUpdate = false
-                    } else {
-                        val newZoom = cameraPositionState.position.zoom.coerceIn(16f, 20f)
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, newZoom),
-                            1000
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun GeocoderBox(
-    loadState: GeocoderLoadState,
-    address: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .animateContentSize()
-            .padding(8.dp), // for the shadow
-        shape = RoundedCornerShape(20),
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp,
-    ) {
-        when (loadState) {
-            GeocoderLoadState.Loading -> {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .padding(vertical = 6.dp, horizontal = 12.dp)
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .padding(top = 2.dp, end = 4.dp),
-                        strokeWidth = 2.dp
-                    )
-
-                    Text(
-                        text = stringResource(id = R.string.store_loading_address),
-                        textAlign = TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                }
-            }
-            GeocoderLoadState.Finished -> {
-                Text(
-                    text = address,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2,
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .padding(vertical = 6.dp, horizontal = 12.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MyLocationButton(
-    onMyLocationClick: () -> Unit,
-    loadState: NewStoreScreenStateHolder.LiveLocationLoadState,
-    modifier: Modifier = Modifier
-) {
-    FilledTonalIconButton(
-        onClick = onMyLocationClick,
-        colors = IconButtonDefaults.filledTonalIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary
-        ),
-        modifier = modifier
-    ) {
-        when (loadState) {
-            NewStoreScreenStateHolder.LiveLocationLoadState.Idle -> {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_my_location_24),
-                    contentDescription = stringResource(id = R.string.store_map_my_location_button_content_description),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            NewStoreScreenStateHolder.LiveLocationLoadState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            // nothing...
         }
     }
 }

@@ -43,7 +43,6 @@ import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenVie
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
-import com.igrocery.overpriced.presentation.selectstore.SelectStoreDialogViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
 import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme

@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.editstore
+package com.igrocery.overpriced.presentation.newstore
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
