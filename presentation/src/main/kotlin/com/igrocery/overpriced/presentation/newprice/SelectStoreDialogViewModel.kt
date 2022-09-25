@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.selectstore
+package com.igrocery.overpriced.presentation.newprice
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

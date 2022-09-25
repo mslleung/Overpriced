@@ -37,10 +37,10 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.categoryproduct.CategoryProductScreen
+import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryDialogViewModel
+import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
@@ -115,7 +115,7 @@ fun App() {
             },
         ) {
             composable(CategoryProduct) {
-                CategoryProductScreen(
+                CategoryBaseScreen(
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToEditCategory = { categoryId ->

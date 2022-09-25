@@ -23,6 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.shared.LoadingState
 
 @Composable

@@ -21,6 +21,7 @@ import com.igrocery.overpriced.presentation.R
 @Composable
 fun SaveAlertDialog(
     state: SaveAlertDialogStateHolder,
+    title: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
@@ -43,7 +44,7 @@ fun SaveAlertDialog(
             }
         },
         title = {
-            Text(text = stringResource(id = R.string.edit_store_title))
+            Text(text = title)
         },
         text = {
             val scrollState = rememberScrollState()

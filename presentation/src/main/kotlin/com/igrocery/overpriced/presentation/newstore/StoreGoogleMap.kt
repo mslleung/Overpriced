@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.presentation.newstore
 
 import android.Manifest
+import android.location.Location
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresPermission
 import androidx.compose.animation.animateContentSize
@@ -35,6 +36,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -68,14 +70,18 @@ fun StoreGoogleMap(
                 state.mapProperties = state.mapProperties.copy(
                     isMyLocationEnabled = true
                 )
+            } else {
+                state.liveLocationLoadState = LoadingState.Error(
+                    IllegalStateException("Insufficient permission for getting live location.")
+                )
             }
         }
     )
 
-    if (state.isInitialPermissionRequest) {
+    if (state.initialPermissionRequest) {
         LaunchedEffect(key1 = Unit) {
             locationPermissionsState.launchMultiplePermissionRequest()
-            state.isInitialPermissionRequest = false
+            state.initialPermissionRequest = false
         }
     }
 
@@ -133,7 +139,7 @@ fun StoreGoogleMap(
                 .fillMaxWidth()
         ) {
             GeocoderBox(
-                loadState = state.geocoderLoadState,
+                isLoading = state.geocoderLoadState is LoadingState.Loading,
                 address = state.address,
             )
         }
@@ -158,8 +164,11 @@ fun StoreGoogleMap(
             modifier = Modifier.fillMaxSize()
         ) {
             MyLocationButton(
-                onMyLocationClick = { locationPermissionsState.launchMultiplePermissionRequest() },
-                loadState = state.liveLocationLoadState,
+                onMyLocationClick = {
+                    state.shouldMoveCamera = false
+                    locationPermissionsState.launchMultiplePermissionRequest()
+                },
+                liveLocationLoadState = state.liveLocationLoadState,
                 modifier = Modifier
                     .padding(12.dp)
                     .size(48.dp)
@@ -168,19 +177,22 @@ fun StoreGoogleMap(
         }
 
         LaunchedEffect(key1 = state.liveLocationLoadState) {
-            state.liveLocation?.let { location ->
-                val newCameraPositionLatLng = LatLng(location.latitude, location.longitude)
-                if (state.isFirstLocationUpdate) {
-                    cameraPositionState.move(
-                        CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, 16f)
-                    )
-                    state.isFirstLocationUpdate = false
-                } else {
-                    val newZoom = cameraPositionState.position.zoom.coerceIn(16f, 20f)
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, newZoom),
-                        1000
-                    )
+            state.liveLocationLoadState.let {
+                if (it is LoadingState.Success) {
+                    val location = it.data
+                    val newCameraPositionLatLng = LatLng(location.latitude, location.longitude)
+                    if (state.shouldMoveCamera) {
+                        cameraPositionState.move(
+                            CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, 16f)
+                        )
+                        state.shouldMoveCamera = false
+                    } else {
+                        val newZoom = cameraPositionState.position.zoom.coerceIn(16f, 20f)
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, newZoom),
+                            1000
+                        )
+                    }
                 }
             }
         }
@@ -189,7 +201,7 @@ fun StoreGoogleMap(
 
 @Composable
 private fun GeocoderBox(
-    loadState: StoreGoogleMapStateHolder.GeocoderLoadState,
+    isLoading: Boolean,
     address: String,
     modifier: Modifier = Modifier
 ) {
@@ -201,41 +213,38 @@ private fun GeocoderBox(
         tonalElevation = 8.dp,
         shadowElevation = 8.dp,
     ) {
-        when (loadState) {
-            StoreGoogleMapStateHolder.GeocoderLoadState.Loading -> {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
+        if (isLoading) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(vertical = 6.dp, horizontal = 12.dp)
+            ) {
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .padding(vertical = 6.dp, horizontal = 12.dp)
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .padding(top = 2.dp, end = 4.dp),
-                        strokeWidth = 2.dp
-                    )
+                        .size(14.dp)
+                        .padding(top = 2.dp, end = 4.dp),
+                    strokeWidth = 2.dp
+                )
 
-                    Text(
-                        text = stringResource(id = R.string.store_loading_address),
-                        textAlign = TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                }
-            }
-            StoreGoogleMapStateHolder.GeocoderLoadState.Finished -> {
                 Text(
-                    text = address,
+                    text = stringResource(id = R.string.store_loading_address),
                     textAlign = TextAlign.Center,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 2,
+                    maxLines = 1,
                     style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .padding(vertical = 6.dp, horizontal = 12.dp)
                 )
             }
+        } else {
+            Text(
+                text = address,
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier
+                    .padding(vertical = 6.dp, horizontal = 12.dp)
+            )
         }
     }
 }
@@ -243,7 +252,7 @@ private fun GeocoderBox(
 @Composable
 private fun MyLocationButton(
     onMyLocationClick: () -> Unit,
-    loadState: StoreGoogleMapStateHolder.LiveLocationLoadState,
+    liveLocationLoadState: LoadingState<Location>,
     modifier: Modifier = Modifier
 ) {
     FilledTonalIconButton(
@@ -254,17 +263,17 @@ private fun MyLocationButton(
         ),
         modifier = modifier
     ) {
-        when (loadState) {
-            StoreGoogleMapStateHolder.LiveLocationLoadState.Idle -> {
+        when (liveLocationLoadState) {
+            is LoadingState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            else -> {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_my_location_24),
                     contentDescription = stringResource(id = R.string.store_map_my_location_button_content_description),
                     tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            StoreGoogleMapStateHolder.LiveLocationLoadState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp)
                 )
             }
         }

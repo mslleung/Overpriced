@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categoryproduct
+package com.igrocery.overpriced.presentation.categorybase
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -25,9 +25,9 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
-import com.igrocery.overpriced.presentation.categoryproduct.NavDestinations.CategoryList
-import com.igrocery.overpriced.presentation.categoryproduct.NavDestinations.ProductList_Arg_CategoryId
-import com.igrocery.overpriced.presentation.categoryproduct.NavDestinations.ProductList_With_Args
+import com.igrocery.overpriced.presentation.categorybase.NavDestinations.CategoryList
+import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
+import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_With_Args
 import com.igrocery.overpriced.presentation.productlist.ProductListScreen
 import com.igrocery.overpriced.presentation.productlist.ProductListScreenViewModel
 import com.igrocery.overpriced.shared.Logger
@@ -36,7 +36,7 @@ import com.igrocery.overpriced.shared.Logger
 private val log = Logger { }
 
 @Composable
-fun CategoryProductScreen(
+fun CategoryBaseScreen(
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: (categoryId: Long) -> Unit,

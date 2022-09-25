@@ -21,7 +21,7 @@ class NewStoreScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.Loading())
+        var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.NotLoading())
     }
 
     val uiState = ViewModelState()
@@ -34,6 +34,8 @@ class NewStoreScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                uiState.createStoreResultState = LoadingState.Loading()
+
                 val id = storeService.createStore(storeName, addressLines, latitude, longitude)
                 uiState.createStoreResultState = LoadingState.Success(id)
             } catch (e: Exception) {

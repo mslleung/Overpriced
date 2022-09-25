@@ -33,8 +33,8 @@ class EditStoreScreenViewModel @Inject constructor(
         var storeFlow: StateFlow<LoadingState<Store>> by mutableStateOf(
             MutableStateFlow(LoadingState.Loading())
         )
-        var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.Loading())
-        var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.Loading())
+        var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+        var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
     }
 
     val uiState = ViewModelState()
@@ -66,6 +66,7 @@ class EditStoreScreenViewModel @Inject constructor(
         viewModelScope.launch {
             with(uiState) {
                 runCatching {
+                    updateStoreResult = LoadingState.Loading()
                     val originalStore = storeFlow.first()
                     if (originalStore is LoadingState.Success) {
                         val updatedStore = originalStore.data.copy(
@@ -79,6 +80,8 @@ class EditStoreScreenViewModel @Inject constructor(
                         storeService.updateStore(updatedStore)
 
                         updateStoreResult = LoadingState.Success(Unit)
+                    } else {
+                        throw IllegalStateException("Store is not loaded.")
                     }
                 }.onFailure {
                     updateStoreResult = LoadingState.Error(it)
@@ -91,8 +94,8 @@ class EditStoreScreenViewModel @Inject constructor(
         viewModelScope.launch {
             with(uiState) {
                 runCatching {
+                    deleteStoreResult = LoadingState.Loading()
                     storeService.deleteStore(store)
-
                     deleteStoreResult = LoadingState.Success(Unit)
                 }.onFailure {
                     deleteStoreResult = LoadingState.Error(it)

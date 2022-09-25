@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 
 class StoreGoogleMapStateHolder(context: Context) {
 
-    var isInitialPermissionRequest by mutableStateOf(true)
+    var initialPermissionRequest by mutableStateOf(true)
 
     private val settingsClient = LocationServices.getSettingsClient(context)
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -53,13 +53,11 @@ class StoreGoogleMapStateHolder(context: Context) {
         )
     )
 
-    var liveLocationLoadState: LoadingState<Location> by mutableStateOf(LoadingState.Success())
-    var isFirstLocationUpdate by mutableStateOf(true)
-
-    enum class GeocoderLoadState { Loading, Finished }
+    var shouldMoveCamera by mutableStateOf(true)
+    var liveLocationLoadState: LoadingState<Location> by mutableStateOf(LoadingState.NotLoading())
 
     var geocoderJob: Job? = null
-    var geocoderLoadState by mutableStateOf(GeocoderLoadState.Loading)
+    var geocoderLoadState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
     var address by mutableStateOf("")
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
@@ -86,45 +84,49 @@ class StoreGoogleMapStateHolder(context: Context) {
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     fun tryUpdateLiveLocation(activity: Activity) {
         checkLocationSettings(activity) {
-            liveLocationLoadState = LiveLocationLoadState.Loading
+            when (liveLocationLoadState) {
+                is LoadingState.NotLoading -> {
+                    // first time load, use last location
+                    liveLocationLoadState = LoadingState.Loading()
 
-            if (liveLocation == null) {
-                // first time load, use last location
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        liveLocation = location
-                        liveLocationLoadState = LiveLocationLoadState.Idle
-                    }
-                    .addOnFailureListener {
-                        updateCurrentLocation()
-                    }
-            } else {
-                // subsequent loads, user is actively trying to locate himself/herself
-                // use a more up-to-date position
-                updateCurrentLocation()
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location ->
+                            liveLocationLoadState = LoadingState.Success(location)
+                        }
+                        .addOnFailureListener {
+                            // there is no last location, which is possible if the device is
+                            // rebooted, we go ahead and fetch the current location
+                            updateCurrentLocation()
+                        }
+                }
+                else -> {
+                    // subsequent loads, user is actively trying to locate himself/herself
+                    // use a more up-to-date position
+                    updateCurrentLocation()
+                }
             }
         }
     }
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     private fun updateCurrentLocation() {
-        liveLocationLoadState = LiveLocationLoadState.Loading
+        liveLocationLoadState = LoadingState.Loading()
 
         fusedLocationClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             CancellationTokenSource().token // don't cancel
         )
             .addOnSuccessListener { location ->
-                liveLocation = location
+                liveLocationLoadState = LoadingState.Success(location)
             }
-            .addOnCompleteListener {
-                liveLocationLoadState = LiveLocationLoadState.Idle
+            .addOnFailureListener {
+                liveLocationLoadState = LoadingState.Error(it)
             }
     }
 
     suspend fun resolveAddress(latLng: LatLng) {
         withContext(Dispatchers.IO) {
-            geocoderLoadState = GeocoderLoadState.Loading
+            geocoderLoadState = LoadingState.Loading()
 
             val lat = latLng.latitude.format(4)
             val lng = latLng.longitude.format(4)
@@ -146,7 +148,7 @@ class StoreGoogleMapStateHolder(context: Context) {
 
             if (isActive) {
                 address = resolvedAddress
-                geocoderLoadState = GeocoderLoadState.Finished
+                geocoderLoadState = LoadingState.NotLoading()
             }
         }
     }
@@ -157,14 +159,16 @@ fun rememberStoreGoogleMapState(context: Context) = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
-                it.liveLocation,
-                it.isFirstLocationUpdate,
+                it.initialPermissionRequest,
+                it.shouldMoveCamera,
+                it.liveLocationLoadState,
             )
         },
         restore = {
             StoreGoogleMapStateHolder(context).apply {
-                liveLocation = it[0] as Location?
-                isFirstLocationUpdate = it[1] as Boolean
+                initialPermissionRequest = it[0] as Boolean
+                shouldMoveCamera = it[1] as Boolean
+                liveLocationLoadState = it[2] as LoadingState<Location>
             }
         }
     )

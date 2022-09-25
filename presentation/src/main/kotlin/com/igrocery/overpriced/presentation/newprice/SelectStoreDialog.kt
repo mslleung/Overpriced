@@ -26,6 +26,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.newprice.SelectStoreDialogViewModel
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import kotlinx.coroutines.flow.flowOf
 

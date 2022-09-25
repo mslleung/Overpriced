@@ -1,9 +1,13 @@
 package com.igrocery.overpriced.domain.productpricehistory.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Address(
     val lines: String?,
     val geoCoordinates: GeoCoordinates
-) {
+) : Parcelable {
     class AddressLinesLengthExceededException: IllegalArgumentException("Address lines length exceeded.")
 
     init {

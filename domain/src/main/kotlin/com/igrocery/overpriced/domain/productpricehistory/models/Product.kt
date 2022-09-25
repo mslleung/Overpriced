@@ -1,7 +1,10 @@
 package com.igrocery.overpriced.domain.productpricehistory.models
 
+import android.os.Parcelable
 import com.igrocery.overpriced.domain.AggregateRoot
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Product(
     override val id: Long = 0,
     override val creationTimestamp: Long = 0,
@@ -9,7 +12,7 @@ data class Product(
     val name: String,
     val description: String,   // the product brand, weight/size/flavor etc.
     val categoryId: Long?,
-) : AggregateRoot(id, creationTimestamp, updateTimestamp) {
+) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {
         require(name.isNotBlank())

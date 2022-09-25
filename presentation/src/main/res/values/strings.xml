@@ -97,7 +97,8 @@
     <string name="store_save_dialog_confirm_button_text">Confirm</string>
     <string name="store_save_dialog_dismiss_button_text">Cancel</string>
     <string name="new_store_create_failed_message">Failed to create store.</string>
-    <string name="edit_store_create_failed_message">Failed to update store.</string>
+    <string name="edit_store_update_failed_message">Failed to update store.</string>
+    <string name="edit_store_delete_failed_message">Failed to delete store.</string>
 
     <string name="shopping_lists_bottom_nav_label">Shopping Lists</string>
     <string name="shopping_lists_bottom_nav_content_description">Shopping Lists</string>
