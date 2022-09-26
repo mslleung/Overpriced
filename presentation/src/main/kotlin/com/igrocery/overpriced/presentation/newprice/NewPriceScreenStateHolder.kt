@@ -28,7 +28,13 @@ class NewPriceScreenStateHolder(uiScope: CoroutineScope, viewModel: NewPriceScre
     init {
         snapshotFlow { productCategoryId }
             .onEach {
-                viewModel.uiState.categoryFlow =
+                viewModel.updateCategoryId(it)
+            }
+            .launchIn(uiScope)
+
+        snapshotFlow { priceStoreId }
+            .onEach {
+                viewModel.updateStoreId(it)
             }
             .launchIn(uiScope)
     }

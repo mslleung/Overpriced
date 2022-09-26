@@ -50,7 +50,10 @@ class NewPriceScreenViewModel @Inject constructor(
 
     class ViewModelState {
         var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
-        var categoryFlow: StateFlow<LoadingState<Category>> by mutableStateOf(MutableStateFlow(LoadingState.NotLoading()))
+        var categoryFlow: StateFlow<LoadingState<Category>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var preferredCurrencyFlow: StateFlow<LoadingState<Currency>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var storesCountFlow: StateFlow<LoadingState<Int>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var storeFlow: StateFlow<LoadingState<Store>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
     }
 
     val uiState = ViewModelState()
@@ -66,6 +69,22 @@ class NewPriceScreenViewModel @Inject constructor(
                 productService.searchProductsByNamePaging("$query*")
             }.flow
                 .cachedIn(viewModelScope)
+
+            preferredCurrencyFlow = preferenceService.getAppPreference()
+                .map { LoadingState.Success(it.preferredCurrency) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.Loading()
+                )
+
+            storesCountFlow = storeService.getStoreCount()
+                .map { LoadingState.Success(it) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.Loading()
+                )
         }
     }
 
@@ -73,44 +92,41 @@ class NewPriceScreenViewModel @Inject constructor(
         this.query = query
     }
 
-    val productCategoryFlow = savedState.getStateFlow<Long?>(KEY_PRODUCT_CATEGORY_ID, null)
-        .flatMapLatest {
-            if (it == null) {
-                flowOf(null)
-            } else {
-                categoryService.getCategoryById(it)
-            }
+    fun updateCategoryId(categoryId: Long) {
+        with (uiState) {
+            categoryFlow = categoryService.getCategoryById(categoryId)
+                .map {
+                    if (it != null) {
+                        LoadingState.Success(it)
+                    } else {
+                        LoadingState.Error(Exception("Category not found."))
+                    }
+                }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.NotLoading()
+                )
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null
-        )
+    }
 
-    val preferredCurrencyFlow = preferenceService.getAppPreference()
-        .map { it.preferredCurrency }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = Currency.getInstance(Locale.getDefault())
-        )
-
-    val storesCountFlow = storeService.getStoreCount()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
-
-    val selectedStoreFlow = savedState.getStateFlow(KEY_STORE_ID, 0L)
-        .flatMapLatest {
-            storeService.getStoreById(it)
+    fun updateStoreId(storeId: Long) {
+        with (uiState) {
+            storeFlow = storeService.getStoreById(storeId)
+                .map {
+                    if (it != null) {
+                        LoadingState.Success(it)
+                    } else {
+                        LoadingState.Error(Exception("Store not found."))
+                    }
+                }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.NotLoading()
+                )
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null
-        )
+    }
 
     sealed interface SubmitFormResultState {
         object Success : SubmitFormResultState
