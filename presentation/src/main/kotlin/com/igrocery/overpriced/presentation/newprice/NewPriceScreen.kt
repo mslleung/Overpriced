@@ -103,6 +103,7 @@ fun NewPriceScreen(
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
     val selectedStore by newPriceScreenViewModel.selectedStoreFlow.collectAsState()
     val state by rememberNewPriceScreenState()
+    val coroutineContext = rememberCoroutineScope()
     MainLayout(
         productName = productName,
         productDescription = productDescription,

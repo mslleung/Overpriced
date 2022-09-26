@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.preference.PreferenceService
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
@@ -16,6 +17,9 @@ import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState.ErrorReason
+import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
+import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,26 +42,36 @@ class NewPriceScreenViewModel @Inject constructor(
     private val preferenceService: PreferenceService
 ) : ViewModel() {
 
-    companion object {
-        private const val KEY_PRODUCT_NAME = "KEY_PRODUCT_NAME"
-        private const val KEY_PRODUCT_DESCRIPTION = "KEY_PRODUCT_DESCRIPTION"
-        private const val KEY_PRODUCT_CATEGORY_ID = "KEY_PRODUCT_CATEGORY_ID"
-        private const val KEY_STORE_ID = "KEY_STORE_ID"
+    private companion object {
+        private const val KEY_QUERY = "KEY_QUERY"
     }
 
-    val productNameFlow = savedState.getStateFlow(KEY_PRODUCT_NAME, "")
+    private var query: String = savedState[KEY_QUERY] ?: ""
 
-    val productDescriptionFlow = savedState.getStateFlow(KEY_PRODUCT_DESCRIPTION, "")
+    class ViewModelState {
+        var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
+        var categoryFlow: StateFlow<LoadingState<Category>> by mutableStateOf(MutableStateFlow(LoadingState.NotLoading()))
+    }
 
-    val productsPagedFlow = Pager(
-        PagingConfig(
-            pageSize = 100,
-            prefetchDistance = 30
-        )
-    ) {
-        productService.searchProductsByNamePaging("${productNameFlow.value}*")
-    }.flow
-        .cachedIn(viewModelScope)
+    val uiState = ViewModelState()
+
+    init {
+        with(uiState) {
+            suggestedProductsPagingDataFlow = Pager(
+                PagingConfig(
+                    pageSize = 100,
+                    prefetchDistance = 30
+                )
+            ) {
+                productService.searchProductsByNamePaging("$query*")
+            }.flow
+                .cachedIn(viewModelScope)
+        }
+    }
+
+    fun updateQuery(query: String) {
+        this.query = query
+    }
 
     val productCategoryFlow = savedState.getStateFlow<Long?>(KEY_PRODUCT_CATEGORY_ID, null)
         .flatMapLatest {
@@ -97,29 +111,6 @@ class NewPriceScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = null
         )
-
-    fun setProductName(productName: String) {
-        savedState[KEY_PRODUCT_NAME] = productName
-    }
-
-    fun setProductDescription(productDescription: String?) {
-        savedState[KEY_PRODUCT_DESCRIPTION] = productDescription
-    }
-
-    fun setProductCategoryId(categoryId: Long?) {
-        savedState[KEY_PRODUCT_CATEGORY_ID] = categoryId
-    }
-
-    fun selectStore(storeId: Long) {
-        savedState[KEY_STORE_ID] = storeId
-    }
-
-    fun hasModifications(): Boolean {
-        return productNameFlow.value.isNotBlank()
-                || productDescriptionFlow.value.isNotBlank()
-                || productCategoryFlow.value != null
-                || selectedStoreFlow.value != null
-    }
 
     sealed interface SubmitFormResultState {
         object Success : SubmitFormResultState
