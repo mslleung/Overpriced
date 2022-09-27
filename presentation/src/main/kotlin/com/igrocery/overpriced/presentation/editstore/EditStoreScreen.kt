@@ -68,21 +68,19 @@ fun EditStoreScreen(
     )
 
     if (state.isConfirmDeleteDialogShown) {
-        val store by viewModel.uiState.storeFlow.collectAsState()
-        store.let {
-            if (it is LoadingState.Success) {
-                ConfirmDeleteDialog(
-                    onDismiss = {
-                        state.isConfirmDeleteDialogShown = false
-                    },
-                    onConfirm = {
-                        state.isConfirmDeleteDialogShown = false
-                        navigateUp()
-                        viewModel.deleteStore(it.data)
-                    },
-                    messageText = stringResource(id = R.string.store_delete_dialog_message)
-                )
-            }
+        val store = viewModel.uiState.store
+        store.ifLoaded {
+            ConfirmDeleteDialog(
+                onDismiss = {
+                    state.isConfirmDeleteDialogShown = false
+                },
+                onConfirm = {
+                    state.isConfirmDeleteDialogShown = false
+                    navigateUp()
+                    viewModel.deleteStore(it)
+                },
+                messageText = stringResource(id = R.string.store_delete_dialog_message)
+            )
         }
     }
 
@@ -107,32 +105,28 @@ fun EditStoreScreen(
     }
 
     if (state.isSaveDialogShown) {
-        val store by viewModel.uiState.storeFlow.collectAsState()
-        store.let {
-            if (it is LoadingState.Success) {
-                val saveDialogState by rememberSaveAlertDialogState(
-                    initialStoreName = it.data.name,
-                    initialAddress = storeMapState.address
-                )
-                SaveAlertDialog(
-                    state = saveDialogState,
-                    title = stringResource(id = R.string.edit_store_title),
-                    onDismiss = {
-                        state.isSaveDialogShown = false
-                    },
-                    onConfirm = {
-                        state.isSaveDialogShown = false
-                        viewModel.updateStore(
-                            storeName = saveDialogState.storeName.trim(),
-                            addressLines = saveDialogState.address.trim(),
-                            latitude = state.cameraPosition.latitude,
-                            longitude = state.cameraPosition.longitude
-                        )
-                    },
-                )
-            } else {
-                log.error("Store not loaded.")
-            }
+        val store = viewModel.uiState.store
+        store.ifLoaded {
+            val saveDialogState by rememberSaveAlertDialogState(
+                initialStoreName = it.name,
+                initialAddress = storeMapState.address
+            )
+            SaveAlertDialog(
+                state = saveDialogState,
+                title = stringResource(id = R.string.edit_store_title),
+                onDismiss = {
+                    state.isSaveDialogShown = false
+                },
+                onConfirm = {
+                    state.isSaveDialogShown = false
+                    viewModel.updateStore(
+                        storeName = saveDialogState.storeName.trim(),
+                        addressLines = saveDialogState.address.trim(),
+                        latitude = state.cameraPosition.latitude,
+                        longitude = state.cameraPosition.longitude
+                    )
+                },
+            )
         }
     }
 
@@ -192,8 +186,8 @@ private fun MainContent(
                     ) {
                         Text(text = stringResource(id = R.string.edit_store_title))
 
-                        val storeLoadingState by viewModelState.storeFlow.collectAsState()
-                        storeLoadingState.IfSuccess {
+                        val store = viewModelState.store
+                        store.ifLoaded {
                             Text(
                                 text = it.name,
                                 style = MaterialTheme.typography.bodyMedium
@@ -202,13 +196,13 @@ private fun MainContent(
                     }
                 },
                 actions = {
-                    val storeLoadingState by viewModelState.storeFlow.collectAsState()
+                    val store = viewModelState.store
                     DeleteButton(
                         onClick = onDeleteButtonClick,
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .size(24.dp),
-                        enabled = storeLoadingState is LoadingState.Success
+                        enabled = store is LoadingState.Success
                     )
                     SaveButton(
                         onClick = onSaveButtonClick,
@@ -235,8 +229,7 @@ private fun MainContent(
                 .padding(it)
                 .navigationBarsPadding()
         ) {
-            val storeLoadingState by viewModelState.storeFlow.collectAsState()
-            storeLoadingState.IfSuccess { store ->
+            viewModelState.store.ifLoaded { store ->
                 Marker(
                     state = MarkerState(
                         LatLng(

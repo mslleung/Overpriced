@@ -22,22 +22,18 @@ class SettingsScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var preferredCurrencyFlow: StateFlow<LoadingState<Currency>> by mutableStateOf(
-            MutableStateFlow(LoadingState.Loading())
-        )
+        var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
     }
 
     val uiState = ViewModelState()
 
     init {
         with(uiState) {
-            preferredCurrencyFlow = preferenceService.getAppPreference()
-                .map { LoadingState.Success(it.preferredCurrency) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+            preferenceService.getAppPreference()
+                .onEach {
+                    preferredCurrency = LoadingState.Success(it.preferredCurrency)
+                }
+                .launchIn(viewModelScope)
         }
     }
 }

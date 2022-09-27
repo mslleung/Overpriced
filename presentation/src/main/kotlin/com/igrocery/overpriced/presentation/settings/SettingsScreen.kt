@@ -104,16 +104,14 @@ private fun MainContent(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
-                preferredCurrency.let {
-                    Text(
-                        text = if (it is LoadingState.Success) it.data.displayName else "",
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.alpha(0.6f)
-                    )
-                }
+                val preferredCurrency = viewModelState.preferredCurrency
+                Text(
+                    text = if (preferredCurrency is LoadingState.Success) preferredCurrency.data.displayName else "",
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.alpha(0.6f)
+                )
             }
         }
     }

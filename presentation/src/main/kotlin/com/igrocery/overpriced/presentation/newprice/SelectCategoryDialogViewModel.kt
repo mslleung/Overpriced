@@ -18,20 +18,18 @@ class SelectCategoryDialogViewModel @Inject constructor(
 ) : ViewModel() {
 
     class ViewModelState {
-        var allCategoriesFlow: StateFlow<LoadingState<List<Category>>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var allCategories: LoadingState<List<Category>> by mutableStateOf(LoadingState.Loading())
     }
 
     val uiState = ViewModelState()
 
     init {
         with(uiState) {
-            allCategoriesFlow = categoryService.getAllCategories()
-                .map { LoadingState.Success(it) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+            categoryService.getAllCategories()
+                .onEach {
+                    allCategories = LoadingState.Success(it)
+                }
+                .launchIn(viewModelScope)
         }
     }
 

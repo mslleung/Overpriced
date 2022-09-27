@@ -26,6 +26,12 @@ class NewPriceScreenStateHolder(uiScope: CoroutineScope, viewModel: NewPriceScre
     var isSelectStoreDialogShown by mutableStateOf(false)
 
     init {
+        snapshotFlow { productName }
+            .onEach {
+                viewModel.updateQuery(it)
+            }
+            .launchIn(uiScope)
+
         snapshotFlow { productCategoryId }
             .onEach {
                 viewModel.updateCategoryId(it)

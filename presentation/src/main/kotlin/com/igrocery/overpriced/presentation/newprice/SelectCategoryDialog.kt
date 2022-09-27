@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.selectcategory
+package com.igrocery.overpriced.presentation.newprice
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -23,8 +21,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
-import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.presentation.shared.ifLoaded
 
 @Composable
 fun SelectCategoryDialog(
@@ -35,18 +32,16 @@ fun SelectCategoryDialog(
     onEditCategoryClick: (Category) -> Unit,
     onNewCategoryClick: () -> Unit,
 ) {
-    val allCategories by viewModel.uiState.allCategoriesFlow.collectAsState()
-    allCategories.let {
-        if (it is LoadingState.Success) {
-            MainLayout(
-                it.data,
-                selectedCategoryId,
-                onDismiss,
-                onCategorySelect,
-                onEditCategoryClick,
-                onNewCategoryClick
-            )
-        }
+    val allCategories = viewModel.uiState.allCategories
+    allCategories.ifLoaded {
+        MainLayout(
+            it,
+            selectedCategoryId,
+            onDismiss,
+            onCategorySelect,
+            onEditCategoryClick,
+            onNewCategoryClick
+        )
     }
 }
 

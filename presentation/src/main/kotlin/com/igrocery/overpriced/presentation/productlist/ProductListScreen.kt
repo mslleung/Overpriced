@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,12 +24,8 @@ import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.LoadingState
-import com.igrocery.overpriced.presentation.shared.NoCategory
-import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -93,24 +88,22 @@ private fun MainContent(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    val category by viewModelState.categoryFlow.collectAsState()
-                    category.let {
-                        if (it is LoadingState.Success) {
-                            val displayCategory = it.data ?: NoCategory
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(
-                                    painter = painterResource(id = displayCategory.icon.iconRes),
-                                    contentDescription = displayCategory.name,
-                                    modifier = Modifier
-                                        .padding(end = 12.dp)
-                                        .size(30.dp)
-                                        .alpha(LocalContentColor.current.alpha),
-                                )
+                    val category = viewModelState.category
+                    category.ifLoaded {
+                        val displayCategory = it ?: NoCategory
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = displayCategory.icon.iconRes),
+                                contentDescription = displayCategory.name,
+                                modifier = Modifier
+                                    .padding(end = 12.dp)
+                                    .size(30.dp)
+                                    .alpha(LocalContentColor.current.alpha),
+                            )
 
-                                Text(text = displayCategory.name)
-                            }
+                            Text(text = displayCategory.name)
                         }
                     }
                 },
@@ -126,20 +119,18 @@ private fun MainContent(
                         )
                     }
 
-                    val category by viewModelState.categoryFlow.collectAsState()
-                    category.let {
-                        if (it is LoadingState.Success) {
-                            if (it.data != null) {
-                                IconButton(
-                                    onClick = onEditButtonClick,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                                        contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
-                                    )
-                                }
+                    val category = viewModelState.category
+                    category.ifLoaded {
+                        if (it != null) {
+                            IconButton(
+                                onClick = onEditButtonClick,
+                                modifier = Modifier
+                                    .size(48.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+                                    contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
+                                )
                             }
                         }
                     }
@@ -283,7 +274,7 @@ private fun EmptyPreview() {
 @Composable
 private fun DefaultPreview() {
     val viewModelState = ProductListScreenViewModel.ViewModelState()
-    viewModelState.categoryFlow = MutableStateFlow(LoadingState.Success(NoCategory))
+    viewModelState.category = LoadingState.Success(NoCategory)
     viewModelState.productsPagingDataFlow = flowOf(
         PagingData.from(
             listOf(

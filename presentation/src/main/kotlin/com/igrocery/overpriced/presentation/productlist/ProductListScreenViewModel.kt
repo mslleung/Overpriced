@@ -34,7 +34,7 @@ class ProductListScreenViewModel @Inject constructor(
     private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId) ?: 0L
 
     class ViewModelState {
-        var categoryFlow: StateFlow<LoadingState<Category?>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var category: LoadingState<Category?> by mutableStateOf(LoadingState.Loading())
         var productsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
     }
 
@@ -42,13 +42,11 @@ class ProductListScreenViewModel @Inject constructor(
 
     init {
         with(uiState) {
-            categoryFlow = categoryService.getCategoryById(categoryId)
-                .map { LoadingState.Success(it) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+            categoryService.getCategoryById(categoryId)
+                .onEach {
+                    category = LoadingState.Success(it)
+                }
+                .launchIn(viewModelScope)
 
             productsPagingDataFlow = Pager(
                 PagingConfig(

@@ -30,9 +30,7 @@ class EditStoreScreenViewModel @Inject constructor(
     private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId) ?: 0L
 
     class ViewModelState {
-        var storeFlow: StateFlow<LoadingState<Store>> by mutableStateOf(
-            MutableStateFlow(LoadingState.Loading())
-        )
+        var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
         var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
         var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
     }
@@ -41,19 +39,15 @@ class EditStoreScreenViewModel @Inject constructor(
 
     init {
         with(uiState) {
-            storeFlow = storeService.getStoreById(storeId)
-                .map {
-                    if (it == null) {
+            storeService.getStoreById(storeId)
+                .onEach {
+                    store = if (it == null) {
                         LoadingState.Error(Exception("Store not found"))
                     } else {
                         LoadingState.Success(it)
                     }
                 }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+                .launchIn(viewModelScope)
         }
     }
 
@@ -67,7 +61,7 @@ class EditStoreScreenViewModel @Inject constructor(
             with(uiState) {
                 runCatching {
                     updateStoreResult = LoadingState.Loading()
-                    val originalStore = storeFlow.first()
+                    val originalStore = store
                     if (originalStore is LoadingState.Success) {
                         val updatedStore = originalStore.data.copy(
                             name = storeName,

@@ -31,7 +31,6 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
@@ -50,10 +49,10 @@ class NewPriceScreenViewModel @Inject constructor(
 
     class ViewModelState {
         var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
-        var categoryFlow: StateFlow<LoadingState<Category>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
-        var preferredCurrencyFlow: StateFlow<LoadingState<Currency>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
-        var storesCountFlow: StateFlow<LoadingState<Int>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
-        var storeFlow: StateFlow<LoadingState<Store>> by mutableStateOf(MutableStateFlow(LoadingState.Loading()))
+        var categoryFlow: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
+        var preferredCurrencyFlow: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
+        var storesCountFlow: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
+        var storeFlow: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
     }
 
     val uiState = ViewModelState()
@@ -89,7 +88,7 @@ class NewPriceScreenViewModel @Inject constructor(
     }
 
     fun updateQuery(query: String) {
-        this.query = query
+        savedState[KEY_QUERY] = query
     }
 
     fun updateCategoryId(categoryId: Long) {
