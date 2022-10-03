@@ -41,18 +41,14 @@ class NewPriceScreenViewModel @Inject constructor(
     private val preferenceService: PreferenceService
 ) : ViewModel() {
 
-    private companion object {
-        private const val KEY_QUERY = "KEY_QUERY"
-    }
-
-    private var query: String = savedState[KEY_QUERY] ?: ""
+    private var query = ""
 
     class ViewModelState {
         var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
-        var categoryFlow: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
-        var preferredCurrencyFlow: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
-        var storesCountFlow: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
-        var storeFlow: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
+        var category: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
+        var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
+        var storesCount: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
+        var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
     }
 
     val uiState = ViewModelState()
@@ -69,26 +65,22 @@ class NewPriceScreenViewModel @Inject constructor(
             }.flow
                 .cachedIn(viewModelScope)
 
-            preferredCurrencyFlow = preferenceService.getAppPreference()
-                .map { LoadingState.Success(it.preferredCurrency) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+            preferenceService.getAppPreference()
+                .onEach {
+                    preferredCurrency = LoadingState.Success(it.preferredCurrency)
+                }
+                .launchIn(viewModelScope)
 
-            storesCountFlow = storeService.getStoreCount()
-                .map { LoadingState.Success(it) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.Loading()
-                )
+            storeService.getStoreCount()
+                .onEach {
+                    storesCount = LoadingState.Success(it)
+                }
+                .launchIn(viewModelScope)
         }
     }
 
     fun updateQuery(query: String) {
-        savedState[KEY_QUERY] = query
+        this.query = query
     }
 
     fun updateCategoryId(categoryId: Long) {

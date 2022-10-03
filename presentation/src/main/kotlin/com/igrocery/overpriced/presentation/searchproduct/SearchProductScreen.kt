@@ -24,6 +24,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -31,6 +33,8 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
 private val log = Logger { }
@@ -56,10 +60,12 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
+    val productPagingItems = viewModel.uiState.productsPagingDataFlow.collectAsLazyPagingItems()
     val state by rememberSearchProductScreenState()
     MainContent(
         viewModelState = viewModel.uiState,
         state = state,
+        productsPagingItems = productPagingItems,
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
             state.isRequestingFirstFocus = false
@@ -70,6 +76,14 @@ fun SearchProductScreen(
         },
         onProductClick = navigateToProductDetails,
     )
+
+    LaunchedEffect(key1 = state) {
+        snapshotFlow { state.query }
+            .collect {
+                viewModel.updateQuery(it)
+                productPagingItems.refresh()
+            }
+    }
 
     BackHandler(enabled = false) {
         navigateUp()
@@ -85,6 +99,7 @@ fun SearchProductScreen(
 private fun MainContent(
     viewModelState: SearchProductScreenViewModel.ViewModelState,
     state: SearchProductScreenStateHolder,
+    productsPagingItems: LazyPagingItems<Product>,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -92,8 +107,6 @@ private fun MainContent(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
-
-    val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,10 +115,7 @@ private fun MainContent(
                     val keyboardController = LocalSoftwareKeyboardController.current
                     TextField(
                         value = state.query,
-                        onValueChange = {
-                            onQueryChanged(it)
-                            productPagingItems.refresh()
-                        },
+                        onValueChange = onQueryChanged,
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester),
@@ -163,7 +173,7 @@ private fun MainContent(
             )
         },
     ) {
-        if (productPagingItems.itemCount == 0) {
+        if (productsPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
@@ -181,7 +191,7 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = productPagingItems,
+                    items = productsPagingItems,
                     key = { product -> product.id }
                 ) { product ->
                     if (product != null) {
@@ -265,10 +275,31 @@ private fun ProductListItem(
 
 @Preview
 @Composable
-private fun DefaultPreview() {
+private fun EmptyPreview() {
+    val emptyPagingItems = flowOf(PagingData.empty<Product>()).collectAsLazyPagingItems()
+
     MainContent(
         viewModelState = SearchProductScreenViewModel.ViewModelState(),
         state = SearchProductScreenStateHolder(),
+        productsPagingItems = emptyPagingItems,
+        onBackButtonClick = {},
+        onFirstFocusRequest = {},
+        onQueryChanged = {},
+        onProductClick = {},
+    )
+}
+
+@Preview
+@Composable
+private fun DefaultPreview() {
+    val pagingItems = flowOf(PagingData.from(listOf(
+        Product(name = "Apple", description = "Fuji", categoryId = null)
+    ))).collectAsLazyPagingItems()
+
+    MainContent(
+        viewModelState = SearchProductScreenViewModel.ViewModelState(),
+        state = SearchProductScreenStateHolder(),
+        productsPagingItems = pagingItems,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},

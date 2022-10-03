@@ -23,17 +23,13 @@ class SearchProductScreenViewModel @Inject constructor(
     private val productService: ProductService,
 ) : ViewModel() {
 
-    private companion object {
-        private const val KEY_QUERY = "KEY_QUERY"
-    }
-
     class ViewModelState {
         var productsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
     }
 
     val uiState = ViewModelState()
 
-    private var query: String = savedState[KEY_QUERY] ?: ""
+    private var query = ""
 
     init {
         uiState.productsPagingDataFlow = Pager(

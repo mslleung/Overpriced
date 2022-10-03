@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class NewPriceScreenStateHolder(uiScope: CoroutineScope, viewModel: NewPriceScreenViewModel) {
+class NewPriceScreenStateHolder {
 
     var isRequestingFirstFocus by mutableStateOf(true)
     var wantToShowSuggestionBox by mutableStateOf(false)
