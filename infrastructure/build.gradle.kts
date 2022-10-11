@@ -99,12 +99,12 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.20.1")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
 
     implementation("androidx.test.ext:junit-ktx:1.1.3")
     testImplementation("junit:junit:4.13.2")
 
-    val kotestVersion = "5.4.2"
+    val kotestVersion = "5.5.0"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("androidx.test:runner:1.4.0")

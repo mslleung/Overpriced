@@ -3,7 +3,6 @@ package com.igrocery.overpriced.presentation.newprice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -16,13 +15,9 @@ import com.igrocery.overpriced.application.productpricehistory.PriceRecordServic
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.*
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState.ErrorReason
-import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -33,7 +28,6 @@ private val log = Logger { }
 
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
-    private val savedState: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
@@ -49,6 +43,8 @@ class NewPriceScreenViewModel @Inject constructor(
         var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
         var storesCount: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
         var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
+
+        var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
     }
 
     val uiState = ViewModelState()
@@ -83,57 +79,31 @@ class NewPriceScreenViewModel @Inject constructor(
         this.query = query
     }
 
-    fun updateCategoryId(categoryId: Long) {
-        with (uiState) {
-            categoryFlow = categoryService.getCategoryById(categoryId)
-                .map {
-                    if (it != null) {
+    suspend fun updateCategoryId(categoryId: Long) {
+        with(uiState) {
+            categoryService.getCategoryById(categoryId)
+                .collectLatest {
+                    category = if (it != null) {
                         LoadingState.Success(it)
                     } else {
                         LoadingState.Error(Exception("Category not found."))
                     }
                 }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.NotLoading()
-                )
         }
     }
 
-    fun updateStoreId(storeId: Long) {
-        with (uiState) {
-            storeFlow = storeService.getStoreById(storeId)
-                .map {
-                    if (it != null) {
+    suspend fun updateStoreId(storeId: Long) {
+        with(uiState) {
+            storeService.getStoreById(storeId)
+                .collectLatest {
+                    store = if (it != null) {
                         LoadingState.Success(it)
                     } else {
                         LoadingState.Error(Exception("Store not found."))
                     }
                 }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(),
-                    initialValue = LoadingState.NotLoading()
-                )
         }
     }
-
-    sealed interface SubmitFormResultState {
-        object Success : SubmitFormResultState
-
-        enum class ErrorReason {
-            NameEmptyError,
-            StoreNotSelectedError,
-            PriceAmountInputError,
-            PriceAmountInvalidError,
-            UnknownError
-        }
-
-        data class Error(val reason: ErrorReason) : SubmitFormResultState
-    }
-
-    var submitFormResult by mutableStateOf<SubmitFormResultState?>(null)
 
     fun submitForm(
         productName: String,
@@ -144,6 +114,8 @@ class NewPriceScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
+                uiState.submitResultState = LoadingState.Loading()
+
                 val existingProduct =
                     productService.getProduct(productName, productDescription).first()
 
@@ -170,18 +142,6 @@ class NewPriceScreenViewModel @Inject constructor(
                 }
 
                 submitFormResult = SubmitFormResultState.Success
-            } catch (e: Product.BlankNameException) {
-                log.error(e.toString())
-                submitFormResult = SubmitFormResultState.Error(ErrorReason.NameEmptyError)
-            } catch (e: Money.InvalidAmountException) {
-                log.error(e.toString())
-                submitFormResult = SubmitFormResultState.Error(ErrorReason.PriceAmountInvalidError)
-            } catch (e: NumberFormatException) {
-                log.error(e.toString())
-                submitFormResult = SubmitFormResultState.Error(ErrorReason.PriceAmountInputError)
-            } catch (e: PriceRecord.InvalidStoreIdException) {
-                log.error(e.toString())
-                submitFormResult = SubmitFormResultState.Error(ErrorReason.StoreNotSelectedError)
             } catch (e: Exception) {
                 log.error(e.toString())
                 submitFormResult = SubmitFormResultState.Error(ErrorReason.UnknownError)
