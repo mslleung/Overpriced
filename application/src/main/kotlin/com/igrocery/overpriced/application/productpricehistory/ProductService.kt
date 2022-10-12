@@ -28,8 +28,8 @@ class ProductService @Inject constructor(
     ) {
         transaction.execute {
             val product = Product(
-                name = productName,
-                description = productDescription,
+                name = productName.trim(),
+                description = productDescription.trim(),
                 categoryId = categoryId,
             )
 

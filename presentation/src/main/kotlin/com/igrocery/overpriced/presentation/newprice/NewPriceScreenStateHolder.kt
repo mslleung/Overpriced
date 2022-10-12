@@ -1,14 +1,11 @@
 package com.igrocery.overpriced.presentation.newprice
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import androidx.compose.runtime.setValue
 
 class NewPriceScreenStateHolder {
 
@@ -25,26 +22,6 @@ class NewPriceScreenStateHolder {
     var isSelectCategoryDialogShown by mutableStateOf(false)
     var isSelectStoreDialogShown by mutableStateOf(false)
 
-    init {
-        snapshotFlow { productName }
-            .onEach {
-                viewModel.updateQuery(it)
-            }
-            .launchIn(uiScope)
-
-        snapshotFlow { productCategoryId }
-            .onEach {
-                viewModel.updateCategoryId(it)
-            }
-            .launchIn(uiScope)
-
-        snapshotFlow { priceStoreId }
-            .onEach {
-                viewModel.updateStoreId(it)
-            }
-            .launchIn(uiScope)
-    }
-
     fun hasModifications(): Boolean {
         return productName.isNotBlank()
                 || productDescription.isNotBlank()
@@ -56,7 +33,7 @@ class NewPriceScreenStateHolder {
 }
 
 @Composable
-fun rememberNewPriceScreenState(uiScope: CoroutineScope, viewModel: NewPriceScreenViewModel) = rememberSaveable(
+fun rememberNewPriceScreenState() = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
@@ -73,7 +50,7 @@ fun rememberNewPriceScreenState(uiScope: CoroutineScope, viewModel: NewPriceScre
             )
         },
         restore = {
-            NewPriceScreenStateHolder(uiScope, viewModel).apply {
+            NewPriceScreenStateHolder().apply {
                 isRequestingFirstFocus = it[0] as Boolean
                 wantToShowSuggestionBox = it[1] as Boolean
                 productName = it[2] as String
@@ -88,5 +65,5 @@ fun rememberNewPriceScreenState(uiScope: CoroutineScope, viewModel: NewPriceScre
         }
     )
 ) {
-    mutableStateOf(NewPriceScreenStateHolder(uiScope, viewModel))
+    mutableStateOf(NewPriceScreenStateHolder())
 }

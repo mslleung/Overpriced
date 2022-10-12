@@ -92,27 +92,12 @@ fun NewPriceScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val productName by newPriceScreenViewModel.productNameFlow.collectAsState()
-    val productDescription by newPriceScreenViewModel.productDescriptionFlow.collectAsState()
-    val productSuggestionsPagingItems =
-        newPriceScreenViewModel.productsPagedFlow.collectAsLazyPagingItems()
-    val productCategory by newPriceScreenViewModel.productCategoryFlow.collectAsState()
-    val preferredCurrency by newPriceScreenViewModel.preferredCurrencyFlow.collectAsState()
-    val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
-    val selectedStore by newPriceScreenViewModel.selectedStoreFlow.collectAsState()
     val state by rememberNewPriceScreenState()
-    val coroutineContext = rememberCoroutineScope()
     MainLayout(
-        productName = productName,
-        productDescription = productDescription,
-        productSuggestionsPagingItems = productSuggestionsPagingItems,
-        productCategory = productCategory,
-        preferredCurrency = preferredCurrency,
-        selectedStore = selectedStore,
-        submitResult = newPriceScreenViewModel.submitFormResult,
+        viewModelState = newPriceScreenViewModel.uiState,
         state = state,
         onCloseButtonClick = {
-            if (state.hasModifications() || newPriceScreenViewModel.hasModifications()) {
+            if (state.hasModifications()) {
                 state.isDiscardDialogShown = true
             } else {
                 keyboardController?.hide()
@@ -120,13 +105,15 @@ fun NewPriceScreen(
             }
         },
         onSaveButtonClick = {
-            newPriceScreenViewModel.submitForm(
-                productName.trim(),
-                productDescription.trim(),
-                productCategory?.id,
-                state.priceAmountText.trim(),
-                selectedStore,
-            )
+            with(state) {
+                newPriceScreenViewModel.submitForm(
+                    productName.trim(),
+                    productDescription.trim(),
+                    productCategoryId,
+                    priceAmountText.trim(),
+                    priceStoreId,
+                )
+            }
         },
         onProductNameChange = {
             newPriceScreenViewModel.setProductName(it)
@@ -240,13 +227,7 @@ fun NewPriceScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    productName: String,
-    productDescription: String,
-    productSuggestionsPagingItems: LazyPagingItems<Product>,
-    productCategory: Category?,
-    preferredCurrency: Currency,
-    selectedStore: Store?,
-    submitResult: SubmitFormResultState?,
+    viewModelState: NewPriceScreenViewModel.ViewModelState,
     state: NewPriceScreenStateHolder,
     onCloseButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,

@@ -110,7 +110,7 @@ class NewPriceScreenViewModel @Inject constructor(
         productDescription: String,
         productCategoryId: Long?,
         priceAmountText: String,
-        store: Store?,
+        priceStoreId: Long,
     ) {
         viewModelScope.launch {
             try {
@@ -125,26 +125,26 @@ class NewPriceScreenViewModel @Inject constructor(
                         productDescription,
                         productCategoryId,
                         priceAmountText,
-                        store?.id ?: 0L,
+                        priceStoreId,
                     )
                 } else {
                     // update product because category may be changed
-                    val updatedProduct = Product(existingProduct)
-                    updatedProduct.updateTimestamp = System.currentTimeMillis()
-                    updatedProduct.categoryId = productCategoryId
+                    val updatedProduct = existingProduct.copy(
+                        categoryId = productCategoryId
+                    )
                     productService.updateProduct(updatedProduct)
 
                     priceRecordService.createPriceRecord(
                         priceAmountText,
                         existingProduct.id,
-                        store?.id ?: 0L,
+                        priceStoreId,
                     )
                 }
 
-                submitFormResult = SubmitFormResultState.Success
+                uiState.submitResultState = LoadingState.Success(Unit)
             } catch (e: Exception) {
                 log.error(e.toString())
-                submitFormResult = SubmitFormResultState.Error(ErrorReason.UnknownError)
+                uiState.submitResultState = LoadingState.Error(e)
             }
         }
     }

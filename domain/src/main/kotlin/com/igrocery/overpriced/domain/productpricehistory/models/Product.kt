@@ -18,6 +18,7 @@ data class Product(
         require(name.isNotBlank())
         require(name.length <= 100)
         require(description.length <= 100)
+        categoryId?.let { require(it != 0L) {"use null instead of 0 to indicate empty"} }
     }
 
 }
