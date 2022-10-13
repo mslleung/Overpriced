@@ -23,8 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.ifLoaded
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @Suppress("unused")
@@ -52,7 +55,7 @@ fun SelectCurrencyScreen(
 
     val state by rememberSelectCurrencyScreenState()
     MainContent(
-        viewModelState = viewModel.uiState,
+        viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
         onCurrencyRowClick = {
@@ -65,7 +68,7 @@ fun SelectCurrencyScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    viewModelState: SelectCurrencyScreenViewModel.ViewModelState,
+    viewModelState: SelectCurrencyScreenViewModelState,
     state: SelectCurrencyScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onCurrencyRowClick: (Currency) -> Unit
@@ -124,7 +127,7 @@ private fun MainContent(
                 }
             }
 
-            val preferredCurrency = viewModelState.preferredCurrency
+            val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
             preferredCurrency.ifLoaded {
                 CurrencyLazyColumn(
                     allCurrencies = state.availableCurrencies,
@@ -221,8 +224,13 @@ fun CurrencyItem(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : SelectCurrencyScreenViewModelState {
+        override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Loading())
+    }
+
     MainContent(
-        viewModelState = SelectCurrencyScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         state = SelectCurrencyScreenStateHolder(),
         onBackButtonClick = {},
         onCurrencyRowClick = {}

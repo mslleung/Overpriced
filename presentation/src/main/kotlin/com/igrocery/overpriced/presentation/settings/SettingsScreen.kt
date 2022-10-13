@@ -21,6 +21,9 @@ import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.util.*
 
 @Suppress("unused")
 private val log = Logger { }
@@ -47,7 +50,7 @@ fun SettingsScreen(
     }
 
     MainContent(
-        viewModelState = viewModel.uiState,
+        viewModelState = viewModel,
         onBackButtonClick = navigateUp,
         onPreferredCurrencyRowClick = navigateToSelectCurrencyScreen
     )
@@ -56,7 +59,7 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    viewModelState: SettingsScreenViewModel.ViewModelState,
+    viewModelState: SettingsScreenViewModelState,
     onBackButtonClick: () -> Unit,
     onPreferredCurrencyRowClick: () -> Unit
 ) {
@@ -104,14 +107,16 @@ private fun MainContent(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                val preferredCurrency = viewModelState.preferredCurrency
-                Text(
-                    text = if (preferredCurrency is LoadingState.Success) preferredCurrency.data.displayName else "",
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.alpha(0.6f)
-                )
+                val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
+                preferredCurrency.let {
+                    Text(
+                        text = if (it is LoadingState.Success) it.data.displayName else "",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.alpha(0.6f)
+                    )
+                }
             }
         }
     }
@@ -121,7 +126,10 @@ private fun MainContent(
 @Composable
 private fun DefaultPreview() {
     MainContent(
-        viewModelState = SettingsScreenViewModel.ViewModelState(),
+        viewModelState = object : SettingsScreenViewModelState {
+            override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
+                get() = MutableStateFlow(LoadingState.Loading())
+        },
         onBackButtonClick = {},
         onPreferredCurrencyRowClick = {}
     )

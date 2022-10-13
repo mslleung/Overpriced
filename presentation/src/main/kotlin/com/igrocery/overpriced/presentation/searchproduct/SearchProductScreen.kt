@@ -33,7 +33,6 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -60,10 +59,10 @@ fun SearchProductScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val productPagingItems = viewModel.uiState.productsPagingDataFlow.collectAsLazyPagingItems()
     val state by rememberSearchProductScreenState()
+    val productPagingItems = viewModel.productsPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
-        viewModelState = viewModel.uiState,
+        viewModelState = viewModel,
         state = state,
         productsPagingItems = productPagingItems,
         onBackButtonClick = navigateUp,
@@ -97,7 +96,7 @@ fun SearchProductScreen(
 )
 @Composable
 private fun MainContent(
-    viewModelState: SearchProductScreenViewModel.ViewModelState,
+    viewModelState: SearchProductScreenViewModelState,
     state: SearchProductScreenStateHolder,
     productsPagingItems: LazyPagingItems<Product>,
     onBackButtonClick: () -> Unit,
@@ -276,10 +275,10 @@ private fun ProductListItem(
 @Preview
 @Composable
 private fun EmptyPreview() {
+    val viewModelState = object : SearchProductScreenViewModelState {}
     val emptyPagingItems = flowOf(PagingData.empty<Product>()).collectAsLazyPagingItems()
-
     MainContent(
-        viewModelState = SearchProductScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         state = SearchProductScreenStateHolder(),
         productsPagingItems = emptyPagingItems,
         onBackButtonClick = {},
@@ -292,12 +291,17 @@ private fun EmptyPreview() {
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val pagingItems = flowOf(PagingData.from(listOf(
-        Product(name = "Apple", description = "Fuji", categoryId = null)
-    ))).collectAsLazyPagingItems()
+    val viewModelState = object : SearchProductScreenViewModelState {}
+    val pagingItems = flowOf(
+        PagingData.from(
+            listOf(
+                Product(name = "Apple", description = "Fuji", categoryId = null)
+            )
+        )
+    ).collectAsLazyPagingItems()
 
     MainContent(
-        viewModelState = SearchProductScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         state = SearchProductScreenStateHolder(),
         productsPagingItems = pagingItems,
         onBackButtonClick = {},
