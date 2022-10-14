@@ -23,7 +23,7 @@ class SearchProductScreenViewModel @Inject constructor(
     private val productService: ProductService,
 ) : ViewModel(), SearchProductScreenViewModelState {
 
-    private var query = ""
+    var query = ""
 
     val productsPagingDataFlow: Flow<PagingData<Product>>
         get() = Pager(
@@ -35,9 +35,5 @@ class SearchProductScreenViewModel @Inject constructor(
             productService.searchProductsByNamePaging("$query*")
         }.flow
             .cachedIn(viewModelScope)
-
-    fun updateQuery(query: String) {
-        this.query = query
-    }
 
 }

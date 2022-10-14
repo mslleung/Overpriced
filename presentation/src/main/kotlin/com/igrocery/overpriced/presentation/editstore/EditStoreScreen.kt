@@ -16,10 +16,12 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.StateFlow
 
 @Suppress("unused")
 private val log = Logger {}
@@ -51,7 +53,7 @@ fun EditStoreScreen(
     val state by rememberEditStoreScreenState()
     val storeMapState by rememberStoreGoogleMapState(context = LocalContext.current)
     MainContent(
-        viewModelState = viewModel.uiState,
+        viewModelState = viewModel,
         snackbarHostState = snackbarHostState,
         state = state,
         storeMapState = storeMapState,
@@ -68,7 +70,7 @@ fun EditStoreScreen(
     )
 
     if (state.isConfirmDeleteDialogShown) {
-        val store = viewModel.uiState.store
+        val store by viewModel.storeFlow.collectAsState()
         store.ifLoaded {
             ConfirmDeleteDialog(
                 onDismiss = {
@@ -84,7 +86,7 @@ fun EditStoreScreen(
         }
     }
 
-    viewModel.uiState.deleteStoreResult.let {
+    viewModel.deleteStoreResult.let {
         when (it) {
             is LoadingState.Success -> {
                 LaunchedEffect(key1 = Unit) {
@@ -105,7 +107,7 @@ fun EditStoreScreen(
     }
 
     if (state.isSaveDialogShown) {
-        val store = viewModel.uiState.store
+        val store by viewModel.storeFlow.collectAsState()
         store.ifLoaded {
             val saveDialogState by rememberSaveAlertDialogState(
                 initialStoreName = it.name,
@@ -130,7 +132,7 @@ fun EditStoreScreen(
         }
     }
 
-    viewModel.uiState.updateStoreResult.let {
+    viewModel.updateStoreResult.let {
         when (it) {
             is LoadingState.Success -> {
                 LaunchedEffect(key1 = Unit) {
@@ -159,7 +161,7 @@ fun EditStoreScreen(
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 private fun MainContent(
-    viewModelState: EditStoreScreenViewModel.ViewModelState,
+    viewModelState: EditStoreScreenViewModelState,
     snackbarHostState: SnackbarHostState,
     state: EditStoreScreenStateHolder,
     storeMapState: StoreGoogleMapStateHolder,
@@ -186,7 +188,7 @@ private fun MainContent(
                     ) {
                         Text(text = stringResource(id = R.string.edit_store_title))
 
-                        val store = viewModelState.store
+                        val store by viewModelState.storeFlow.collectAsState()
                         store.ifLoaded {
                             Text(
                                 text = it.name,
@@ -196,7 +198,7 @@ private fun MainContent(
                     }
                 },
                 actions = {
-                    val store = viewModelState.store
+                    val store by viewModelState.storeFlow.collectAsState()
                     DeleteButton(
                         onClick = onDeleteButtonClick,
                         modifier = Modifier
@@ -229,7 +231,8 @@ private fun MainContent(
                 .padding(it)
                 .navigationBarsPadding()
         ) {
-            viewModelState.store.ifLoaded { store ->
+            val store by viewModelState.storeFlow.collectAsState()
+            store.ifLoaded { store ->
                 Marker(
                     state = MarkerState(
                         LatLng(
@@ -247,6 +250,15 @@ private fun MainContent(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : EditStoreScreenViewModelState {
+        override val storeFlow: StateFlow<LoadingState<Store>>
+            get() = TODO("Not yet implemented")
+        override val updateStoreResult: LoadingState<Unit>
+            get() = TODO("Not yet implemented")
+        override val deleteStoreResult: LoadingState<Unit>
+            get() = TODO("Not yet implemented")
+    }
+
     MainContent(
         viewModelState = EditStoreScreenViewModel.ViewModelState(),
         snackbarHostState = SnackbarHostState(),

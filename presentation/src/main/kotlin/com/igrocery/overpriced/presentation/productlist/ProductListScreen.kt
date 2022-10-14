@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,10 +23,14 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -56,7 +61,7 @@ fun ProductListScreen(
 
     val state by rememberProductListScreenState()
     MainContent(
-        viewModelState = viewModel.uiState,
+        viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
         onSearchButtonClick = navigateToSearchProduct,
@@ -73,7 +78,7 @@ fun ProductListScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    viewModelState: ProductListScreenViewModel.ViewModelState,
+    viewModelState: ProductListScreenViewModelState,
     state: ProductListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
@@ -88,7 +93,7 @@ private fun MainContent(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    val category = viewModelState.category
+                    val category by viewModelState.categoryFlow.collectAsState()
                     category.ifLoaded {
                         val displayCategory = it ?: NoCategory
                         Row(
@@ -119,7 +124,7 @@ private fun MainContent(
                         )
                     }
 
-                    val category = viewModelState.category
+                    val category by viewModelState.categoryFlow.collectAsState()
                     category.ifLoaded {
                         if (it != null) {
                             IconButton(
@@ -260,8 +265,15 @@ private fun CategoryWithCountListItem(
 @Preview
 @Composable
 private fun EmptyPreview() {
+    val viewModelState = object : ProductListScreenViewModelState {
+        override val categoryFlow: StateFlow<LoadingState<Category?>>
+            get() = MutableStateFlow(LoadingState.Success(null))
+        override val productsPagingDataFlow: Flow<PagingData<Product>>
+            get() = flowOf(PagingData.from(emptyList()))
+    }
+
     MainContent(
-        viewModelState = ProductListScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         state = ProductListScreenStateHolder(),
         onBackButtonClick = {},
         onSearchButtonClick = {},
@@ -273,18 +285,21 @@ private fun EmptyPreview() {
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val viewModelState = ProductListScreenViewModel.ViewModelState()
-    viewModelState.category = LoadingState.Success(NoCategory)
-    viewModelState.productsPagingDataFlow = flowOf(
-        PagingData.from(
-            listOf(
-                Product(name = "Apples", description = "Pack of 6", categoryId = null)
+    val viewModelState = object : ProductListScreenViewModelState {
+        override val categoryFlow: StateFlow<LoadingState<Category?>>
+            get() = MutableStateFlow(LoadingState.Success(null))
+        override val productsPagingDataFlow: Flow<PagingData<Product>>
+            get() = flowOf(
+                PagingData.from(
+                    listOf(
+                        Product(name = "Apple", description = "Fuji", categoryId = null)
+                    )
+                )
             )
-        )
-    )
+    }
 
     MainContent(
-        viewModelState = ProductListScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         state = ProductListScreenStateHolder(),
         onBackButtonClick = {},
         onSearchButtonClick = {},

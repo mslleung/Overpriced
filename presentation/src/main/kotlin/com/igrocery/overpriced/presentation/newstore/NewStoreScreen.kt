@@ -86,7 +86,7 @@ fun NewStoreScreen(
         )
     }
 
-    newStoreViewModel.uiState.createStoreResultState.let {
+    newStoreViewModel.createStoreResultState.let {
         when (it) {
             is LoadingState.Success -> {
                 LaunchedEffect(key1 = Unit) {

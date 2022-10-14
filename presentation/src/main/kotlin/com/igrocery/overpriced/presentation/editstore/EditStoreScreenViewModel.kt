@@ -14,42 +14,48 @@ import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("unused")
 private val log = Logger { }
 
+interface EditStoreScreenViewModelState {
+    val storeFlow: StateFlow<LoadingState<Store>>
+    val updateStoreResult: LoadingState<Unit>
+    val deleteStoreResult: LoadingState<Unit>
+}
+
 @HiltViewModel
 class EditStoreScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val storeService: StoreService,
-) : ViewModel() {
+) : ViewModel(), EditStoreScreenViewModelState {
 
     private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId) ?: 0L
 
-    class ViewModelState {
-        var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
-        var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
-        var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
-    }
-
-    val uiState = ViewModelState()
-
-    init {
-        with(uiState) {
-            storeService.getStoreById(storeId)
-                .onEach {
-                    store = if (it == null) {
-                        LoadingState.Error(Exception("Store not found"))
-                    } else {
-                        LoadingState.Success(it)
-                    }
+    override val storeFlow: StateFlow<LoadingState<Store>>
+        get() = storeService.getStoreById(storeId)
+            .map {
+                if (it == null) {
+                    LoadingState.Error(Exception("Store not found"))
+                } else {
+                    LoadingState.Success(it)
                 }
-                .launchIn(viewModelScope)
-        }
-    }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = LoadingState.Loading()
+            )
+
+    override var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+
+    override var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
     fun updateStore(
         storeName: String,
@@ -58,42 +64,38 @@ class EditStoreScreenViewModel @Inject constructor(
         longitude: Double
     ) {
         viewModelScope.launch {
-            with(uiState) {
-                runCatching {
-                    updateStoreResult = LoadingState.Loading()
-                    val originalStore = store
-                    if (originalStore is LoadingState.Success) {
-                        val updatedStore = originalStore.data.copy(
-                            name = storeName,
-                            address = Address(
-                                lines = addressLines,
-                                geoCoordinates = GeoCoordinates(latitude, longitude)
-                            )
+            runCatching {
+                updateStoreResult = LoadingState.Loading()
+                val originalStore = storeFlow.value
+                if (originalStore is LoadingState.Success) {
+                    val updatedStore = originalStore.data.copy(
+                        name = storeName,
+                        address = Address(
+                            lines = addressLines,
+                            geoCoordinates = GeoCoordinates(latitude, longitude)
                         )
+                    )
 
-                        storeService.updateStore(updatedStore)
+                    storeService.updateStore(updatedStore)
 
-                        updateStoreResult = LoadingState.Success(Unit)
-                    } else {
-                        throw IllegalStateException("Store is not loaded.")
-                    }
-                }.onFailure {
-                    updateStoreResult = LoadingState.Error(it)
+                    updateStoreResult = LoadingState.Success(Unit)
+                } else {
+                    throw IllegalStateException("Store is not loaded.")
                 }
+            }.onFailure {
+                updateStoreResult = LoadingState.Error(it)
             }
         }
     }
 
     fun deleteStore(store: Store) {
         viewModelScope.launch {
-            with(uiState) {
-                runCatching {
-                    deleteStoreResult = LoadingState.Loading()
-                    storeService.deleteStore(store)
-                    deleteStoreResult = LoadingState.Success(Unit)
-                }.onFailure {
-                    deleteStoreResult = LoadingState.Error(it)
-                }
+            runCatching {
+                deleteStoreResult = LoadingState.Loading()
+                storeService.deleteStore(store)
+                deleteStoreResult = LoadingState.Success(Unit)
+            }.onFailure {
+                deleteStoreResult = LoadingState.Error(it)
             }
         }
     }

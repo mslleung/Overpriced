@@ -15,16 +15,16 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
+interface NewStoreScreenViewModelState {
+    val createStoreResultState: LoadingState<Long>
+}
+
 @HiltViewModel
 class NewStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService
-) : ViewModel() {
+) : ViewModel(), NewStoreScreenViewModelState {
 
-    class ViewModelState {
-        var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.NotLoading())
-    }
-
-    val uiState = ViewModelState()
+    override var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.NotLoading())
 
     fun createStore(
         storeName: String,
@@ -34,13 +34,13 @@ class NewStoreScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                uiState.createStoreResultState = LoadingState.Loading()
+                createStoreResultState = LoadingState.Loading()
 
                 val id = storeService.createStore(storeName, addressLines, latitude, longitude)
-                uiState.createStoreResultState = LoadingState.Success(id)
+                createStoreResultState = LoadingState.Success(id)
             } catch (e: Exception) {
                 log.error(e.toString())
-                uiState.createStoreResultState = LoadingState.Error(e)
+                createStoreResultState = LoadingState.Error(e)
             }
         }
     }

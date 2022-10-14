@@ -71,7 +71,6 @@ fun SearchProductScreen(
         },
         onQueryChanged = {
             state.query = it.take(100)
-            viewModel.updateQuery(state.query)
         },
         onProductClick = navigateToProductDetails,
     )
@@ -79,7 +78,7 @@ fun SearchProductScreen(
     LaunchedEffect(key1 = state) {
         snapshotFlow { state.query }
             .collect {
-                viewModel.updateQuery(it)
+                viewModel.query = it
                 productPagingItems.refresh()
             }
     }

@@ -1,8 +1,5 @@
 package com.igrocery.overpriced.presentation.productlist
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,40 +21,40 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
+interface ProductListScreenViewModelState {
+    val categoryFlow: StateFlow<LoadingState<Category?>>
+    val productsPagingDataFlow: Flow<PagingData<Product>>
+}
+
 @HiltViewModel
 class ProductListScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,
-) : ViewModel() {
+) : ViewModel(), ProductListScreenViewModelState {
 
     private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId) ?: 0L
 
-    class ViewModelState {
-        var category: LoadingState<Category?> by mutableStateOf(LoadingState.Loading())
-        var productsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
-    }
+    override val categoryFlow: StateFlow<LoadingState<Category?>>
+        get() = categoryService.getCategoryById(categoryId)
+            .map {
+                LoadingState.Success(it)
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = LoadingState.Loading()
+            )
 
-    val uiState = ViewModelState()
-
-    init {
-        with(uiState) {
-            categoryService.getCategoryById(categoryId)
-                .onEach {
-                    category = LoadingState.Success(it)
-                }
-                .launchIn(viewModelScope)
-
-            productsPagingDataFlow = Pager(
-                PagingConfig(
-                    pageSize = 100,
-                    prefetchDistance = 30
-                )
-            ) {
-                productService.getProductsByCategoryIdPaging(categoryId)
-            }.flow
-                .cachedIn(viewModelScope)
-        }
-    }
+    override val productsPagingDataFlow: Flow<PagingData<Product>>
+        get() = Pager(
+            PagingConfig(
+                pageSize = 100,
+                prefetchDistance = 30
+            )
+        ) {
+            productService.getProductsByCategoryIdPaging(categoryId)
+        }.flow
+            .cachedIn(viewModelScope)
 
 }

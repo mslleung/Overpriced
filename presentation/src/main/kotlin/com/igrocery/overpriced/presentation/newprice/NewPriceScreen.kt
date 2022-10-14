@@ -320,12 +320,6 @@ private fun MainLayout(
                     .padding(bottom = 4.dp)
             )
 
-            // TODO
-//            ProductBarcode(
-//                productBarcode = attachedBarcode ?: "",
-//                onAttachBarcodeButtonClick = onAttachBarcodeButtonClick
-//            )
-
             ProductCategory(
                 productCategory = productCategory,
                 onClick = onCategoryClick,
