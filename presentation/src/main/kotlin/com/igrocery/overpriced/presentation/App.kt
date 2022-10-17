@@ -12,6 +12,7 @@ import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
@@ -21,12 +22,12 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
+import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
@@ -35,12 +36,11 @@ import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
+import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
-import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
@@ -192,9 +192,9 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 remember(backStackEntry) {
                     navController.getBackStackEntry(NewPriceRecordRoute)
                 }
-            // TODO these should be created inside the screen, passing navGraphEntry as an argument
             val newPriceViewModel =
                 hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            // TODO these should be created inside the screen, passing navGraphEntry as an argument
             val selectCategoryDialogViewModel =
                 hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
 
@@ -223,7 +223,7 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 viewModel = newCategoryViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.setProductCategoryId(it)
+                    newPriceViewModel.updateCategoryId(it)
                     navController.navigateUp()
                 }
             )
@@ -252,7 +252,7 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 viewModel = editCategoryViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.setProductCategoryId(categoryId)
+                    newPriceViewModel.updateCategoryId(categoryId)
                     navController.navigateUp()
                 }
             )
@@ -270,7 +270,7 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 newStoreViewModel = newStoreViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.selectStore(it)
+                    newPriceViewModel.updateStoreId(it)
                     navController.navigateUp()
                 }
             )

@@ -25,8 +25,7 @@ class SearchProductScreenViewModel @Inject constructor(
 
     var query = ""
 
-    val productsPagingDataFlow: Flow<PagingData<Product>>
-        get() = Pager(
+    val productsPagingDataFlow = Pager(
             PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 30

@@ -29,14 +29,13 @@ interface ProductListScreenViewModelState {
 @HiltViewModel
 class ProductListScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
-    private val categoryService: CategoryService,
+    categoryService: CategoryService,
     private val productService: ProductService,
 ) : ViewModel(), ProductListScreenViewModelState {
 
     private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId) ?: 0L
 
-    override val categoryFlow: StateFlow<LoadingState<Category?>>
-        get() = categoryService.getCategoryById(categoryId)
+    override val categoryFlow = categoryService.getCategoryById(categoryId)
             .map {
                 LoadingState.Success(it)
             }
@@ -46,8 +45,7 @@ class ProductListScreenViewModel @Inject constructor(
                 initialValue = LoadingState.Loading()
             )
 
-    override val productsPagingDataFlow: Flow<PagingData<Product>>
-        get() = Pager(
+    override val productsPagingDataFlow = Pager(
             PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 30

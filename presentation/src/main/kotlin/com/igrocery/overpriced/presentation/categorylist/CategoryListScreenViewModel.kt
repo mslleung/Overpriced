@@ -16,7 +16,6 @@ private val log = Logger { }
 
 @HiltViewModel
 class CategoryListScreenViewModel @Inject constructor(
-//    private val savedState: SavedStateHandle,
     categoryService: CategoryService,
 ) : ViewModel() {
 

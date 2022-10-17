@@ -27,12 +27,12 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface NewPriceScreenViewModelState {
-    var category: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
-    var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
-    var storesCount: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
-    var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
+    val categoryFlow: StateFlow<LoadingState<Category>>
+    val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
+    val storesCountFlow: StateFlow<LoadingState<Int>>
+    val storeFlow: StateFlow<LoadingState<Store>>
 
-    var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+    val submitResultState: LoadingState<Unit>
 }
 
 @HiltViewModel
@@ -42,78 +42,84 @@ class NewPriceScreenViewModel @Inject constructor(
     private val priceRecordService: PriceRecordService,
     private val storeService: StoreService,
     private val preferenceService: PreferenceService
-) : ViewModel() {
+) : ViewModel(), NewPriceScreenViewModelState {
 
     private var query = ""
 
-    var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
+    override var categoryFlow: StateFlow<LoadingState<Category>>
+            by mutableStateOf(MutableStateFlow<LoadingState<Category>>(LoadingState.Loading()))
+        private set
 
-    class ViewModelState {
-        var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
-        var category: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
-        var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
-        var storesCount: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
-        var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
-
-        var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
-    }
-
-    val uiState = ViewModelState()
-
-    init {
-        with(uiState) {
-            suggestedProductsPagingDataFlow = Pager(
-                PagingConfig(
-                    pageSize = 100,
-                    prefetchDistance = 30
-                )
-            ) {
-                productService.searchProductsByNamePaging("$query*")
-            }.flow
-                .cachedIn(viewModelScope)
-
-            preferenceService.getAppPreference()
-                .onEach {
-                    preferredCurrency = LoadingState.Success(it.preferredCurrency)
-                }
-                .launchIn(viewModelScope)
-
-            storeService.getStoreCount()
-                .onEach {
-                    storesCount = LoadingState.Success(it)
-                }
-                .launchIn(viewModelScope)
+    override val preferredCurrencyFlow = preferenceService.getAppPreference()
+        .map {
+            LoadingState.Success(it.preferredCurrency)
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
+
+    override val storesCountFlow = storeService.getStoreCount()
+        .map {
+            LoadingState.Success(it)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
+
+    override var storeFlow: StateFlow<LoadingState<Store>>
+            by mutableStateOf(MutableStateFlow<LoadingState<Store>>(LoadingState.Loading()))
+        private set
+
+    override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+
+    val suggestedProductsPagingDataFlow = Pager(
+        PagingConfig(
+            pageSize = 100,
+            prefetchDistance = 30
+        )
+    ) {
+        productService.searchProductsByNamePaging("$query*")
+    }.flow
+        .cachedIn(viewModelScope)
 
     fun updateQuery(query: String) {
         this.query = query
     }
 
-    suspend fun updateCategoryId(categoryId: Long) {
-        with(uiState) {
-            categoryService.getCategoryById(categoryId)
-                .collectLatest {
-                    category = if (it != null) {
-                        LoadingState.Success(it)
-                    } else {
-                        LoadingState.Error(Exception("Category not found."))
-                    }
+    fun updateCategoryId(categoryId: Long) {
+        categoryFlow = categoryService.getCategoryById(categoryId)
+            .map {
+                if (it != null) {
+                    LoadingState.Success(it)
+                } else {
+                    LoadingState.Error(Exception("Category not found."))
                 }
-        }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = LoadingState.Loading()
+            )
     }
 
-    suspend fun updateStoreId(storeId: Long) {
-        with(uiState) {
-            storeService.getStoreById(storeId)
-                .collectLatest {
-                    store = if (it != null) {
-                        LoadingState.Success(it)
-                    } else {
-                        LoadingState.Error(Exception("Store not found."))
-                    }
+    fun updateStoreId(storeId: Long) {
+        storeFlow = storeService.getStoreById(storeId)
+            .map {
+                if (it != null) {
+                    LoadingState.Success(it)
+                } else {
+                    LoadingState.Error(Exception("Store not found."))
                 }
-        }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = LoadingState.Loading()
+            )
     }
 
     fun submitForm(
@@ -125,7 +131,7 @@ class NewPriceScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                uiState.submitResultState = LoadingState.Loading()
+                submitResultState = LoadingState.Loading()
 
                 val existingProduct =
                     productService.getProduct(productName, productDescription).first()
@@ -152,10 +158,10 @@ class NewPriceScreenViewModel @Inject constructor(
                     )
                 }
 
-                uiState.submitResultState = LoadingState.Success(Unit)
+                submitResultState = LoadingState.Success(Unit)
             } catch (e: Exception) {
                 log.error(e.toString())
-                uiState.submitResultState = LoadingState.Error(e)
+                submitResultState = LoadingState.Error(e)
             }
         }
     }

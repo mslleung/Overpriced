@@ -38,8 +38,7 @@ class EditStoreScreenViewModel @Inject constructor(
 
     private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId) ?: 0L
 
-    override val storeFlow: StateFlow<LoadingState<Store>>
-        get() = storeService.getStoreById(storeId)
+    override val storeFlow = storeService.getStoreById(storeId)
             .map {
                 if (it == null) {
                     LoadingState.Error(Exception("Store not found"))

@@ -26,8 +26,7 @@ class SelectCurrencyScreenViewModel @Inject constructor(
     private val preferenceService: PreferenceService
 ) : ViewModel(), SelectCurrencyScreenViewModelState {
 
-    override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
-        get() = preferenceService.getAppPreference()
+    override val preferredCurrencyFlow = preferenceService.getAppPreference()
             .map {
                 LoadingState.Success(it.preferredCurrency)
             }

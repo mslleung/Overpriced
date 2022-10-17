@@ -19,11 +19,10 @@ interface SettingsScreenViewModelState {
 
 @HiltViewModel
 class SettingsScreenViewModel @Inject constructor(
-    private val preferenceService: PreferenceService
+    preferenceService: PreferenceService
 ) : ViewModel(), SettingsScreenViewModelState {
 
-    override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
-        get() = preferenceService.getAppPreference()
+    override val preferredCurrencyFlow = preferenceService.getAppPreference()
             .map {
                 LoadingState.Success(it.preferredCurrency)
             }
