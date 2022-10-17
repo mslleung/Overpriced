@@ -293,11 +293,10 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
             val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
 
             EditStoreScreen(
-                storeId = storeId,
                 viewModel = editStoreViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.selectStore(storeId)
+                    newPriceViewModel.updateStoreId(storeId)
                     navController.navigateUp()
                 }
             )

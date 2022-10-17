@@ -16,11 +16,14 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.igrocery.overpriced.domain.productpricehistory.models.Address
+import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @Suppress("unused")
@@ -29,7 +32,6 @@ private val log = Logger {}
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun EditStoreScreen(
-    storeId: Long,
     viewModel: EditStoreScreenViewModel,
     navigateUp: () -> Unit,
     navigateDone: () -> Unit,
@@ -231,8 +233,8 @@ private fun MainContent(
                 .padding(it)
                 .navigationBarsPadding()
         ) {
-            val store by viewModelState.storeFlow.collectAsState()
-            store.ifLoaded { store ->
+            val storeState by viewModelState.storeFlow.collectAsState()
+            storeState.ifLoaded { store ->
                 Marker(
                     state = MarkerState(
                         LatLng(
@@ -252,15 +254,25 @@ private fun MainContent(
 private fun DefaultPreview() {
     val viewModelState = object : EditStoreScreenViewModelState {
         override val storeFlow: StateFlow<LoadingState<Store>>
-            get() = TODO("Not yet implemented")
+            get() = MutableStateFlow(
+                LoadingState.Success(
+                    Store(
+                        name = "Welcome",
+                        address = Address(
+                            lines = "100 Street",
+                            geoCoordinates = GeoCoordinates(0.0, 0.0)
+                        )
+                    )
+                )
+            )
         override val updateStoreResult: LoadingState<Unit>
-            get() = TODO("Not yet implemented")
+            get() = LoadingState.NotLoading()
         override val deleteStoreResult: LoadingState<Unit>
-            get() = TODO("Not yet implemented")
+            get() = LoadingState.NotLoading()
     }
 
     MainContent(
-        viewModelState = EditStoreScreenViewModel.ViewModelState(),
+        viewModelState = viewModelState,
         snackbarHostState = SnackbarHostState(),
         state = EditStoreScreenStateHolder(),
         storeMapState = StoreGoogleMapStateHolder(LocalContext.current),

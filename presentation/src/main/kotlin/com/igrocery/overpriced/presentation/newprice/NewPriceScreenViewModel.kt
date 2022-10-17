@@ -26,6 +26,15 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
+interface NewPriceScreenViewModelState {
+    var category: LoadingState<Category> by mutableStateOf(LoadingState.Loading())
+    var preferredCurrency: LoadingState<Currency> by mutableStateOf(LoadingState.Loading())
+    var storesCount: LoadingState<Int> by mutableStateOf(LoadingState.Loading())
+    var store: LoadingState<Store> by mutableStateOf(LoadingState.Loading())
+
+    var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+}
+
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
     private val categoryService: CategoryService,
@@ -36,6 +45,8 @@ class NewPriceScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var query = ""
+
+    var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
 
     class ViewModelState {
         var suggestedProductsPagingDataFlow by mutableStateOf(emptyFlow<PagingData<Product>>())
