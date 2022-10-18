@@ -41,10 +41,8 @@ class NewPriceScreenViewModel @Inject constructor(
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
     private val storeService: StoreService,
-    private val preferenceService: PreferenceService
+    preferenceService: PreferenceService
 ) : ViewModel(), NewPriceScreenViewModelState {
-
-    private var query = ""
 
     override var categoryFlow: StateFlow<LoadingState<Category>>
             by mutableStateOf(MutableStateFlow<LoadingState<Category>>(LoadingState.Loading()))
@@ -76,6 +74,7 @@ class NewPriceScreenViewModel @Inject constructor(
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
+    var query = ""
     val suggestedProductsPagingDataFlow = Pager(
         PagingConfig(
             pageSize = 100,
@@ -85,10 +84,6 @@ class NewPriceScreenViewModel @Inject constructor(
         productService.searchProductsByNamePaging("$query*")
     }.flow
         .cachedIn(viewModelScope)
-
-    fun updateQuery(query: String) {
-        this.query = query
-    }
 
     fun updateCategoryId(categoryId: Long) {
         categoryFlow = categoryService.getCategoryById(categoryId)

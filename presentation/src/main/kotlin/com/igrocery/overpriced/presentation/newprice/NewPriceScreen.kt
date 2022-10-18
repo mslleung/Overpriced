@@ -26,9 +26,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -64,7 +62,7 @@ import kotlin.math.roundToInt
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
@@ -93,9 +91,11 @@ fun NewPriceScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val state by rememberNewPriceScreenState()
+    val productSuggestionsPagingItems = newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
     MainLayout(
-        viewModelState = newPriceScreenViewModel.uiState,
+        viewModelState = newPriceScreenViewModel,
         state = state,
+        productSuggestionsPagingItems = productSuggestionsPagingItems,
         onCloseButtonClick = {
             if (state.hasModifications()) {
                 state.isDiscardDialogShown = true
@@ -116,11 +116,13 @@ fun NewPriceScreen(
             }
         },
         onProductNameChange = {
-            newPriceScreenViewModel.setProductName(it)
+            state.productName = it
 
             if (it.isNotBlank()) {
-                state.wantToShowSuggestionBox = true
+                newPriceScreenViewModel.query = it
                 productSuggestionsPagingItems.refresh()
+
+                state.wantToShowSuggestionBox = true
             } else {
                 state.wantToShowSuggestionBox = false
             }
@@ -212,13 +214,15 @@ fun NewPriceScreen(
         }
     }
 
+    val isImeVisible = WindowInsets.isImeVisible
     BackHandler {
-        if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {
+        if (isImeVisible) {
+            keyboardController?.hide()
+        } else if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {
             state.wantToShowSuggestionBox = false
-        } else if (state.hasModifications() || newPriceScreenViewModel.hasModifications()) {
+        } else if (state.hasModifications()) {
             state.isDiscardDialogShown = true
         } else {
-            keyboardController?.hide()
             navigateUp()
         }
     }
@@ -227,8 +231,9 @@ fun NewPriceScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    viewModelState: NewPriceScreenViewModel.ViewModelState,
+    viewModelState: NewPriceScreenViewModelState,
     state: NewPriceScreenStateHolder,
+    productSuggestionsPagingItems: LazyPagingItems<Product>,
     onCloseButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
     onProductNameChange: (String) -> Unit,
@@ -290,7 +295,7 @@ private fun MainLayout(
 
             var productNameScrollPosition by remember { mutableStateOf(0f) }
             ProductNameTextField(
-                productName = { productName },
+                productName = state.productName,
                 onProductNameChange = { text ->
                     onProductNameChange(text.take(100))
                 },
@@ -501,7 +506,7 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductNameTextField(
-    productName: () -> String,
+    productName: String,
     onProductNameChange: (String) -> Unit,
     requestFocus: () -> Boolean,
     onFocusRequested: () -> Unit,
