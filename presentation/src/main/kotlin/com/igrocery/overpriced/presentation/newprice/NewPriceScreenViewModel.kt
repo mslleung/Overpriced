@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.preference.PreferenceService
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
@@ -86,16 +85,12 @@ class NewPriceScreenViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     fun updateCategoryId(categoryId: Long?) {
-        if (categoryId == null) {
-            categoryFlow = MutableStateFlow(LoadingState.Success(null))
+        categoryFlow = if (categoryId == null) {
+            MutableStateFlow(LoadingState.Success(null))
         } else {
-            categoryFlow = categoryService.getCategoryById(categoryId)
+            categoryService.getCategoryById(categoryId)
                 .map {
-                    if (it != null) {
-                        LoadingState.Success(it)
-                    } else {
-                        LoadingState.Error(Exception("Category not found."))
-                    }
+                    LoadingState.Success(it)
                 }
                 .stateIn(
                     scope = viewModelScope,
@@ -106,19 +101,19 @@ class NewPriceScreenViewModel @Inject constructor(
     }
 
     fun updateStoreId(storeId: Long?) {
-        storeFlow = storeService.getStoreById(storeId)
-            .map {
-                if (it != null) {
+        storeFlow = if (storeId == null) {
+            MutableStateFlow(LoadingState.Success(null))
+        } else {
+            storeService.getStoreById(storeId)
+                .map {
                     LoadingState.Success(it)
-                } else {
-                    LoadingState.Error(Exception("Store not found."))
                 }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = LoadingState.Loading()
-            )
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.Loading()
+                )
+        }
     }
 
     fun submitForm(
