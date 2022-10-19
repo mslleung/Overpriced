@@ -321,6 +321,8 @@ private fun MainLayout(
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 .verticalScroll(scrollState)
         ) {
+            val focusRequester = remember { FocusRequester() };
+
             ProductInformationHeader(modifier = Modifier.padding(bottom = 4.dp))
 
             var productNameScrollPosition by remember { mutableStateOf(0f) }
@@ -329,9 +331,8 @@ private fun MainLayout(
                 onProductNameChange = { text ->
                     onProductNameChange(text.take(100))
                 },
-                requestFocus = { state.isRequestingFirstFocus },
-                onFocusRequested = { state.isRequestingFirstFocus = false },
-                isError = { submitResult == SubmitFormResultState.Error(SubmitFormResultState.ErrorReason.NameEmptyError) },
+                focusRequester = focusRequester,
+                isError = state.submitError == SubmitError.ProductNameShouldNotBeEmpty,
                 modifier = Modifier
                     .fillMaxWidth()
                     .onGloballyPositioned { layoutCoordinates ->
@@ -344,6 +345,9 @@ private fun MainLayout(
                         }
                     },
             )
+            LaunchedEffect(key1 = Unit) {
+                focusRequester.requestFocus()
+            }
 
             ProductDescriptionTextField(
                 productDescription = { productDescription },
@@ -538,8 +542,7 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
 private fun ProductNameTextField(
     productName: String,
     onProductNameChange: (String) -> Unit,
-    requestFocus: Boolean,
-    onFocusRequested: () -> Unit,
+    focusRequester: FocusRequester,
     isError: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -547,7 +550,6 @@ private fun ProductNameTextField(
         modifier = modifier
     ) {
         val focusManager = LocalFocusManager.current
-        val focusRequester = remember { FocusRequester() }
         OutlinedTextField(
             value = productName,
             onValueChange = onProductNameChange,
@@ -567,12 +569,6 @@ private fun ProductNameTextField(
             }),
             isError = isError
         )
-        if (requestFocus) {
-            onFocusRequested()
-            LaunchedEffect(key1 = Unit) {
-                focusRequester.requestFocus()
-            }
-        }
 
         AnimatedVisibility(visible = isError) {
             Text(
