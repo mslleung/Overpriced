@@ -49,12 +49,11 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel.SubmitFormResultState
-import com.igrocery.overpriced.presentation.shared.CloseButton
-import com.igrocery.overpriced.presentation.shared.SaveButton
+import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
 import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.shared.NoCategory
+import com.igrocery.overpriced.presentation.shared.*
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import kotlin.math.roundToInt
@@ -91,7 +90,9 @@ fun NewPriceScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val state by rememberNewPriceScreenState()
-    val productSuggestionsPagingItems = newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
+    val productSuggestionsPagingItems =
+        newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
+    val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
     MainLayout(
         viewModelState = newPriceScreenViewModel,
         state = state,
@@ -106,13 +107,22 @@ fun NewPriceScreen(
         },
         onSaveButtonClick = {
             with(state) {
-                newPriceScreenViewModel.submitForm(
-                    productName.trim(),
-                    productDescription.trim(),
-                    productCategoryId,
-                    priceAmountText.trim(),
-                    priceStoreId,
-                )
+                if (productName.isEmpty()) {
+                    submitError = SubmitError.ProductNameShouldNotBeEmpty
+                } else {
+                    val price = priceStoreId
+                    if (price == null) {
+                        submitError = SubmitError.StoreCannotBeEmpty
+                    } else {
+                        newPriceScreenViewModel.submitForm(
+                            productName.trim(),
+                            productDescription.trim(),
+                            productCategoryId,
+                            priceAmountText.trim(),
+                            price,
+                        )
+                    }
+                }
             }
         },
         onProductNameChange = {
@@ -128,12 +138,12 @@ fun NewPriceScreen(
             }
         },
         onProductDescriptionChange = {
-            newPriceScreenViewModel.setProductDescription(it)
+            state.productDescription = it.take(100)
         },
         onProductAutoSuggestClick = {
-            newPriceScreenViewModel.setProductName(it.name)
-            newPriceScreenViewModel.setProductDescription(it.description)
-            newPriceScreenViewModel.setProductCategoryId(it.categoryId)
+            state.productName = it.name
+            state.productDescription = it.description
+            state.productCategoryId = it.categoryId
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
         },
@@ -143,24 +153,39 @@ fun NewPriceScreen(
         },
         onStoreButtonClick = {
             keyboardController?.hide()
-            if (storesCount == 0) {
-                keyboardController?.hide()
-                navigateToNewStore()
-            } else {
-                state.isSelectStoreDialogShown = true
+            storesCount.let {
+                if (it is LoadingState.Success) {
+                    if (it.data == 0) {
+                        keyboardController?.hide()
+                        navigateToNewStore()
+                    } else {
+                        state.isSelectStoreDialogShown = true
+                    }
+                }
             }
         },
-        onSubmitErrorDismissed = { newPriceScreenViewModel.submitFormResult = null },
+        onSubmitErrorDismissed = {
+            state.submitError = SubmitError.None
+        },
     )
 
-    if (state.isDiscardDialogShown) {
-        DiscardAlertDialog(
-            onConfirmButtonClick = { state.isDiscardDialogShown = false },
-            onCancelButtonClick = {
-                state.isDiscardDialogShown = false
-                keyboardController?.hide()
-                navigateUp()
-            }
+    if (state.isSelectCategoryDialogShown) {
+        SelectCategoryDialog(
+            viewModel = selectCategoryDialogViewModel,
+            selectedCategoryId = state.productCategoryId,
+            onDismiss = { state.isSelectCategoryDialogShown = false },
+            onCategorySelect = {
+                state.isSelectCategoryDialogShown = false
+                state.productCategoryId = it.id
+            },
+            onEditCategoryClick = {
+                state.isSelectCategoryDialogShown = false
+                navigateToEditCategory(it)
+            },
+            onNewCategoryClick = {
+                state.isSelectCategoryDialogShown = false
+                navigateToNewCategory()
+            },
         )
     }
 
@@ -168,11 +193,11 @@ fun NewPriceScreen(
         val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
         SelectStoreDialog(
             viewModel = selectStoreDialogViewModel,
-            selectedStoreId = selectedStore?.id ?: 0,
+            selectedStoreId = state.priceStoreId,
             onDismiss = { state.isSelectStoreDialogShown = false },
             onStoreSelect = {
                 state.isSelectStoreDialogShown = false
-                newPriceScreenViewModel.selectStore(it.id)
+                state.priceStoreId = it.id
             },
             onEditStoreClick = {
                 state.isSelectStoreDialogShown = false
@@ -187,31 +212,22 @@ fun NewPriceScreen(
         )
     }
 
-    if (state.isSelectCategoryDialogShown) {
-        SelectCategoryDialog(
-            viewModel = selectCategoryDialogViewModel,
-            selectedCategoryId = productCategory?.id ?: 0L,
-            onDismiss = { state.isSelectCategoryDialogShown = false },
-            onCategorySelect = {
-                state.isSelectCategoryDialogShown = false
-                newPriceScreenViewModel.setProductCategoryId(it.id)
-            },
-            onEditCategoryClick = {
-                state.isSelectCategoryDialogShown = false
-                navigateToEditCategory(it)
-            },
-            onNewCategoryClick = {
-                state.isSelectCategoryDialogShown = false
-                navigateToNewCategory()
-            },
-        )
-    }
-
-    if (newPriceScreenViewModel.submitFormResult is SubmitFormResultState.Success) {
+    if (newPriceScreenViewModel.submitResultState is LoadingState.Success) {
         LaunchedEffect(key1 = Unit) {
             keyboardController?.hide()
             navigateUp()
         }
+    }
+
+    if (state.isDiscardDialogShown) {
+        DiscardAlertDialog(
+            onConfirmButtonClick = { state.isDiscardDialogShown = false },
+            onCancelButtonClick = {
+                state.isDiscardDialogShown = false
+                keyboardController?.hide()
+                navigateUp()
+            }
+        )
     }
 
     val isImeVisible = WindowInsets.isImeVisible
@@ -225,6 +241,20 @@ fun NewPriceScreen(
         } else {
             navigateUp()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.productCategoryId }
+            .collectLatest {
+                newPriceScreenViewModel.updateCategoryId(it)
+            }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.priceStoreId }
+            .collectLatest {
+                newPriceScreenViewModel.updateStoreId(it)
+            }
     }
 }
 
@@ -508,9 +538,9 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
 private fun ProductNameTextField(
     productName: String,
     onProductNameChange: (String) -> Unit,
-    requestFocus: () -> Boolean,
+    requestFocus: Boolean,
     onFocusRequested: () -> Unit,
-    isError: () -> Boolean,
+    isError: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -519,10 +549,8 @@ private fun ProductNameTextField(
         val focusManager = LocalFocusManager.current
         val focusRequester = remember { FocusRequester() }
         OutlinedTextField(
-            value = productName(),
-            onValueChange = { text ->
-                onProductNameChange(text)
-            },
+            value = productName,
+            onValueChange = onProductNameChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -537,16 +565,16 @@ private fun ProductNameTextField(
             keyboardActions = KeyboardActions(onNext = {
                 focusManager.moveFocus(FocusDirection.Down)
             }),
-            isError = isError()
+            isError = isError
         )
-        if (requestFocus()) {
+        if (requestFocus) {
             onFocusRequested()
             LaunchedEffect(key1 = Unit) {
                 focusRequester.requestFocus()
             }
         }
 
-        AnimatedVisibility(visible = isError()) {
+        AnimatedVisibility(visible = isError) {
             Text(
                 text = stringResource(id = R.string.new_price_product_name_empty_error_text),
                 color = MaterialTheme.colorScheme.error,

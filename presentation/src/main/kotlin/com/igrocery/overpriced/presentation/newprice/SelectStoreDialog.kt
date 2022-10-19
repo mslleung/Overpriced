@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun SelectStoreDialog(
     viewModel: SelectStoreDialogViewModel,
-    selectedStoreId: Long,
+    selectedStoreId: Long?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
@@ -55,7 +55,7 @@ fun SelectStoreDialog(
 @Composable
 private fun MainLayout(
     storesPagingItems: LazyPagingItems<Store>,
-    selectedStoreId: Long,
+    selectedStoreId: Long?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,

@@ -26,7 +26,7 @@ import com.igrocery.overpriced.presentation.shared.ifLoaded
 @Composable
 fun SelectCategoryDialog(
     viewModel: SelectCategoryDialogViewModel,
-    selectedCategoryId: Long,
+    selectedCategoryId: Long?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,
@@ -49,7 +49,7 @@ fun SelectCategoryDialog(
 @Composable
 private fun MainLayout(
     categoryList: List<Category>,
-    selectedCategoryId: Long,
+    selectedCategoryId: Long?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,

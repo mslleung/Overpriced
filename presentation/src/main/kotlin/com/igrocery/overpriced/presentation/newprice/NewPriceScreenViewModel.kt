@@ -27,10 +27,10 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface NewPriceScreenViewModelState {
-    val categoryFlow: StateFlow<LoadingState<Category>>
+    val categoryFlow: StateFlow<LoadingState<Category?>>
     val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
     val storesCountFlow: StateFlow<LoadingState<Int>>
-    val storeFlow: StateFlow<LoadingState<Store>>
+    val storeFlow: StateFlow<LoadingState<Store?>>
 
     val submitResultState: LoadingState<Unit>
 }
@@ -44,8 +44,8 @@ class NewPriceScreenViewModel @Inject constructor(
     preferenceService: PreferenceService
 ) : ViewModel(), NewPriceScreenViewModelState {
 
-    override var categoryFlow: StateFlow<LoadingState<Category>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Category>>(LoadingState.Loading()))
+    override var categoryFlow: StateFlow<LoadingState<Category?>>
+            by mutableStateOf(MutableStateFlow<LoadingState<Category?>>(LoadingState.Loading()))
         private set
 
     override val preferredCurrencyFlow = preferenceService.getAppPreference()
@@ -68,8 +68,8 @@ class NewPriceScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    override var storeFlow: StateFlow<LoadingState<Store>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Store>>(LoadingState.Loading()))
+    override var storeFlow: StateFlow<LoadingState<Store?>>
+            by mutableStateOf(MutableStateFlow<LoadingState<Store?>>(LoadingState.Loading()))
         private set
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
@@ -85,23 +85,27 @@ class NewPriceScreenViewModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
-    fun updateCategoryId(categoryId: Long) {
-        categoryFlow = categoryService.getCategoryById(categoryId)
-            .map {
-                if (it != null) {
-                    LoadingState.Success(it)
-                } else {
-                    LoadingState.Error(Exception("Category not found."))
+    fun updateCategoryId(categoryId: Long?) {
+        if (categoryId == null) {
+            categoryFlow = MutableStateFlow(LoadingState.Success(null))
+        } else {
+            categoryFlow = categoryService.getCategoryById(categoryId)
+                .map {
+                    if (it != null) {
+                        LoadingState.Success(it)
+                    } else {
+                        LoadingState.Error(Exception("Category not found."))
+                    }
                 }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = LoadingState.Loading()
-            )
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.Loading()
+                )
+        }
     }
 
-    fun updateStoreId(storeId: Long) {
+    fun updateStoreId(storeId: Long?) {
         storeFlow = storeService.getStoreById(storeId)
             .map {
                 if (it != null) {

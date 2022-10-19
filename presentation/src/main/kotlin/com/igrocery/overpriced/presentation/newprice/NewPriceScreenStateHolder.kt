@@ -14,20 +14,27 @@ class NewPriceScreenStateHolder {
 
     var productName by mutableStateOf("")
     var productDescription by mutableStateOf("")
-    var productCategoryId by mutableStateOf(0L)
+    var productCategoryId by mutableStateOf<Long?>(null)
     var priceAmountText by mutableStateOf("")
-    var priceStoreId by mutableStateOf(0L)
+    var priceStoreId by mutableStateOf<Long?>(null)
 
     var isDiscardDialogShown by mutableStateOf(false)
     var isSelectCategoryDialogShown by mutableStateOf(false)
     var isSelectStoreDialogShown by mutableStateOf(false)
 
+    enum class SubmitError {
+        None,
+        ProductNameShouldNotBeEmpty,
+        StoreCannotBeEmpty
+    }
+    var submitError by mutableStateOf(SubmitError.None)
+
     fun hasModifications(): Boolean {
         return productName.isNotBlank()
                 || productDescription.isNotBlank()
-                || productCategoryId != 0L
+                || productCategoryId != null
                 || priceAmountText.isNotBlank()
-                || priceStoreId != 0L
+                || priceStoreId != null
     }
 
 }
@@ -55,9 +62,9 @@ fun rememberNewPriceScreenState() = rememberSaveable(
                 wantToShowSuggestionBox = it[1] as Boolean
                 productName = it[2] as String
                 productDescription = it[3] as String
-                productCategoryId = it[4] as Long
+                productCategoryId = it[4] as Long?
                 priceAmountText = it[5] as String
-                priceStoreId = it[6] as Long
+                priceStoreId = it[6] as Long?
                 isDiscardDialogShown = it[7] as Boolean
                 isSelectCategoryDialogShown = it[8] as Boolean
                 isSelectStoreDialogShown = it[9] as Boolean
