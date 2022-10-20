@@ -31,8 +31,11 @@ import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProdu
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.NoCategory
+import com.igrocery.overpriced.presentation.shared.ifLoaded
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Suppress("unused")
 private val log = Logger { }
@@ -60,10 +63,9 @@ fun CategoryListScreen(
             transformColorForLightContent = { color -> color })
     }
 
-    val categoryWithCountList by categoryListScreenViewModel.categoryWithProductCount.collectAsState()
     val state by rememberCategoryListScreenState()
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        viewModelState = categoryListScreenViewModel,
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
@@ -75,7 +77,7 @@ fun CategoryListScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    categoryWithCountList: List<CategoryWithProductCount>?,
+    viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
@@ -106,51 +108,51 @@ private fun MainContent(
             )
         },
         modifier = modifier,
-    ) {
-        if (categoryWithCountList == null) {
-            // Loading state - show nothing
-        } else if (categoryWithCountList.isEmpty()) {
-            EmptyListContent(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-            )
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 120.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-            ) {
-                stickyHeader {
-                    SearchBar(
-                        onClick = onSearchBarClick,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .fillMaxWidth()
-                            .height(40.dp)
-                    )
-                }
+    ) { scaffoldPadding ->
+        val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()
+        categoryWithCountList.ifLoaded {
+            if (it.isEmpty()) {
+                EmptyListContent(
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
+                )
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 120.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    stickyHeader {
+                        SearchBar(
+                            onClick = onSearchBarClick,
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                        )
+                    }
 
-                items(
-                    items = categoryWithCountList
-                        .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
-                    key = { categoryWithCount -> categoryWithCount.category?.id ?: 0 }
-                ) { categoryWithCount ->
-                    CategoryWithCountListItem(
-                        categoryWithCount = categoryWithCount,
-                        onClick = onCategoryClick,
-                        modifier = Modifier
-                            .animateItemPlacement()
-                            .fillMaxWidth()
-                    )
+                    items(
+                        items = it.filter { categoryWithCount -> categoryWithCount.productCount > 0 },
+                        key = { categoryWithCount -> categoryWithCount.category?.id ?: 0 }
+                    ) { categoryWithCount ->
+                        CategoryWithCountListItem(
+                            categoryWithCount = categoryWithCount,
+                            onClick = onCategoryClick,
+                            modifier = Modifier
+                                .animateItemPlacement()
+                                .fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
@@ -301,8 +303,13 @@ private fun SettingsButton(
 @Preview
 @Composable
 private fun EmptyPreview() {
+    val viewModelState = object : CategoryListScreenViewModelState {
+        override val categoryWithProductCountFlow =
+            MutableStateFlow(LoadingState.Success(emptyList<CategoryWithProductCount>()))
+    }
+
     MainContent(
-        categoryWithCountList = emptyList(),
+        viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},
@@ -335,9 +342,13 @@ private fun DefaultPreview() {
             productCount = 23
         ),
     )
+    val viewModelState = object : CategoryListScreenViewModelState {
+        override val categoryWithProductCountFlow =
+            MutableStateFlow(LoadingState.Success(categoryWithCountList))
+    }
 
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},

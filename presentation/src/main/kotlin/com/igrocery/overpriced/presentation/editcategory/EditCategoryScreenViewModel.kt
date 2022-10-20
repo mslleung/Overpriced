@@ -8,72 +8,74 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.domain.productpricehistory.models.*
+import com.igrocery.overpriced.presentation.NavDestinations
+import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("unused")
+private val log = Logger { }
+
+interface EditCategoryScreenViewModelState {
+    val categoryFlow: StateFlow<LoadingState<Category?>>
+    val updateCategoryResult: LoadingState<Unit>
+}
+
 @HiltViewModel
 class EditCategoryScreenViewModel @Inject constructor(
-    private val savedState: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val categoryService: CategoryService,
-) : ViewModel() {
+) : ViewModel(), EditCategoryScreenViewModelState {
 
-    private companion object {
-        private const val KEY_CATEGORY_ID = "KEY_CATEGORY_ID"
-    }
+    private val categoryId = savedStateHandle.get<Long>(NavDestinations.EditCategory_Arg_CategoryId) ?: 0L
 
-    val categoryFlow = savedState.getStateFlow(KEY_CATEGORY_ID, 0L)
-        .flatMapLatest { categoryService.getCategoryById(it) }
+    override val categoryFlow = categoryService.getCategoryById(categoryId)
+        .map {
+            LoadingState.Success(it)
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = null
+            initialValue = LoadingState.Loading()
         )
 
-    fun setCategoryId(id: Long) {
-        savedState[KEY_CATEGORY_ID] = id
-    }
-
-    var updateCategoryResult by mutableStateOf<UpdateCategoryResult?>(null)
-
-    sealed interface UpdateCategoryResult {
-        object Success : UpdateCategoryResult
-        data class Error(val throwable: Throwable) : UpdateCategoryResult
-    }
+    override var updateCategoryResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
     fun updateCategory(
         categoryName: String,
         categoryIcon: CategoryIcon,
     ) {
-        viewModelScope.launch {
-            runCatching {
-                val originalCategory = categoryFlow.value!!
-                val updatedCategory = Category(
-                    id = originalCategory.id,
-                    creationTimestamp = originalCategory.creationTimestamp,
-                    updateTimestamp = System.currentTimeMillis(),
-                    name = categoryName,
-                    icon = categoryIcon,
-                )
-                categoryService.updateCategory(updatedCategory)
+        val originalCategory = categoryFlow.value
+        if (originalCategory is LoadingState.Success && originalCategory.data != null) {
+            viewModelScope.launch {
+                runCatching {
+                    val updatedCategory = originalCategory.data.copy(
+                        name = categoryName,
+                        icon = categoryIcon,
+                    )
+                    categoryService.updateCategory(updatedCategory)
 
-                updateCategoryResult = UpdateCategoryResult.Success
-            }.onFailure {
-                updateCategoryResult = UpdateCategoryResult.Error(it)
+                    updateCategoryResult = LoadingState.Success(Unit)
+                }.onFailure {
+                    updateCategoryResult = LoadingState.Error(it)
+                }
             }
+        } else {
+            log.error("Original category not loaded.")
         }
     }
 
     fun deleteCategory() {
         viewModelScope.launch {
-            categoryFlow.value?.let {
-                categoryService.deleteCategory(it)
+            val category = categoryFlow.value
+            if (category is LoadingState.Success && category.data != null) {
+                categoryService.deleteCategory(category.data)
+
             }
         }
     }

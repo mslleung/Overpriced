@@ -3,7 +3,6 @@ package com.igrocery.overpriced.presentation.editcategory
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -17,31 +16,28 @@ class EditCategoryScreenStateHolder {
 
     var isConfirmDeleteDialogShown by mutableStateOf(false)
 
-    companion object {
-        val Saver: Saver<EditCategoryScreenStateHolder, *> = listSaver(
-            save = {
-                listOf(
-                    it.isInitialized,
-                    it.categoryName,
-                    it.categoryIcon.name,
-                    it.isConfirmDeleteDialogShown,
-                )
-            },
-            restore = {
-                EditCategoryScreenStateHolder().apply {
-                    isInitialized = it[0] as Boolean
-                    categoryName = it[1] as String
-                    categoryIcon = CategoryIcon.valueOf(it[2] as String)
-                    isConfirmDeleteDialogShown = it[3] as Boolean
-                }
-            }
-        )
-    }
 }
 
 @Composable
 fun rememberEditCategoryScreenState() = rememberSaveable(
-    stateSaver = EditCategoryScreenStateHolder.Saver
+    stateSaver = listSaver(
+        save = {
+            listOf(
+                it.isInitialized,
+                it.categoryName,
+                it.categoryIcon.name,
+                it.isConfirmDeleteDialogShown,
+            )
+        },
+        restore = {
+            EditCategoryScreenStateHolder().apply {
+                isInitialized = it[0] as Boolean
+                categoryName = it[1] as String
+                categoryIcon = CategoryIcon.valueOf(it[2] as String)
+                isConfirmDeleteDialogShown = it[3] as Boolean
+            }
+        }
+    )
 ) {
     mutableStateOf(EditCategoryScreenStateHolder())
 }

@@ -29,8 +29,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel.CreateCategoryResult
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
 import com.skydoves.landscapist.ImageOptions
@@ -62,7 +62,7 @@ fun NewCategoryScreen(
 
     val state by rememberNewCategoryScreenState()
     MainLayout(
-        createCategoryResult = viewModel.createCategoryResult,
+        viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
         onSaveButtonClick = {
@@ -75,8 +75,8 @@ fun NewCategoryScreen(
 
     LaunchedEffect(key1 = viewModel.createCategoryResult) {
         val result = viewModel.createCategoryResult
-        if (result is CreateCategoryResult.Success) {
-            navigateDone(result.categoryId)
+        if (result is LoadingState.Success) {
+            navigateDone(result.data)
         }
     }
 
@@ -85,10 +85,10 @@ fun NewCategoryScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun MainLayout(
-    createCategoryResult: CreateCategoryResult?,
+    viewModelState: NewCategoryScreenViewModelState,
     state: NewCategoryScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
@@ -128,13 +128,26 @@ private fun MainLayout(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth() // no nested scroll
         ) {
+            val focusRequester = remember { FocusRequester() }
+            val keyboardController = LocalSoftwareKeyboardController.current
             CategoryNameTextField(
-                createCategoryResult = createCategoryResult,
-                state = state,
+                categoryName = state.categoryName,
+                onCategoryNameChange = {
+                    state.categoryName = it.take(100)
+                },
+                isError = viewModelState.createCategoryResult is LoadingState.Error,
+                focusRequester = focusRequester,
                 modifier = Modifier
                     .padding(bottom = 12.dp)
                     .fillMaxWidth()
             )
+            if (state.isRequestingFirstFocus) {
+                LaunchedEffect(key1 = Unit) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()  // somehow the keyboard doesn't show up despite getting focus
+                }
+                state.isRequestingFirstFocus = false
+            }
 
             Text(
                 text = stringResource(id = R.string.new_category_icon_header),
@@ -175,7 +188,7 @@ private fun MainLayout(
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         GlideImage(
-                            imageModel = it.iconRes,
+                            imageModel = { it.iconRes },
                             modifier = Modifier.size(40.dp),
                             requestOptions = {
                                 RequestOptions.fitCenterTransform()
@@ -195,20 +208,19 @@ private fun MainLayout(
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryNameTextField(
-    createCategoryResult: CreateCategoryResult?,
-    state: NewCategoryScreenStateHolder,
+    categoryName: String,
+    onCategoryNameChange: (String) -> Unit,
+    isError: Boolean,
+    focusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
     ) {
-        val focusRequester = remember { FocusRequester() }
         val keyboardController = LocalSoftwareKeyboardController.current
         OutlinedTextField(
-            value = state.categoryName,
-            onValueChange = {
-                state.categoryName = it.take(100)
-            },
+            value = categoryName,
+            onValueChange = onCategoryNameChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -223,17 +235,10 @@ private fun CategoryNameTextField(
             keyboardActions = KeyboardActions(onDone = {
                 keyboardController?.hide()
             }),
-            isError = createCategoryResult is CreateCategoryResult.Error
+            isError = isError
         )
-        if (state.isRequestingFirstFocus) {
-            LaunchedEffect(key1 = Unit) {
-                focusRequester.requestFocus()
-                keyboardController?.show()  // somehow the keyboard doesn't show up despite getting focus
-            }
-            state.isRequestingFirstFocus = false
-        }
 
-        AnimatedVisibility(visible = createCategoryResult is CreateCategoryResult.Error) {
+        AnimatedVisibility(visible = isError) {
             Text(
                 text = stringResource(id = R.string.new_category_name_empty_error_text),
                 color = MaterialTheme.colorScheme.error,
@@ -246,8 +251,12 @@ private fun CategoryNameTextField(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : NewCategoryScreenViewModelState {
+        override val createCategoryResult: LoadingState<Long> = LoadingState.NotLoading()
+    }
+
     MainLayout(
-        createCategoryResult = null,
+        viewModelState = viewModelState,
         state = NewCategoryScreenStateHolder(),
         onBackButtonClick = {},
         onSaveButtonClick = {}

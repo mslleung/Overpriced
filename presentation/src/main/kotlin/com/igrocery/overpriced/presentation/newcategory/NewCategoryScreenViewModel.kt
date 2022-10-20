@@ -8,22 +8,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+interface NewCategoryScreenViewModelState {
+    val createCategoryResult: LoadingState<Long>
+}
+
 @HiltViewModel
 class NewCategoryScreenViewModel @Inject constructor(
-    private val savedState: SavedStateHandle,
     private val categoryService: CategoryService,
-) : ViewModel() {
+) : ViewModel(), NewCategoryScreenViewModelState {
 
-    var createCategoryResult by mutableStateOf<CreateCategoryResult?>(null)
-
-    sealed interface CreateCategoryResult {
-        data class Success(val categoryId: Long) : CreateCategoryResult
-        data class Error(val throwable: Throwable) : CreateCategoryResult
-    }
+    override var createCategoryResult by mutableStateOf<LoadingState<Long>>(LoadingState.NotLoading())
 
     fun createCategory(
         categoryName: String,
@@ -33,9 +32,9 @@ class NewCategoryScreenViewModel @Inject constructor(
             runCatching {
                 val newCategoryId = categoryService.createCategory(categoryIcon, categoryName)
 
-                createCategoryResult = CreateCategoryResult.Success(newCategoryId)
+                createCategoryResult = LoadingState.Success(newCategoryId)
             }.onFailure {
-                createCategoryResult = CreateCategoryResult.Error(it)
+                createCategoryResult = LoadingState.Error(it)
             }
         }
     }

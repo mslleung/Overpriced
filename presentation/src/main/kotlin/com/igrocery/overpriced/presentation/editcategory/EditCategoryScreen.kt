@@ -11,10 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,13 +28,13 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel.UpdateCategoryResult
-import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.ConfirmDeleteDialog
-import com.igrocery.overpriced.presentation.shared.DeleteButton
-import com.igrocery.overpriced.presentation.shared.SaveButton
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 @Suppress("unused")
 private val log = Logger { }
@@ -82,15 +79,12 @@ fun EditCategoryScreen(
 
     if (!state.isInitialized) {
         LaunchedEffect(key1 = Unit) {
-            viewModel.setCategoryId(categoryId)
-            viewModel.categoryFlow
-                .collect {
-                    if (it != null) {
-                        state.categoryName = it.name
-                        state.categoryIcon = it.icon
-                        state.isInitialized = true
-                    }
-                }
+            val categoryLoadState = viewModel.categoryFlow
+                .filter { it is LoadingState.Success }
+                .first()
+            state.categoryName = category.name
+            state.categoryIcon = it.icon
+            state.isInitialized = true
         }
     }
 
@@ -286,7 +280,7 @@ private fun CategoryIconGrid(
                 contentPadding = PaddingValues(0.dp)
             ) {
                 GlideImage(
-                    imageModel = it.iconRes,
+                    imageModel = { it.iconRes },
                     modifier = Modifier.size(40.dp),
                     requestOptions = {
                         RequestOptions.fitCenterTransform()

@@ -22,6 +22,14 @@ sealed interface LoadingState<T>: Parcelable {
 }
 
 @Composable
+fun <T> LoadingState<T>.ifLoading(content: @Composable () -> Unit): LoadingState<T> {
+    if (this is LoadingState.Loading) {
+        content()
+    }
+    return this
+}
+
+@Composable
 fun <T> LoadingState<T>.ifLoaded(content: @Composable (T) -> Unit): LoadingState<T> {
     if (this is LoadingState.Success) {
         content(data)
