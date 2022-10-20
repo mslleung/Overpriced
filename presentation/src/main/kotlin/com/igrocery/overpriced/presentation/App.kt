@@ -140,11 +140,7 @@ fun App() {
             ) { backStackEntry ->
                 val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
-                val categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId)
-                    ?: throw IllegalArgumentException("categoryId cannot be null")
-
                 EditCategoryScreen(
-                    categoryId = categoryId,
                     viewModel = editCategoryViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateDone = {
@@ -243,7 +239,6 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
 
             EditCategoryScreen(
-                categoryId = categoryId,
                 viewModel = editCategoryViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {

@@ -25,23 +25,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.request.RequestOptions
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel.UpdateCategoryResult
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Suppress("unused")
 private val log = Logger { }
 
 @Composable
 fun EditCategoryScreen(
-    categoryId: Long,
     viewModel: EditCategoryScreenViewModel,
     navigateUp: () -> Unit,
     navigateDone: () -> Unit,
@@ -63,7 +61,7 @@ fun EditCategoryScreen(
 
     val state by rememberEditCategoryScreenState()
     MainLayout(
-        updateCategoryResult = viewModel.updateCategoryResult,
+        viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
         onDeleteButtonClick = {
@@ -78,13 +76,16 @@ fun EditCategoryScreen(
     )
 
     if (!state.isInitialized) {
-        LaunchedEffect(key1 = Unit) {
-            val categoryLoadState = viewModel.categoryFlow
-                .filter { it is LoadingState.Success }
-                .first()
-            state.categoryName = category.name
-            state.categoryIcon = it.icon
-            state.isInitialized = true
+        val categoryLoadState by viewModel.categoryFlow.collectAsState()
+        categoryLoadState.let {
+            if (it is LoadingState.Success) {
+                val category = it.data ?: NoCategory
+                LaunchedEffect(key1 = Unit) {
+                    state.categoryName = category.name
+                    state.categoryIcon = category.icon
+                    state.isInitialized = true
+                }
+            }
         }
     }
 
@@ -105,7 +106,7 @@ fun EditCategoryScreen(
 
     LaunchedEffect(key1 = viewModel.updateCategoryResult) {
         val result = viewModel.updateCategoryResult
-        if (result is UpdateCategoryResult.Success) {
+        if (result is LoadingState.Success) {
             navigateDone()
         }
     }
@@ -118,7 +119,7 @@ fun EditCategoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    updateCategoryResult: UpdateCategoryResult?,
+    viewModelState: EditCategoryScreenViewModelState,
     state: EditCategoryScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onDeleteButtonClick: () -> Unit,
@@ -168,7 +169,7 @@ private fun MainLayout(
             CategoryNameTextField(
                 categoryName = state.categoryName,
                 onCategoryNameChanged = { state.categoryName = it },
-                isError = updateCategoryResult is UpdateCategoryResult.Error,
+                isError = viewModelState.updateCategoryResult is LoadingState.Error,
                 modifier = Modifier
                     .padding(bottom = 12.dp)
                     .fillMaxWidth()
@@ -298,8 +299,14 @@ private fun CategoryIconGrid(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : EditCategoryScreenViewModelState {
+        override val categoryFlow: StateFlow<LoadingState<Category?>> =
+            MutableStateFlow(LoadingState.Success(null))
+        override val updateCategoryResult: LoadingState<Unit> = LoadingState.NotLoading()
+    }
+
     MainLayout(
-        updateCategoryResult = null,
+        viewModelState = viewModelState,
         state = EditCategoryScreenStateHolder(),
         onBackButtonClick = {},
         onDeleteButtonClick = {},
