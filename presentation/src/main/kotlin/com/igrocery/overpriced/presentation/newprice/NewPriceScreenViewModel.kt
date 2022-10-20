@@ -159,4 +159,8 @@ class NewPriceScreenViewModel @Inject constructor(
             }
         }
     }
+
+    fun clearError() {
+        submitResultState = LoadingState.NotLoading()
+    }
 }

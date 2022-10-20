@@ -25,6 +25,7 @@ class NewPriceScreenStateHolder {
     enum class SubmitError {
         None,
         ProductNameShouldNotBeEmpty,
+        InvalidPriceAmount,
         StoreCannotBeEmpty
     }
     var submitError by mutableStateOf(SubmitError.None)

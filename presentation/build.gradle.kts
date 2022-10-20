@@ -145,7 +145,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
     kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.0.1")
+    implementation("com.github.skydoves:landscapist-glide:2.0.2")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.0")

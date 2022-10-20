@@ -36,7 +36,6 @@ import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
-import com.igrocery.overpriced.presentation.newprice.SelectCategoryDialogViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
@@ -194,13 +193,9 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 }
             val newPriceViewModel =
                 hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            // TODO these should be created inside the screen, passing navGraphEntry as an argument
-            val selectCategoryDialogViewModel =
-                hiltViewModel<SelectCategoryDialogViewModel>(navGraphEntry)
 
             NewPriceScreen(
                 newPriceScreenViewModel = newPriceViewModel,
-                selectCategoryDialogViewModel = selectCategoryDialogViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateToNewCategory = { navController.navigate(NewCategory) },
                 navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },

@@ -2,15 +2,12 @@ package com.igrocery.overpriced.presentation.newprice
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,13 +43,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
-import com.igrocery.overpriced.shared.Logger
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
 import com.igrocery.overpriced.presentation.shared.*
+import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
@@ -65,7 +63,6 @@ private val log = Logger { }
 @Composable
 fun NewPriceScreen(
     newPriceScreenViewModel: NewPriceScreenViewModel,
-    selectCategoryDialogViewModel: SelectCategoryDialogViewModel,
     navigateUp: () -> Unit,
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (Category) -> Unit,
@@ -93,9 +90,11 @@ fun NewPriceScreen(
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     MainLayout(
         viewModelState = newPriceScreenViewModel,
         state = state,
+        snackbarHostState = snackbarHostState,
         productSuggestionsPagingItems = productSuggestionsPagingItems,
         onCloseButtonClick = {
             if (state.hasModifications()) {
@@ -109,11 +108,14 @@ fun NewPriceScreen(
             with(state) {
                 if (productName.isEmpty()) {
                     submitError = SubmitError.ProductNameShouldNotBeEmpty
+                } else if (priceAmountText.toDoubleOrNull() == null || priceAmountText.toDouble() !in 0.0..1000000.0) {
+                    submitError = SubmitError.InvalidPriceAmount
                 } else {
                     val price = priceStoreId
                     if (price == null) {
                         submitError = SubmitError.StoreCannotBeEmpty
                     } else {
+                        state.submitError = SubmitError.None
                         newPriceScreenViewModel.submitForm(
                             productName.trim(),
                             productDescription.trim(),
@@ -164,12 +166,10 @@ fun NewPriceScreen(
                 }
             }
         },
-        onSubmitErrorDismissed = {
-            state.submitError = SubmitError.None
-        },
     )
 
     if (state.isSelectCategoryDialogShown) {
+        val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
         SelectCategoryDialog(
             viewModel = selectCategoryDialogViewModel,
             selectedCategoryId = state.productCategoryId,
@@ -212,11 +212,30 @@ fun NewPriceScreen(
         )
     }
 
-    if (newPriceScreenViewModel.submitResultState is LoadingState.Success) {
-        LaunchedEffect(key1 = Unit) {
-            keyboardController?.hide()
-            navigateUp()
+    when (newPriceScreenViewModel.submitResultState) {
+        is LoadingState.Success -> {
+            LaunchedEffect(key1 = Unit) {
+                keyboardController?.hide()
+                navigateUp()
+            }
         }
+        is LoadingState.Error -> {
+            val unknownErrorMessage =
+                stringResource(id = R.string.new_price_submit_failed_message)
+            LaunchedEffect(Unit) {
+                val snackbarResult = snackbarHostState.showSnackbar(
+                    message = unknownErrorMessage,
+                    withDismissAction = true
+                )
+                when (snackbarResult) {
+                    SnackbarResult.Dismissed -> {
+                        newPriceScreenViewModel.clearError()
+                    }
+                    else -> {}
+                }
+            }
+        }
+        else -> {}
     }
 
     if (state.isDiscardDialogShown) {
@@ -263,6 +282,7 @@ fun NewPriceScreen(
 private fun MainLayout(
     viewModelState: NewPriceScreenViewModelState,
     state: NewPriceScreenStateHolder,
+    snackbarHostState: SnackbarHostState,
     productSuggestionsPagingItems: LazyPagingItems<Product>,
     onCloseButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
@@ -271,11 +291,9 @@ private fun MainLayout(
     onProductAutoSuggestClick: (Product) -> Unit,
     onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
-    onSubmitErrorDismissed: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
-    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -321,23 +339,22 @@ private fun MainLayout(
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 .verticalScroll(scrollState)
         ) {
-            val focusRequester = remember { FocusRequester() };
+            val focusRequester = remember { FocusRequester() }
 
             ProductInformationHeader(modifier = Modifier.padding(bottom = 4.dp))
 
-            var productNameScrollPosition by remember { mutableStateOf(0f) }
             ProductNameTextField(
                 productName = state.productName,
                 onProductNameChange = { text ->
                     onProductNameChange(text.take(100))
                 },
                 focusRequester = focusRequester,
-                isError = state.submitError == SubmitError.ProductNameShouldNotBeEmpty,
+                scrollState = scrollState,
+                submitError = state.submitError,
                 modifier = Modifier
                     .fillMaxWidth()
                     .onGloballyPositioned { layoutCoordinates ->
                         productNameLayoutBounds = layoutCoordinates.boundsInParent()
-                        productNameScrollPosition = layoutCoordinates.positionInParent().y
                     }
                     .onFocusChanged { focusState ->
                         if (!focusState.hasFocus) {
@@ -346,11 +363,14 @@ private fun MainLayout(
                     },
             )
             LaunchedEffect(key1 = Unit) {
-                focusRequester.requestFocus()
+                if (state.isRequestingFirstFocus) {
+                    state.isRequestingFirstFocus = false
+                    focusRequester.requestFocus()
+                }
             }
 
             ProductDescriptionTextField(
-                productDescription = { productDescription },
+                productDescription = state.productDescription,
                 onProductDescriptionChange = { text ->
                     onProductDescriptionChange(text.take(100))
                 },
@@ -359,8 +379,9 @@ private fun MainLayout(
                     .padding(bottom = 4.dp)
             )
 
+            val category by viewModelState.categoryFlow.collectAsState()
             ProductCategory(
-                productCategory = productCategory,
+                productCategory = category,
                 onClick = onCategoryClick,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -372,9 +393,9 @@ private fun MainLayout(
                 modifier = Modifier.padding(vertical = 6.dp)
             )
 
-            var priceTextFieldScrollPosition by remember { mutableStateOf(0f) }
+            val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
             PriceTextFieldButton(
-                text = { state.priceAmountText },
+                text = state.priceAmountText,
                 onTextChange = { text ->
                     if (text.length > 100) {
                         state.priceAmountText = text.substring(0, 10)
@@ -383,13 +404,10 @@ private fun MainLayout(
                     }
                 },
                 preferredCurrency = preferredCurrency,
-                isInputError = { submitResult == SubmitFormResultState.Error(SubmitFormResultState.ErrorReason.PriceAmountInputError) },
-                isInvalidError = { submitResult == SubmitFormResultState.Error(SubmitFormResultState.ErrorReason.PriceAmountInvalidError) },
+                scrollState = scrollState,
+                submitError = state.submitError,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .onGloballyPositioned { layoutCoordinates ->
-                        priceTextFieldScrollPosition = layoutCoordinates.positionInParent().y
-                    }
                     .padding(bottom = 4.dp)
             )
 
@@ -397,54 +415,15 @@ private fun MainLayout(
                 modifier = Modifier.padding(vertical = 6.dp)
             )
 
-            var storeLocationFieldScrollPosition by remember { mutableStateOf(0f) }
+            val store by viewModelState.storeFlow.collectAsState()
             StoreLocation(
-                selectedStore = selectedStore,
+                selectedStore = store,
                 onStoreButtonClick = onStoreButtonClick,
-                isError = { submitResult == SubmitFormResultState.Error(SubmitFormResultState.ErrorReason.StoreNotSelectedError) },
+                scrollState = scrollState,
+                submitError = state.submitError,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .onGloballyPositioned { layoutCoordinates ->
-                        storeLocationFieldScrollPosition = layoutCoordinates.positionInParent().y
-                    }
             )
-
-            if (submitResult is SubmitFormResultState.Error) {
-                val unknownErrorMessage =
-                    stringResource(id = R.string.new_price_submit_failed_message)
-                when (submitResult.reason) {
-                    SubmitFormResultState.ErrorReason.NameEmptyError -> {
-                        LaunchedEffect(Unit) {
-                            scrollState.animateScrollTo(productNameScrollPosition.roundToInt())
-                        }
-                    }
-                    SubmitFormResultState.ErrorReason.PriceAmountInputError,
-                    SubmitFormResultState.ErrorReason.PriceAmountInvalidError -> {
-                        LaunchedEffect(Unit) {
-                            scrollState.animateScrollTo(priceTextFieldScrollPosition.roundToInt())
-                        }
-                    }
-                    SubmitFormResultState.ErrorReason.StoreNotSelectedError -> {
-                        LaunchedEffect(Unit) {
-                            scrollState.animateScrollTo(storeLocationFieldScrollPosition.roundToInt())
-                        }
-                    }
-                    SubmitFormResultState.ErrorReason.UnknownError -> {
-                        LaunchedEffect(Unit) {
-                            val snackbarResult = snackbarHostState.showSnackbar(
-                                message = unknownErrorMessage,
-                                withDismissAction = true
-                            )
-                            when (snackbarResult) {
-                                SnackbarResult.Dismissed -> {
-                                    onSubmitErrorDismissed()
-                                }
-                                else -> {}
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {
@@ -472,7 +451,7 @@ private fun MainLayout(
                         ) { product ->
                             if (product != null) {
                                 ProductSuggestionListItem(
-                                    query = productName,
+                                    query = state.productName,
                                     product = product,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -543,11 +522,16 @@ private fun ProductNameTextField(
     productName: String,
     onProductNameChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    isError: Boolean,
+    scrollState: ScrollState,
+    submitError: SubmitError,
     modifier: Modifier = Modifier,
 ) {
+    var productNameScrollPosition by remember { mutableStateOf(0f) }
     Column(
         modifier = modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                productNameScrollPosition = layoutCoordinates.positionInParent().y
+            }
     ) {
         val focusManager = LocalFocusManager.current
         OutlinedTextField(
@@ -567,15 +551,21 @@ private fun ProductNameTextField(
             keyboardActions = KeyboardActions(onNext = {
                 focusManager.moveFocus(FocusDirection.Down)
             }),
-            isError = isError
+            isError = submitError == SubmitError.ProductNameShouldNotBeEmpty
         )
 
-        AnimatedVisibility(visible = isError) {
+        AnimatedVisibility(visible = submitError == SubmitError.ProductNameShouldNotBeEmpty) {
             Text(
                 text = stringResource(id = R.string.new_price_product_name_empty_error_text),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
+        }
+
+        if (submitError == SubmitError.ProductNameShouldNotBeEmpty) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(productNameScrollPosition.roundToInt())
+            }
         }
     }
 }
@@ -583,13 +573,13 @@ private fun ProductNameTextField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductDescriptionTextField(
-    productDescription: () -> String,
+    productDescription: String,
     onProductDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     OutlinedTextField(
-        value = productDescription(),
+        value = productDescription,
         onValueChange = { text -> onProductDescriptionChange(text) },
         modifier = modifier,
         singleLine = true,
@@ -608,7 +598,7 @@ private fun ProductDescriptionTextField(
 
 @Composable
 private fun ProductCategory(
-    productCategory: Category?,
+    productCategory: LoadingState<Category?>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -617,7 +607,10 @@ private fun ProductCategory(
         modifier = modifier
             .clickable { onClick() },
     ) {
-        val category = productCategory ?: NoCategory
+        val category = if (productCategory is LoadingState.Success)
+            productCategory.data ?: NoCategory
+        else
+            NoCategory
         Image(
             painter = painterResource(id = category.icon.iconRes),
             contentDescription = stringResource(id = R.string.new_price_product_category_icon_content_description),
@@ -651,15 +644,19 @@ private fun PriceHeader(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PriceTextFieldButton(
-    text: () -> String,
+    text: String,
     onTextChange: (String) -> Unit,
-    preferredCurrency: Currency,
-    isInputError: () -> Boolean,
-    isInvalidError: () -> Boolean,
+    preferredCurrency: LoadingState<Currency>,
+    scrollState: ScrollState,
+    submitError: SubmitError,
     modifier: Modifier = Modifier
 ) {
+    var priceTextFieldScrollPosition by remember { mutableStateOf(0f) }
     Column(
         modifier = modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                priceTextFieldScrollPosition = layoutCoordinates.positionInParent().y
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -668,7 +665,7 @@ private fun PriceTextFieldButton(
         ) {
             val focusManager = LocalFocusManager.current
             OutlinedTextField(
-                value = text(),
+                value = text,
                 onValueChange = { text -> onTextChange(text) },
                 modifier = Modifier
                     .weight(1f)
@@ -685,19 +682,27 @@ private fun PriceTextFieldButton(
                     focusManager.clearFocus()
                 }),
                 leadingIcon = {
-                    Text(text = preferredCurrency.symbol)
+                    preferredCurrency.ifLoaded {
+                        Text(text = it.symbol)
+                    }
                 },
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                isError = isInputError() || isInvalidError()
+                isError = submitError == SubmitError.InvalidPriceAmount
             )
         }
 
-        AnimatedVisibility(visible = isInputError() || isInvalidError()) {
+        AnimatedVisibility(visible = submitError == SubmitError.InvalidPriceAmount) {
             Text(
                 text = stringResource(id = R.string.new_price_amount_input_error_text),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
+        }
+
+        if (submitError == SubmitError.InvalidPriceAmount) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(priceTextFieldScrollPosition.roundToInt())
+            }
         }
     }
 }
@@ -717,76 +722,89 @@ private fun StoreLocationHeader(
 
 @Composable
 private fun StoreLocation(
-    selectedStore: Store?,
+    selectedStore: LoadingState<Store?>,
     onStoreButtonClick: () -> Unit,
-    isError: () -> Boolean,
+    scrollState: ScrollState,
+    submitError: SubmitError,
     modifier: Modifier = Modifier
 ) {
+    var storeLocationFieldScrollPosition by remember { mutableStateOf(0f) }
     Column(
         modifier = modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                storeLocationFieldScrollPosition = layoutCoordinates.positionInParent().y
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            selectedStore.ifLoaded {
+                if (it == null) {
+                    FilledTonalButton(
+                        onClick = onStoreButtonClick,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_place_24),
+                            contentDescription = stringResource(id = R.string.new_price_store_icon_content_description),
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(end = 6.dp)
+                                .size(24.dp),
+                        )
 
-            if (selectedStore == null) {
-                FilledTonalButton(
-                    onClick = onStoreButtonClick,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
+                        Text(
+                            text = stringResource(id = R.string.new_price_store_button_placeholder_text)
+                        )
+                    }
+                } else {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_baseline_place_24),
                         contentDescription = stringResource(id = R.string.new_price_store_icon_content_description),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(end = 6.dp)
+                            .padding(end = 8.dp)
                             .size(24.dp),
                     )
 
-                    Text(
-                        text = stringResource(id = R.string.new_price_store_button_placeholder_text)
-                    )
-                }
-            } else {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_place_24),
-                    contentDescription = stringResource(id = R.string.new_price_store_icon_content_description),
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(24.dp),
-                )
+                    Column(
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onStoreButtonClick() }
+                    ) {
+                        Text(
+                            text = it.name,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
 
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onStoreButtonClick() }
-                ) {
-                    Text(
-                        text = selectedStore.name,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    Text(
-                        text = selectedStore.address.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                        Text(
+                            text = it.address.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
+
         }
 
-        AnimatedVisibility(visible = isError()) {
+        AnimatedVisibility(visible = submitError == SubmitError.StoreCannotBeEmpty) {
             Text(
                 text = stringResource(id = R.string.new_price_store_not_selected_error_text),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
+        }
+
+        if (submitError == SubmitError.StoreCannotBeEmpty) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(storeLocationFieldScrollPosition.roundToInt())
+            }
         }
     }
 }
@@ -794,6 +812,19 @@ private fun StoreLocation(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : NewPriceScreenViewModelState {
+        override val categoryFlow: StateFlow<LoadingState<Category?>> =
+            MutableStateFlow(LoadingState.Success(null))
+        override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>> =
+            MutableStateFlow(LoadingState.Success(Currency.getInstance("USD")))
+        override val storesCountFlow: StateFlow<LoadingState<Int>> =
+            MutableStateFlow(LoadingState.Success(5))
+        override val storeFlow: StateFlow<LoadingState<Store?>> =
+            MutableStateFlow(LoadingState.Success(null))
+
+        override val submitResultState: LoadingState<Unit> = LoadingState.NotLoading()
+    }
+
     val productsPagingItems = flowOf(
         PagingData.from(
             listOf(
@@ -810,14 +841,10 @@ private fun DefaultPreview() {
     ).collectAsLazyPagingItems()
 
     MainLayout(
-        productName = "",
-        productDescription = "",
-        productSuggestionsPagingItems = productsPagingItems,
-        productCategory = Category(icon = CategoryIcon.Carrot, name = "Vegetables"),
-        preferredCurrency = Currency.getInstance(Locale.getDefault()),
-        selectedStore = null,
-        submitResult = null,
+        viewModelState = viewModelState,
         state = NewPriceScreenStateHolder(),
+        snackbarHostState = SnackbarHostState(),
+        productSuggestionsPagingItems = productsPagingItems,
         onCloseButtonClick = {},
         onSaveButtonClick = {},
         onProductNameChange = {},
@@ -825,6 +852,5 @@ private fun DefaultPreview() {
         onProductAutoSuggestClick = {},
         onCategoryClick = {},
         onStoreButtonClick = {},
-        onSubmitErrorDismissed = {}
     )
 }
