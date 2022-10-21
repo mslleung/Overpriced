@@ -4,10 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -98,11 +95,7 @@ private fun MainContent(
             )
         },
         bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .imePadding(),
-            ) {
+            NavigationBar {
                 NavigationBarItem(
                     icon = {
                         Icon(
@@ -136,6 +129,8 @@ private fun MainContent(
                 )
             }
         },
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
         modifier = modifier,
     ) {
         NestedNavGraph(

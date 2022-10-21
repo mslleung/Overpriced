@@ -149,65 +149,27 @@ private fun MainLayout(
                 state.isRequestingFirstFocus = false
             }
 
-            Text(
-                text = stringResource(id = R.string.new_category_icon_header),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+            CategoryIconHeader(
                 modifier = Modifier
                     .padding(bottom = 10.dp)
                     .fillMaxWidth()
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(60.dp),
+            CategoryIconGrid(
+                selectedCategoryIcon = state.categoryIcon,
+                onCategoryIconSelected = { state.categoryIcon = it },
                 modifier = Modifier
                     .navigationBarsPadding()
                     .imePadding()
-                    .fillMaxSize(),
-            ) {
-                items(
-                    items = CategoryIcon.values(),
-                    key = { it.ordinal },
-                ) {
-                    Button(
-                        onClick = {
-                            state.categoryIcon = it
-                        },
-                        modifier = Modifier.size(60.dp),
-                        shape = CircleShape,
-                        border = if (state.categoryIcon == it) {
-                            BorderStroke(2.dp, SolidColor(MaterialTheme.colorScheme.primary))
-                        } else {
-                            null
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = Color.Transparent
-                        ),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        GlideImage(
-                            imageModel = { it.iconRes },
-                            modifier = Modifier.size(40.dp),
-                            requestOptions = {
-                                RequestOptions.fitCenterTransform()
-                            },
-                            imageOptions = ImageOptions(
-                                contentDescription = stringResource(id = R.string.new_category_icon_content_description),
-                            ),
-                            previewPlaceholder = it.iconRes
-                        )
-                    }
-                }
-            }
+                    .fillMaxSize()
+            )
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryNameTextField(
+fun CategoryNameTextField(
     categoryName: String,
     onCategoryNameChange: (String) -> Unit,
     isError: Boolean,
@@ -244,6 +206,66 @@ private fun CategoryNameTextField(
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
+        }
+    }
+}
+
+@Composable
+fun CategoryIconHeader(
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(id = R.string.new_category_icon_header),
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun CategoryIconGrid(
+    selectedCategoryIcon: CategoryIcon,
+    onCategoryIconSelected: (CategoryIcon) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(60.dp),
+        modifier = modifier,
+    ) {
+        items(
+            items = CategoryIcon.values(),
+            key = { it.ordinal },
+        ) {
+            Button(
+                onClick = {
+                    onCategoryIconSelected(it)
+                },
+                modifier = Modifier.size(60.dp),
+                shape = CircleShape,
+                border = if (selectedCategoryIcon == it) {
+                    BorderStroke(2.dp, SolidColor(MaterialTheme.colorScheme.primary))
+                } else {
+                    null
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Transparent
+                ),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                GlideImage(
+                    imageModel = { it.iconRes },
+                    modifier = Modifier.size(40.dp),
+                    requestOptions = {
+                        RequestOptions.fitCenterTransform()
+                    },
+                    imageOptions = ImageOptions(
+                        contentDescription = stringResource(id = R.string.new_category_icon_content_description),
+                    ),
+                    previewPlaceholder = it.iconRes
+                )
+            }
         }
     }
 }
