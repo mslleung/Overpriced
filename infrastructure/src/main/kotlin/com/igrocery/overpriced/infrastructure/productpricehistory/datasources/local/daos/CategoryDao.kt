@@ -2,7 +2,6 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import androidx.room.Dao
 import androidx.room.Embedded
-import androidx.room.MapInfo
 import androidx.room.Query
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow

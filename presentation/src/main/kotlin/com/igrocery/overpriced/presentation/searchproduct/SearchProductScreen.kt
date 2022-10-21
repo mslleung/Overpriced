@@ -170,19 +170,18 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
+        contentWindowInsets = WindowInsets.safeDrawing
     ) {
         if (productsPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
-                    .imePadding()
                     .fillMaxSize()
             )
         } else {
             LazyColumn(
                 modifier = Modifier
                     .padding(it)
-                    .imePadding()
                     .fillMaxSize()
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {

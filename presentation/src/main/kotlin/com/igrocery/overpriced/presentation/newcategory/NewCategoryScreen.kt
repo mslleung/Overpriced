@@ -118,7 +118,8 @@ private fun MainLayout(
                 scrollBehavior = topBarScrollBehavior,
                 modifier = Modifier.statusBarsPadding()
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing
     ) { scaffoldPadding ->
         // do not place the text field as an item in the lazy grid, when it is scrolled off-screen,
         // focus will be lost and keyboard will be hidden, which is weird to the user
@@ -159,8 +160,6 @@ private fun MainLayout(
                 selectedCategoryIcon = state.categoryIcon,
                 onCategoryIconSelected = { state.categoryIcon = it },
                 modifier = Modifier
-                    .navigationBarsPadding()
-                    .imePadding()
                     .fillMaxSize()
             )
         }

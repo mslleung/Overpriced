@@ -263,6 +263,11 @@ fun NewPriceScreen(
     }
 
     LaunchedEffect(Unit) {
+        val categoryLoadingState = newPriceScreenViewModel.categoryFlow.value
+        if (categoryLoadingState is LoadingState.Success) {
+            state.productCategoryId = categoryLoadingState.data?.id
+        }
+
         snapshotFlow { state.productCategoryId }
             .collectLatest {
                 newPriceScreenViewModel.updateCategoryId(it)
@@ -270,6 +275,11 @@ fun NewPriceScreen(
     }
 
     LaunchedEffect(Unit) {
+        val storeLoadingState = newPriceScreenViewModel.storeFlow.value
+        if (storeLoadingState is LoadingState.Success) {
+            state.priceStoreId = storeLoadingState.data?.id
+        }
+
         snapshotFlow { state.priceStoreId }
             .collectLatest {
                 newPriceScreenViewModel.updateStoreId(it)
@@ -325,7 +335,8 @@ private fun MainLayout(
                     .navigationBarsPadding()
                     .imePadding()
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing
     ) {
         val scrollState = rememberScrollState()
         var productNameLayoutBounds by remember { mutableStateOf(Rect.Companion.Zero) }
@@ -333,7 +344,6 @@ private fun MainLayout(
             modifier = Modifier
                 .padding(it)
                 .padding(horizontal = 16.dp)
-                .imePadding()
                 .fillMaxSize()
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 .verticalScroll(scrollState)
@@ -429,8 +439,6 @@ private fun MainLayout(
             Box(
                 modifier = Modifier
                     .padding(it)
-                    .navigationBarsPadding()
-                    .imePadding()
                     .fillMaxSize()
             ) {
                 val density = LocalDensity.current
