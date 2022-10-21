@@ -107,6 +107,7 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
+        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier,
     ) { scaffoldPadding ->
         val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()

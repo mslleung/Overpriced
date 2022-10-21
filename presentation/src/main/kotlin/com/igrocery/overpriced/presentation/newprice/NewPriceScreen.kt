@@ -333,7 +333,6 @@ private fun MainLayout(
             modifier = Modifier
                 .padding(it)
                 .padding(horizontal = 16.dp)
-                .navigationBarsPadding()
                 .imePadding()
                 .fillMaxSize()
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)

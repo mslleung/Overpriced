@@ -89,7 +89,6 @@ private fun MainContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .padding(scaffoldPaddings)
-                .navigationBarsPadding()
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {

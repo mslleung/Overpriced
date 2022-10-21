@@ -231,7 +231,6 @@ private fun MainContent(
             onCameraPositionChanged = onCameraPositionChanged,
             modifier = Modifier
                 .padding(it)
-                .navigationBarsPadding()
         ) {
             val storeState by viewModelState.storeFlow.collectAsState()
             storeState.ifLoaded { store ->

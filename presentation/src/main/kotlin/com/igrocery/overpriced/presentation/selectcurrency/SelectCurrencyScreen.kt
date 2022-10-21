@@ -97,7 +97,6 @@ private fun MainContent(
         Column(
             modifier = Modifier
                 .padding(scaffoldPaddings)
-                .navigationBarsPadding()
                 .fillMaxSize()
         ) {
             Surface(

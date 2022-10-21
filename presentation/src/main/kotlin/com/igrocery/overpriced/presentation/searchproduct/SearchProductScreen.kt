@@ -175,7 +175,6 @@ private fun MainContent(
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
-                    .navigationBarsPadding()
                     .imePadding()
                     .fillMaxSize()
             )
@@ -183,7 +182,6 @@ private fun MainContent(
             LazyColumn(
                 modifier = Modifier
                     .padding(it)
-                    .navigationBarsPadding()
                     .imePadding()
                     .fillMaxSize()
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)

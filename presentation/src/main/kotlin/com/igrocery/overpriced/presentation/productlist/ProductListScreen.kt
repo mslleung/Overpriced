@@ -151,6 +151,7 @@ private fun MainContent(
                 modifier = Modifier.statusBarsPadding()
             )
         },
+        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
         val productsPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()

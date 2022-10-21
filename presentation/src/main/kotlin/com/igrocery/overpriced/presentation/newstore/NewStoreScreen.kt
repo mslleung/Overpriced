@@ -160,7 +160,6 @@ private fun MainContent(
             onCameraPositionChanged = onCameraPositionChanged,
             modifier = Modifier
                 .padding(it)
-                .navigationBarsPadding()
         ) {
             // nothing...
         }

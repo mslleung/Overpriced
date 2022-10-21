@@ -129,8 +129,7 @@ private fun MainContent(
                 )
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+        contentWindowInsets = WindowInsets.navigationBars,
         modifier = modifier,
     ) {
         NestedNavGraph(
