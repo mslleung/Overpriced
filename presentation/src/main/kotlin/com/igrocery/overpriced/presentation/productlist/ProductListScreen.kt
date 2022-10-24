@@ -70,7 +70,8 @@ fun ProductListScreen(
         modifier = modifier
     )
 
-    BackHandler(enabled = false) {
+    BackHandler {
+        log.debug("Composing ProductListScreen: BackHandler")
         navigateUp()
     }
 }

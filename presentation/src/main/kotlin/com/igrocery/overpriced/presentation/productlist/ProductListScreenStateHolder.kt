@@ -7,8 +7,10 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-class ProductListScreenStateHolder {
-    var isLazyListPagingFirstLoad by mutableStateOf(true)
+class ProductListScreenStateHolder(savedState: List<*>? = null) {
+
+    var isLazyListPagingFirstLoad by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
+
 }
 
 @Composable
@@ -19,10 +21,8 @@ fun rememberProductListScreenState() = rememberSaveable(
                 it.isLazyListPagingFirstLoad,
             )
         },
-        restore = {
-            ProductListScreenStateHolder().apply {
-                isLazyListPagingFirstLoad = it[0] as Boolean
-            }
+        restore = { savedState ->
+            ProductListScreenStateHolder(savedState)
         }
     )
 ) {

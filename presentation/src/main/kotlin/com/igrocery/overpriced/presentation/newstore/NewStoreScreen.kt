@@ -107,6 +107,7 @@ fun NewStoreScreen(
     }
 
     BackHandler {
+        log.debug("Composing NewStoreScreen: BackHandler")
         navigateUp()
     }
 }

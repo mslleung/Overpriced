@@ -155,6 +155,7 @@ fun EditStoreScreen(
     }
 
     BackHandler {
+        log.debug("Composing EditStoreScreen: BackHandler")
         navigateUp()
     }
 }

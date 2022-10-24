@@ -5,12 +5,14 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import java.util.*
 
-class SelectCurrencyScreenStateHolder {
-    var isInitialScroll by mutableStateOf(true)
+class SelectCurrencyScreenStateHolder(savedState: List<*>? = null) {
+
+    var isInitialScroll by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
     val availableCurrencies: List<Currency> = Currency.getAvailableCurrencies()
         .sortedBy {
             it.currencyCode
         }
+
 }
 
 @Composable
@@ -21,10 +23,8 @@ fun rememberSelectCurrencyScreenState() = rememberSaveable(
                 it.isInitialScroll
             )
         },
-        restore = {
-            SelectCurrencyScreenStateHolder().apply {
-                isInitialScroll = it[0]
-            }
+        restore = { savedState ->
+            SelectCurrencyScreenStateHolder(savedState)
         }
     )
 ) {

@@ -32,6 +32,9 @@ interface NewPriceScreenViewModelState {
     val storeFlow: StateFlow<LoadingState<Store?>>
 
     val submitResultState: LoadingState<Unit>
+
+    fun updateCategoryId(categoryId: Long?)
+    fun updateStoreId(storeId: Long?)
 }
 
 @HiltViewModel
@@ -44,7 +47,7 @@ class NewPriceScreenViewModel @Inject constructor(
 ) : ViewModel(), NewPriceScreenViewModelState {
 
     override var categoryFlow: StateFlow<LoadingState<Category?>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Category?>>(LoadingState.Loading()))
+            by mutableStateOf(MutableStateFlow<LoadingState<Category?>>(LoadingState.NotLoading()))
         private set
 
     override val preferredCurrencyFlow = preferenceService.getAppPreference()
@@ -68,7 +71,7 @@ class NewPriceScreenViewModel @Inject constructor(
         )
 
     override var storeFlow: StateFlow<LoadingState<Store?>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Store?>>(LoadingState.Loading()))
+            by mutableStateOf(MutableStateFlow<LoadingState<Store?>>(LoadingState.NotLoading()))
         private set
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
@@ -84,7 +87,8 @@ class NewPriceScreenViewModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
-    fun updateCategoryId(categoryId: Long?) {
+    override fun updateCategoryId(categoryId: Long?) {
+        categoryFlow = MutableStateFlow(LoadingState.Loading())
         categoryFlow = if (categoryId == null) {
             MutableStateFlow(LoadingState.Success(null))
         } else {
@@ -100,7 +104,7 @@ class NewPriceScreenViewModel @Inject constructor(
         }
     }
 
-    fun updateStoreId(storeId: Long?) {
+    override fun updateStoreId(storeId: Long?) {
         storeFlow = if (storeId == null) {
             MutableStateFlow(LoadingState.Success(null))
         } else {

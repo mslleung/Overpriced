@@ -51,7 +51,6 @@ import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import kotlin.math.roundToInt
@@ -86,7 +85,8 @@ fun NewPriceScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val state by rememberNewPriceScreenState()
+    val coroutineScope = rememberCoroutineScope()
+    val state by rememberNewPriceScreenState(coroutineScope, newPriceScreenViewModel)
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
@@ -251,6 +251,7 @@ fun NewPriceScreen(
 
     val isImeVisible = WindowInsets.isImeVisible
     BackHandler {
+        log.debug("Composing NewPriceScreen: BackHandler")
         if (isImeVisible) {
             keyboardController?.hide()
         } else if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {
@@ -260,30 +261,6 @@ fun NewPriceScreen(
         } else {
             navigateUp()
         }
-    }
-
-    LaunchedEffect(Unit) {
-        val categoryLoadingState = newPriceScreenViewModel.categoryFlow.value
-        if (categoryLoadingState is LoadingState.Success) {
-            state.productCategoryId = categoryLoadingState.data?.id
-        }
-
-        snapshotFlow { state.productCategoryId }
-            .collectLatest {
-                newPriceScreenViewModel.updateCategoryId(it)
-            }
-    }
-
-    LaunchedEffect(Unit) {
-        val storeLoadingState = newPriceScreenViewModel.storeFlow.value
-        if (storeLoadingState is LoadingState.Success) {
-            state.priceStoreId = storeLoadingState.data?.id
-        }
-
-        snapshotFlow { state.priceStoreId }
-            .collectLatest {
-                newPriceScreenViewModel.updateStoreId(it)
-            }
     }
 }
 
@@ -830,6 +807,9 @@ private fun DefaultPreview() {
             MutableStateFlow(LoadingState.Success(null))
 
         override val submitResultState: LoadingState<Unit> = LoadingState.NotLoading()
+
+        override fun updateCategoryId(categoryId: Long?) {}
+        override fun updateStoreId(storeId: Long?) {}
     }
 
     val productsPagingItems = flowOf(
@@ -849,7 +829,7 @@ private fun DefaultPreview() {
 
     MainLayout(
         viewModelState = viewModelState,
-        state = NewPriceScreenStateHolder(),
+        state = NewPriceScreenStateHolder(rememberCoroutineScope(), viewModelState),
         snackbarHostState = SnackbarHostState(),
         productSuggestionsPagingItems = productsPagingItems,
         onCloseButtonClick = {},

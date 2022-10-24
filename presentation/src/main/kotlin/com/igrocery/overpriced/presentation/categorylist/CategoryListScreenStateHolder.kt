@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
-class CategoryListScreenStateHolder {
+class CategoryListScreenStateHolder(savedState: List<*>? = null) {
     // placeholder...
 }
 
@@ -17,10 +17,8 @@ fun rememberCategoryListScreenState() = rememberSaveable(
                 false
             )
         },
-        restore = {
-            CategoryListScreenStateHolder().apply {
-
-            }
+        restore = { savedState ->
+            CategoryListScreenStateHolder(savedState)
         }
     )
 ) {

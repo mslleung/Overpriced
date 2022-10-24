@@ -8,9 +8,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.google.android.gms.maps.model.LatLng
 
-class NewStoreScreenStateHolder {
-    var cameraPosition by mutableStateOf(LatLng(0.0, 0.0))
-    var isSaveDialogShown by mutableStateOf(false)
+class NewStoreScreenStateHolder(savedState: List<*>? = null) {
+
+    var cameraPosition by mutableStateOf(savedState?.get(0) as? LatLng ?: LatLng(0.0, 0.0))
+    var isSaveDialogShown by mutableStateOf(savedState?.get(1) as? Boolean ?: false)
+
 }
 
 @Composable
@@ -22,11 +24,8 @@ fun rememberNewStoreScreenState() = rememberSaveable(
                 it.isSaveDialogShown,
             )
         },
-        restore = {
-            NewStoreScreenStateHolder().apply {
-                cameraPosition = it[0] as LatLng
-                isSaveDialogShown = it[1] as Boolean
-            }
+        restore = { savedState ->
+            NewStoreScreenStateHolder(savedState)
         }
     )
 ) {

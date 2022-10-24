@@ -83,7 +83,8 @@ fun SearchProductScreen(
             }
     }
 
-    BackHandler(enabled = false) {
+    BackHandler {
+        log.debug("Composing SearchProductScreen: BackHandler")
         navigateUp()
     }
 }

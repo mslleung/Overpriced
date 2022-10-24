@@ -8,11 +8,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 
-class NewCategoryScreenStateHolder {
+class NewCategoryScreenStateHolder(savedState: List<*>? = null) {
 
-    var isRequestingFirstFocus by mutableStateOf(true)
-    var categoryName by mutableStateOf("")
-    var categoryIcon by mutableStateOf(CategoryIcon.NoCategory)
+    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
+    var categoryName by mutableStateOf(savedState?.get(1) as? String ?: "")
+    var categoryIcon by mutableStateOf(
+        savedState?.get(2) as? CategoryIcon ?: CategoryIcon.NoCategory
+    )
 
 }
 
@@ -23,15 +25,11 @@ fun rememberNewCategoryScreenState() = rememberSaveable(
             listOf(
                 it.isRequestingFirstFocus,
                 it.categoryName,
-                it.categoryIcon.name
+                it.categoryIcon
             )
         },
-        restore = {
-            NewCategoryScreenStateHolder().apply {
-                isRequestingFirstFocus = it[0] as Boolean
-                categoryName = it[1] as String
-                categoryIcon = CategoryIcon.valueOf(it[2] as String)
-            }
+        restore = { savedState ->
+            NewCategoryScreenStateHolder(savedState)
         }
     )
 ) {
