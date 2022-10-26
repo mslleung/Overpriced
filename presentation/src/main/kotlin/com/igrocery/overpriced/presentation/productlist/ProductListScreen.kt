@@ -181,7 +181,7 @@ private fun MainContent(
                         key = { product -> product.id }
                     ) { product ->
                         if (product != null) {
-                            CategoryWithCountListItem(
+                            ProductListItem(
                                 product = product,
                                 onClick = onProductClick,
                                 modifier = Modifier
@@ -215,7 +215,7 @@ private fun EmptyListContent(
 }
 
 @Composable
-private fun CategoryWithCountListItem(
+private fun ProductListItem(
     product: Product,
     onClick: (Product) -> Unit,
     modifier: Modifier = Modifier

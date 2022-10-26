@@ -137,7 +137,7 @@ fun App() {
                 arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
                     type = NavType.LongType
                 })
-            ) { backStackEntry ->
+            ) {
                 val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
                 EditCategoryScreen(
@@ -235,17 +235,18 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
                 hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
-            val categoryId =
-                backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId) ?: 0L
+            backStackEntry.arguments?.let { arg ->
+                val categoryId = arg.getLong(EditCategory_Arg_CategoryId).takeIf { it != 0L }
 
-            EditCategoryScreen(
-                viewModel = editCategoryViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateCategoryId(categoryId)
-                    navController.navigateUp()
-                }
-            )
+                EditCategoryScreen(
+                    viewModel = editCategoryViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateDone = {
+                        newPriceViewModel.updateCategoryId(categoryId)
+                        navController.navigateUp()
+                    }
+                )
+            } ?: throw IllegalArgumentException("argument should not be null")
         }
         composable(NewStore) { backStackEntry ->
             val navGraphEntry =
@@ -280,16 +281,18 @@ private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController
             val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
 
-            val storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId) ?: 0L
+            backStackEntry.arguments?.let { arg ->
+                val storeId = arg.getLong(EditStore_Arg_StoreId).takeIf { it != 0L }
 
-            EditStoreScreen(
-                viewModel = editStoreViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateStoreId(storeId)
-                    navController.navigateUp()
-                }
-            )
+                EditStoreScreen(
+                    viewModel = editStoreViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateDone = {
+                        newPriceViewModel.updateStoreId(storeId)
+                        navController.navigateUp()
+                    }
+                )
+            } ?: throw IllegalArgumentException("argument should not be null")
         }
     }
 }

@@ -36,21 +36,22 @@ class EditStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService,
 ) : ViewModel(), EditStoreScreenViewModelState {
 
-    private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId) ?: 0L
+    private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId)
+        ?: throw IllegalArgumentException("Store id cannot be null")
 
     override val storeFlow = storeService.getStoreById(storeId)
-            .map {
-                if (it == null) {
-                    LoadingState.Error(Exception("Store not found"))
-                } else {
-                    LoadingState.Success(it)
-                }
+        .map {
+            if (it == null) {
+                LoadingState.Error(Exception("Store not found"))
+            } else {
+                LoadingState.Success(it)
             }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = LoadingState.Loading()
-            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
 
     override var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
