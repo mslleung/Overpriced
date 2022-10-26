@@ -135,7 +135,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // accompanist
-    val accompanistVersion = "0.26.5-rc"
+    val accompanistVersion = "0.27.0"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -145,7 +145,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
     kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.0.2")
+    implementation("com.github.skydoves:landscapist-glide:2.0.3")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.0")

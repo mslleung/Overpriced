@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.newcategory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -19,13 +20,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bumptech.glide.request.RequestOptions
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
@@ -33,8 +34,6 @@ import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.SaveButton
 import com.igrocery.overpriced.shared.Logger
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.glide.GlideImage
 
 @Suppress("unused")
 private val log = Logger { }
@@ -158,7 +157,7 @@ private fun MainLayout(
             )
 
             CategoryIconGrid(
-                selectedCategoryIcon = state.categoryIcon,
+                selectedCategoryIcon = { state.categoryIcon },
                 onCategoryIconSelected = { state.categoryIcon = it },
                 modifier = Modifier
                     .fillMaxSize()
@@ -225,7 +224,7 @@ fun CategoryIconHeader(
 
 @Composable
 fun CategoryIconGrid(
-    selectedCategoryIcon: CategoryIcon,
+    selectedCategoryIcon: () -> CategoryIcon,   // delayed read
     onCategoryIconSelected: (CategoryIcon) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -243,7 +242,7 @@ fun CategoryIconGrid(
                 },
                 modifier = Modifier.size(60.dp),
                 shape = CircleShape,
-                border = if (selectedCategoryIcon == it) {
+                border = if (selectedCategoryIcon() == it) {
                     BorderStroke(2.dp, SolidColor(MaterialTheme.colorScheme.primary))
                 } else {
                     null
@@ -254,16 +253,10 @@ fun CategoryIconGrid(
                 ),
                 contentPadding = PaddingValues(0.dp)
             ) {
-                GlideImage(
-                    imageModel = { it.iconRes },
+                Image(
+                    painter = painterResource(id = it.iconRes),
                     modifier = Modifier.size(40.dp),
-                    requestOptions = {
-                        RequestOptions.fitCenterTransform()
-                    },
-                    imageOptions = ImageOptions(
-                        contentDescription = stringResource(id = R.string.new_category_icon_content_description),
-                    ),
-                    previewPlaceholder = it.iconRes
+                    contentDescription = stringResource(id = R.string.new_category_icon_content_description)
                 )
             }
         }

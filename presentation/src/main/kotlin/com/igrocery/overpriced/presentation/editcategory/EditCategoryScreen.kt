@@ -171,7 +171,7 @@ private fun MainLayout(
             )
 
             CategoryIconGrid(
-                selectedCategoryIcon = state.categoryIcon,
+                selectedCategoryIcon = { state.categoryIcon },
                 onCategoryIconSelected = { state.categoryIcon = it },
                 modifier = Modifier
                     .fillMaxSize()
