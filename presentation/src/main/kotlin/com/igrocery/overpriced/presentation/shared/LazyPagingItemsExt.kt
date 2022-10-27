@@ -3,6 +3,10 @@ package com.igrocery.overpriced.presentation.shared
 import androidx.compose.runtime.*
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Composable
 fun <T : Any> LazyPagingItems<T>.isInitialLoadCompleted(): Boolean {
@@ -24,5 +28,5 @@ fun <T : Any> LazyPagingItems<T>.isInitialLoadCompleted(): Boolean {
         }
     }
 
-    return isFirstLoadTriggered || isFirstLoadCompleted
+    return isFirstLoadCompleted
 }

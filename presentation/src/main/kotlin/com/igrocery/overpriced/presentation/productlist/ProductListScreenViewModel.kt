@@ -33,9 +33,12 @@ class ProductListScreenViewModel @Inject constructor(
     private val productService: ProductService,
 ) : ViewModel(), ProductListScreenViewModelState {
 
-    private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId) ?: 0L
+    private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId).takeIf { it != 0L }
 
-    override val categoryFlow = categoryService.getCategoryById(categoryId)
+    override val categoryFlow = if (categoryId == null)
+        MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
+    else
+        categoryService.getCategoryById(categoryId)
             .map {
                 LoadingState.Success(it)
             }
@@ -46,13 +49,13 @@ class ProductListScreenViewModel @Inject constructor(
             )
 
     override val productsPagingDataFlow = Pager(
-            PagingConfig(
-                pageSize = 100,
-                prefetchDistance = 30
-            )
-        ) {
-            productService.getProductsByCategoryIdPaging(categoryId)
-        }.flow
-            .cachedIn(viewModelScope)
+        PagingConfig(
+            pageSize = 100,
+            prefetchDistance = 30
+        )
+    ) {
+        productService.getProductsByCategoryIdPaging(categoryId)
+    }.flow
+        .cachedIn(viewModelScope)
 
 }

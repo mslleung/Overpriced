@@ -12,7 +12,6 @@ import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -28,21 +27,25 @@ interface EditCategoryScreenViewModelState {
 
 @HiltViewModel
 class EditCategoryScreenViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val categoryService: CategoryService,
 ) : ViewModel(), EditCategoryScreenViewModelState {
 
-    private val categoryId = savedStateHandle.get<Long>(NavDestinations.EditCategory_Arg_CategoryId) ?: 0L
+    private val categoryId =
+        savedStateHandle.get<Long>(NavDestinations.EditCategory_Arg_CategoryId).takeIf { it != 0L }
 
-    override val categoryFlow = categoryService.getCategoryById(categoryId)
-        .map {
-            LoadingState.Success(it)
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = LoadingState.Loading()
-        )
+    override val categoryFlow = if (categoryId == null)
+        MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
+    else
+        categoryService.getCategoryById(categoryId)
+            .map {
+                LoadingState.Success(it)
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = LoadingState.Loading()
+            )
 
     override var updateCategoryResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 

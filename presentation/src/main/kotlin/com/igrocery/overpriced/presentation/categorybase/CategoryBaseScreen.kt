@@ -208,15 +208,21 @@ private fun NestedNavGraph(
             val productListScreenViewModel =
                 hiltViewModel<ProductListScreenViewModel>()
 
-            val categoryId = backStackEntry.arguments?.getLong(ProductList_Arg_CategoryId) ?: 0L
-            ProductListScreen(
-                viewModel = productListScreenViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateToSearchProduct = navigateToSearchProduct,
-                navigateToEditCategory = {
-                    navigateToEditCategory(categoryId)
-                },
-            )
+            backStackEntry.arguments?.let { arg ->
+                val categoryId = arg.getLong(ProductList_Arg_CategoryId).takeIf { it != 0L }
+
+                ProductListScreen(
+                    viewModel = productListScreenViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateToSearchProduct = navigateToSearchProduct,
+                    navigateToEditCategory = {
+                        if (categoryId == null)
+                            throw IllegalArgumentException("Cannot edit \"No Category\"")
+
+                        navigateToEditCategory(categoryId)
+                    },
+                )
+            } ?: throw IllegalArgumentException("argument should not be null")
         }
     }
 }
