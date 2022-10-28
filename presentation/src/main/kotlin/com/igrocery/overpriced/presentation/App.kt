@@ -83,6 +83,8 @@ fun App() {
     AppTheme {
         val navController = rememberAnimatedNavController()
 
+        val categoryProductNestedNavController = rememberAnimatedNavController()
+
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
@@ -115,6 +117,7 @@ fun App() {
         ) {
             composable(CategoryProduct) {
                 CategoryBaseScreen(
+                    navController = categoryProductNestedNavController,
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
                     navigateToEditCategory = { categoryId ->

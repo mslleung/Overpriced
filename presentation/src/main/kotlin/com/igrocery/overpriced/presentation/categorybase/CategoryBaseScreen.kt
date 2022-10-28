@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -34,6 +35,7 @@ private val log = Logger { }
 
 @Composable
 fun CategoryBaseScreen(
+    navController: NavHostController,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: (categoryId: Long) -> Unit,
@@ -44,6 +46,7 @@ fun CategoryBaseScreen(
     log.debug("Composing CategoryProductScreen")
 
     MainContent(
+        navController = navController,
         navigateToSettings = navigateToSettings,
         navigateToSearchProduct = navigateToSearchProduct,
         navigateToEditCategory = navigateToEditCategory,
@@ -67,6 +70,7 @@ object NavDestinations {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun MainContent(
+    navController: NavHostController,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: (categoryId: Long) -> Unit,
@@ -74,7 +78,6 @@ private fun MainContent(
     onBottomBarShoppingListClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val navController = rememberAnimatedNavController()
 
     WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
     Scaffold(
@@ -232,10 +235,12 @@ private fun NestedNavGraph(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Preview
 @Composable
 private fun EmptyPreview() {
     MainContent(
+        navController = rememberAnimatedNavController(),
         navigateToSettings = {},
         navigateToSearchProduct = {},
         navigateToEditCategory = {},
