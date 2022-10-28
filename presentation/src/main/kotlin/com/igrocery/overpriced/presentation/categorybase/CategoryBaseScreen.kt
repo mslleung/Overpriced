@@ -76,6 +76,7 @@ private fun MainContent(
 ) {
     val navController = rememberAnimatedNavController()
 
+    WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -92,6 +93,10 @@ private fun MainContent(
                     )
                 },
                 onClick = onFabClick,
+                // somehow the nav bar padding doesn't get applied in landscape
+                modifier = Modifier.padding(
+                    WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
+                )
             )
         },
         bottomBar = {
