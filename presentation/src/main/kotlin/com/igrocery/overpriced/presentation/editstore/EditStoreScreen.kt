@@ -215,7 +215,6 @@ private fun MainContent(
                         enabled = storeMapState.geocoderLoadState is LoadingState.NotLoading<*>
                     )
                 },
-                modifier = Modifier.statusBarsPadding()
             )
         },
         snackbarHost = {

@@ -90,7 +90,6 @@ private fun MainContent(
                     Text(text = stringResource(id = R.string.select_currency_title))
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
     ) { scaffoldPaddings ->

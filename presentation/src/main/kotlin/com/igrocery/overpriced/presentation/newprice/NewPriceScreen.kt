@@ -71,12 +71,8 @@ fun NewPriceScreen(
     log.debug("Composing NewPriceScreen")
 
     val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
     val navBarColor = MaterialTheme.colorScheme.surface
     SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
         systemUiController.setNavigationBarColor(
             navBarColor,
             navigationBarContrastEnforced = false,
@@ -281,6 +277,9 @@ private fun MainLayout(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    FadeSurfaceStatusBarColor(topBarScrollState)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -302,7 +301,6 @@ private fun MainLayout(
                     )
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
         snackbarHost = {

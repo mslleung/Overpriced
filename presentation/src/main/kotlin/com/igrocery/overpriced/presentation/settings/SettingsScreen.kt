@@ -80,7 +80,6 @@ private fun MainContent(
                     Text(text = stringResource(id = R.string.settings_title))
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
     ) { scaffoldPaddings ->

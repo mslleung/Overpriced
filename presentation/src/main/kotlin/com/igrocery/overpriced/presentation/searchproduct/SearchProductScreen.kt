@@ -168,7 +168,6 @@ private fun MainContent(
                     )
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
         contentWindowInsets = WindowInsets.safeDrawing

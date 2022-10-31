@@ -13,7 +13,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -21,13 +20,14 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.categorybase.NavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_With_Args
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.productlist.ProductListScreen
 import com.igrocery.overpriced.presentation.productlist.ProductListScreenViewModel
+import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
@@ -43,7 +43,7 @@ fun CategoryBaseScreen(
     navigateToShoppingList: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    log.debug("Composing CategoryProductScreen")
+    log.debug("Composing CategoryBaseScreen")
 
     MainContent(
         navController = navController,
@@ -67,7 +67,7 @@ object NavDestinations {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     navController: NavHostController,
@@ -78,6 +78,7 @@ private fun MainContent(
     onBottomBarShoppingListClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
     Scaffold(

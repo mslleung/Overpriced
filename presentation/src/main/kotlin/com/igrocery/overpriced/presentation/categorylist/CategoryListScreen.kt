@@ -31,9 +31,7 @@ import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProdu
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.shared.LoadingState
-import com.igrocery.overpriced.presentation.shared.NoCategory
-import com.igrocery.overpriced.presentation.shared.ifLoaded
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -49,19 +47,6 @@ fun CategoryListScreen(
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     val state by rememberCategoryListScreenState()
     MainContent(
@@ -87,6 +72,9 @@ private fun MainContent(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+
+    DefaultStatusBarColor()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -104,7 +92,6 @@ private fun MainContent(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
         contentWindowInsets = WindowInsets.statusBars,

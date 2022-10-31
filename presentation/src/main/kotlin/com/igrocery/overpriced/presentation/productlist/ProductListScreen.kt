@@ -46,19 +46,6 @@ fun ProductListScreen(
 ) {
     log.debug("Composing ProductListScreen")
 
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
     val state by rememberProductListScreenState()
     MainContent(
         viewModelState = viewModel,
@@ -89,7 +76,10 @@ private fun MainContent(
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(state = topBarState)
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+
+    LerpSurfaceStatusBarColor(topBarState)
+
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -149,7 +139,6 @@ private fun MainContent(
                     )
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
         contentWindowInsets = WindowInsets.statusBars,
