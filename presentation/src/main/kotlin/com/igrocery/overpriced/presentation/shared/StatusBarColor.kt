@@ -5,15 +5,17 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Composable
-fun DefaultStatusBarColor() {
+fun UseDefaultStatusBarColor() {
     val statusBarColor = MaterialTheme.colorScheme.surface
 
     val systemUiController = rememberSystemUiController()
@@ -26,8 +28,14 @@ fun DefaultStatusBarColor() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
-    val fraction = if (topAppBarState.collapsedFraction > 0.01f) 1f else 0f
+fun UseScrollFadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
+    val fraction by remember {
+        derivedStateOf {
+            log.error("collapsedFraction " + topAppBarState.collapsedFraction)
+            if (topAppBarState.collapsedFraction > 0.01f) 1f else 0f
+        }
+    }
+    log.error("fraction $topAppBarState.overlappedFraction")
 
     val containerColor = MaterialTheme.colorScheme.surface
     val scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.0.dp)
@@ -43,7 +51,7 @@ fun FadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
     )
 
     val systemUiController = rememberSystemUiController()
-    SideEffect {
+    LaunchedEffect(currentColor) {
         systemUiController.setStatusBarColor(
             currentColor,
             transformColorForLightContent = { color -> color })
@@ -52,7 +60,7 @@ fun FadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LerpSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
+fun UseScrollLerpSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
     val containerColor = MaterialTheme.colorScheme.surface
     val scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.0.dp)
     val targetColor = lerp(
@@ -68,6 +76,3 @@ fun LerpSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
             transformColorForLightContent = { color -> color })
     }
 }
-
-//@Composable
-//fun PinnedScrollStatusBarColor(is)

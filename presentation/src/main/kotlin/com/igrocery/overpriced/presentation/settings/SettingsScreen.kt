@@ -20,6 +20,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
+import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,19 +37,6 @@ fun SettingsScreen(
     navigateToSelectCurrencyScreen: () -> Unit,
 ) {
     log.debug("Composing SettingsScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     MainContent(
         viewModelState = viewModel,
@@ -65,6 +54,9 @@ private fun MainContent(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseDefaultSystemNavBarColor()
+
     Scaffold(
         topBar = {
             TopAppBar(

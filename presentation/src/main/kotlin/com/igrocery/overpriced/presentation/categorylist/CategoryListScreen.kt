@@ -73,7 +73,7 @@ private fun MainContent(
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
-    DefaultStatusBarColor()
+    UseDefaultStatusBarColor()
 
     Scaffold(
         topBar = {

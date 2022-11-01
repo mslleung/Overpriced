@@ -78,7 +78,8 @@ private fun MainContent(
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
-    LerpSurfaceStatusBarColor(topBarState)
+    log.error("fraction $topBarState.overlappedFraction")
+    UseScrollLerpSurfaceStatusBarColor(topBarState)
 
     Scaffold(
         topBar = {
