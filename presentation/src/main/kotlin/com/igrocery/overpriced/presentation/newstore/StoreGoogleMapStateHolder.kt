@@ -36,11 +36,9 @@ class StoreGoogleMapStateHolder(context: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private val geoCoder = Geocoder(context)
 
-    private val locationRequest = LocationRequest.create().apply {
-        interval = 5000
-        fastestInterval = 3000
-        priority = Priority.PRIORITY_HIGH_ACCURACY
-    }
+    private val locationRequest =
+        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L).build()
+
     private val settingsRequestBuilder = LocationSettingsRequest.Builder()
         .addLocationRequest(locationRequest)
 

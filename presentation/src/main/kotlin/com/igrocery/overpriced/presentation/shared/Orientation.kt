@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.utils
+package com.igrocery.overpriced.presentation.shared
 
 import android.content.pm.ActivityInfo
 import androidx.activity.ComponentActivity

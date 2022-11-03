@@ -41,7 +41,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
@@ -270,7 +269,7 @@ private fun MainLayout(
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
 
-    UseScrollFadeSurfaceStatusBarColor(topBarScrollState)
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(

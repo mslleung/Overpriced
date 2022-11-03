@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.utils.glide
+package com.igrocery.overpriced.presentation.shared.glide
 
 import android.graphics.Bitmap
 import android.graphics.Matrix

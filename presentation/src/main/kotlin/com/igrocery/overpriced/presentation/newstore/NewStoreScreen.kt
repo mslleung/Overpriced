@@ -11,12 +11,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.maps.model.LatLng
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.LoadingState
-import com.igrocery.overpriced.presentation.shared.SaveButton
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
@@ -33,19 +30,6 @@ fun NewStoreScreen(
     navigateDone: (newStoreId: Long) -> Unit,
 ) {
     log.debug("Composing NewStoreScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberNewStoreScreenState()
@@ -123,6 +107,9 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
 ) {
+    UseDefaultStatusBarColor()
+    UseDefaultBottomNavBarColourForSystemNavBarColor()
+
     Scaffold(
         topBar = {
             TopAppBar(

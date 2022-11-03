@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.utils.glide
+package com.igrocery.overpriced.presentation.shared.glide
 
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule

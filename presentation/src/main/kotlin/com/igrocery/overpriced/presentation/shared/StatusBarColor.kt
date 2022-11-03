@@ -28,14 +28,12 @@ fun UseDefaultStatusBarColor() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UseScrollFadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
-    val fraction by remember {
+fun UseAnimatedFadeTopBarColorForStatusBarColor(topAppBarState: TopAppBarState) {
+    val fraction by remember(topAppBarState.contentOffset) {
         derivedStateOf {
-            log.error("collapsedFraction " + topAppBarState.collapsedFraction)
-            if (topAppBarState.collapsedFraction > 0.01f) 1f else 0f
+            if (topAppBarState.overlappedFraction > 0.01f) 1f else 0f
         }
     }
-    log.error("fraction $topAppBarState.overlappedFraction")
 
     val containerColor = MaterialTheme.colorScheme.surface
     val scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.0.dp)
@@ -60,7 +58,7 @@ fun UseScrollFadeSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UseScrollLerpSurfaceStatusBarColor(topAppBarState: TopAppBarState) {
+fun UseLinearInterpolatedTopBarColorForStatusBarColor(topAppBarState: TopAppBarState) {
     val containerColor = MaterialTheme.colorScheme.surface
     val scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.0.dp)
     val targetColor = lerp(

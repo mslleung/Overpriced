@@ -9,7 +9,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newcategory.CategoryIconGrid
@@ -30,19 +29,6 @@ fun EditCategoryScreen(
     navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditCategoryScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     val state by rememberEditCategoryScreenState()
     MainLayout(
@@ -113,6 +99,10 @@ private fun MainLayout(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
+    UseDefaultBottomNavBarColourForSystemNavBarColor()
+
     Scaffold(
         topBar = {
             TopAppBar(

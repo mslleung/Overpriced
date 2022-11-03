@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -37,19 +36,6 @@ fun EditStoreScreen(
     navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditStoreScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberEditStoreScreenState()
@@ -173,6 +159,9 @@ private fun MainContent(
     onSaveButtonClick: () -> Unit,
     onCameraPositionChanged: (LatLng) -> Unit
 ) {
+    UseDefaultStatusBarColor()
+    UseDefaultSystemNavBarColor()
+
     Scaffold(
         topBar = {
             TopAppBar(

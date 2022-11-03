@@ -28,10 +28,11 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.UseAnimatedFadeTopBarColorForStatusBarColor
+import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
 
@@ -45,19 +46,6 @@ fun SearchProductScreen(
     navigateToProductDetails: (Product) -> Unit,
 ) {
     log.debug("Composing SearchProductScreen")
-
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
 
     val state by rememberSearchProductScreenState()
     val productPagingItems = viewModel.productsPagingDataFlow.collectAsLazyPagingItems()
@@ -106,6 +94,10 @@ private fun MainContent(
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
+    UseDefaultSystemNavBarColor()
+
     Scaffold(
         topBar = {
             TopAppBar(
