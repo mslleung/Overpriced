@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface ILocalPriceRecordDataSource {
 
+    fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver)
+
     suspend fun insertPriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity): Long
 
     suspend fun updatePriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity)

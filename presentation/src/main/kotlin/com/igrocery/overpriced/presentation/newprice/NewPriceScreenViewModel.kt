@@ -144,10 +144,12 @@ class NewPriceScreenViewModel @Inject constructor(
                     )
                 } else {
                     // update product because category may be changed
-                    val updatedProduct = existingProduct.copy(
-                        categoryId = productCategoryId
-                    )
-                    productService.updateProduct(updatedProduct)
+                    if (existingProduct.categoryId != productCategoryId) {
+                        val updatedProduct = existingProduct.copy(
+                            categoryId = productCategoryId
+                        )
+                        productService.updateProduct(updatedProduct)
+                    }
 
                     priceRecordService.createPriceRecord(
                         priceAmountText,

@@ -1,8 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
-import androidx.paging.PagingSource
 import androidx.room.*
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductFtsRoomEntity
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -16,8 +15,10 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     fun getProductById(id: Long): Flow<ProductRoomEntity?>
 
     @Query(
-        "SELECT * FROM products " +
-                "WHERE products.name = :name AND products.description = :description"
+        """
+            SELECT * FROM products
+            WHERE products.name = :name AND products.description = :description
+        """
     )
     fun getProductByNameAndDescription(
         name: String,
@@ -25,18 +26,71 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     ): Flow<ProductRoomEntity?>
 
     @Query(
-        "SELECT * FROM products " +
-                "JOIN products_fts ON products.id = products_fts.rowid " +
-                "WHERE products_fts MATCH :query " +
-                "ORDER BY name, description " +
-                "LIMIT :pageSize OFFSET :offset "
+        """
+            SELECT * FROM products
+            JOIN products_fts ON products.id = products_fts.rowid
+            WHERE products_fts MATCH :query
+            ORDER BY name, description
+            LIMIT :pageSize OFFSET :offset
+        """
     )
-    suspend fun searchProducts(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
+    suspend fun searchProductsPaging(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity>
 
-    @Query("SELECT * FROM products " +
-            "WHERE category_id = :categoryId OR (category_id IS NULL AND :categoryId IS NULL) " +
-            "ORDER BY name, description " +
-            "LIMIT :pageSize OFFSET :offset")
-    suspend fun getProductByCategoryPaging(categoryId: Long?, offset: Int, pageSize: Int): List<ProductRoomEntity>
+    @Query(
+        """
+            SELECT * FROM products
+            WHERE category_id = :categoryId OR (category_id IS NULL AND :categoryId IS NULL)
+            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+        """
+    )
+    suspend fun getProductByCategoryPaging(
+        categoryId: Long?,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity>
 
+    @Query(
+//        """
+//            SELECT products.*, min_table.* AS minPriceRecord, max_table.* AS maxPriceRecord, latest_table.* AS latestPriceRecord
+//            FROM products
+//            LEFT JOIN
+//            (
+//                SELECT *, MIN(price) FROM price_records GROUP BY product_id
+//            ) min_table ON products.id = min_table.product_id
+//            LEFT JOIN
+//            (
+//                SELECT *, MAX(price) FROM price_records GROUP BY product_id
+//            ) max_table ON products.id = max_table.product_id
+//            LEFT JOIN
+//            (
+//                SELECT *, MAX(update_timestamp) FROM price_records GROUP BY product_id
+//            ) latest_table ON products.id = latest_table.product_id
+//            WHERE products.category_id = :categoryId
+//            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+//        """
+        """
+            SELECT products.*, min_table.*
+            FROM products
+            LEFT JOIN
+            (
+                SELECT *, MIN(price) FROM price_records GROUP BY product_id
+            ) min_table ON products.id = min_table.product_id
+            WHERE products.category_id = :categoryId
+            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+        """
+    )
+    suspend fun getProductsWithMinMaxPriceRecordsByCategoryPaging(
+        categoryId: Long?, offset: Int, pageSize: Int
+    ): List<ProductWithMinMaxLatestPriceRecords>
+
+    data class ProductWithMinMaxLatestPriceRecords(
+        @Embedded val productRoomEntity: ProductRoomEntity,
+        @Embedded(prefix = "minPriceRecord.") val minPriceRecord: PriceRecordRoomEntity?,
+        @Embedded(prefix = "maxPriceRecord.") val maxPriceRecord: PriceRecordRoomEntity?,
+        @Embedded(prefix = "latestPriceRecord.") val latestPriceRecord: PriceRecordRoomEntity?,
+    )
 }

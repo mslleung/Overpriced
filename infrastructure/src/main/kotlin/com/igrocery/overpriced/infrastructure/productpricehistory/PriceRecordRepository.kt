@@ -3,10 +3,9 @@ package com.igrocery.overpriced.infrastructure.productpricehistory
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
-import com.igrocery.overpriced.infrastructure.di.DefaultDispatcher
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.mapper.PriceRecordMapper
-import kotlinx.coroutines.*
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -18,23 +17,21 @@ class PriceRecordRepository @Inject internal constructor(
     private val transaction: Transaction
 ) : IPriceRecordRepository {
 
-    private val priceRecordMapper = PriceRecordMapper()
-
     override suspend fun insert(item: PriceRecord): Long {
         return transaction.execute {
-            localPriceRecordDataSource.insertPriceRecord(priceRecordMapper.mapToData(item))
+            localPriceRecordDataSource.insertPriceRecord(item.toData())
         }
     }
 
     override suspend fun update(item: PriceRecord) {
         transaction.execute {
-            localPriceRecordDataSource.updatePriceRecord(priceRecordMapper.mapToData(item))
+            localPriceRecordDataSource.updatePriceRecord(item.toData())
         }
     }
 
     override suspend fun delete(item: PriceRecord) {
         transaction.execute {
-            localPriceRecordDataSource.deletePriceRecord(priceRecordMapper.mapToData(item))
+            localPriceRecordDataSource.deletePriceRecord(item.toData())
         }
     }
 
@@ -42,7 +39,7 @@ class PriceRecordRepository @Inject internal constructor(
         return localPriceRecordDataSource.getPriceRecordsByProductId(productId)
             .map { priceRecordRoomEntities ->
                 priceRecordRoomEntities.map {
-                    priceRecordMapper.mapFromData(it)
+                    it.toDomain()
                 }
             }
     }

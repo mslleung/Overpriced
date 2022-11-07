@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
@@ -69,7 +70,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
-    onProductClick: (Product) -> Unit,
+    onProductClick: (ProductWithMinMaxLatestPriceRecords) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -142,7 +143,8 @@ private fun MainContent(
         contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
-        val productsPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
+        val productsPagingItems =
+            viewModelState.productsWithMinMaxLatestPriceRecordsPagingDataFlow.collectAsLazyPagingItems()
         if (productsPagingItems.isInitialLoadCompleted()) {
             if (productsPagingItems.itemCount == 0) {
                 val scrollState = rememberScrollState()
@@ -165,11 +167,11 @@ private fun MainContent(
                 ) {
                     items(
                         items = productsPagingItems,
-                        key = { product -> product.id }
-                    ) { product ->
-                        if (product != null) {
+                        key = { item -> item.product.id }
+                    ) { item ->
+                        if (item != null) {
                             ProductListItem(
-                                product = product,
+                                item = item,
                                 onClick = onProductClick,
                                 modifier = Modifier
                                     .animateItemPlacement()
@@ -203,17 +205,19 @@ private fun EmptyListContent(
 
 @Composable
 private fun ProductListItem(
-    product: Product,
-    onClick: (Product) -> Unit,
+    item: ProductWithMinMaxLatestPriceRecords,
+    onClick: (ProductWithMinMaxLatestPriceRecords) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable { onClick(product) }
+            .clickable { onClick(item) }
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
+        val (product, minPriceRecord, maxPriceRecord, latestPriceRecord) = item
+
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
@@ -257,7 +261,7 @@ private fun EmptyPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
-        override val productsPagingDataFlow: Flow<PagingData<Product>>
+        override val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
             get() = flowOf(PagingData.from(emptyList()))
     }
 
@@ -277,11 +281,20 @@ private fun DefaultPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
-        override val productsPagingDataFlow: Flow<PagingData<Product>>
+        override val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
             get() = flowOf(
                 PagingData.from(
                     listOf(
-                        Product(name = "Apple", description = "Fuji", categoryId = null)
+                        ProductWithMinMaxLatestPriceRecords(
+                            product = Product(
+                                name = "Apple",
+                                description = "Fuji",
+                                categoryId = null
+                            ),
+                            minPriceRecord = null,
+                            maxPriceRecord = null,
+                            latestPriceRecord = null
+                        )
                     )
                 )
             )

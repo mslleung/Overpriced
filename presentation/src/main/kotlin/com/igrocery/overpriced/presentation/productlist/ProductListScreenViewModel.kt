@@ -9,8 +9,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
@@ -23,7 +23,7 @@ private val log = Logger { }
 
 interface ProductListScreenViewModelState {
     val categoryFlow: StateFlow<LoadingState<Category?>>
-    val productsPagingDataFlow: Flow<PagingData<Product>>
+    val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
 }
 
 @HiltViewModel
@@ -48,13 +48,13 @@ class ProductListScreenViewModel @Inject constructor(
                 initialValue = LoadingState.Loading()
             )
 
-    override val productsPagingDataFlow = Pager(
+    override val productsWithMinMaxLatestPriceRecordsPagingDataFlow = Pager(
         PagingConfig(
             pageSize = 100,
             prefetchDistance = 30
         )
     ) {
-        productService.getProductsByCategoryIdPaging(categoryId)
+        productService.getProductsWithMinMaxLatestPriceRecordsByCategoryIdPaging(categoryId)
     }.flow
         .cachedIn(viewModelScope)
 

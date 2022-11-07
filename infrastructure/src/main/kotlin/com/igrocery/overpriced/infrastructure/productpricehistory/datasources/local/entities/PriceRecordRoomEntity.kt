@@ -2,6 +2,9 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
+import com.igrocery.overpriced.domain.productpricehistory.models.Money
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
+import java.util.*
 
 @Entity(
     tableName = "price_records",
@@ -33,7 +36,7 @@ internal data class PriceRecordRoomEntity(
     val updateTimestamp: Long,
 
     @ColumnInfo(name = "product_id")
-    var productId: Long,
+    val productId: Long,
     @ColumnInfo(name = "store_id")
     val storeId: Long,
 
@@ -42,3 +45,33 @@ internal data class PriceRecordRoomEntity(
     @ColumnInfo(name = "currency")
     val currency: String,
 )
+
+
+
+// mapping functions
+
+internal fun PriceRecordRoomEntity.toDomain(): PriceRecord {
+    return PriceRecord(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        productId = productId,
+        price = Money(
+            amount = price,
+            currency = Currency.getInstance(currency)
+        ),
+        storeId = storeId,
+    )
+}
+
+internal fun PriceRecord.toData(): PriceRecordRoomEntity {
+    return PriceRecordRoomEntity(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        productId = productId,
+        price = price.amount,
+        currency = price.currency.currencyCode,
+        storeId = storeId,
+    )
+}

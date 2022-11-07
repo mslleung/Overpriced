@@ -8,8 +8,8 @@ import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSourc
 import com.igrocery.overpriced.infrastructure.di.IoDispatcher
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.IStoreDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalStoreDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.mapper.StoreMapper
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -24,33 +24,30 @@ class StoreRepository @Inject internal constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IStoreRepository {
 
-    private val storeMapper = StoreMapper()
-
     override suspend fun insert(item: Store): Long {
         return transaction.execute {
-            localStoreDataSource.insertStore(storeMapper.mapToData(item))
+            localStoreDataSource.insertStore(item.toData())
         }
     }
 
     override suspend fun update(item: Store) {
         transaction.execute {
-            localStoreDataSource.updateStore(storeMapper.mapToData(item))
+            localStoreDataSource.updateStore(item.toData())
         }
     }
 
     override suspend fun delete(item: Store) {
         transaction.execute {
-            localStoreDataSource.deleteStore(storeMapper.mapToData(item))
+            localStoreDataSource.deleteStore(item.toData())
         }
     }
 
     override fun getStoresPagingSource(): PagingSource<Int, Store> {
-        return StorePagingSource(localStoreDataSource, storeMapper, ioDispatcher)
+        return StorePagingSource(localStoreDataSource, ioDispatcher)
     }
 
     private class StorePagingSource(
         private val localStoreDataSource: IStoreDataSource,
-        private val storeMapper: StoreMapper,
         private val ioDispatcher: CoroutineDispatcher,
     ) : PagingSource<Int, Store>(), InvalidationObserverDelegate.InvalidationObserver {
 
@@ -69,7 +66,7 @@ class StoreRepository @Inject internal constructor(
                     val pageNumber = params.key ?: 1
                     val offset = (pageNumber - 1) * params.loadSize // all the previous pages
                     val pageData = localStoreDataSource.getStoresPage(offset, params.loadSize)
-                        .map { storeMapper.mapFromData(it) }
+                        .map { it.toDomain() }
                     LoadResult.Page(
                         data = pageData,
                         prevKey = if (pageNumber <= 1) null else pageNumber - 1,
@@ -99,7 +96,7 @@ class StoreRepository @Inject internal constructor(
 
     override fun getStoreById(id: Long): Flow<Store?> {
         return localStoreDataSource.getStoreById(id)
-            .map { it?.let { storeMapper.mapFromData(it) } }
+            .map { it?.toDomain() }
     }
 
     override fun getStoresCount(): Flow<Int> {

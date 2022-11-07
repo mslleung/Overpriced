@@ -5,7 +5,8 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalCategoryDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.mapper.CategoryMapper
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -17,34 +18,32 @@ class CategoryRepository @Inject internal constructor(
     private val transaction: Transaction,
 ) : ICategoryRepository {
 
-    private val categoryMapper = CategoryMapper()
-
     override suspend fun insert(item: Category): Long {
         return transaction.execute {
-            localCategoryDataSource.insert(categoryMapper.mapToData(item))
+            localCategoryDataSource.insert(item.toData())
         }
     }
 
     override suspend fun update(item: Category) {
         transaction.execute {
-            localCategoryDataSource.update(categoryMapper.mapToData(item))
+            localCategoryDataSource.update(item.toData())
         }
     }
 
     override suspend fun delete(item: Category) {
         transaction.execute {
-            localCategoryDataSource.delete(categoryMapper.mapToData(item))
+            localCategoryDataSource.delete(item.toData())
         }
     }
 
     override fun getCategoryById(id: Long): Flow<Category?> {
         return localCategoryDataSource.getCategoryById(id)
-            .map { it?.let { categoryMapper.mapFromData(it) } }
+            .map { it?.toDomain() }
     }
 
     override fun getAllCategories(): Flow<List<Category>> {
         return localCategoryDataSource.getAllCategories()
-            .map { it.map { category -> categoryMapper.mapFromData(category) } }
+            .map { it.map { category -> category.toDomain() } }
     }
 
     override fun getAllCategoriesWithProductCount(): Flow<List<CategoryWithProductCount>> {
@@ -53,7 +52,7 @@ class CategoryRepository @Inject internal constructor(
                 it.map { data ->
                     if (data.categoryRoomEntity != null) {
                         CategoryWithProductCount(
-                            categoryMapper.mapFromData(data.categoryRoomEntity),
+                            data.categoryRoomEntity.toDomain(),
                             data.productCount
                         )
                     } else {

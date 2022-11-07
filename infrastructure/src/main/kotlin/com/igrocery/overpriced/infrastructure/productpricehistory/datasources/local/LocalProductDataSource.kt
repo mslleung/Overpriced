@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
 import com.igrocery.overpriced.infrastructure.AppDatabase
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
@@ -65,7 +66,7 @@ internal class LocalProductDataSource @Inject internal constructor(
         offset: Int,
         pageSize: Int
     ): List<ProductRoomEntity> {
-        return db.productDao().searchProducts(query, offset, pageSize)
+        return db.productDao().searchProductsPaging(query, offset, pageSize)
     }
 
     override suspend fun getProductByCategoryIdPaging(
@@ -74,5 +75,13 @@ internal class LocalProductDataSource @Inject internal constructor(
         pageSize: Int
     ): List<ProductRoomEntity> {
         return db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
+    }
+
+    override suspend fun getProductsWithMinMaxPriceRecordsByCategoryPaging(
+        categoryId: Long?,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductDao.ProductWithMinMaxLatestPriceRecords> {
+        return db.productDao().getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId, offset, pageSize)
     }
 }

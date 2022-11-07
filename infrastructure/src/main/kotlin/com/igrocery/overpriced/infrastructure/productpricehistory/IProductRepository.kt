@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.BaseRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,5 +16,7 @@ interface IProductRepository : BaseRepository<Product> {
     ): Flow<Product?>
 
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
+
+    fun getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxLatestPriceRecords>
 
 }

@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 
 @Entity(
     tableName = "products",
@@ -32,3 +33,29 @@ internal data class ProductRoomEntity(
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
 )
+
+
+
+// mapping functions
+
+internal fun ProductRoomEntity.toDomain(): Product {
+    return Product(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        description = description,
+        categoryId = categoryId
+    )
+}
+
+internal fun Product.toData(): ProductRoomEntity {
+    return ProductRoomEntity(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        description = description,
+        categoryId = categoryId,
+    )
+}

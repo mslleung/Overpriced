@@ -3,6 +3,9 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.igrocery.overpriced.domain.productpricehistory.models.Address
+import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
+import com.igrocery.overpriced.domain.productpricehistory.models.Store
 
 @Entity(tableName = "stores")
 internal data class StoreRoomEntity(
@@ -22,3 +25,33 @@ internal data class StoreRoomEntity(
     @ColumnInfo(name = "address_longitude")
     val longitude: Double,
 )
+
+
+
+// mapping functions
+
+internal fun StoreRoomEntity.toDomain(): Store {
+    val address = Address(
+        lines = addressLines,
+        geoCoordinates = GeoCoordinates(latitude, longitude)
+    )
+    return Store(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        address = address,
+    )
+}
+
+internal fun Store.toData(): StoreRoomEntity {
+    return StoreRoomEntity(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        addressLines = address.lines,
+        latitude = address.geoCoordinates.latitude,
+        longitude = address.geoCoordinates.longitude,
+    )
+}

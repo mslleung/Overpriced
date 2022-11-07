@@ -3,6 +3,8 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 
 @Entity(
     tableName = "categories",
@@ -20,3 +22,26 @@ internal data class CategoryRoomEntity (
     @ColumnInfo(name = "name")
     val name: String,
 )
+
+
+
+// mapping functions
+internal fun CategoryRoomEntity.toDomain(): Category {
+    return Category(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        icon = CategoryIcon.valueOf(icon),
+        name = name,
+    )
+}
+
+internal fun Category.toData(): CategoryRoomEntity {
+    return CategoryRoomEntity(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        icon = icon.name,
+        name = name,
+    )
+}
