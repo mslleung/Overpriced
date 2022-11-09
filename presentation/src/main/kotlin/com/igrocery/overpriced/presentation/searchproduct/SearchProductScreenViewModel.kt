@@ -16,7 +16,9 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
-interface SearchProductScreenViewModelState
+interface SearchProductScreenViewModelState {
+    val productsPagingDataFlow: Flow<PagingData<Product>>
+}
 
 @HiltViewModel
 class SearchProductScreenViewModel @Inject constructor(
@@ -25,7 +27,7 @@ class SearchProductScreenViewModel @Inject constructor(
 
     var query = ""
 
-    val productsPagingDataFlow = Pager(
+    override val productsPagingDataFlow = Pager(
             PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 30

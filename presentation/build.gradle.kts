@@ -148,7 +148,7 @@ dependencies {
     implementation("com.github.skydoves:landscapist-glide:2.0.3")
 
     // google play services
-    implementation("com.google.android.gms:play-services-location:21.0.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.maps.android:maps-compose:2.7.2")
 

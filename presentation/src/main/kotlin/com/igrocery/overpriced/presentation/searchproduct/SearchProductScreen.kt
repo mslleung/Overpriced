@@ -25,8 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
@@ -34,6 +32,8 @@ import com.igrocery.overpriced.presentation.shared.BackButton
 import com.igrocery.overpriced.presentation.shared.UseAnimatedFadeTopBarColorForStatusBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -47,12 +47,10 @@ fun SearchProductScreen(
 ) {
     log.debug("Composing SearchProductScreen")
 
-    val state by rememberSearchProductScreenState()
-    val productPagingItems = viewModel.productsPagingDataFlow.collectAsLazyPagingItems()
+    val state by rememberSearchProductScreenState(viewModel)
     MainContent(
         viewModelState = viewModel,
         state = state,
-        productsPagingItems = productPagingItems,
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
             state.isRequestingFirstFocus = false
@@ -67,7 +65,7 @@ fun SearchProductScreen(
         snapshotFlow { state.query }
             .collect {
                 viewModel.query = it
-                productPagingItems.refresh()
+                state.productPagingItems.refresh()
             }
     }
 
@@ -86,7 +84,6 @@ fun SearchProductScreen(
 private fun MainContent(
     viewModelState: SearchProductScreenViewModelState,
     state: SearchProductScreenStateHolder,
-    productsPagingItems: LazyPagingItems<Product>,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -164,7 +161,7 @@ private fun MainContent(
         },
         contentWindowInsets = WindowInsets.safeDrawing
     ) {
-        if (productsPagingItems.itemCount == 0) {
+        if (state.productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
@@ -178,7 +175,7 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = productsPagingItems,
+                    items = state.productPagingItems,
                     key = { product -> product.id }
                 ) { product ->
                     if (product != null) {
@@ -263,12 +260,14 @@ private fun ProductListItem(
 @Preview
 @Composable
 private fun EmptyPreview() {
-    val viewModelState = object : SearchProductScreenViewModelState {}
-    val emptyPagingItems = flowOf(PagingData.empty<Product>()).collectAsLazyPagingItems()
+    val viewModelState = object : SearchProductScreenViewModelState {
+        override val productsPagingDataFlow: Flow<PagingData<Product>>
+            get() = emptyFlow()
+    }
+    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
     MainContent(
         viewModelState = viewModelState,
-        state = SearchProductScreenStateHolder(),
-        productsPagingItems = emptyPagingItems,
+        state = state,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
@@ -279,19 +278,20 @@ private fun EmptyPreview() {
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val viewModelState = object : SearchProductScreenViewModelState {}
-    val pagingItems = flowOf(
-        PagingData.from(
-            listOf(
-                Product(name = "Apple", description = "Fuji", categoryId = null)
+    val viewModelState = object : SearchProductScreenViewModelState {
+        override val productsPagingDataFlow: Flow<PagingData<Product>>
+            get() = flowOf(
+                PagingData.from(
+                    listOf(
+                        Product(name = "Apple", description = "Fuji", categoryId = null)
+                    )
+                )
             )
-        )
-    ).collectAsLazyPagingItems()
-
+    }
+    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
     MainContent(
         viewModelState = viewModelState,
-        state = SearchProductScreenStateHolder(),
-        productsPagingItems = pagingItems,
+        state = state,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
