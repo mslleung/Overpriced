@@ -2,7 +2,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
@@ -175,7 +175,7 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxLatestPriceRecords> {
+    override fun getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxPrices> {
         return ProductsWithMinMaxPriceRecordsByCategoryPagingSource(
             localProductDataSource,
             localPriceRecordDataSource,
@@ -189,7 +189,7 @@ class ProductRepository @Inject internal constructor(
         localPriceRecordDataSource: ILocalPriceRecordDataSource,
         private val ioDispatcher: CoroutineDispatcher,
         private val categoryId: Long?,
-    ) : PagingSource<Int, ProductWithMinMaxLatestPriceRecords>(),
+    ) : PagingSource<Int, ProductWithMinMaxPrices>(),
         InvalidationObserverDelegate.InvalidationObserver {
 
         init {
@@ -202,7 +202,7 @@ class ProductRepository @Inject internal constructor(
             invalidate()
         }
 
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ProductWithMinMaxLatestPriceRecords> {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ProductWithMinMaxPrices> {
             return withContext(ioDispatcher) {
                 try {
                     val pageNumber = params.key ?: 1
@@ -216,7 +216,7 @@ class ProductRepository @Inject internal constructor(
                         )
                     LoadResult.Page(
                         data = pageData.map {
-                            ProductWithMinMaxLatestPriceRecords(
+                            ProductWithMinMaxPrices(
                                 it.productRoomEntity.toDomain(),
                                 it.minPriceRecord?.toDomain(),
                                 it.maxPriceRecord?.toDomain(),
@@ -232,7 +232,7 @@ class ProductRepository @Inject internal constructor(
             }
         }
 
-        override fun getRefreshKey(state: PagingState<Int, ProductWithMinMaxLatestPriceRecords>): Int? {
+        override fun getRefreshKey(state: PagingState<Int, ProductWithMinMaxPrices>): Int? {
             return state.anchorPosition?.let { anchorPosition ->
                 val anchorPage = state.closestPageToPosition(anchorPosition)
                 anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)

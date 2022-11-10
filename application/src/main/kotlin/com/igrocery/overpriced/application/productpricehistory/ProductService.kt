@@ -62,7 +62,7 @@ class ProductService @Inject constructor(
         return productRepository.getProductsByCategoryIdPaging(categoryId)
     }
 
-    fun getProductsWithMinMaxLatestPriceRecordsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxLatestPriceRecords> {
+    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxLatestPriceRecords> {
         return productRepository.getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId)
     }
 

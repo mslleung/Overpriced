@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
@@ -70,7 +70,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
-    onProductClick: (ProductWithMinMaxLatestPriceRecords) -> Unit,
+    onProductClick: (ProductWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -144,7 +144,7 @@ private fun MainContent(
         modifier = modifier
     ) {
         val productsPagingItems =
-            viewModelState.productsWithMinMaxLatestPriceRecordsPagingDataFlow.collectAsLazyPagingItems()
+            viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
         if (productsPagingItems.isInitialLoadCompleted()) {
             if (productsPagingItems.itemCount == 0) {
                 val scrollState = rememberScrollState()
@@ -205,8 +205,8 @@ private fun EmptyListContent(
 
 @Composable
 private fun ProductListItem(
-    item: ProductWithMinMaxLatestPriceRecords,
-    onClick: (ProductWithMinMaxLatestPriceRecords) -> Unit,
+    item: ProductWithMinMaxPrices,
+    onClick: (ProductWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -261,7 +261,7 @@ private fun EmptyPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
-        override val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = flowOf(PagingData.from(emptyList()))
     }
 
@@ -281,19 +281,19 @@ private fun DefaultPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
-        override val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = flowOf(
                 PagingData.from(
                     listOf(
-                        ProductWithMinMaxLatestPriceRecords(
+                        ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
                                 description = "Fuji",
                                 categoryId = null
                             ),
-                            minPriceRecord = null,
-                            maxPriceRecord = null,
-                            latestPriceRecord = null
+                            minPrice = null,
+                            maxPrice = null,
+                            lastUpdatedTimestamp = null
                         )
                     )
                 )

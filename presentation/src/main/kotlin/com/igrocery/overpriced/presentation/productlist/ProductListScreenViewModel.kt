@@ -7,14 +7,16 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.igrocery.overpriced.application.preference.PreferenceService
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -23,7 +25,7 @@ private val log = Logger { }
 
 interface ProductListScreenViewModelState {
     val categoryFlow: StateFlow<LoadingState<Category?>>
-    val productsWithMinMaxLatestPriceRecordsPagingDataFlow: Flow<PagingData<ProductWithMinMaxLatestPriceRecords>>
+    val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
 @HiltViewModel
@@ -31,6 +33,7 @@ class ProductListScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
     categoryService: CategoryService,
     private val productService: ProductService,
+    preferenceService: PreferenceService,
 ) : ViewModel(), ProductListScreenViewModelState {
 
     private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId).takeIf { it != 0L }
@@ -48,14 +51,21 @@ class ProductListScreenViewModel @Inject constructor(
                 initialValue = LoadingState.Loading()
             )
 
-    override val productsWithMinMaxLatestPriceRecordsPagingDataFlow = Pager(
-        PagingConfig(
-            pageSize = 100,
-            prefetchDistance = 30
-        )
-    ) {
-        productService.getProductsWithMinMaxLatestPriceRecordsByCategoryIdPaging(categoryId)
-    }.flow
-        .cachedIn(viewModelScope)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val productsWithMinMaxPricesPagingDataFlow =
+        preferenceService.getAppPreference().flatMapLatest {
+            Pager(
+                PagingConfig(
+                    pageSize = 100,
+                    prefetchDistance = 30
+                )
+            ) {
+                productService.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+                    categoryId,
+                    it.preferredCurrency
+                )
+            }.flow
+                .cachedIn(viewModelScope)
+        }
 
 }
