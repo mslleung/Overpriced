@@ -6,6 +6,7 @@ import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.lo
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -77,11 +78,17 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
     }
 
-    override suspend fun getProductsWithMinMaxPriceRecordsByCategoryPaging(
+    override suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
         categoryId: Long?,
+        currency: Currency,
         offset: Int,
         pageSize: Int
-    ): List<ProductDao.ProductWithMinMaxLatestPriceRecords> {
-        return db.productDao().getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId, offset, pageSize)
+    ): List<ProductDao.ProductWithMinMaxPrices> {
+        return db.productDao().getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+            categoryId,
+            currency.currencyCode,
+            offset,
+            pageSize
+        )
     }
 }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -175,20 +176,25 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxPrices> {
-        return ProductsWithMinMaxPriceRecordsByCategoryPagingSource(
+    override fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
+        return ProductsWithMinMaxPricesByCategoryIdAndCurrencyPagingSource(
             localProductDataSource,
             localPriceRecordDataSource,
             ioDispatcher,
-            categoryId
+            categoryId,
+            currency
         )
     }
 
-    private class ProductsWithMinMaxPriceRecordsByCategoryPagingSource(
+    private class ProductsWithMinMaxPricesByCategoryIdAndCurrencyPagingSource(
         private val localProductDataSource: ILocalProductDataSource,
         localPriceRecordDataSource: ILocalPriceRecordDataSource,
         private val ioDispatcher: CoroutineDispatcher,
         private val categoryId: Long?,
+        private val currency: Currency
     ) : PagingSource<Int, ProductWithMinMaxPrices>(),
         InvalidationObserverDelegate.InvalidationObserver {
 
@@ -209,8 +215,9 @@ class ProductRepository @Inject internal constructor(
                     val offset = (pageNumber - 1) * params.loadSize // all the previous pages
 
                     val pageData =
-                        localProductDataSource.getProductsWithMinMaxPriceRecordsByCategoryPaging(
+                        localProductDataSource.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
                             categoryId,
+                            currency,
                             offset,
                             params.loadSize
                         )
@@ -218,9 +225,9 @@ class ProductRepository @Inject internal constructor(
                         data = pageData.map {
                             ProductWithMinMaxPrices(
                                 it.productRoomEntity.toDomain(),
-                                it.minPriceRecord?.toDomain(),
-                                it.maxPriceRecord?.toDomain(),
-                                it.latestPriceRecord?.toDomain()
+                                it.minPrice,
+                                it.maxPrice,
+                                it.lastUpdatedTimestamp
                             )
                         },
                         prevKey = if (pageNumber <= 1) null else pageNumber - 1,

@@ -1,12 +1,13 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxLatestPriceRecords
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -62,8 +63,14 @@ class ProductService @Inject constructor(
         return productRepository.getProductsByCategoryIdPaging(categoryId)
     }
 
-    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxLatestPriceRecords> {
-        return productRepository.getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId)
+    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
+        return productRepository.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+            categoryId,
+            currency
+        )
     }
 
 }

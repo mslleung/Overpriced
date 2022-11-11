@@ -5,6 +5,7 @@ import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMax
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.BaseRepository
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
 interface IProductRepository : BaseRepository<Product> {
 
@@ -17,6 +18,9 @@ interface IProductRepository : BaseRepository<Product> {
 
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
 
-    fun getProductsWithMinMaxPriceRecordsByCategoryPaging(categoryId: Long?): PagingSource<Int, ProductWithMinMaxPrices>
+    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices>
 
 }

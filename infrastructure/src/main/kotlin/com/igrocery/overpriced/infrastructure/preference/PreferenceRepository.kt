@@ -23,7 +23,7 @@ class PreferenceRepository @Inject internal constructor(
 
     override suspend fun updatePreferredCurrency(currency: Currency) {
         externalScope.launch(defaultDispatcher) {
-            preferenceDataSource.updatePreferredCurrency(currency.currencyCode)
+            preferenceDataSource.updatePreferredCurrency(currency)
         }.join()
     }
 

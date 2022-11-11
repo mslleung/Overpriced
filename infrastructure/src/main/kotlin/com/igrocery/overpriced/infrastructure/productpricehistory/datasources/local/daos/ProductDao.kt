@@ -1,7 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
 import androidx.room.*
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -74,23 +73,19 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
 //        """
         """
             SELECT products.*, min_table.*
-            FROM products
-            LEFT JOIN
-            (
-                SELECT *, MIN(price) FROM price_records GROUP BY product_id
-            ) min_table ON products.id = min_table.product_id
-            WHERE products.category_id = :categoryId
+            FROM products LEFT JOIN price_records  ON products.id = price_records.product_id
+            WHERE products.category_id = :categoryId 
             ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getProductsWithMinMaxPriceRecordsByCategoryPaging(
-        categoryId: Long?, offset: Int, pageSize: Int
-    ): List<ProductWithMinMaxLatestPriceRecords>
+    suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?, currency: String, offset: Int, pageSize: Int
+    ): List<ProductWithMinMaxPrices>
 
-    data class ProductWithMinMaxLatestPriceRecords(
+    data class ProductWithMinMaxPrices(
         @Embedded val productRoomEntity: ProductRoomEntity,
-        @Embedded(prefix = "minPriceRecord.") val minPriceRecord: PriceRecordRoomEntity?,
-        @Embedded(prefix = "maxPriceRecord.") val maxPriceRecord: PriceRecordRoomEntity?,
-        @Embedded(prefix = "latestPriceRecord.") val latestPriceRecord: PriceRecordRoomEntity?,
+        val minPrice: Double?,
+        val maxPrice: Double?,
+        val lastUpdatedTimestamp: Long?,
     )
 }

@@ -216,7 +216,7 @@ private fun ProductListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
-        val (product, minPriceRecord, maxPriceRecord, latestPriceRecord) = item
+        val (product, minPrice, maxPrice, lastUpdatedTimestamp) = item
 
         Column(
             verticalArrangement = Arrangement.Center,
