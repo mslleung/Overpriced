@@ -72,9 +72,13 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
 //            ORDER BY name, description LIMIT :pageSize OFFSET :offset
 //        """
         """
-            SELECT products.*, min_table.*
-            FROM products LEFT JOIN price_records  ON products.id = price_records.product_id
+            SELECT products.*,
+                MIN(price_records.price) AS minPrice,
+                MAX(price_records.price) AS maxPrice,
+                MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
+            FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.category_id = :categoryId 
+            GROUP BY products.id
             ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
     )
