@@ -9,10 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
+import java.util.*
 
 @Suppress("unused")
 private val log = Logger { }
@@ -110,7 +113,7 @@ private fun MainContent(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                            contentDescription = stringResource(id = R.string.category_detail_search_button_content_description)
+                            contentDescription = stringResource(id = R.string.product_list_search_button_content_description)
                         )
                     }
 
@@ -124,7 +127,7 @@ private fun MainContent(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                                    contentDescription = stringResource(id = R.string.category_detail_edit_button_content_description)
+                                    contentDescription = stringResource(id = R.string.product_list_edit_button_content_description)
                                 )
                             }
                         }
@@ -145,6 +148,7 @@ private fun MainContent(
     ) {
         val productsPagingItems =
             viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
+        val currency by viewModelState.currencyFlow.collectAsState()
         if (productsPagingItems.isInitialLoadCompleted()) {
             if (productsPagingItems.itemCount == 0) {
                 val scrollState = rememberScrollState()
@@ -172,6 +176,7 @@ private fun MainContent(
                         if (item != null) {
                             ProductListItem(
                                 item = item,
+                                currency = currency,
                                 onClick = onProductClick,
                                 modifier = Modifier
                                     .animateItemPlacement()
@@ -194,7 +199,7 @@ private fun EmptyListContent(
         modifier = modifier,
     ) {
         Text(
-            text = stringResource(id = R.string.category_detail_empty_text),
+            text = stringResource(id = R.string.product_list_empty_text),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
@@ -203,9 +208,11 @@ private fun EmptyListContent(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ProductListItem(
     item: ProductWithMinMaxPrices,
+    currency: LoadingState<Currency>,
     onClick: (ProductWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -220,7 +227,7 @@ private fun ProductListItem(
 
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(0.5f)
         ) {
             Text(
                 text = product.name,
@@ -240,17 +247,71 @@ private fun ProductListItem(
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.wrapContentWidth()
-        ) {
-//            Text(
-//                text = product.,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis,
-//                style = MaterialTheme.typography.bodyMedium,
-//                modifier = Modifier.alpha(0.6f)
-//            )
+        if (currency is LoadingState.Success) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.End,
+            ) {
+                val currencySymbol = currency.data.symbol
+                val priceRangeText = if (minPrice == maxPrice) {
+                    "$currencySymbol $minPrice"
+                } else {
+                    "$currencySymbol $minPrice - $maxPrice"
+                }
+                Text(
+                    text = priceRangeText,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                lastUpdatedTimestamp?.let {
+                    val secondsPassed by ticksEverySecond()
+                    secondsPassed.run {
+                        val timeAgo = System.nanoTime() - lastUpdatedTimestamp
+                        assert(timeAgo > 0)
+
+                        // note that the numbers are floored due to numerical precision
+                        val timeAgoInDays = (timeAgo / (24 * 60 * 60) / 1000 / 1000 / 1000).toInt()
+                        val timeAgoInHours = (timeAgo / (60 * 60) / 1000 / 1000 / 1000).toInt()
+                        val timeAgoInMinutes = (timeAgo / (60) / 1000 / 1000 / 1000).toInt()
+                        val timeAgoText = if (timeAgoInDays > 0) {
+                            pluralStringResource(
+                                id = R.plurals.product_list_days_ago,
+                                count = timeAgoInDays,
+                                timeAgoInDays
+                            )
+                        } else if (timeAgoInHours > 0) {
+                            pluralStringResource(
+                                id = R.plurals.product_list_hours_ago,
+                                count = timeAgoInHours,
+                                timeAgoInHours
+                            )
+                        } else if (timeAgoInMinutes > 0) {
+                            pluralStringResource(
+                                id = R.plurals.product_list_minutes_ago,
+                                count = timeAgoInMinutes,
+                                timeAgoInMinutes
+                            )
+                        } else {
+                            stringResource(id = R.string.product_list_moments_ago)
+                        }
+
+                        val updatedLabel =
+                            stringResource(id = R.string.product_list_updated_label)
+                        Text(
+                            text = "$updatedLabel $timeAgoText",
+                            maxLines = 1,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(0.6f)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -261,6 +322,8 @@ private fun EmptyPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
+        override val currencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
         override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = flowOf(PagingData.from(emptyList()))
     }
@@ -281,6 +344,8 @@ private fun DefaultPreview() {
     val viewModelState = object : ProductListScreenViewModelState {
         override val categoryFlow: StateFlow<LoadingState<Category?>>
             get() = MutableStateFlow(LoadingState.Success(null))
+        override val currencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
         override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = flowOf(
                 PagingData.from(

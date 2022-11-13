@@ -18,6 +18,7 @@ import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import java.util.Currency
 import javax.inject.Inject
 
 @Suppress("unused")
@@ -25,6 +26,7 @@ private val log = Logger { }
 
 interface ProductListScreenViewModelState {
     val categoryFlow: StateFlow<LoadingState<Category?>>
+    val currencyFlow: StateFlow<LoadingState<Currency>>
     val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
@@ -50,6 +52,16 @@ class ProductListScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(),
                 initialValue = LoadingState.Loading()
             )
+
+    override val currencyFlow = preferenceService.getAppPreference()
+        .map {
+            LoadingState.Success(it.preferredCurrency)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val productsWithMinMaxPricesPagingDataFlow =

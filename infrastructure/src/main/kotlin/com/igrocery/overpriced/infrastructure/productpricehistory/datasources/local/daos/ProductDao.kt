@@ -53,31 +53,13 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     ): List<ProductRoomEntity>
 
     @Query(
-//        """
-//            SELECT products.*, min_table.* AS minPriceRecord, max_table.* AS maxPriceRecord, latest_table.* AS latestPriceRecord
-//            FROM products
-//            LEFT JOIN
-//            (
-//                SELECT *, MIN(price) FROM price_records GROUP BY product_id
-//            ) min_table ON products.id = min_table.product_id
-//            LEFT JOIN
-//            (
-//                SELECT *, MAX(price) FROM price_records GROUP BY product_id
-//            ) max_table ON products.id = max_table.product_id
-//            LEFT JOIN
-//            (
-//                SELECT *, MAX(update_timestamp) FROM price_records GROUP BY product_id
-//            ) latest_table ON products.id = latest_table.product_id
-//            WHERE products.category_id = :categoryId
-//            ORDER BY name, description LIMIT :pageSize OFFSET :offset
-//        """
         """
             SELECT products.*,
                 MIN(price_records.price) AS minPrice,
                 MAX(price_records.price) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
-            WHERE products.category_id = :categoryId 
+            WHERE products.category_id IS :categoryId AND price_records.currency = :currency
             GROUP BY products.id
             ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
