@@ -1,5 +1,8 @@
 package com.igrocery.overpriced.presentation.editstore
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,48 +10,52 @@ import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
+import com.igrocery.overpriced.presentation.NavDestinations
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("unused")
 private val log = Logger { }
 
+interface EditStoreScreenViewModelState {
+    val storeFlow: StateFlow<LoadingState<Store>>
+    val updateStoreResult: LoadingState<Unit>
+    val deleteStoreResult: LoadingState<Unit>
+}
+
 @HiltViewModel
 class EditStoreScreenViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val storeService: StoreService,
-) : ViewModel() {
+) : ViewModel(), EditStoreScreenViewModelState {
 
-    private companion object {
-        private const val KEY_STORE_ID = "KEY_STORE_ID"
-    }
+    private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId)
+        ?: throw IllegalArgumentException("Store id cannot be null")
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val storeFlow = savedStateHandle.getStateFlow(KEY_STORE_ID, 0L)
-        .flatMapLatest { storeService.getStoreById(it) }
+    override val storeFlow = storeService.getStoreById(storeId)
+        .map {
+            if (it == null) {
+                LoadingState.Error(Exception("Store not found"))
+            } else {
+                LoadingState.Success(it)
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = null
+            initialValue = LoadingState.Loading()
         )
 
-    fun setStoreId(storeId: Long) {
-        savedStateHandle[KEY_STORE_ID] = storeId
-    }
+    override var updateStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
-    open class UpdateStoreResultState private constructor() {
-        object Idle : UpdateStoreResultState()
-        object Success : UpdateStoreResultState()
-        object Error : UpdateStoreResultState()
-    }
-
-    private val _updateStoreResultStateFlow = MutableStateFlow<UpdateStoreResultState>(UpdateStoreResultState.Idle)
-    val updateStoreResultStateFlow: StateFlow<UpdateStoreResultState> = _updateStoreResultStateFlow
+    override var deleteStoreResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
     fun updateStore(
         storeName: String,
@@ -57,35 +64,39 @@ class EditStoreScreenViewModel @Inject constructor(
         longitude: Double
     ) {
         viewModelScope.launch {
-            with(_updateStoreResultStateFlow) {
-                try {
-                    emit(UpdateStoreResultState.Idle)
-
-                    val originalStore = storeFlow.value!!
-                    val updatedStore = Store(
-                        id = originalStore.id,
-                        creationTimestamp = originalStore.creationTimestamp,
-                        updateTimestamp = originalStore.updateTimestamp,
+            runCatching {
+                updateStoreResult = LoadingState.Loading()
+                val originalStore = storeFlow.value
+                if (originalStore is LoadingState.Success) {
+                    val updatedStore = originalStore.data.copy(
                         name = storeName,
                         address = Address(
                             lines = addressLines,
                             geoCoordinates = GeoCoordinates(latitude, longitude)
                         )
                     )
+
                     storeService.updateStore(updatedStore)
 
-                    emit(UpdateStoreResultState.Success)
-                } catch (e: Exception) {
-                    log.error(e.toString())
-                    emit(UpdateStoreResultState.Error)
+                    updateStoreResult = LoadingState.Success(Unit)
+                } else {
+                    throw IllegalStateException("Store is not loaded.")
                 }
+            }.onFailure {
+                updateStoreResult = LoadingState.Error(it)
             }
         }
     }
 
     fun deleteStore(store: Store) {
         viewModelScope.launch {
-            storeService.deleteStore(store)
+            runCatching {
+                deleteStoreResult = LoadingState.Loading()
+                storeService.deleteStore(store)
+                deleteStoreResult = LoadingState.Success(Unit)
+            }.onFailure {
+                deleteStoreResult = LoadingState.Error(it)
+            }
         }
     }
 

@@ -12,14 +12,30 @@ internal class LocalPriceRecordDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalPriceRecordDataSource {
 
+    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "price_records")
+
+    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
+        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
+    }
+
     override suspend fun insertPriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity): Long {
-        val id = db.priceRecordDao().insert(priceRecordRoomEntity)
+        val time = System.nanoTime()
+        val entity = priceRecordRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val id = db.priceRecordDao().insert(entity)
         require(id > 0)
         return id
     }
 
     override suspend fun updatePriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity) {
-        val rowsUpdated = db.priceRecordDao().update(priceRecordRoomEntity)
+        val entity = priceRecordRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.priceRecordDao().update(entity)
         require(rowsUpdated == 1)
     }
 

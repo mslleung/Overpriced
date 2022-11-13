@@ -1,41 +1,38 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 
-class SearchProductScreenStateHolder {
+class SearchProductScreenStateHolder(
+    savedState: List<*>? = null,
+    val productPagingItems: LazyPagingItems<Product>
+) {
 
-    var isRequestingFirstFocus by mutableStateOf(true)
-    var query by mutableStateOf("")
+    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
+    var query by mutableStateOf(savedState?.get(1) as? String ?: "")
 
-    companion object {
-        val Saver : Saver<SearchProductScreenStateHolder, *> = listSaver(
+}
+
+@Composable
+fun rememberSearchProductScreenState(viewModelState: SearchProductScreenViewModelState): MutableState<SearchProductScreenStateHolder> {
+    val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
+    return rememberSaveable(
+        stateSaver = listSaver(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
                     it.query,
                 )
             },
-            restore = {
-                SearchProductScreenStateHolder().apply {
-                    isRequestingFirstFocus = it[0] as Boolean
-                    query = it[1] as String
-                }
+            restore = { savedState ->
+                SearchProductScreenStateHolder(savedState, productPagingItems)
             }
         )
+    ) {
+        mutableStateOf(SearchProductScreenStateHolder(null, productPagingItems))
     }
-}
-
-@Composable
-fun rememberSearchProductScreenState() = rememberSaveable(
-    stateSaver = SearchProductScreenStateHolder.Saver
-) {
-    // UiState is not designed to be mutable. It should NEVER be reassigned.
-    // The only exception is activity config change and process recreation. Hence it is mutable.
-    mutableStateOf(SearchProductScreenStateHolder())
 }

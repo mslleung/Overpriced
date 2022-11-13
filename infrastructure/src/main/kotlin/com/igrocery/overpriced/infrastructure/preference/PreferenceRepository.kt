@@ -7,6 +7,7 @@ import com.igrocery.overpriced.infrastructure.preference.datasources.IPreference
 import com.igrocery.overpriced.infrastructure.preference.datasources.datastore.mapper.AppPreferenceMapper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.util.*
 import javax.inject.Inject
@@ -22,12 +23,14 @@ class PreferenceRepository @Inject internal constructor(
 
     override suspend fun updatePreferredCurrency(currency: Currency) {
         externalScope.launch(defaultDispatcher) {
-            preferenceDataSource.updatePreferredCurrency(currency.currencyCode)
+            preferenceDataSource.updatePreferredCurrency(currency)
         }.join()
     }
 
     override fun getAppPreference(): Flow<AppPreference> {
-        return preferenceDataSource.get().map { appPreferenceMapper.mapFromData(it) }
+        return preferenceDataSource.get()
+            .flowOn(defaultDispatcher)
+            .map { appPreferenceMapper.mapFromData(it) }
     }
 
 }

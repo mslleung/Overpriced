@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
 import com.igrocery.overpriced.infrastructure.AppDatabase
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -18,13 +19,23 @@ internal class LocalCategoryDataSource @Inject internal constructor(
     }
 
     override suspend fun insert(categoryRoomEntity: CategoryRoomEntity): Long {
-        val rowId = db.categoryDao().insert(categoryRoomEntity)
+        val time = System.nanoTime()
+        val entity = categoryRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val rowId = db.categoryDao().insert(entity)
         require(rowId > 0)
         return rowId
     }
 
     override suspend fun update(categoryRoomEntity: CategoryRoomEntity) {
-        val rowsUpdated = db.categoryDao().update(categoryRoomEntity)
+        val entity = categoryRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.categoryDao().update(entity)
         require(rowsUpdated == 1)
     }
 
@@ -41,4 +52,7 @@ internal class LocalCategoryDataSource @Inject internal constructor(
         return db.categoryDao().getAllCategories()
     }
 
+    override fun getAllCategoriesWithProductCount(): Flow<List<CategoryDao.CategoryWithProductCount>> {
+        return db.categoryDao().getCategoryWithProductCount()
+    }
 }

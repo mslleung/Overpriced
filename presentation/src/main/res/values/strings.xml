@@ -10,6 +10,11 @@
     <string name="settings_title">Settings</string>
     <string name="settings_preferred_currency_label">Display currency</string>
 
+    <string name="category_product_new_price_fab_text">New Price Record</string>
+    <string name="category_product_new_price_fab_content_description">Add new price</string>
+    <string name="category_product_bottom_nav_label">Food Prices</string>
+    <string name="category_product_bottom_nav_content_description">Food Prices</string>
+
     <string name="category_list_search_bar_icon_content_description">Search product</string>
     <string name="category_list_search_bar_hint">Search product…</string>
     <string name="category_list_empty_list_image_content_description">No price records.</string>
@@ -19,10 +24,24 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="category_list_new_price_fab_text">New Price Record</string>
-    <string name="category_list_new_price_fab_content_description">Add new price</string>
-    <string name="category_list_bottom_nav_label">Food Prices</string>
-    <string name="category_list_bottom_nav_content_description">Food Prices</string>
+
+    <string name="product_list_search_button_content_description">Search</string>
+    <string name="product_list_edit_button_content_description">Edit Category</string>
+    <string name="product_list_empty_text">No product in this category.</string>
+    <string name="product_list_updated_label">Updated </string>
+    <plurals name="product_list_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="product_list_hours_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="product_list_minutes_ago">
+        <item quantity="one">%1$d minute ago</item>
+        <item quantity="other">%1$d minutes ago</item>
+    </plurals>
+    <string name="product_list_moments_ago">just now</string>
 
     <string name="search_product_search_bar_hint">Search product…</string>
     <string name="search_product_clear_button_content_description">Clear</string>
@@ -69,6 +88,7 @@
 
     <string name="select_currency_title">Select Currency</string>
     <string name="select_currency_selected_currency_content_description">Selected currency</string>
+    <string name="select_currency_display_info">Only prices with the selected currency will be shown.</string>
 
     <string name="new_category_title">New Category</string>
     <string name="new_category_name_label">Category Name</string>
@@ -91,7 +111,8 @@
     <string name="store_save_dialog_confirm_button_text">Confirm</string>
     <string name="store_save_dialog_dismiss_button_text">Cancel</string>
     <string name="new_store_create_failed_message">Failed to create store.</string>
-    <string name="edit_store_create_failed_message">Failed to update store.</string>
+    <string name="edit_store_update_failed_message">Failed to update store.</string>
+    <string name="edit_store_delete_failed_message">Failed to delete store.</string>
 
     <string name="shopping_lists_bottom_nav_label">Shopping Lists</string>
     <string name="shopping_lists_bottom_nav_content_description">Shopping Lists</string>

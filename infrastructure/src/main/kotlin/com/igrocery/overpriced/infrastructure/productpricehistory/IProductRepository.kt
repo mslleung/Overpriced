@@ -1,10 +1,11 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.BaseRepository
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
 interface IProductRepository : BaseRepository<Product> {
 
@@ -15,12 +16,11 @@ interface IProductRepository : BaseRepository<Product> {
         description: String?
     ): Flow<Product?>
 
-    fun getProductByBarcode(
-        barcode: String
-    ): Flow<Product?>
+    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
 
-    fun getProductCountWithCategory(
-        category: Category?
-    ): Flow<Int>
+    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices>
 
 }

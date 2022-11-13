@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.presentation.selectcurrency
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,10 +20,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @Suppress("unused")
@@ -37,23 +37,9 @@ fun SelectCurrencyScreen(
 ) {
     log.debug("Composing SelectCurrencyScreen")
 
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
-    val preferredCurrency by viewModel.preferredCurrencyFlow.collectAsState()
     val state by rememberSelectCurrencyScreenState()
     MainContent(
-        preferredCurrency = preferredCurrency,
+        viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
         onCurrencyRowClick = {
@@ -66,16 +52,20 @@ fun SelectCurrencyScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    preferredCurrency: Currency?,
+    viewModelState: SelectCurrencyScreenViewModelState,
     state: SelectCurrencyScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onCurrencyRowClick: (Currency) -> Unit
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
+    UseDefaultSystemNavBarColor()
+
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 navigationIcon = {
                     BackButton(
                         onClick = onBackButtonClick,
@@ -88,51 +78,98 @@ private fun MainContent(
                     Text(text = stringResource(id = R.string.select_currency_title))
                 },
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
     ) { scaffoldPaddings ->
-        val allCurrencies = state.availableCurrencies
-
-        if (preferredCurrency != null) {
-            val scrollState = rememberLazyListState(
-                initialFirstVisibleItemIndex = (allCurrencies.indexOf(preferredCurrency) - 4)
-                    .coerceAtLeast(0)
-            )
-
-            var itemHeight = remember { 0 }
-            LazyColumn(
-                state = scrollState,
-                contentPadding = PaddingValues(vertical = 8.dp),
+        Column(
+            modifier = Modifier
+                .padding(scaffoldPaddings)
+                .fillMaxSize()
+        ) {
+            Surface(
+                shadowElevation = 8.dp,
                 modifier = Modifier
-                    .padding(scaffoldPaddings)
-                    .navigationBarsPadding()
-                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                items(
-                    items = allCurrencies,
-                    key = { it.currencyCode }
-                ) { currency ->
-                    CurrencyItem(
-                        isSelected = preferredCurrency == currency,
-                        currency = currency,
-                        onRowClick = onCurrencyRowClick,
-                        modifier = Modifier.onGloballyPositioned {
-                            itemHeight = it.size.height
-                        }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_info_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+
+                    Text(
+                        text = stringResource(id = R.string.select_currency_display_info),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
 
-            LaunchedEffect(key1 = itemHeight) {
-                val scrollOffsetY = (-itemHeight * scrollState.firstVisibleItemIndex).toFloat()
-                topBarScrollBehavior.nestedScrollConnection.onPostScroll(
-                    consumed = Offset(0f, scrollOffsetY),
-                    available = Offset(0f, scrollOffsetY),
-                    source = NestedScrollSource.Drag
+            val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
+            preferredCurrency.ifLoaded {
+                CurrencyLazyColumn(
+                    allCurrencies = state.availableCurrencies,
+                    preferredCurrency = it,
+                    topBarScrollBehavior = topBarScrollBehavior,
+                    onCurrencyRowClick = onCurrencyRowClick,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CurrencyLazyColumn(
+    allCurrencies: List<Currency>,
+    preferredCurrency: Currency?,
+    topBarScrollBehavior: TopAppBarScrollBehavior,
+    onCurrencyRowClick: (Currency) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = (allCurrencies.indexOf(preferredCurrency) - 4)
+            .coerceAtLeast(0)
+    )
+
+    var itemHeight = remember { 0 }
+    LazyColumn(
+        state = scrollState,
+        contentPadding = PaddingValues(vertical = 8.dp),
+        modifier = modifier
+            .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+    ) {
+        items(
+            items = allCurrencies,
+            key = { it.currencyCode }
+        ) { currency ->
+            CurrencyItem(
+                isSelected = preferredCurrency == currency,
+                currency = currency,
+                onRowClick = onCurrencyRowClick,
+                modifier = Modifier.onGloballyPositioned {
+                    itemHeight = it.size.height
+                }
+            )
+        }
+    }
+
+    LaunchedEffect(key1 = itemHeight) {
+        val scrollOffsetY = (-itemHeight * scrollState.firstVisibleItemIndex).toFloat()
+        topBarScrollBehavior.nestedScrollConnection.onPostScroll(
+            consumed = Offset(0f, scrollOffsetY),
+            available = Offset(0f, scrollOffsetY),
+            source = NestedScrollSource.Drag
+        )
     }
 }
 
@@ -173,8 +210,13 @@ fun CurrencyItem(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val viewModelState = object : SelectCurrencyScreenViewModelState {
+        override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Loading())
+    }
+
     MainContent(
-        preferredCurrency = Currency.getInstance(Locale.getDefault()),
+        viewModelState = viewModelState,
         state = SelectCurrencyScreenStateHolder(),
         onBackButtonClick = {},
         onCurrencyRowClick = {}

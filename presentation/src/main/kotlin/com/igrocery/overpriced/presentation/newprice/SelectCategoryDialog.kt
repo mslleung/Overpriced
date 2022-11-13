@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.selectcategory
+package com.igrocery.overpriced.presentation.newprice
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -22,34 +20,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.ifLoaded
 
 @Composable
 fun SelectCategoryDialog(
     viewModel: SelectCategoryDialogViewModel,
-    selectedCategoryId: Long,
+    selectedCategoryId: Long?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,
     onNewCategoryClick: () -> Unit,
 ) {
-    val categoryList by viewModel.categoryListFlow.collectAsState()
-
-    MainLayout(
-        categoryList,
-        selectedCategoryId,
-        onDismiss,
-        onCategorySelect,
-        onEditCategoryClick,
-        onNewCategoryClick
-    )
+    val allCategories = viewModel.uiState.allCategories
+    allCategories.ifLoaded {
+        MainLayout(
+            it,
+            selectedCategoryId,
+            onDismiss,
+            onCategorySelect,
+            onEditCategoryClick,
+            onNewCategoryClick
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MainLayout(
     categoryList: List<Category>,
-    selectedCategoryId: Long,
+    selectedCategoryId: Long?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,

@@ -1,49 +1,23 @@
 package com.igrocery.overpriced.domain.productpricehistory.models
 
+import android.os.Parcelable
+import androidx.core.text.trimmedLength
 import com.igrocery.overpriced.domain.AggregateRoot
+import kotlinx.parcelize.Parcelize
 
-class Category : AggregateRoot {
+@Parcelize
+data class Category(
+    override val id: Long = 0,
+    override val creationTimestamp: Long = 0,
+    override val updateTimestamp: Long = 0,
+    val icon: CategoryIcon,
+    val name: String,
+) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
-    class BlankNameException: IllegalArgumentException("Name should not be blank.")
-    class NameLengthExceededException: IllegalArgumentException("Name exceeded maximum length.")
-
-    constructor(
-        id: Long = 0,
-        creationTimestamp: Long = 0,
-        updateTimestamp: Long = 0,
-        icon: CategoryIcon,
-        name: String,
-    ) : super(id, creationTimestamp, updateTimestamp) {
-        this.icon = icon
-        this.name = name.trim()
-    }
-
-    var icon: CategoryIcon
-
-    var name: String
-        set(value) {
-            val trimmedValue = value.trim()
-            if (trimmedValue.isBlank()) throw BlankNameException()
-            if (trimmedValue.length > 100) throw NameLengthExceededException()
-            field = trimmedValue
-        }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as Category
-
-        if (name != other.name) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + name.hashCode()
-        return result
+    init {
+        require(name.trimmedLength() == name.length)
+        require(name.isNotBlank())
+        require(name.length <= 100)
     }
 
 }

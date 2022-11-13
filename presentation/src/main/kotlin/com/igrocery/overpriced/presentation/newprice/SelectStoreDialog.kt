@@ -1,11 +1,11 @@
-package com.igrocery.overpriced.presentation.selectstore
+package com.igrocery.overpriced.presentation.newprice
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -25,34 +25,37 @@ import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun SelectStoreDialog(
-    selectStoreDialogViewModel: SelectStoreDialogViewModel,
-    selectedStoreId: Long,
+    viewModel: SelectStoreDialogViewModel,
+    selectedStoreId: Long?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
     onNewStoreClick: () -> Unit,
 ) {
-    val storesPagingItems = selectStoreDialogViewModel.storesPagedFlow.collectAsLazyPagingItems()
-    MainLayout(
-        storesPagingItems,
-        selectedStoreId,
-        onDismiss,
-        onStoreSelect,
-        onEditStoreClick,
-        onNewStoreClick
-    )
+    val storesPagingItems = viewModel.uiState.storesPagingDataFlow.collectAsLazyPagingItems()
+    if (storesPagingItems.isInitialLoadCompleted()) {
+        MainLayout(
+            storesPagingItems,
+            selectedStoreId,
+            onDismiss,
+            onStoreSelect,
+            onEditStoreClick,
+            onNewStoreClick
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MainLayout(
     storesPagingItems: LazyPagingItems<Store>,
-    selectedStoreId: Long,
+    selectedStoreId: Long?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,

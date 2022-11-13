@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.editstore
+package com.igrocery.overpriced.presentation.newstore
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +15,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import com.ireceipt.receiptscanner.presentation.R
+import com.igrocery.overpriced.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveAlertDialog(
     state: SaveAlertDialogStateHolder,
+    title: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
@@ -43,7 +44,7 @@ fun SaveAlertDialog(
             }
         },
         title = {
-            Text(text = stringResource(id = R.string.edit_store_title))
+            Text(text = title)
         },
         text = {
             val scrollState = rememberScrollState()

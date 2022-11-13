@@ -19,13 +19,23 @@ internal class LocalStoreDataSource @Inject constructor(
     }
 
     override suspend fun insertStore(storeRoomEntity: StoreRoomEntity): Long {
-        val rowId = db.storeDao().insert(storeRoomEntity)
+        val time = System.nanoTime()
+        val entity = storeRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val rowId = db.storeDao().insert(entity)
         require(rowId > 0)
         return rowId
     }
 
     override suspend fun updateStore(storeRoomEntity: StoreRoomEntity) {
-        val rowsUpdated = db.storeDao().update(storeRoomEntity)
+        val entity = storeRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.storeDao().update(entity)
         require(rowsUpdated == 1)
     }
 

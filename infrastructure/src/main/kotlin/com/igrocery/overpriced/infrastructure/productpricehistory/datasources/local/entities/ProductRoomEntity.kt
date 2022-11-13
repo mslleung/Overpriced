@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 
 @Entity(
     tableName = "products",
@@ -14,24 +15,47 @@ import androidx.room.*
     ],
     indices = [
         Index(value = ["name", "description"], unique = true),
-        Index(value = ["barcode"], unique = true),
         Index(value = ["category_id"]),
     ]
 )
 internal data class ProductRoomEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
+    @ColumnInfo(name = "creation_timestamp")
+    val creationTimestamp: Long,
+    @ColumnInfo(name = "update_timestamp")
+    val updateTimestamp: Long,
 
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "description")
     val description: String,
-    @ColumnInfo(name = "barcode")
-    val barcode: String?,
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
-    @ColumnInfo(name = "creation_timestamp")
-    val creationTimestamp: Long,
-    @ColumnInfo(name = "update_timestamp")
-    val updateTimestamp: Long,
 )
+
+
+
+// mapping functions
+
+internal fun ProductRoomEntity.toDomain(): Product {
+    return Product(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        description = description,
+        categoryId = categoryId
+    )
+}
+
+internal fun Product.toData(): ProductRoomEntity {
+    return ProductRoomEntity(
+        id = id,
+        creationTimestamp = creationTimestamp,
+        updateTimestamp = updateTimestamp,
+        name = name,
+        description = description,
+        categoryId = categoryId,
+    )
+}

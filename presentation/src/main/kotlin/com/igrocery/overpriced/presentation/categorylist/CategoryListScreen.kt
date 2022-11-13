@@ -1,14 +1,18 @@
 package com.igrocery.overpriced.presentation.categorylist
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -23,98 +27,54 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel.CategoryWithProductCount
+import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
-import com.ireceipt.receiptscanner.presentation.R
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
-    navigateUp: () -> Unit,
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToAddPrice: () -> Unit,
-    navigateToPlanner: () -> Unit
+    navigateToProductList: (Category?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    log.debug("Composing ProductPriceListScreen")
+    log.debug("Composing CategoryListScreen")
 
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = MaterialTheme.colorScheme.surface
-    val navBarColor = MaterialTheme.colorScheme.surface
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            statusBarColor,
-            transformColorForLightContent = { color -> color })
-        systemUiController.setNavigationBarColor(
-            navBarColor,
-            navigationBarContrastEnforced = false,
-            transformColorForLightContent = { color -> color })
-    }
-
-    val noCategoryString = stringResource(id = R.string.no_category)
-    val categoryWithCountList by categoryListScreenViewModel.categoryListWithCountFlow
-        .flatMapLatest { categoryWithCountList ->
-            categoryListScreenViewModel.productCountWithNoCategory.map { noCategoryCount ->
-                categoryWithCountList.toMutableList()
-                    .apply {
-                        if (noCategoryCount > 0) {
-                            add(
-                                0,
-                                CategoryWithProductCount(
-                                    category = Category(
-                                        id = 0,
-                                        icon = CategoryIcon.NoCategory,
-                                        name = noCategoryString
-                                    ),
-                                    productCount = noCategoryCount
-                                )
-                            )
-                        }
-                    }
-            }
-        }.collectAsState(initial = emptyList())
     val state by rememberCategoryListScreenState()
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        viewModelState = categoryListScreenViewModel,
         state = state,
         onSettingsClick = navigateToSettings,
         onSearchBarClick = navigateToSearchProduct,
-        onCategoryClick = { },
-        onFabClick = navigateToAddPrice,
-        onNavBarPlannerClick = navigateToPlanner,
+        onCategoryClick = navigateToProductList,
+        modifier = modifier,
     )
-
-    BackHandler(enabled = false) {
-        navigateUp()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    categoryWithCountList: List<CategoryWithProductCount>,
+    viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
-    onCategoryClick: (Category) -> Unit,
-    onFabClick: () -> Unit,
-    onNavBarPlannerClick: () -> Unit
+    onCategoryClick: (Category?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val topBarScrollState = rememberTopAppBarState()
+    val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            decayAnimationSpec = rememberSplineBasedDecay(),
-            state = topBarScrollState
-        )
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+
+    UseDefaultStatusBarColor()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -132,126 +92,55 @@ private fun MainContent(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
-                modifier = Modifier.statusBarsPadding()
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onFabClick,
-            )
-        },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .navigationBarsPadding(),
-            ) {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
-                    selected = true,
-                    onClick = { }
+        contentWindowInsets = WindowInsets.statusBars,
+        modifier = modifier,
+    ) { scaffoldPadding ->
+        val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()
+        categoryWithCountList.ifLoaded {
+            if (it.isEmpty()) {
+                EmptyListContent(
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
                 )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = onNavBarPlannerClick
-                )
-            }
-        }
-    ) {
-        if (categoryWithCountList.isEmpty()) {
-            EmptyListContent(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-            )
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 120.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-            ) {
-                stickyHeader {
-                    Surface(
-                        onClick = { onSearchBarClick() },
-                        shape = RoundedCornerShape(percent = 100),
-                        tonalElevation = 8.dp,
-                        shadowElevation = 8.dp,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .fillMaxWidth()
-                            .height(40.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 120.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    stickyHeader {
+                        SearchBar(
+                            onClick = onSearchBarClick,
                             modifier = Modifier
-                                .padding(horizontal = 8.dp)
+                                .padding(bottom = 8.dp)
                                 .fillMaxWidth()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .size(24.dp)
-                            )
-
-                            Text(
-                                text = stringResource(id = R.string.category_list_search_bar_hint),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.alpha(0.6f)
-                            )
-                        }
+                                .height(40.dp)
+                        )
                     }
-                }
 
-                items(
-                    items = categoryWithCountList
-                        .filter { categoryWithCount -> categoryWithCount.productCount > 0 },
-                    key = { categoryWithCount -> categoryWithCount.category.id }
-                ) { categoryWithCount ->
-                    CategoryWithCountListItem(
-                        categoryWithCount = categoryWithCount,
-                        onClick = onCategoryClick,
-                        modifier = Modifier
-                            .animateItemPlacement()
-                            .fillMaxWidth()
-                    )
+                    items(
+                        items = it.filter { categoryWithCount -> categoryWithCount.productCount > 0 },
+                        key = { categoryWithCount -> categoryWithCount.category?.id ?: 0 }
+                    ) { categoryWithCount ->
+                        CategoryWithCountListItem(
+                            categoryWithCount = categoryWithCount,
+                            onClick = onCategoryClick,
+                            modifier = Modifier
+                                .animateItemPlacement()
+                                .fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
@@ -289,14 +178,53 @@ private fun EmptyListContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchBar(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = { onClick() },
+        shape = RoundedCornerShape(percent = 100),
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp,
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                contentDescription = stringResource(id = R.string.category_list_search_bar_icon_content_description),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(24.dp)
+            )
+
+            Text(
+                text = stringResource(id = R.string.category_list_search_bar_hint),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.alpha(0.6f)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun CategoryWithCountListItem(
     categoryWithCount: CategoryWithProductCount,
-    onClick: (Category) -> Unit,
+    onClick: (Category?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (category, productCount) = categoryWithCount
+    val category = categoryWithCount.category ?: NoCategory
+    val productCount = categoryWithCount.productCount
 
     Card(
         onClick = { onClick(category) },
@@ -363,14 +291,17 @@ private fun SettingsButton(
 @Preview
 @Composable
 private fun EmptyPreview() {
+    val viewModelState = object : CategoryListScreenViewModelState {
+        override val categoryWithProductCountFlow =
+            MutableStateFlow(LoadingState.Success(emptyList<CategoryWithProductCount>()))
+    }
+
     MainContent(
-        categoryWithCountList = emptyList(),
+        viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
     )
 }
 
@@ -379,11 +310,7 @@ private fun EmptyPreview() {
 private fun DefaultPreview() {
     val categoryWithCountList = listOf(
         CategoryWithProductCount(
-            category = Category(
-                id = 0,
-                icon = CategoryIcon.NoCategory,
-                name = stringResource(id = R.string.no_category)
-            ),
+            category = NoCategory,
             productCount = 25
         ),
         CategoryWithProductCount(
@@ -403,14 +330,16 @@ private fun DefaultPreview() {
             productCount = 23
         ),
     )
+    val viewModelState = object : CategoryListScreenViewModelState {
+        override val categoryWithProductCountFlow =
+            MutableStateFlow(LoadingState.Success(categoryWithCountList))
+    }
 
     MainContent(
-        categoryWithCountList = categoryWithCountList,
+        viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onFabClick = {},
-        onNavBarPlannerClick = {}
     )
 }

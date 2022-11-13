@@ -1,11 +1,13 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
-import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
-import com.igrocery.overpriced.domain.productpricehistory.models.*
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
+import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
+import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,15 +25,13 @@ class ProductService @Inject constructor(
         productName: String,
         productDescription: String,
         categoryId: Long?,
-        productBarcode: String?,
         priceAmountText: String,
         storeId: Long,
     ) {
         transaction.execute {
             val product = Product(
-                name = productName,
-                description = productDescription,
-                barcode = productBarcode,
+                name = productName.trim(),
+                description = productDescription.trim(),
                 categoryId = categoryId,
             )
 
@@ -59,12 +59,18 @@ class ProductService @Inject constructor(
         return productRepository.getProductByNameAndDescription(name, description)
     }
 
-    fun getProduct(barcode: String): Flow<Product?> {
-        return productRepository.getProductByBarcode(barcode)
+    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
+        return productRepository.getProductsByCategoryIdPaging(categoryId)
     }
 
-    fun getProductCountWithCategory(category: Category?): Flow<Int> {
-        return productRepository.getProductCountWithCategory(category)
+    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
+        return productRepository.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+            categoryId,
+            currency
+        )
     }
 
 }

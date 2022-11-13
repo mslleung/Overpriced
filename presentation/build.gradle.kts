@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "com.igrocery.overpriced"
         minSdk = 21
-        targetSdk = 32
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0.0"   // {major.feature.patches}, preferably major version should never change
 
@@ -69,7 +69,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    namespace = "com.ireceipt.receiptscanner.presentation"
+    namespace = "com.igrocery.overpriced.presentation"
     bundle {
         language {
             // include all language files to allow the user to switch languages
@@ -93,24 +93,28 @@ dependencies {
     implementation(project(":shared"))
 
     // android core UI
-    val composeVersion = "1.3.0-alpha01"
-    implementation("androidx.core:core-ktx:1.8.0")
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.7.0-alpha03")
+    val composeVersion = "1.4.0-alpha01"
+    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("com.google.android.material:material:1.8.0-alpha02")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha15")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
-    implementation("androidx.activity:activity-compose:1.5.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("androidx.activity:activity-compose:1.6.1")
+
+    val lifecycleVersion = "2.6.0-alpha03"
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
 
     // data store
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.5.0"
+    val navigationVersion = "2.5.3"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")
@@ -119,7 +123,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha15")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -131,7 +135,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // accompanist
-    val accompanistVersion = "0.26.0-alpha"
+    val accompanistVersion = "0.27.0"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -139,26 +143,17 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
     // glide
-    implementation("com.github.bumptech.glide:glide:4.13.2")
-    kapt("com.github.bumptech.glide:compiler:4.13.2")
-    implementation("com.github.skydoves:landscapist-glide:1.6.0")
+    implementation("com.github.bumptech.glide:glide:4.14.2")
+    kapt("com.github.bumptech.glide:compiler:4.14.2")
+    implementation("com.github.skydoves:landscapist-glide:2.0.3")
 
     // google play services
-    implementation("com.google.android.gms:play-services-location:20.0.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.5.3")
+    implementation("com.google.maps.android:maps-compose:2.7.2")
 
     // MP Android Chart
 //    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
-    // ML Kit
-    implementation("com.google.mlkit:barcode-scanning:17.0.2")
-
-    // CameraX
-    val cameraxVersion = "1.2.0-alpha03"
-    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
-    implementation("androidx.camera:camera-view:${cameraxVersion}")
-    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
 
     // junit
     testImplementation("junit:junit:4.13.2")

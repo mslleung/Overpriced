@@ -1,8 +1,9 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
 internal interface ILocalProductDataSource {
 
@@ -21,12 +22,23 @@ internal interface ILocalProductDataSource {
         description: String?
     ): Flow<ProductRoomEntity?>
 
-    fun getProductByBarcode(
-        barcode: String,
-    ): Flow<ProductRoomEntity?>
+    suspend fun searchProductsByNamePaging(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity>
 
-    suspend fun searchProductsByNamePaging(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity>
+    suspend fun getProductByCategoryIdPaging(
+        categoryId: Long?,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity>
 
-    fun getProductCountWithCategory(category: Category?): Flow<Int>
+    suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductDao.ProductWithMinMaxPrices>
 
 }

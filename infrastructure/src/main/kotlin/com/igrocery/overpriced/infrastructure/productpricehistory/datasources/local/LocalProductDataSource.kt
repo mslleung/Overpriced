@@ -1,11 +1,12 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.AppDatabase
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,13 +25,23 @@ internal class LocalProductDataSource @Inject internal constructor(
     }
 
     override suspend fun insert(productRoomEntity: ProductRoomEntity): Long {
-        val rowId = db.productDao().insert(productRoomEntity)
+        val time = System.nanoTime()
+        val entity = productRoomEntity.copy(
+            creationTimestamp = time,
+            updateTimestamp = time
+        )
+
+        val rowId = db.productDao().insert(entity)
         require(rowId > 0)
         return rowId
     }
 
     override suspend fun update(productRoomEntity: ProductRoomEntity) {
-        val rowsUpdated = db.productDao().update(productRoomEntity)
+        val entity = productRoomEntity.copy(
+            updateTimestamp = System.nanoTime()
+        )
+
+        val rowsUpdated = db.productDao().update(entity)
         require(rowsUpdated == 1)
     }
 
@@ -51,20 +62,33 @@ internal class LocalProductDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override fun getProductByBarcode(barcode: String): Flow<ProductRoomEntity?> {
-        return db.productDao().getProductByBarcode(barcode)
-            .distinctUntilChanged()
+    override suspend fun searchProductsByNamePaging(
+        query: String,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity> {
+        return db.productDao().searchProductsPaging(query, offset, pageSize)
     }
 
-    override suspend fun searchProductsByNamePaging(query: String, offset: Int, pageSize: Int): List<ProductRoomEntity> {
-        return db.productDao().searchProducts(query, offset, pageSize)
+    override suspend fun getProductByCategoryIdPaging(
+        categoryId: Long?,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductRoomEntity> {
+        return db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
     }
 
-    override fun getProductCountWithCategory(category: Category?): Flow<Int> {
-        return if (category != null) {
-            db.productDao().getProductCountWithCategory(category.id)
-        } else {
-            db.productDao().getProductCountWithNoCategory()
-        }
+    override suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        categoryId: Long?,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductDao.ProductWithMinMaxPrices> {
+        return db.productDao().getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+            categoryId,
+            currency.currencyCode,
+            offset,
+            pageSize
+        )
     }
 }
