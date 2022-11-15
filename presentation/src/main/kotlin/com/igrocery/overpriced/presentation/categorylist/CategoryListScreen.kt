@@ -92,6 +92,7 @@ private fun MainContent(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
+                windowInsets = WindowInsets.statusBars
             )
         },
         contentWindowInsets = WindowInsets.statusBars,
