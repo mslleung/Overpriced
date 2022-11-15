@@ -99,7 +99,7 @@ dependencies {
     implementation("com.google.android.material:material:1.8.0-alpha02")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha01")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
     implementation("androidx.activity:activity-compose:1.6.1")
@@ -145,7 +145,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
     kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.0.3")
+    implementation("com.github.skydoves:landscapist-glide:2.1.0")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
@@ -159,8 +159,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     // instrumented tests
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.4")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
 
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")

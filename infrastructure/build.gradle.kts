@@ -88,25 +88,24 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-paging:2.5.0-beta01")
+    implementation("androidx.room:room-paging:2.5.0-beta02")
 
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
 
-
     // datastore
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.20.1")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
 
-    implementation("androidx.test.ext:junit-ktx:1.1.3")
+    implementation("androidx.test.ext:junit-ktx:1.1.4")
     testImplementation("junit:junit:4.13.2")
 
     val kotestVersion = "5.5.4"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    androidTestImplementation("androidx.test:runner:1.4.0")
-    androidTestImplementation("androidx.test:rules:1.4.0")
+    androidTestImplementation("androidx.test:runner:1.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 }

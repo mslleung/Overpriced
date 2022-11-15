@@ -80,7 +80,6 @@ private fun MainContent(
 ) {
     UseDefaultBottomNavBarColourForSystemNavBarColor()
 
-    WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(

@@ -141,6 +141,7 @@ private fun MainContent(
                     )
                 },
                 scrollBehavior = topBarScrollBehavior,
+                windowInsets = WindowInsets.statusBars
             )
         },
         contentWindowInsets = WindowInsets.statusBars,
@@ -155,7 +156,6 @@ private fun MainContent(
                 EmptyListContent(
                     modifier = Modifier
                         .padding(it)
-                        .navigationBarsPadding()
                         .fillMaxSize()
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                         .verticalScroll(scrollState)
@@ -165,7 +165,6 @@ private fun MainContent(
                     contentPadding = PaddingValues(bottom = 120.dp),
                     modifier = Modifier
                         .padding(it)
-                        .navigationBarsPadding()
                         .fillMaxSize()
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
