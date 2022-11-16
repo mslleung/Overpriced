@@ -19,7 +19,7 @@ class CategoryService @Inject constructor(
         return transaction.execute {
             val category = Category(
                 icon = icon,
-                name = name,
+                name = name.trim(),
             )
             categoryRepository.insert(category)
         }

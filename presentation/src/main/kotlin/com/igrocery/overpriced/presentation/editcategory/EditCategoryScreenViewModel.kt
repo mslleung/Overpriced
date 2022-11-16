@@ -58,7 +58,7 @@ class EditCategoryScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 runCatching {
                     val updatedCategory = originalCategory.data.copy(
-                        name = categoryName,
+                        name = categoryName.trim(),
                         icon = categoryIcon,
                     )
                     categoryService.updateCategory(updatedCategory)
