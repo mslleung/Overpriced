@@ -12,6 +12,7 @@ import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.igrocery.overpriced.presentation.NavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
@@ -22,12 +23,18 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
 import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
+import com.igrocery.overpriced.presentation.categorybase.NavDestinations
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
+import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
@@ -38,6 +45,8 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
+import com.igrocery.overpriced.presentation.productlist.ProductListScreen
+import com.igrocery.overpriced.presentation.productlist.ProductListScreenViewModel
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
@@ -52,7 +61,7 @@ private val log = Logger { }
 
 object NavDestinations {
 
-    const val CategoryProduct = "categoryProduct"
+    const val CategoryList = "categoryList"
 
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
@@ -65,6 +74,12 @@ object NavDestinations {
     const val NewCategory = "newCategory"
     const val NewPrice = "newPrice"
     const val NewStore = "newStore"
+
+    const val ProductList = "productList"
+    const val ProductList_Arg_CategoryId = "categoryId"
+    const val ProductList_With_Args =
+        "$ProductList?$ProductList_Arg_CategoryId={$ProductList_Arg_CategoryId}"
+
     const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
     const val Settings = "settings"
@@ -83,13 +98,11 @@ fun App() {
     AppTheme {
         val navController = rememberAnimatedNavController()
 
-        val categoryProductNestedNavController = rememberAnimatedNavController()
-
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = CategoryProduct,
+            startDestination = CategoryList,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -115,16 +128,47 @@ fun App() {
                 )
             },
         ) {
-            composable(CategoryProduct) {
-                CategoryBaseScreen(
-                    navController = categoryProductNestedNavController,
+            composable(CategoryList) {
+                val categoryListScreenViewModel = hiltViewModel<CategoryListScreenViewModel>()
+
+                CategoryListScreen(
+                    categoryListScreenViewModel = categoryListScreenViewModel,
                     navigateToSettings = { navController.navigate(SettingsRoute) },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                    navigateToEditCategory = { categoryId ->
-                        navController.navigate("$EditCategory/$categoryId")
+                    navigateToProductList = {
+                        if (it != null) {
+                            navController.navigate("${ProductList}?$ProductList_Arg_CategoryId=${it.id}")
+                        } else {
+                            navController.navigate(ProductList)
+                        }
                     },
-                    navigateToNewPrice = { navController.navigate(NewPriceRecordRoute) },
-                    navigateToShoppingList = { /*TODO*/ })
+                )
+            }
+            composable(
+                route = ProductList_With_Args,
+                arguments = listOf(navArgument(ProductList_Arg_CategoryId) {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                })
+            ) { backStackEntry ->
+                val productListScreenViewModel =
+                    hiltViewModel<ProductListScreenViewModel>()
+
+                backStackEntry.arguments?.let { arg ->
+                    val categoryId = arg.getLong(ProductList_Arg_CategoryId).takeIf { it != 0L }
+
+                    ProductListScreen(
+                        viewModel = productListScreenViewModel,
+                        navigateUp = { navController.navigateUp() },
+                        navigateToSearchProduct = { navController.navigate(SearchProduct) },
+                        navigateToEditCategory = {
+                            if (categoryId == null)
+                                throw IllegalArgumentException("Cannot edit \"No Category\"")
+
+                            navController.navigate("$EditCategory/$categoryId")
+                        },
+                    )
+                } ?: throw IllegalArgumentException("argument should not be null")
             }
             composable(SearchProduct) {
                 val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()

@@ -44,6 +44,8 @@ fun CategoryListScreen(
     navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
+    navigateToNewPrice: () -> Unit,
+    navigateToShoppingList: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
@@ -53,8 +55,10 @@ fun CategoryListScreen(
         viewModelState = categoryListScreenViewModel,
         state = state,
         onSettingsClick = navigateToSettings,
+        onNewPriceFabClick = navigateToNewPrice,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToProductList,
+        onNavBarShoppingListClick = navigateToShoppingList,
         modifier = modifier,
     )
 }
@@ -64,9 +68,11 @@ fun CategoryListScreen(
 private fun MainContent(
     viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
+    onNewPriceFabClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category?) -> Unit,
+    onNavBarShoppingListClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -74,6 +80,7 @@ private fun MainContent(
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
     UseDefaultStatusBarColor()
+    UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     Scaffold(
         topBar = {
@@ -95,7 +102,54 @@ private fun MainContent(
                 windowInsets = WindowInsets.statusBars
             )
         },
-        contentWindowInsets = WindowInsets.statusBars,
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = {
+                    Text(text = stringResource(id = R.string.category_product_new_price_fab_text))
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = stringResource(
+                            id = R.string.category_product_new_price_fab_content_description
+                        ),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                onClick = onNewPriceFabClick,
+                // somehow the nav bar padding doesn't get applied in landscape
+                modifier = Modifier.padding(
+                    WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
+                )
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
+                            contentDescription = stringResource(id = R.string.category_product_bottom_nav_content_description),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
+                    selected = true,
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
+                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
+                    selected = false,
+                    onClick = onNavBarShoppingListClick
+                )
+            }
+        },
         modifier = modifier,
     ) { scaffoldPadding ->
         val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()
@@ -303,6 +357,7 @@ private fun EmptyPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
+        onNavBarShoppingListClick = {}
     )
 }
 
@@ -342,5 +397,6 @@ private fun DefaultPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
+        onNavBarShoppingListClick = {}
     )
 }
