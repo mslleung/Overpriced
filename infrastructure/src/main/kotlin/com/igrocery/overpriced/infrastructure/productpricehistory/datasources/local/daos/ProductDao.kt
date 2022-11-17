@@ -26,18 +26,26 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
 
     @Query(
         """
-            SELECT * FROM products
-            JOIN products_fts ON products.id = products_fts.rowid
-            WHERE products_fts MATCH :query
-            ORDER BY name, description
-            LIMIT :pageSize OFFSET :offset
+            SELECT products.*,
+                MIN(price_records.price) AS minPrice,
+                MAX(price_records.price) AS maxPrice,
+                MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
+            FROM (
+                SELECT *
+                FROM products JOIN products_fts ON products.id = products_fts.rowid
+                WHERE products_fts MATCH :query
+                ORDER BY name, description
+                LIMIT :pageSize OFFSET :offset
+            ) LEFT JOIN price_records ON products.id = price_records.product_id
+            WHERE products.category_id IS :categoryId AND price_records.currency = :currency
+            GROUP BY products.id
         """
     )
     suspend fun searchProductsPaging(
         query: String,
         offset: Int,
         pageSize: Int
-    ): List<ProductRoomEntity>
+    ): List<ProductWithMinMaxPrices>
 
     @Query(
         """
