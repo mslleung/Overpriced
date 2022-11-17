@@ -11,6 +11,11 @@ interface IProductRepository : BaseRepository<Product> {
 
     fun searchProductsByNamePaging(query: String): PagingSource<Int, Product>
 
+    fun searchProductsByNameWithMinMaxPricesPaging(
+        query: String,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices>
+
     fun getProductByNameAndDescription(
         name: String,
         description: String?

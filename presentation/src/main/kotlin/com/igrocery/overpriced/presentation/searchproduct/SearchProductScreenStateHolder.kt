@@ -5,11 +5,11 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 
 class SearchProductScreenStateHolder(
     savedState: List<*>? = null,
-    val productPagingItems: LazyPagingItems<Product>
+    val productPagingItems: LazyPagingItems<ProductWithMinMaxPrices>
 ) {
 
     var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
@@ -19,7 +19,8 @@ class SearchProductScreenStateHolder(
 
 @Composable
 fun rememberSearchProductScreenState(viewModelState: SearchProductScreenViewModelState): MutableState<SearchProductScreenStateHolder> {
-    val productPagingItems = viewModelState.productsPagingDataFlow.collectAsLazyPagingItems()
+    val productPagingItems =
+        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     return rememberSaveable(
         stateSaver = listSaver(
             save = {

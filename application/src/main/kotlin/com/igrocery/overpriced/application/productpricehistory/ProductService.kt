@@ -55,6 +55,13 @@ class ProductService @Inject constructor(
         return productRepository.searchProductsByNamePaging(query)
     }
 
+    fun searchProductsByNameWithMinMaxPricesPaging(
+        query: String,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
+        return productRepository.searchProductsByNameWithMinMaxPricesPaging(query, currency)
+    }
+
     fun getProduct(name: String, description: String?): Flow<Product?> {
         return productRepository.getProductByNameAndDescription(name, description)
     }

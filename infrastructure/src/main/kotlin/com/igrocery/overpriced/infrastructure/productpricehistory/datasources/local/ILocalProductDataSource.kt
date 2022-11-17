@@ -28,6 +28,13 @@ internal interface ILocalProductDataSource {
         pageSize: Int
     ): List<ProductRoomEntity>
 
+    suspend fun searchProductsByNameWithMinMaxPricesPaging(
+        query: String,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductDao.ProductWithMinMaxPrices>
+
     suspend fun getProductByCategoryIdPaging(
         categoryId: Long?,
         offset: Int,

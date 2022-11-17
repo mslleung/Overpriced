@@ -209,7 +209,7 @@ private fun EmptyListContent(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun ProductListItem(
+fun ProductListItem(
     item: ProductWithMinMaxPrices,
     currency: LoadingState<Currency>,
     onClick: (ProductWithMinMaxPrices) -> Unit,

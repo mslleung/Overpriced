@@ -67,7 +67,25 @@ internal class LocalProductDataSource @Inject internal constructor(
         offset: Int,
         pageSize: Int
     ): List<ProductRoomEntity> {
-        return db.productDao().searchProductsPaging(query, offset, pageSize)
+        return db.productDao().searchProductsByNamePaging(
+            query,
+            offset,
+            pageSize
+        )
+    }
+
+    override suspend fun searchProductsByNameWithMinMaxPricesPaging(
+        query: String,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<ProductDao.ProductWithMinMaxPrices> {
+        return db.productDao().searchProductsByNameWithMinMaxPricesPaging(
+            query,
+            currency.currencyCode,
+            offset,
+            pageSize
+        )
     }
 
     override suspend fun getProductByCategoryIdPaging(
