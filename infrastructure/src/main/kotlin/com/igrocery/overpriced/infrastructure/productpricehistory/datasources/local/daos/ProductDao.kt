@@ -54,6 +54,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             ) products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE price_records.currency = :currency
             GROUP BY products.id
+            ORDER BY name, description
         """
     )
     suspend fun searchProductsByNameWithMinMaxPricesPaging(
