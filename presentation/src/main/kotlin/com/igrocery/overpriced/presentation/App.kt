@@ -13,7 +13,6 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryList
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
@@ -22,6 +21,7 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreI
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
@@ -29,10 +29,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Arg
 import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
-import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
+import com.igrocery.overpriced.presentation.NavRoutes.CategoryRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
-import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
-import com.igrocery.overpriced.presentation.categorybase.NavDestinations
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
@@ -72,7 +70,13 @@ object NavDestinations {
     const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
 
     const val NewCategory = "newCategory"
+
     const val NewPrice = "newPrice"
+    const val NewPrice_Arg_ProductId = "productId"
+    const val NewPrice_Arg_CategoryId = "categoryId"
+    const val NewPrice_With_Args =
+        "$NewPrice?$NewPrice_Arg_ProductId={$NewPrice_Arg_ProductId}?$NewPrice_Arg_CategoryId={$NewPrice_Arg_CategoryId}"
+
     const val NewStore = "newStore"
 
     const val ProductList = "productList"
@@ -87,8 +91,8 @@ object NavDestinations {
 }
 
 private object NavRoutes {
+    const val CategoryRoute = "CategoryRoute"
     const val SettingsRoute = "settingsRoute"
-    const val NewPriceRecordRoute = "newPriceRecordRoute"
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -102,7 +106,7 @@ fun App() {
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = CategoryList,
+            startDestination = CategoryRoute,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -128,77 +132,167 @@ fun App() {
                 )
             },
         ) {
-            composable(CategoryList) {
-                val categoryListScreenViewModel = hiltViewModel<CategoryListScreenViewModel>()
+            categoryGraph(navController)
+        }
+    }
+}
 
-                CategoryListScreen(
-                    categoryListScreenViewModel = categoryListScreenViewModel,
-                    navigateToSettings = { navController.navigate(SettingsRoute) },
+@OptIn(ExperimentalAnimationApi::class)
+private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
+    navigation(startDestination = CategoryList, route = CategoryRoute) {
+        composable(CategoryList) {
+            val categoryListScreenViewModel = hiltViewModel<CategoryListScreenViewModel>()
+
+            CategoryListScreen(
+                categoryListScreenViewModel = categoryListScreenViewModel,
+                navigateToSettings = { navController.navigate(SettingsRoute) },
+                navigateToSearchProduct = { navController.navigate(SearchProduct) },
+                navigateToProductList = {
+                    if (it != null) {
+                        navController.navigate("${ProductList}?$ProductList_Arg_CategoryId=${it.id}")
+                    } else {
+                        navController.navigate(ProductList)
+                    }
+                },
+                navigateToNewPrice = { navController.navigate(NewPrice) },
+                navigateToShoppingList = { /* TODO */ }
+            )
+        }
+        composable(
+            route = ProductList_With_Args,
+            arguments = listOf(navArgument(ProductList_Arg_CategoryId) {
+                type = NavType.LongType
+                defaultValue = 0L
+            })
+        ) { backStackEntry ->
+            val productListScreenViewModel =
+                hiltViewModel<ProductListScreenViewModel>()
+
+            backStackEntry.arguments?.let { arg ->
+                val categoryId = arg.getLong(ProductList_Arg_CategoryId).takeIf { it != 0L }
+
+                ProductListScreen(
+                    viewModel = productListScreenViewModel,
+                    navigateUp = { navController.navigateUp() },
                     navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                    navigateToProductList = {
-                        if (it != null) {
-                            navController.navigate("${ProductList}?$ProductList_Arg_CategoryId=${it.id}")
-                        } else {
-                            navController.navigate(ProductList)
-                        }
+                    navigateToEditCategory = {
+                        if (categoryId == null)
+                            throw IllegalArgumentException("Cannot edit \"No Category\"")
+
+                        navController.navigate("$EditCategory/$categoryId")
                     },
                 )
-            }
-            composable(
-                route = ProductList_With_Args,
-                arguments = listOf(navArgument(ProductList_Arg_CategoryId) {
-                    type = NavType.LongType
-                    defaultValue = 0L
-                })
-            ) { backStackEntry ->
-                val productListScreenViewModel =
-                    hiltViewModel<ProductListScreenViewModel>()
+            } ?: throw IllegalArgumentException("argument should not be null")
+        }
+        composable(SearchProduct) {
+            val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
 
-                backStackEntry.arguments?.let { arg ->
-                    val categoryId = arg.getLong(ProductList_Arg_CategoryId).takeIf { it != 0L }
+            SearchProductScreen(
+                viewModel = searchProductScreenViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateToProductDetails = { }
+            )
+        }
+        composable(NewPrice_With_Args) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) { navController.getBackStackEntry(CategoryRoute) }
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
 
-                    ProductListScreen(
-                        viewModel = productListScreenViewModel,
-                        navigateUp = { navController.navigateUp() },
-                        navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                        navigateToEditCategory = {
-                            if (categoryId == null)
-                                throw IllegalArgumentException("Cannot edit \"No Category\"")
+            NewPriceScreen(
+                newPriceScreenViewModel = newPriceViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateToNewCategory = { navController.navigate(NewCategory) },
+                navigateToEditCategory = { navController.navigate("${EditCategory}/${it.id}") },
+                navigateToNewStore = { navController.navigate(NewStore) },
+                navigateToEditStore = { navController.navigate("${EditStore}/${it.id}") },
+            )
+        }
+        composable(NewCategory) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(CategoryRoute)
+                }
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
 
-                            navController.navigate("$EditCategory/$categoryId")
-                        },
-                    )
-                } ?: throw IllegalArgumentException("argument should not be null")
-            }
-            composable(SearchProduct) {
-                val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
+            NewCategoryScreen(
+                viewModel = newCategoryViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.updateCategoryId(it)
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(
+            EditCategory_With_Args,
+            arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(CategoryRoute)
+                }
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
-                SearchProductScreen(
-                    viewModel = searchProductScreenViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateToProductDetails = { }
-                )
-            }
-            composable(
-                EditCategory_With_Args,
-                arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
-                    type = NavType.LongType
-                })
-            ) {
-                val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
+            backStackEntry.arguments?.let { arg ->
+                val categoryId = arg.getLong(EditCategory_Arg_CategoryId).takeIf { it != 0L }
 
                 EditCategoryScreen(
                     viewModel = editCategoryViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateDone = {
+                        newPriceViewModel.updateCategoryId(categoryId)
                         navController.navigateUp()
                     }
                 )
-            }
-
-            settingsGraph(navController)
-            newPriceRecordGraph(navController)
+            } ?: throw IllegalArgumentException("argument should not be null")
         }
+        composable(NewStore) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) {
+                    navController.getBackStackEntry(CategoryRoute)
+                }
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
+
+            NewStoreScreen(
+                newStoreViewModel = newStoreViewModel,
+                navigateUp = { navController.navigateUp() },
+                navigateDone = {
+                    newPriceViewModel.updateStoreId(it)
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(
+            EditStore_With_Args,
+            arguments = listOf(navArgument(EditStore_Arg_StoreId) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+            val navGraphEntry =
+                remember(backStackEntry) { navController.getBackStackEntry(CategoryRoute) }
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+            val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
+
+            backStackEntry.arguments?.let { arg ->
+                val storeId = arg.getLong(EditStore_Arg_StoreId).takeIf { it != 0L }
+
+                EditStoreScreen(
+                    viewModel = editStoreViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateDone = {
+                        newPriceViewModel.updateStoreId(storeId)
+                        navController.navigateUp()
+                    }
+                )
+            } ?: throw IllegalArgumentException("argument should not be null")
+        }
+
+        settingsGraph(navController)
     }
 }
 
@@ -225,121 +319,3 @@ private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
-private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController) {
-    navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
-        composable(NewPrice) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(NewPriceRecordRoute)
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-
-            NewPriceScreen(
-                newPriceScreenViewModel = newPriceViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateToNewCategory = { navController.navigate(NewCategory) },
-                navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
-                navigateToNewStore = { navController.navigate(NewStore) },
-                navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
-            )
-        }
-        composable(NewCategory) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
-
-            NewCategoryScreen(
-                viewModel = newCategoryViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateCategoryId(it)
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(
-            EditCategory_With_Args,
-            arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
-                type = NavType.LongType
-            })
-        ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
-
-            backStackEntry.arguments?.let { arg ->
-                val categoryId = arg.getLong(EditCategory_Arg_CategoryId).takeIf { it != 0L }
-
-                EditCategoryScreen(
-                    viewModel = editCategoryViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateDone = {
-                        newPriceViewModel.updateCategoryId(categoryId)
-                        navController.navigateUp()
-                    }
-                )
-            } ?: throw IllegalArgumentException("argument should not be null")
-        }
-        composable(NewStore) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(NewPriceRecordRoute)
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
-
-            NewStoreScreen(
-                newStoreViewModel = newStoreViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateStoreId(it)
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(
-            EditStore_With_Args,
-            arguments = listOf(navArgument(EditStore_Arg_StoreId) {
-                type = NavType.LongType
-            })
-        ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
-
-            backStackEntry.arguments?.let { arg ->
-                val storeId = arg.getLong(EditStore_Arg_StoreId).takeIf { it != 0L }
-
-                EditStoreScreen(
-                    viewModel = editStoreViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateDone = {
-                        newPriceViewModel.updateStoreId(storeId)
-                        navController.navigateUp()
-                    }
-                )
-            } ?: throw IllegalArgumentException("argument should not be null")
-        }
-    }
-}

@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
@@ -135,6 +133,7 @@ private fun MainContent(
                     },
                     label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
                     selected = true,
+                    onClick = {}
                 )
                 NavigationBarItem(
                     icon = {
@@ -357,7 +356,8 @@ private fun EmptyPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
-        onNavBarShoppingListClick = {}
+        onNewPriceFabClick = {},
+        onNavBarShoppingListClick = {},
     )
 }
 
@@ -397,6 +397,7 @@ private fun DefaultPreview() {
         onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
+        onNewPriceFabClick = {},
         onNavBarShoppingListClick = {}
     )
 }

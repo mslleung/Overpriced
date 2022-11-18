@@ -12,7 +12,7 @@ import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 @Suppress("unused")
 private val log = Logger {}
 
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun EditStoreScreen(
     viewModel: EditStoreScreenViewModel,
@@ -147,7 +146,6 @@ fun EditStoreScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 private fun MainContent(
     viewModelState: EditStoreScreenViewModelState,
