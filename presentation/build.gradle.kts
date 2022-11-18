@@ -93,7 +93,7 @@ dependencies {
     implementation(project(":shared"))
 
     // android core UI
-    val composeVersion = "1.4.0-alpha01"
+    val composeVersion = "1.4.0-alpha02"
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("com.google.android.material:material:1.8.0-alpha02")
@@ -135,7 +135,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // accompanist
-    val accompanistVersion = "0.27.0"
+    val accompanistVersion = "0.27.1"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")

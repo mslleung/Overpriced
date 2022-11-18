@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    val hiltVersion by extra { "2.44" }
+    val hiltVersion by extra { "2.44.2" }
     repositories {
         google()
         mavenCentral()

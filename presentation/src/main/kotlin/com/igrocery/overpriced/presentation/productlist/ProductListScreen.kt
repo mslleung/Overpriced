@@ -81,6 +81,7 @@ private fun MainContent(
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
     UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
+    UseDefaultSystemNavBarColor()
 
     Scaffold(
         topBar = {
