@@ -38,27 +38,30 @@ fun EditStoreScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberEditStoreScreenState()
-    val storeMapState by rememberStoreGoogleMapState(context = LocalContext.current)
-    MainContent(
-        viewModelState = viewModel,
-        snackbarHostState = snackbarHostState,
-        state = state,
-        storeMapState = storeMapState,
-        onCameraPositionChanged = {
-            state.cameraPosition = it
-        },
-        onBackButtonClick = navigateUp,
-        onDeleteButtonClick = {
-            state.isConfirmDeleteDialogShown = true
-        },
-        onSaveButtonClick = {
-            state.isSaveDialogShown = true
-        }
-    )
+    val storeState by viewModel.storeFlow.collectAsState()
+    storeState.ifLoaded { store ->
+        val storeMapState by rememberStoreGoogleMapState(
+            context = LocalContext.current,
+            initialCameraPosition = store.address.geoCoordinates
+        )
+        MainContent(
+            viewModelState = viewModel,
+            snackbarHostState = snackbarHostState,
+            state = state,
+            storeMapState = storeMapState,
+            onCameraPositionChanged = {
+                state.cameraPosition = it
+            },
+            onBackButtonClick = navigateUp,
+            onDeleteButtonClick = {
+                state.isConfirmDeleteDialogShown = true
+            },
+            onSaveButtonClick = {
+                state.isSaveDialogShown = true
+            }
+        )
 
-    if (state.isConfirmDeleteDialogShown) {
-        val store by viewModel.storeFlow.collectAsState()
-        store.ifLoaded {
+        if (state.isConfirmDeleteDialogShown) {
             ConfirmDeleteDialog(
                 onDismiss = {
                     state.isConfirmDeleteDialogShown = false
@@ -66,38 +69,35 @@ fun EditStoreScreen(
                 onConfirm = {
                     state.isConfirmDeleteDialogShown = false
                     navigateUp()
-                    viewModel.deleteStore(it)
+                    viewModel.deleteStore(store)
                 },
                 messageText = stringResource(id = R.string.store_delete_dialog_message)
             )
         }
-    }
 
-    viewModel.deleteStoreResult.let {
-        when (it) {
-            is LoadingState.Success -> {
-                LaunchedEffect(key1 = Unit) {
-                    navigateDone()
+        viewModel.deleteStoreResult.let {
+            when (it) {
+                is LoadingState.Success -> {
+                    LaunchedEffect(key1 = Unit) {
+                        navigateDone()
+                    }
                 }
-            }
-            is LoadingState.Error -> {
-                val message = stringResource(id = R.string.edit_store_delete_failed_message)
-                LaunchedEffect(it) {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true
-                    )
+                is LoadingState.Error -> {
+                    val message = stringResource(id = R.string.edit_store_delete_failed_message)
+                    LaunchedEffect(it) {
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            withDismissAction = true
+                        )
+                    }
                 }
+                else -> {}
             }
-            else -> {}
         }
-    }
 
-    if (state.isSaveDialogShown) {
-        val store by viewModel.storeFlow.collectAsState()
-        store.ifLoaded {
+        if (state.isSaveDialogShown) {
             val saveDialogState by rememberSaveAlertDialogState(
-                initialStoreName = it.name,
+                initialStoreName = store.name,
                 initialAddress = storeMapState.address
             )
             SaveAlertDialog(
@@ -117,25 +117,25 @@ fun EditStoreScreen(
                 },
             )
         }
-    }
 
-    viewModel.updateStoreResult.let {
-        when (it) {
-            is LoadingState.Success -> {
-                LaunchedEffect(key1 = Unit) {
-                    navigateDone()
+        viewModel.updateStoreResult.let {
+            when (it) {
+                is LoadingState.Success -> {
+                    LaunchedEffect(key1 = Unit) {
+                        navigateDone()
+                    }
                 }
-            }
-            is LoadingState.Error -> {
-                val message = stringResource(id = R.string.edit_store_update_failed_message)
-                LaunchedEffect(it) {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true
-                    )
+                is LoadingState.Error -> {
+                    val message = stringResource(id = R.string.edit_store_update_failed_message)
+                    LaunchedEffect(it) {
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            withDismissAction = true
+                        )
+                    }
                 }
+                else -> {}
             }
-            else -> {}
         }
     }
 
