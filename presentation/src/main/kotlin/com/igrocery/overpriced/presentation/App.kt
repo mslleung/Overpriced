@@ -15,14 +15,18 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.presentation.NavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
+import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
+import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
+import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Args
@@ -64,12 +68,15 @@ object NavDestinations {
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
     const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
+    const val EditCategory_Result_CategoryId = "categoryId"
 
     const val EditStore = "editStore"
     const val EditStore_Arg_StoreId = "storeId"
     const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
+    const val EditStore_Result_StoreId = "storeId"
 
     const val NewCategory = "newCategory"
+    const val NewCategory_Result_CategoryId = "categoryId"
 
     const val NewPrice = "newPrice"
     const val NewPrice_Arg_ProductId = "productId"
@@ -78,6 +85,7 @@ object NavDestinations {
         "$NewPrice?$NewPrice_Arg_ProductId={$NewPrice_Arg_ProductId}?$NewPrice_Arg_CategoryId={$NewPrice_Arg_CategoryId}"
 
     const val NewStore = "newStore"
+    const val NewStore_Result_StoreId = "storeId"
 
     const val ProductList = "productList"
     const val ProductList_Arg_CategoryId = "categoryId"
@@ -193,10 +201,8 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 navigateToProductDetails = { }
             )
         }
-        composable(NewPrice_With_Args) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) { navController.getBackStackEntry(CategoryRoute) }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+        composable(NewPrice_With_Args) {
+            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
 
             NewPriceScreen(
                 newPriceScreenViewModel = newPriceViewModel,
@@ -207,19 +213,17 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 navigateToEditStore = { navController.navigate("${EditStore}/${it.id}") },
             )
         }
-        composable(NewCategory) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(CategoryRoute)
-                }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+        composable(NewCategory) {
             val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
 
             NewCategoryScreen(
                 viewModel = newCategoryViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.updateCategoryId(it)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        NewCategory_Result_CategoryId,
+                        it
+                    ) ?: throw IllegalStateException("NewCategory result is not received.")
                     navController.navigateUp()
                 }
             )
@@ -230,11 +234,6 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 type = NavType.LongType
             })
         ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(CategoryRoute)
-                }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
 
             backStackEntry.arguments?.let { arg ->
@@ -244,25 +243,26 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                     viewModel = editCategoryViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateDone = {
-                        newPriceViewModel.updateCategoryId(categoryId)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            EditCategory_Result_CategoryId,
+                            categoryId
+                        ) ?: throw IllegalStateException("EditCategory result is not received.")
                         navController.navigateUp()
                     }
                 )
             } ?: throw IllegalArgumentException("argument should not be null")
         }
-        composable(NewStore) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(CategoryRoute)
-                }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
+        composable(NewStore) {
             val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
 
             NewStoreScreen(
                 newStoreViewModel = newStoreViewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateDone = {
-                    newPriceViewModel.updateStoreId(it)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        NewStore_Result_StoreId,
+                        it
+                    ) ?: throw IllegalStateException("NewStore result is not received.")
                     navController.navigateUp()
                 }
             )
@@ -273,9 +273,6 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 type = NavType.LongType
             })
         ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) { navController.getBackStackEntry(CategoryRoute) }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
             val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
 
             backStackEntry.arguments?.let { arg ->
@@ -285,7 +282,10 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                     viewModel = editStoreViewModel,
                     navigateUp = { navController.navigateUp() },
                     navigateDone = {
-                        newPriceViewModel.updateStoreId(storeId)
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            EditStore_Result_StoreId,
+                            storeId
+                        ) ?: throw IllegalStateException("EditStore result is not received.")
                         navController.navigateUp()
                     }
                 )
