@@ -68,15 +68,15 @@ object NavDestinations {
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
     const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
-    const val EditCategory_Result_CategoryId = "categoryId"
+    const val EditCategory_Result_CategoryId = "editCategoryResultCategoryId"
 
     const val EditStore = "editStore"
     const val EditStore_Arg_StoreId = "storeId"
     const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
-    const val EditStore_Result_StoreId = "storeId"
+    const val EditStore_Result_StoreId = "editStoreResultStoreId"
 
     const val NewCategory = "newCategory"
-    const val NewCategory_Result_CategoryId = "categoryId"
+    const val NewCategory_Result_CategoryId = "newCategoryResultCategoryId"
 
     const val NewPrice = "newPrice"
     const val NewPrice_Arg_ProductId = "productId"
@@ -85,7 +85,7 @@ object NavDestinations {
         "$NewPrice?$NewPrice_Arg_ProductId={$NewPrice_Arg_ProductId}?$NewPrice_Arg_CategoryId={$NewPrice_Arg_CategoryId}"
 
     const val NewStore = "newStore"
-    const val NewStore_Result_StoreId = "storeId"
+    const val NewStore_Result_StoreId = "newStoreResultStoreId"
 
     const val ProductList = "productList"
     const val ProductList_Arg_CategoryId = "categoryId"
@@ -201,8 +201,10 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 navigateToProductDetails = { }
             )
         }
-        composable(NewPrice_With_Args) {
+        composable(NewPrice_With_Args) { backStack ->
             val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
+
+            backStack.savedStateHandle
 
             NewPriceScreen(
                 newPriceScreenViewModel = newPriceViewModel,

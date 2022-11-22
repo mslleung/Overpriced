@@ -57,7 +57,6 @@ class NewPriceScreenStateHolder(
                 }
         }
 
-
         coroutineScope.launch {
             when (val storeLoadingState = newPriceScreenViewModel.storeFlow.value) {
                 is LoadingState.Loading -> {

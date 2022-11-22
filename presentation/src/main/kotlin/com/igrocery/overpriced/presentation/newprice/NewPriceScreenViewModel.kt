@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.newprice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -14,6 +15,11 @@ import com.igrocery.overpriced.application.productpricehistory.PriceRecordServic
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.*
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
+import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +45,7 @@ interface NewPriceScreenViewModelState {
 
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
@@ -75,6 +82,46 @@ class NewPriceScreenViewModel @Inject constructor(
         private set
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+
+    init {
+//        val argProductId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
+//        if (argProductId != null) {
+//            updateCategoryId(argCategoryId)
+//        }
+
+        val argCategoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
+        if (argCategoryId != null) {
+            updateCategoryId(argCategoryId)
+        }
+
+        savedStateHandle.getStateFlow<Long?>(NewCategory_Result_CategoryId, null)
+            .filterNotNull()
+            .onEach {
+                updateCategoryId(it)
+            }
+            .launchIn(viewModelScope)
+
+        savedStateHandle.getStateFlow<Long?>(EditCategory_Result_CategoryId, null)
+            .filterNotNull()
+            .onEach {
+                updateCategoryId(it)
+            }
+            .launchIn(viewModelScope)
+
+        savedStateHandle.getStateFlow<Long?>(NewStore_Result_StoreId, null)
+            .filterNotNull()
+            .onEach {
+                updateStoreId(it)
+            }
+            .launchIn(viewModelScope)
+
+        savedStateHandle.getStateFlow<Long?>(EditStore_Result_StoreId, null)
+            .filterNotNull()
+            .onEach {
+                updateStoreId(it)
+            }
+            .launchIn(viewModelScope)
+    }
 
     var query = ""
     val suggestedProductsPagingDataFlow = Pager(
