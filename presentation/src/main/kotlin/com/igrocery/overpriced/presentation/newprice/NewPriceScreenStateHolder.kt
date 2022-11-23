@@ -3,12 +3,21 @@ package com.igrocery.overpriced.presentation.newprice
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.SavedStateHandle
+import com.igrocery.overpriced.presentation.NavDestinations
+import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
+import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_ProductId
+import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class NewPriceScreenStateHolder(
+    savedStateHandle: SavedStateHandle,
     coroutineScope: CoroutineScope,
     newPriceScreenViewModel: NewPriceScreenViewModelState,
     savedState: List<*>? = null
@@ -36,21 +45,22 @@ class NewPriceScreenStateHolder(
     var submitError by mutableStateOf(savedState?.get(10) as? SubmitError ?: SubmitError.None)
 
     init {
-        coroutineScope.launch {
-            when (val categoryLoadingState = newPriceScreenViewModel.categoryFlow.value) {
-                is LoadingState.Loading -> {
-                    val categoryResult = newPriceScreenViewModel.categoryFlow
-                        .filter { it is LoadingState.Success || it is LoadingState.Error }.first()
-                    if (categoryResult is LoadingState.Success) {
-                        productCategoryId = categoryResult.data?.id
-                    }
-                }
-                is LoadingState.Success -> {
-                    productCategoryId = categoryLoadingState.data?.id
-                }
-                else -> {}
-            }
+        val productId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
+        val categoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
 
+        productCategoryId = savedStateHandle.get<Long>(
+            NewCategory_Result_CategoryId
+        ) ?: savedStateHandle.get<Long>(
+            EditCategory_Result_CategoryId
+        ) ?: productCategoryId
+
+        priceStoreId = savedStateHandle.get<Long>(
+            NewStore_Result_StoreId
+        ) ?: savedStateHandle.get<Long>(
+            EditStore_Result_StoreId
+        ) ?: priceStoreId
+
+        coroutineScope.launch {
             snapshotFlow { productCategoryId }
                 .collectLatest {
                     newPriceScreenViewModel.updateCategoryId(it)
@@ -58,26 +68,19 @@ class NewPriceScreenStateHolder(
         }
 
         coroutineScope.launch {
-            when (val storeLoadingState = newPriceScreenViewModel.storeFlow.value) {
-                is LoadingState.Loading -> {
-                    val storeResult = newPriceScreenViewModel.storeFlow
-                        .filter { it is LoadingState.Success || it is LoadingState.Error }.first()
-                    if (storeResult is LoadingState.Success) {
-                        priceStoreId = storeResult.data?.id
-                    }
-                }
-                is LoadingState.Success -> {
-                    priceStoreId = storeLoadingState.data?.id
-                }
-                else -> {}
-            }
-
             snapshotFlow { priceStoreId }
                 .collectLatest {
                     newPriceScreenViewModel.updateStoreId(it)
                 }
         }
 
+        // consume all arguments
+        savedStateHandle.remove<Long>(NewPrice_Arg_ProductId)
+        savedStateHandle.remove<Long>(NewPrice_Arg_CategoryId)
+        savedStateHandle.remove<Long>(NewCategory_Result_CategoryId)
+        savedStateHandle.remove<Long>(EditCategory_Result_CategoryId)
+        savedStateHandle.remove<Long>(NewStore_Result_StoreId)
+        savedStateHandle.remove<Long>(EditStore_Result_StoreId)
     }
 
     fun hasModifications(): Boolean {
@@ -92,10 +95,11 @@ class NewPriceScreenStateHolder(
 
 @Composable
 fun rememberNewPriceScreenState(
+    savedStateHandle: SavedStateHandle,
     coroutineScope: CoroutineScope,
     newPriceScreenViewModel: NewPriceScreenViewModelState
 ) = rememberSaveable(
-    inputs = arrayOf(coroutineScope, newPriceScreenViewModel),
+    inputs = arrayOf(savedStateHandle, coroutineScope, newPriceScreenViewModel),
     stateSaver = listSaver(
         save = {
             listOf(
@@ -113,9 +117,20 @@ fun rememberNewPriceScreenState(
             )
         },
         restore = { savedState ->
-            NewPriceScreenStateHolder(coroutineScope, newPriceScreenViewModel, savedState)
+            NewPriceScreenStateHolder(
+                savedStateHandle,
+                coroutineScope,
+                newPriceScreenViewModel,
+                savedState
+            )
         }
     )
 ) {
-    mutableStateOf(NewPriceScreenStateHolder(coroutineScope, newPriceScreenViewModel))
+    mutableStateOf(
+        NewPriceScreenStateHolder(
+            savedStateHandle,
+            coroutineScope,
+            newPriceScreenViewModel
+        )
+    )
 }

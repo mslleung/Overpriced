@@ -24,6 +24,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_CategoryId
+import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_ProductId
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
@@ -201,16 +203,31 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                 navigateToProductDetails = { }
             )
         }
-        composable(NewPrice_With_Args) { backStack ->
+        composable(
+            route = NewPrice_With_Args,
+            arguments = listOf(
+                navArgument(NewPrice_Arg_ProductId) {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                },
+                navArgument(NewPrice_Arg_CategoryId) {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                }
+            )
+        ) { backStackEntry ->
             val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
 
-            backStack.savedStateHandle
-
             NewPriceScreen(
+                savedStateHandle = backStackEntry.savedStateHandle,
                 newPriceScreenViewModel = newPriceViewModel,
                 navigateUp = { navController.navigateUp() },
-                navigateToNewCategory = { navController.navigate(NewCategory) },
-                navigateToEditCategory = { navController.navigate("${EditCategory}/${it.id}") },
+                navigateToNewCategory = {
+                    navController.navigate(NewCategory)
+                },
+                navigateToEditCategory = {
+                    navController.navigate("${EditCategory}/${it.id}")
+                },
                 navigateToNewStore = { navController.navigate(NewStore) },
                 navigateToEditStore = { navController.navigate("${EditStore}/${it.id}") },
             )

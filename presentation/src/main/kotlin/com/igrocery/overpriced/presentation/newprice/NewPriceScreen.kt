@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -60,6 +61,7 @@ private val log = Logger { }
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun NewPriceScreen(
+    savedStateHandle: SavedStateHandle,
     newPriceScreenViewModel: NewPriceScreenViewModel,
     navigateUp: () -> Unit,
     navigateToNewCategory: () -> Unit,
@@ -73,7 +75,7 @@ fun NewPriceScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val coroutineScope = rememberCoroutineScope()
-    val state by rememberNewPriceScreenState(coroutineScope, newPriceScreenViewModel)
+    val state by rememberNewPriceScreenState(savedStateHandle, coroutineScope, newPriceScreenViewModel)
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
@@ -819,7 +821,11 @@ private fun DefaultPreview() {
 
     MainLayout(
         viewModelState = viewModelState,
-        state = NewPriceScreenStateHolder(rememberCoroutineScope(), viewModelState),
+        state = NewPriceScreenStateHolder(
+            SavedStateHandle(),
+            rememberCoroutineScope(),
+            viewModelState
+        ),
         snackbarHostState = SnackbarHostState(),
         productSuggestionsPagingItems = productsPagingItems,
         onCloseButtonClick = {},

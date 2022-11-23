@@ -45,7 +45,6 @@ interface NewPriceScreenViewModelState {
 
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
@@ -82,46 +81,6 @@ class NewPriceScreenViewModel @Inject constructor(
         private set
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
-
-    init {
-//        val argProductId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
-//        if (argProductId != null) {
-//            updateCategoryId(argCategoryId)
-//        }
-
-        val argCategoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
-        if (argCategoryId != null) {
-            updateCategoryId(argCategoryId)
-        }
-
-        savedStateHandle.getStateFlow<Long?>(NewCategory_Result_CategoryId, null)
-            .filterNotNull()
-            .onEach {
-                updateCategoryId(it)
-            }
-            .launchIn(viewModelScope)
-
-        savedStateHandle.getStateFlow<Long?>(EditCategory_Result_CategoryId, null)
-            .filterNotNull()
-            .onEach {
-                updateCategoryId(it)
-            }
-            .launchIn(viewModelScope)
-
-        savedStateHandle.getStateFlow<Long?>(NewStore_Result_StoreId, null)
-            .filterNotNull()
-            .onEach {
-                updateStoreId(it)
-            }
-            .launchIn(viewModelScope)
-
-        savedStateHandle.getStateFlow<Long?>(EditStore_Result_StoreId, null)
-            .filterNotNull()
-            .onEach {
-                updateStoreId(it)
-            }
-            .launchIn(viewModelScope)
-    }
 
     var query = ""
     val suggestedProductsPagingDataFlow = Pager(
