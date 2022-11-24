@@ -26,7 +26,5 @@ fun rememberProductListScreenState() = rememberSaveable(
         }
     )
 ) {
-    // UiState is not designed to be mutable. It should NEVER be reassigned.
-    // The only exception is activity config change and process recreation. Hence it is mutable.
     mutableStateOf(ProductListScreenStateHolder())
 }

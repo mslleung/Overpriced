@@ -44,6 +44,7 @@ fun ProductListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
+    navigateToPriceList: (ProductWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductListScreen")
@@ -55,7 +56,7 @@ fun ProductListScreen(
         onBackButtonClick = navigateUp,
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
-        onProductClick = {},
+        onProductClick = navigateToPriceList,
         modifier = modifier
     )
 

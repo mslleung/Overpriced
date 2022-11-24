@@ -94,6 +94,8 @@ object NavDestinations {
     const val ProductList_With_Args =
         "$ProductList?$ProductList_Arg_CategoryId={$ProductList_Arg_CategoryId}"
 
+    const val PriceList =
+
     const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
     const val Settings = "settings"
