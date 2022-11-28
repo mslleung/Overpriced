@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.pricelist
+package com.igrocery.overpriced.presentation.productdetail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -25,19 +25,19 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
-interface PriceListScreenViewModelState {
+interface ProductDetailScreenViewModelState {
     val categoryFlow: StateFlow<LoadingState<Category?>>
     val currencyFlow: StateFlow<LoadingState<Currency>>
     val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
 @HiltViewModel
-class PriceListScreenViewModel @Inject constructor(
+class ProductDetailScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
     categoryService: CategoryService,
     private val productService: ProductService,
     preferenceService: PreferenceService,
-) : ViewModel(), ProductListScreenViewModelState {
+) : ViewModel(), ProductDetailScreenViewModelState {
 
     private val categoryId = savedState.get<Long>(NavDestinations.ProductList_Arg_CategoryId).takeIf { it != 0L }
 

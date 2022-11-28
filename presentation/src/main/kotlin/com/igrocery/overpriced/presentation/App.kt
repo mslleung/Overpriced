@@ -29,6 +29,9 @@ import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_Product
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore
 import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
+import com.igrocery.overpriced.presentation.NavDestinations.ProductDetail
+import com.igrocery.overpriced.presentation.NavDestinations.ProductDetail_Arg_ProductId
+import com.igrocery.overpriced.presentation.NavDestinations.ProductDetail_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Args
@@ -94,7 +97,10 @@ object NavDestinations {
     const val ProductList_With_Args =
         "$ProductList?$ProductList_Arg_CategoryId={$ProductList_Arg_CategoryId}"
 
-    const val PriceList =
+    const val ProductDetail = "ProductDetail"
+    const val ProductDetail_Arg_ProductId = "productId"
+    const val ProductDetail_With_Args =
+        "$ProductDetail/{$ProductDetail_Arg_ProductId}"
 
     const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
@@ -193,6 +199,11 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
 
                         navController.navigate("$EditCategory/$categoryId")
                     },
+                    navigateToProductDetail = {
+                        require(it != 0L) { "Product id cannot be 0" }
+
+                        navController.navigate("$ProductDetail/$it")
+                    }
                 )
             } ?: throw IllegalArgumentException("argument should not be null")
         }
@@ -311,6 +322,14 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                     }
                 )
             } ?: throw IllegalArgumentException("argument should not be null")
+        }
+        composable(
+            ProductDetail_With_Args,
+            arguments = listOf(navArgument(ProductDetail_Arg_ProductId) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+
         }
 
         settingsGraph(navController)

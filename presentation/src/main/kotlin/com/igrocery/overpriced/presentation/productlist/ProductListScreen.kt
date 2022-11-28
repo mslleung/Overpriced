@@ -44,7 +44,7 @@ fun ProductListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
-    navigateToPriceList: (ProductWithMinMaxPrices) -> Unit,
+    navigateToProductDetail: (productId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductListScreen")
@@ -56,12 +56,12 @@ fun ProductListScreen(
         onBackButtonClick = navigateUp,
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
-        onProductClick = navigateToPriceList,
+        onProductClick = { navigateToProductDetail(it.product.id) },
         modifier = modifier
     )
 
     BackHandler {
-        log.debug("Composing ProductListScreen: BackHandler")
+        log.debug("ProductListScreen: BackHandler")
         navigateUp()
     }
 }
