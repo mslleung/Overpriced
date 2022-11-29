@@ -54,6 +54,11 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().getProductsPage(offset, pageSize)
     }
 
+    override fun getProductById(productId: Long): Flow<ProductRoomEntity?> {
+        return db.productDao().getProductById(productId)
+            .distinctUntilChanged()
+    }
+
     override fun getProductByNameAndDescription(
         name: String,
         description: String?
@@ -94,6 +99,16 @@ internal class LocalProductDataSource @Inject internal constructor(
         pageSize: Int
     ): List<ProductRoomEntity> {
         return db.productDao().getProductByCategoryPaging(categoryId, offset, pageSize)
+    }
+
+    override fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+        productId: Long,
+        currency: Currency
+    ): Flow<ProductDao.ProductWithMinMaxPrices?> {
+        return db.productDao().getProductsWithMinMaxPricesByProductIdAndCurrency(
+            productId,
+            currency.currencyCode,
+        )
     }
 
     override suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(

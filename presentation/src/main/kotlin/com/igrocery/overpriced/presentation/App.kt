@@ -52,6 +52,8 @@ import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
+import com.igrocery.overpriced.presentation.productdetail.ProductDetailScreen
+import com.igrocery.overpriced.presentation.productdetail.ProductDetailScreenViewModel
 import com.igrocery.overpriced.presentation.productlist.ProductListScreen
 import com.igrocery.overpriced.presentation.productlist.ProductListScreenViewModel
 import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
@@ -328,8 +330,13 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
             arguments = listOf(navArgument(ProductDetail_Arg_ProductId) {
                 type = NavType.LongType
             })
-        ) { backStackEntry ->
+        ) {
+            val productDetailViewModel = hiltViewModel<ProductDetailScreenViewModel>()
 
+            ProductDetailScreen(
+                viewModel = productDetailViewModel,
+                navigateUp = { navController.navigateUp() },
+            )
         }
 
         settingsGraph(navController)

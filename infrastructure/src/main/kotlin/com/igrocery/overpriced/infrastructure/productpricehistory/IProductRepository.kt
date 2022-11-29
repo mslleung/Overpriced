@@ -16,12 +16,19 @@ interface IProductRepository : BaseRepository<Product> {
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices>
 
+    fun getProductById(productId: Long): Flow<Product?>
+
     fun getProductByNameAndDescription(
         name: String,
         description: String?
     ): Flow<Product?>
 
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
+
+    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+        id: Long,
+        currency: Currency
+    ): Flow<ProductWithMinMaxPrices?>
 
     fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
         categoryId: Long?,

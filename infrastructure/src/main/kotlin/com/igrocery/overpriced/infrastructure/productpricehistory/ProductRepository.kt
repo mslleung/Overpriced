@@ -115,7 +115,10 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun searchProductsByNameWithMinMaxPricesPaging(query: String, currency: Currency): PagingSource<Int, ProductWithMinMaxPrices> {
+    override fun searchProductsByNameWithMinMaxPricesPaging(
+        query: String,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
         return SearchProductsWithMinMaxPricesPagingSource(
             localProductDataSource,
             localPriceRecordDataSource,
@@ -131,7 +134,8 @@ class ProductRepository @Inject internal constructor(
         private val ioDispatcher: CoroutineDispatcher,
         private val query: String,
         private val currency: Currency
-    ) : PagingSource<Int, ProductWithMinMaxPrices>(), InvalidationObserverDelegate.InvalidationObserver {
+    ) : PagingSource<Int, ProductWithMinMaxPrices>(),
+        InvalidationObserverDelegate.InvalidationObserver {
 
         init {
             localProductDataSource.addInvalidationObserver(this)
@@ -193,6 +197,11 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
+    override fun getProductById(productId: Long): Flow<Product?> {
+        return localProductDataSource.getProductById(productId)
+            .map { it?.toDomain() }
+    }
+
     override fun getProductByNameAndDescription(
         name: String,
         description: String?
@@ -250,6 +259,25 @@ class ProductRepository @Inject internal constructor(
             return state.anchorPosition?.let { anchorPosition ->
                 val anchorPage = state.closestPageToPosition(anchorPosition)
                 anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
+            }
+        }
+    }
+
+    override fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+        id: Long,
+        currency: Currency
+    ): Flow<ProductWithMinMaxPrices?> {
+        return localProductDataSource.getProductsWithMinMaxPricesByProductIdAndCurrency(
+            id,
+            currency
+        ).map {
+            it?.let {
+                ProductWithMinMaxPrices(
+                    it.productRoomEntity.toDomain(),
+                    it.minPrice,
+                    it.maxPrice,
+                    it.lastUpdatedTimestamp
+                )
             }
         }
     }

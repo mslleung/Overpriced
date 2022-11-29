@@ -80,7 +80,7 @@ private fun MainContent(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
-    UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(

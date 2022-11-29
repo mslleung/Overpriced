@@ -84,6 +84,23 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
                 MAX(price_records.price) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
+            WHERE products.id = :productId AND price_records.currency = :currency
+            GROUP BY products.id
+            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+        """
+    )
+    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+        productId: Long,
+        currency: String?
+    ): Flow<ProductWithMinMaxPrices?>
+
+    @Query(
+        """
+            SELECT products.*,
+                MIN(price_records.price) AS minPrice,
+                MAX(price_records.price) AS maxPrice,
+                MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
+            FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.category_id IS :categoryId AND price_records.currency = :currency
             GROUP BY products.id
             ORDER BY name, description LIMIT :pageSize OFFSET :offset

@@ -31,10 +31,8 @@ private val log = Logger { }
 
 @Composable
 fun ProductDetailScreen(
-    viewModel: ProductListScreenViewModel,
+    viewModel: ProductDetailScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToSearchProduct: () -> Unit,
-    navigateToEditCategory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductDetailScreen")
@@ -59,7 +57,7 @@ fun ProductDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    viewModelState: ProductListScreenViewModelState,
+    viewModelState: ProductDetailScreenViewModelState,
     state: ProductDetailScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
@@ -70,7 +68,7 @@ private fun MainContent(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
-    UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(

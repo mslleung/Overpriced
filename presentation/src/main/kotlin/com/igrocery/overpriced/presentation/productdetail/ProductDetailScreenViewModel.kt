@@ -26,7 +26,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface ProductDetailScreenViewModelState {
-    val categoryFlow: StateFlow<LoadingState<Category?>>
+    val productWithPricesFlow: StateFlow<LoadingState<ProductWithMinMaxPrices>>
     val currencyFlow: StateFlow<LoadingState<Currency>>
     val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
@@ -34,19 +34,21 @@ interface ProductDetailScreenViewModelState {
 @HiltViewModel
 class ProductDetailScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
-    categoryService: CategoryService,
-    private val productService: ProductService,
+    productService: ProductService,
     preferenceService: PreferenceService,
 ) : ViewModel(), ProductDetailScreenViewModelState {
 
-    private val categoryId = savedState.get<Long>(NavDestinations.ProductList_Arg_CategoryId).takeIf { it != 0L }
+    private val productId = savedState.get<Long>(NavDestinations.ProductDetail_Arg_ProductId)
+        ?: throw IllegalArgumentException("Product id cannot be null")
 
-    override val categoryFlow = if (categoryId == null)
-        MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
-    else
-        categoryService.getCategoryById(categoryId)
+    override val productWithPricesFlow =
+        productService.getProductById(productId)
             .map {
-                LoadingState.Success(it)
+                if (it != null) {
+                    LoadingState.Success(it)
+                } else {
+                    LoadingState.Error(IllegalArgumentException("Product not found"))
+                }
             }
             .stateIn(
                 scope = viewModelScope,

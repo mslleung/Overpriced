@@ -17,6 +17,8 @@ internal interface ILocalProductDataSource {
 
     suspend fun getProductsPage(offset: Int, pageSize: Int): List<ProductRoomEntity>
 
+    fun getProductById(productId: Long): Flow<ProductRoomEntity?>
+
     fun getProductByNameAndDescription(
         name: String,
         description: String?
@@ -40,6 +42,11 @@ internal interface ILocalProductDataSource {
         offset: Int,
         pageSize: Int
     ): List<ProductRoomEntity>
+
+    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+        productId: Long,
+        currency: Currency
+    ): Flow<ProductDao.ProductWithMinMaxPrices?>
 
     suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
         categoryId: Long?,
