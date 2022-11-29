@@ -78,15 +78,14 @@ private fun MainContent(
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
-    val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
     UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
                     val category by viewModelState.categoryFlow.collectAsState()
                     category.ifLoaded {

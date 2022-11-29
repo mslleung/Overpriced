@@ -240,7 +240,7 @@ fun NewPriceScreen(
 
     val isImeVisible = WindowInsets.isImeVisible
     BackHandler {
-        log.debug("Composing NewPriceScreen: BackHandler")
+        log.debug("NewPriceScreen: BackHandler")
         if (isImeVisible) {
             keyboardController?.hide()
         } else if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {

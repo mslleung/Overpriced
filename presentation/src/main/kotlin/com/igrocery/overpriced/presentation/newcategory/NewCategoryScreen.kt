@@ -64,7 +64,7 @@ fun NewCategoryScreen(
     }
 
     BackHandler {
-        log.debug("Composing NewCategoryScreen: BackHandler")
+        log.debug("NewCategoryScreen: BackHandler")
         navigateUp()
     }
 }

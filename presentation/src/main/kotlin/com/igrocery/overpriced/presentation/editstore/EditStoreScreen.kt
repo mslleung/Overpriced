@@ -140,7 +140,7 @@ fun EditStoreScreen(
     }
 
     BackHandler {
-        log.debug("Composing EditStoreScreen: BackHandler")
+        log.debug("EditStoreScreen: BackHandler")
         navigateUp()
     }
 }

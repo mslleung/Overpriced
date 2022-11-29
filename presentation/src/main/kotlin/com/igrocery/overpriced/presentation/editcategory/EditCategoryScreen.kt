@@ -83,7 +83,7 @@ fun EditCategoryScreen(
     }
 
     BackHandler {
-        log.debug("Composing EditCategoryScreen: BackHandler")
+        log.debug("EditCategoryScreen: BackHandler")
         navigateUp()
     }
 }
