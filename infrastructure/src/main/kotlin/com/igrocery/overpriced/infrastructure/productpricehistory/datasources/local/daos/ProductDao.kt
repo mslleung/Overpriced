@@ -86,7 +86,6 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.id = :productId AND price_records.currency = :currency
             GROUP BY products.id
-            ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
     )
     fun getProductsWithMinMaxPricesByProductIdAndCurrency(

@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
@@ -42,8 +43,8 @@ fun ProductDetailScreen(
         viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
-        onSearchButtonClick = navigateToSearchProduct,
-        onEditButtonClick = navigateToEditCategory,
+//        onSearchButtonClick = navigateToSearchProduct,
+//        onEditButtonClick = navigateToEditCategory,
         onProductClick = {},
         modifier = modifier
     )
@@ -60,68 +61,79 @@ private fun MainContent(
     viewModelState: ProductDetailScreenViewModelState,
     state: ProductDetailScreenStateHolder,
     onBackButtonClick: () -> Unit,
-    onSearchButtonClick: () -> Unit,
-    onEditButtonClick: () -> Unit,
+//    onSearchButtonClick: () -> Unit,
+//    onEditButtonClick: () -> Unit,
     onProductClick: (ProductWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
-    UseAnimatedFadeTopBarColorForStatusBarColor(topBarState)
+    UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = {
-                    val category by viewModelState.categoryFlow.collectAsState()
-                    category.ifLoaded {
-                        val displayCategory = it ?: NoCategory
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                    val productWithPrices by viewModelState.productWithPricesFlow.collectAsState()
+                    productWithPrices.ifLoaded {
+                        Column(
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Image(
-                                painter = painterResource(id = displayCategory.icon.iconRes),
-                                contentDescription = displayCategory.name,
+                            Text(
+                                text = it.product.name,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.headlineLarge,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .padding(end = 12.dp)
-                                    .size(30.dp)
-                                    .alpha(LocalContentColor.current.alpha),
+                                    .padding(end = 8.dp),
                             )
 
-                            Text(text = displayCategory.name)
-                        }
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = onSearchButtonClick,
-                        modifier = Modifier
-                            .size(48.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_search_24),
-                            contentDescription = stringResource(id = R.string.product_list_search_button_content_description)
-                        )
-                    }
-
-                    val category by viewModelState.categoryFlow.collectAsState()
-                    category.ifLoaded {
-                        if (it != null) {
-                            IconButton(
-                                onClick = onEditButtonClick,
-                                modifier = Modifier
-                                    .size(48.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                                    contentDescription = stringResource(id = R.string.product_list_edit_button_content_description)
+                            if (it.product.description.isNotBlank()) {
+                                Text(
+                                    text = it.product.description,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .alpha(0.6f)
+                                        .padding(end = 8.dp),
                                 )
                             }
                         }
                     }
                 },
+//                actions = {
+//                    IconButton(
+//                        onClick = onSearchButtonClick,
+//                        modifier = Modifier
+//                            .size(48.dp)
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_baseline_search_24),
+//                            contentDescription = stringResource(id = R.string.product_list_search_button_content_description)
+//                        )
+//                    }
+//
+//                    val category by viewModelState.categoryFlow.collectAsState()
+//                    category.ifLoaded {
+//                        if (it != null) {
+//                            IconButton(
+//                                onClick = onEditButtonClick,
+//                                modifier = Modifier
+//                                    .size(48.dp)
+//                            ) {
+//                                Icon(
+//                                    painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+//                                    contentDescription = stringResource(id = R.string.product_list_edit_button_content_description)
+//                                )
+//                            }
+//                        }
+//                    }
+//                },
                 navigationIcon = {
                     BackButton(
                         onClick = onBackButtonClick,
@@ -136,44 +148,68 @@ private fun MainContent(
         contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
-        val productsPagingItems =
-            viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
-        val currency by viewModelState.currencyFlow.collectAsState()
-        if (productsPagingItems.isInitialLoadCompleted()) {
-            if (productsPagingItems.itemCount == 0) {
-                val scrollState = rememberScrollState()
-//                EmptyListContent(
+        LazyColumn(
+            modifier = Modifier
+                .padding(it)
+                .padding(horizontal = 16.dp)
+                .fillMaxSize()
+                .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+        ) {
+            item {
+                val currencyLoadState by viewModelState.currencyFlow.collectAsState()
+                val productWithPricesLoadState by viewModelState.productWithPricesFlow.collectAsState()
+                currencyLoadState.ifLoaded { currency ->
+                    productWithPricesLoadState.ifLoaded { (_, minPrice, maxPrice) ->
+                        Text(
+                            text = "${currency.symbol} $minPrice - $maxPrice",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+
+
+        }
+//        val productsPagingItems =
+//            viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
+//        val currency by viewModelState.currencyFlow.collectAsState()
+//        if (productsPagingItems.isInitialLoadCompleted()) {
+//            if (productsPagingItems.itemCount == 0) {
+//                val scrollState = rememberScrollState()
+////                EmptyListContent(
+////                    modifier = Modifier
+////                        .padding(it)
+////                        .fillMaxSize()
+////                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+////                        .verticalScroll(scrollState)
+////                )
+//            } else {
+//                LazyColumn(
+//                    contentPadding = PaddingValues(bottom = 120.dp),
 //                    modifier = Modifier
 //                        .padding(it)
 //                        .fillMaxSize()
 //                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-//                        .verticalScroll(scrollState)
-//                )
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(bottom = 120.dp),
-                    modifier = Modifier
-                        .padding(it)
-                        .fillMaxSize()
-                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-                ) {
-                    items(
-                        items = productsPagingItems,
-                        key = { item -> item.product.id }
-                    ) { item ->
-                        if (item != null) {
-                            ProductListItem(
-                                item = item,
-                                currency = currency,
-                                onClick = onProductClick,
-                                modifier = Modifier
-                                    .animateItemPlacement()
-                                    .fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            }
-        }
+//                ) {
+//                    items(
+//                        items = productsPagingItems,
+//                        key = { item -> item.product.id }
+//                    ) { item ->
+//                        if (item != null) {
+//                            ProductListItem(
+//                                item = item,
+//                                currency = currency,
+//                                onClick = onProductClick,
+//                                modifier = Modifier
+//                                    .animateItemPlacement()
+//                                    .fillMaxWidth()
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }

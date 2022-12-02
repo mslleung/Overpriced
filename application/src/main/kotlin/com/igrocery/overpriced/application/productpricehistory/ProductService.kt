@@ -66,8 +66,8 @@ class ProductService @Inject constructor(
         return productRepository.getProductByNameAndDescription(name, description)
     }
 
-    fun getProductById(id: Long): Flow<Product?> {
-        return productRepository.getProductById(id)
+    fun getProductById(productId: Long): Flow<Product?> {
+        return productRepository.getProductById(productId)
     }
 
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
@@ -75,10 +75,13 @@ class ProductService @Inject constructor(
     }
 
     fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        id: Long,
+        productId: Long,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?> {
-        return productRepository.getProductsWithMinMaxPricesByProductIdAndCurrency(id, currency)
+        return productRepository.getProductsWithMinMaxPricesByProductIdAndCurrency(
+            productId,
+            currency
+        )
     }
 
     fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(

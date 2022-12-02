@@ -26,9 +26,9 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface ProductDetailScreenViewModelState {
-    val productWithPricesFlow: StateFlow<LoadingState<ProductWithMinMaxPrices>>
     val currencyFlow: StateFlow<LoadingState<Currency>>
-    val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
+    val productWithPricesFlow: StateFlow<LoadingState<ProductWithMinMaxPrices>>
+//    val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
 @HiltViewModel
@@ -41,21 +41,6 @@ class ProductDetailScreenViewModel @Inject constructor(
     private val productId = savedState.get<Long>(NavDestinations.ProductDetail_Arg_ProductId)
         ?: throw IllegalArgumentException("Product id cannot be null")
 
-    override val productWithPricesFlow =
-        productService.getProductById(productId)
-            .map {
-                if (it != null) {
-                    LoadingState.Success(it)
-                } else {
-                    LoadingState.Error(IllegalArgumentException("Product not found"))
-                }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = LoadingState.Loading()
-            )
-
     override val currencyFlow = preferenceService.getAppPreference()
         .map {
             LoadingState.Success(it.preferredCurrency)
@@ -67,20 +52,39 @@ class ProductDetailScreenViewModel @Inject constructor(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val productsWithMinMaxPricesPagingDataFlow =
+    override val productWithPricesFlow =
         preferenceService.getAppPreference().flatMapLatest {
-            Pager(
-                PagingConfig(
-                    pageSize = 100,
-                    prefetchDistance = 30
-                )
-            ) {
-                productService.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-                    categoryId,
-                    it.preferredCurrency
-                )
-            }.flow
-                .cachedIn(viewModelScope)
-        }
+            productService.getProductsWithMinMaxPricesByProductIdAndCurrency(
+                productId,
+                it.preferredCurrency
+            )
+        }.map {
+            if (it != null) {
+                LoadingState.Success(it)
+            } else {
+                LoadingState.Error(IllegalArgumentException("Product not found"))
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
+
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    override val productsWithMinMaxPricesPagingDataFlow =
+//        preferenceService.getAppPreference().flatMapLatest {
+//            Pager(
+//                PagingConfig(
+//                    pageSize = 100,
+//                    prefetchDistance = 30
+//                )
+//            ) {
+//                productService.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+//                    categoryId,
+//                    it.preferredCurrency
+//                )
+//            }.flow
+//                .cachedIn(viewModelScope)
+//        }
 
 }

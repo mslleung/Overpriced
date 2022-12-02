@@ -15,16 +15,16 @@ class ProductListScreenStateHolder(savedState: List<*>? = null) {
 
 @Composable
 fun rememberProductListScreenState() = rememberSaveable(
-//    stateSaver = listSaver(
-//        save = {
-//            listOf(
-//                it.isLazyListPagingFirstLoad,
-//            )
-//        },
-//        restore = { savedState ->
-//            ProductListScreenStateHolder(savedState)
-//        }
-//    )
+    stateSaver = listSaver(
+        save = {
+            listOf(
+                false,
+            )
+        },
+        restore = { savedState ->
+            ProductListScreenStateHolder(savedState)
+        }
+    )
 ) {
     mutableStateOf(ProductListScreenStateHolder())
 }

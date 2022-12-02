@@ -49,9 +49,7 @@ import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -75,7 +73,11 @@ fun NewPriceScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val coroutineScope = rememberCoroutineScope()
-    val state by rememberNewPriceScreenState(savedStateHandle, coroutineScope, newPriceScreenViewModel)
+    val state by rememberNewPriceScreenState(
+        savedStateHandle,
+        coroutineScope,
+        newPriceScreenViewModel
+    )
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
     val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
@@ -405,6 +407,15 @@ private fun MainLayout(
         }
 
         if (state.wantToShowSuggestionBox && productSuggestionsPagingItems.itemCount > 0) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(0)
+                snapshotFlow { scrollState.isScrollInProgress }
+                    .filter { isScrollInProgress -> isScrollInProgress }
+                    .collect {
+                        state.wantToShowSuggestionBox = false
+                    }
+            }
+
             Box(
                 modifier = Modifier
                     .padding(it)

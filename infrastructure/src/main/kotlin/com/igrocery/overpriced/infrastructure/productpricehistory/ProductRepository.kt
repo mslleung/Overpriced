@@ -15,6 +15,7 @@ import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.lo
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.Currency
@@ -200,6 +201,7 @@ class ProductRepository @Inject internal constructor(
     override fun getProductById(productId: Long): Flow<Product?> {
         return localProductDataSource.getProductById(productId)
             .map { it?.toDomain() }
+            .distinctUntilChanged()
     }
 
     override fun getProductByNameAndDescription(
@@ -264,11 +266,11 @@ class ProductRepository @Inject internal constructor(
     }
 
     override fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        id: Long,
+        productId: Long,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?> {
         return localProductDataSource.getProductsWithMinMaxPricesByProductIdAndCurrency(
-            id,
+            productId,
             currency
         ).map {
             it?.let {
@@ -280,6 +282,7 @@ class ProductRepository @Inject internal constructor(
                 )
             }
         }
+        .distinctUntilChanged()
     }
 
     override fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(

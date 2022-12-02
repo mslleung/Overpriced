@@ -26,7 +26,7 @@ interface IProductRepository : BaseRepository<Product> {
     fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
 
     fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        id: Long,
+        productId: Long,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?>
 
