@@ -129,6 +129,7 @@ private fun MainContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
+                        .padding(bottom = 8.dp)
                         .fillMaxWidth()
                 ) {
                     val productState by viewModelState.productFlow.collectAsState()
@@ -163,6 +164,7 @@ private fun MainContent(
                             val date = Instant.fromEpochMilliseconds(priceRecord.creationTimestamp)
                                 .toLocalDateTime(TimeZone.currentSystemDefault()).date
                             lineDataList.add(
+                                0,
                                 LineData(
                                     xValue = "${date.dayOfMonth}/${date.monthNumber}",
                                     yValue = priceRecord.price.amount.toFloat()
@@ -189,7 +191,10 @@ private fun MainContent(
                 if (priceRecord != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+//                            .clickable {  }
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
                         val dateTime = Instant.fromEpochMilliseconds(priceRecord.creationTimestamp)
                             .toLocalDateTime(TimeZone.currentSystemDefault())
