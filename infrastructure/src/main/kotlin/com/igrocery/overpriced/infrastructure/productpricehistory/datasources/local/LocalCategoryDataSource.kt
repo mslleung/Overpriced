@@ -4,6 +4,9 @@ import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +22,7 @@ internal class LocalCategoryDataSource @Inject internal constructor(
     }
 
     override suspend fun insert(categoryRoomEntity: CategoryRoomEntity): Long {
-        val time = System.nanoTime()
+        val time = Clock.System.now().toEpochMilliseconds()
         val entity = categoryRoomEntity.copy(
             creationTimestamp = time,
             updateTimestamp = time
@@ -32,7 +35,7 @@ internal class LocalCategoryDataSource @Inject internal constructor(
 
     override suspend fun update(categoryRoomEntity: CategoryRoomEntity) {
         val entity = categoryRoomEntity.copy(
-            updateTimestamp = System.nanoTime()
+            updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
         val rowsUpdated = db.categoryDao().update(entity)

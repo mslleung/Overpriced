@@ -33,6 +33,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 
 @Suppress("unused")
@@ -259,35 +263,35 @@ private fun StoreListItem(
                 )
             }
 
-            val timeAgoNanos by produceState(initialValue = System.nanoTime() - lastUpdatedTimeStamp) {
+            val timeAgoDuration by produceState(
+                initialValue = Clock.System.now()
+                    .minus(Instant.fromEpochMilliseconds(lastUpdatedTimeStamp))
+            ) {
                 while (isActive) {
                     delay(1000)
-                    value = System.nanoTime() - lastUpdatedTimeStamp
-                    assert(value > 0)
+                    value = Clock.System.now()
+                        .minus(Instant.fromEpochMilliseconds(lastUpdatedTimeStamp))
                 }
             }
 
             // note that the numbers are floored due to numerical precision
-            val timeAgoInDays = (timeAgoNanos / (24 * 60 * 60) / 1000 / 1000 / 1000).toInt()
-            val timeAgoInHours = (timeAgoNanos / (60 * 60) / 1000 / 1000 / 1000).toInt()
-            val timeAgoInMinutes = (timeAgoNanos / (60) / 1000 / 1000 / 1000).toInt()
-            val timeAgoText = if (timeAgoInDays > 0) {
+            val timeAgoText = if (timeAgoDuration.inWholeDays > 0) {
                 pluralStringResource(
                     id = R.plurals.product_detail_days_ago,
-                    count = timeAgoInDays,
-                    timeAgoInDays
+                    count = timeAgoDuration.inWholeDays.toInt(),
+                    timeAgoDuration.inWholeDays
                 )
-            } else if (timeAgoInHours > 0) {
+            } else if (timeAgoDuration.inWholeHours > 0) {
                 pluralStringResource(
                     id = R.plurals.product_detail_hours_ago,
-                    count = timeAgoInHours,
-                    timeAgoInHours
+                    count = timeAgoDuration.inWholeHours.toInt(),
+                    timeAgoDuration.inWholeHours
                 )
-            } else if (timeAgoInMinutes > 0) {
+            } else if (timeAgoDuration.inWholeMinutes > 0) {
                 pluralStringResource(
                     id = R.plurals.product_detail_minutes_ago,
-                    count = timeAgoInMinutes,
-                    timeAgoInMinutes
+                    count = timeAgoDuration.inWholeMinutes.toInt(),
+                    timeAgoDuration.inWholeMinutes
                 )
             } else {
                 stringResource(id = R.string.product_detail_moments_ago)

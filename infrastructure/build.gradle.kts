@@ -98,6 +98,9 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.20.1")
 
+    // date
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
     implementation("androidx.test.ext:junit-ktx:1.1.4")

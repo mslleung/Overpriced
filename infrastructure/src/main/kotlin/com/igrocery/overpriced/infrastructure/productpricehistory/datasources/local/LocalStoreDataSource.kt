@@ -3,11 +3,19 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
+import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Singleton
 internal class LocalStoreDataSource @Inject constructor(
@@ -21,7 +29,7 @@ internal class LocalStoreDataSource @Inject constructor(
     }
 
     override suspend fun insertStore(storeRoomEntity: StoreRoomEntity): Long {
-        val time = System.nanoTime()
+        val time = Clock.System.now().toEpochMilliseconds()
         val entity = storeRoomEntity.copy(
             creationTimestamp = time,
             updateTimestamp = time
@@ -34,7 +42,7 @@ internal class LocalStoreDataSource @Inject constructor(
 
     override suspend fun updateStore(storeRoomEntity: StoreRoomEntity) {
         val entity = storeRoomEntity.copy(
-            updateTimestamp = System.nanoTime()
+            updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
         val rowsUpdated = db.storeDao().update(entity)

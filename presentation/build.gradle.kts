@@ -155,6 +155,9 @@ dependencies {
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")
 
+    // date
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
     // junit
     testImplementation("junit:junit:4.13.2")
 

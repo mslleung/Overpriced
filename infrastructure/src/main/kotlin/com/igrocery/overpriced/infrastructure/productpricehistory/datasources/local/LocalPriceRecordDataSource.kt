@@ -2,11 +2,16 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
+import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.datetime.Clock
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Singleton
 internal class LocalPriceRecordDataSource @Inject internal constructor(
@@ -20,7 +25,7 @@ internal class LocalPriceRecordDataSource @Inject internal constructor(
     }
 
     override suspend fun insertPriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity): Long {
-        val time = System.nanoTime()
+        val time = Clock.System.now().toEpochMilliseconds()
         val entity = priceRecordRoomEntity.copy(
             creationTimestamp = time,
             updateTimestamp = time
@@ -33,7 +38,7 @@ internal class LocalPriceRecordDataSource @Inject internal constructor(
 
     override suspend fun updatePriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity) {
         val entity = priceRecordRoomEntity.copy(
-            updateTimestamp = System.nanoTime()
+            updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
         val rowsUpdated = db.priceRecordDao().update(entity)
