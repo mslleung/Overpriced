@@ -83,12 +83,12 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // room
-    val roomVersion = "2.5.0-beta02"
+    val roomVersion = "2.5.0-rc01"
     implementation("androidx.room:room-runtime:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-paging:2.5.0-beta02")
+    implementation("androidx.room:room-paging:2.5.0-rc01")
 
     // paging
     val pagingVersion = "3.1.1"
@@ -98,7 +98,7 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.20.1")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
     implementation("androidx.test.ext:junit-ktx:1.1.4")
     testImplementation("junit:junit:4.13.2")

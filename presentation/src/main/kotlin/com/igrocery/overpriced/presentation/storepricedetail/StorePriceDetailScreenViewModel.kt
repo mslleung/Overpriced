@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.productdetail
+package com.igrocery.overpriced.presentation.storepricedetail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -8,10 +8,12 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.preference.PreferenceService
+import com.igrocery.overpriced.application.productpricehistory.PriceRecordService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
-import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
+import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
@@ -24,22 +26,55 @@ import javax.inject.Inject
 @Suppress("unused")
 private val log = Logger { }
 
-interface ProductDetailScreenViewModelState {
+interface StorePriceDetailScreenViewModelState {
+    val productFlow: StateFlow<LoadingState<Product>>
+    val storeFlow: StateFlow<LoadingState<Store>>
     val currencyFlow: StateFlow<LoadingState<Currency>>
-    val productWithPricesFlow: StateFlow<LoadingState<ProductWithMinMaxPrices>>
-    val storesWithMinMaxPricesPagingDataFlow: Flow<PagingData<StoreWithMinMaxPrices>>
+    val priceRecordsPagingDataFlow: Flow<PagingData<PriceRecord>>
 }
 
 @HiltViewModel
-class ProductDetailScreenViewModel @Inject constructor(
+class StorePriceDetailScreenViewModel @Inject constructor(
     savedState: SavedStateHandle,
     preferenceService: PreferenceService,
     productService: ProductService,
     storeService: StoreService,
-) : ViewModel(), ProductDetailScreenViewModelState {
+    priceRecordService: PriceRecordService
+) : ViewModel(), StorePriceDetailScreenViewModelState {
 
-    private val productId = savedState.get<Long>(NavDestinations.ProductDetail_Arg_ProductId)
+    private val productId = savedState.get<Long>(NavDestinations.StorePriceDetail_Arg_ProductId)
         ?: throw IllegalArgumentException("Product id cannot be null")
+
+    private val storeId = savedState.get<Long>(NavDestinations.StorePriceDetail_Arg_StoreId)
+        ?: throw IllegalArgumentException("Store id cannot be null")
+
+    override val productFlow = productService.getProductById(productId)
+        .map {
+            if (it == null) {
+                LoadingState.Error(IllegalArgumentException("Product not found"))
+            } else {
+                LoadingState.Success(it)
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
+
+    override val storeFlow = storeService.getStoreById(storeId)
+        .map {
+            if (it == null) {
+                LoadingState.Error(IllegalArgumentException("Store not found"))
+            } else {
+                LoadingState.Success(it)
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
 
     override val currencyFlow = preferenceService.getAppPreference()
         .map {
@@ -52,26 +87,7 @@ class ProductDetailScreenViewModel @Inject constructor(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val productWithPricesFlow =
-        preferenceService.getAppPreference().flatMapLatest {
-            productService.getProductsWithMinMaxPricesByProductIdAndCurrency(
-                productId,
-                it.preferredCurrency
-            )
-        }.map {
-            if (it != null) {
-                LoadingState.Success(it)
-            } else {
-                LoadingState.Error(IllegalArgumentException("Product not found"))
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = LoadingState.Loading()
-        )
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override val storesWithMinMaxPricesPagingDataFlow =
+    override val priceRecordsPagingDataFlow =
         preferenceService.getAppPreference().flatMapLatest {
             Pager(
                 PagingConfig(
@@ -79,8 +95,9 @@ class ProductDetailScreenViewModel @Inject constructor(
                     prefetchDistance = 30
                 )
             ) {
-                storeService.getStoresWithMinMaxPricesByProductIdAndCurrency(
+                priceRecordService.getPriceRecordsPaging(
                     productId,
+                    storeId,
                     it.preferredCurrency
                 )
             }.flow

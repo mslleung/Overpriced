@@ -2,6 +2,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
 internal interface ILocalPriceRecordDataSource {
 
@@ -14,5 +15,13 @@ internal interface ILocalPriceRecordDataSource {
     suspend fun deletePriceRecord(priceRecordRoomEntity: PriceRecordRoomEntity)
 
     fun getPriceRecordsByProductId(productId: Long): Flow<List<PriceRecordRoomEntity>>
+
+    suspend fun getPriceRecordsPaging(
+        productId: Long,
+        storeId: Long,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<PriceRecordRoomEntity>
 
 }

@@ -4,6 +4,7 @@ import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +48,17 @@ internal class LocalPriceRecordDataSource @Inject internal constructor(
     override fun getPriceRecordsByProductId(productId: Long): Flow<List<PriceRecordRoomEntity>> {
         return db.priceRecordDao().getPriceRecordsByProductId(productId)
             .distinctUntilChanged()
+    }
+
+    override suspend fun getPriceRecordsPaging(
+        productId: Long,
+        storeId: Long,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<PriceRecordRoomEntity> {
+        return db.priceRecordDao()
+            .getPriceRecordsPaging(productId, storeId, currency.currencyCode, offset, pageSize)
     }
 
 }

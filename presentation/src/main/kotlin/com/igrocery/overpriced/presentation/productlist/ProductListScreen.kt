@@ -145,7 +145,6 @@ private fun MainContent(
                 windowInsets = WindowInsets.statusBars
             )
         },
-        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
         val productsPagingItems =
@@ -208,7 +207,6 @@ private fun EmptyListContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProductListItem(
     item: ProductWithMinMaxPrices,
@@ -223,7 +221,7 @@ fun ProductListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
-        val (product, minPrice, maxPrice, lastUpdatedTimestamp) = item
+        val (product, minPrice, maxPrice, _) = item
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -265,52 +263,6 @@ fun ProductListItem(
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                lastUpdatedTimestamp?.let {
-                    val secondsPassed by ticksEverySecond()
-                    secondsPassed.run {
-                        val timeAgo = System.nanoTime() - lastUpdatedTimestamp
-                        assert(timeAgo > 0)
-
-                        // note that the numbers are floored due to numerical precision
-                        val timeAgoInDays = (timeAgo / (24 * 60 * 60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoInHours = (timeAgo / (60 * 60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoInMinutes = (timeAgo / (60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoText = if (timeAgoInDays > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_days_ago,
-                                count = timeAgoInDays,
-                                timeAgoInDays
-                            )
-                        } else if (timeAgoInHours > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_hours_ago,
-                                count = timeAgoInHours,
-                                timeAgoInHours
-                            )
-                        } else if (timeAgoInMinutes > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_minutes_ago,
-                                count = timeAgoInMinutes,
-                                timeAgoInMinutes
-                            )
-                        } else {
-                            stringResource(id = R.string.product_list_moments_ago)
-                        }
-
-                        val updatedLabel =
-                            stringResource(id = R.string.product_list_updated_label)
-                        Text(
-                            text = "$updatedLabel $timeAgoText",
-                            maxLines = 1,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .alpha(0.6f)
-                        )
-                    }
-                }
             }
         }
     }

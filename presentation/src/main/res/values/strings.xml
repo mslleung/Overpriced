@@ -28,20 +28,23 @@
     <string name="product_list_search_button_content_description">Search</string>
     <string name="product_list_edit_button_content_description">Edit Category</string>
     <string name="product_list_empty_text">No product in this category.</string>
-    <string name="product_list_updated_label">Updated </string>
-    <plurals name="product_list_days_ago">
+
+    <string name="product_detail_updated_label">Updated </string>
+    <plurals name="product_detail_days_ago">
         <item quantity="one">%1$d day ago</item>
         <item quantity="other">%1$d days ago</item>
     </plurals>
-    <plurals name="product_list_hours_ago">
+    <plurals name="product_detail_hours_ago">
         <item quantity="one">%1$d hour ago</item>
         <item quantity="other">%1$d hours ago</item>
     </plurals>
-    <plurals name="product_list_minutes_ago">
+    <plurals name="product_detail_minutes_ago">
         <item quantity="one">%1$d minute ago</item>
         <item quantity="other">%1$d minutes ago</item>
     </plurals>
-    <string name="product_list_moments_ago">just now</string>
+    <string name="product_detail_moments_ago">just now</string>
+
+    <string name="store_price_detail_price_history">Price History</string>
 
     <string name="search_product_search_bar_hint">Search product…</string>
     <string name="search_product_clear_button_content_description">Clear</string>

@@ -15,11 +15,6 @@ import com.igrocery.overpriced.application.productpricehistory.PriceRecordServic
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.*
-import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
-import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel

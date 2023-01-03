@@ -2,30 +2,38 @@ package com.igrocery.overpriced.presentation.productdetail
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
+import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
+import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.productlist.*
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
+import java.util.*
 
 @Suppress("unused")
 private val log = Logger { }
@@ -34,6 +42,7 @@ private val log = Logger { }
 fun ProductDetailScreen(
     viewModel: ProductDetailScreenViewModel,
     navigateUp: () -> Unit,
+    navigateToStorePriceDetail: (storeId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductDetailScreen")
@@ -43,9 +52,7 @@ fun ProductDetailScreen(
         viewModelState = viewModel,
         state = state,
         onBackButtonClick = navigateUp,
-//        onSearchButtonClick = navigateToSearchProduct,
-//        onEditButtonClick = navigateToEditCategory,
-        onProductClick = {},
+        onStoreClick = { navigateToStorePriceDetail(it.store.id) },
         modifier = modifier
     )
 
@@ -61,49 +68,30 @@ private fun MainContent(
     viewModelState: ProductDetailScreenViewModelState,
     state: ProductDetailScreenStateHolder,
     onBackButtonClick: () -> Unit,
-//    onSearchButtonClick: () -> Unit,
-//    onEditButtonClick: () -> Unit,
-    onProductClick: (ProductWithMinMaxPrices) -> Unit,
+    onStoreClick: (StoreWithMinMaxPrices) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
-    UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
+    UseAnimatedFadeTopBarColorForStatusBarColor(topAppBarState = topBarState)
     UseDefaultSystemNavBarColor()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
                     val productWithPrices by viewModelState.productWithPricesFlow.collectAsState()
                     productWithPrices.ifLoaded {
-                        Column(
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = it.product.name,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                style = MaterialTheme.typography.headlineLarge,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .padding(end = 8.dp),
-                            )
-
-                            if (it.product.description.isNotBlank()) {
-                                Text(
-                                    text = it.product.description,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .alpha(0.6f)
-                                        .padding(end = 8.dp),
-                                )
-                            }
-                        }
+                        Text(
+                            text = it.product.name,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.headlineSmall,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(end = 8.dp),
+                        )
                     }
                 },
 //                actions = {
@@ -142,74 +130,222 @@ private fun MainContent(
                     )
                 },
                 scrollBehavior = topBarScrollBehavior,
-                windowInsets = WindowInsets.statusBars
             )
         },
-        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
+        val currency by viewModelState.currencyFlow.collectAsState()
+        val storesWithMinMaxPrices =
+            viewModelState.storesWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
         LazyColumn(
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = 16.dp)
                 .fillMaxSize()
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
         ) {
-            item {
-                val currencyLoadState by viewModelState.currencyFlow.collectAsState()
-                val productWithPricesLoadState by viewModelState.productWithPricesFlow.collectAsState()
-                currencyLoadState.ifLoaded { currency ->
-                    productWithPricesLoadState.ifLoaded { (_, minPrice, maxPrice) ->
-                        Text(
-                            text = "${currency.symbol} $minPrice - $maxPrice",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+            item(
+                contentType = { "product detail" },
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp)
+                ) {
+                    val currencyLoadState by viewModelState.currencyFlow.collectAsState()
+                    val productWithPricesLoadState by viewModelState.productWithPricesFlow.collectAsState()
+                    currencyLoadState.ifLoaded { currency ->
+                        productWithPricesLoadState.ifLoaded { (product, minPrice, maxPrice) ->
+                            if (product.description.isNotBlank()) {
+                                Text(
+                                    text = product.description,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .alpha(0.6f)
+                                        .padding(bottom = 8.dp, end = 8.dp),
+                                )
+                            }
+
+                            val priceRangeText = if (minPrice == maxPrice) {
+                                "${currency.symbol} $minPrice"
+                            } else {
+                                "${currency.symbol} $minPrice - $maxPrice"
+                            }
+                            Text(
+                                text = priceRangeText,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                        }
                     }
                 }
             }
 
-
+            items(
+                items = storesWithMinMaxPrices,
+                key = { item -> item.store.id },
+            ) { item ->
+                if (item != null) {
+                    StoreListItem(
+                        item = item,
+                        currency = currency,
+                        onClick = onStoreClick,
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .fillMaxWidth()
+                    )
+                }
+            }
         }
-//        val productsPagingItems =
-//            viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
-//        val currency by viewModelState.currencyFlow.collectAsState()
-//        if (productsPagingItems.isInitialLoadCompleted()) {
-//            if (productsPagingItems.itemCount == 0) {
-//                val scrollState = rememberScrollState()
-////                EmptyListContent(
-////                    modifier = Modifier
-////                        .padding(it)
-////                        .fillMaxSize()
-////                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-////                        .verticalScroll(scrollState)
-////                )
-//            } else {
-//                LazyColumn(
-//                    contentPadding = PaddingValues(bottom = 120.dp),
-//                    modifier = Modifier
-//                        .padding(it)
-//                        .fillMaxSize()
-//                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
-//                ) {
-//                    items(
-//                        items = productsPagingItems,
-//                        key = { item -> item.product.id }
-//                    ) { item ->
-//                        if (item != null) {
-//                            ProductListItem(
-//                                item = item,
-//                                currency = currency,
-//                                onClick = onProductClick,
-//                                modifier = Modifier
-//                                    .animateItemPlacement()
-//                                    .fillMaxWidth()
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun StoreListItem(
+    item: StoreWithMinMaxPrices,
+    currency: LoadingState<Currency>,
+    onClick: (StoreWithMinMaxPrices) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val (store, minPrice, maxPrice, lastUpdatedTimeStamp) = item
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onClick(item) }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+            Text(
+                text = store.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelLarge
+            )
+
+            val addressLines = store.address.lines
+            if (addressLines != null && addressLines.isNotBlank()) {
+                Text(
+                    text = addressLines,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            currency.ifLoaded {
+                val currencySymbol = it.symbol
+                val priceRangeText = if (minPrice == maxPrice) {
+                    "$currencySymbol $minPrice"
+                } else {
+                    "$currencySymbol $minPrice - $maxPrice"
+                }
+                Text(
+                    text = priceRangeText,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            val timeAgoNanos by produceState(initialValue = System.nanoTime() - lastUpdatedTimeStamp) {
+                while (isActive) {
+                    delay(1000)
+                    value = System.nanoTime() - lastUpdatedTimeStamp
+                    assert(value > 0)
+                }
+            }
+
+            // note that the numbers are floored due to numerical precision
+            val timeAgoInDays = (timeAgoNanos / (24 * 60 * 60) / 1000 / 1000 / 1000).toInt()
+            val timeAgoInHours = (timeAgoNanos / (60 * 60) / 1000 / 1000 / 1000).toInt()
+            val timeAgoInMinutes = (timeAgoNanos / (60) / 1000 / 1000 / 1000).toInt()
+            val timeAgoText = if (timeAgoInDays > 0) {
+                pluralStringResource(
+                    id = R.plurals.product_detail_days_ago,
+                    count = timeAgoInDays,
+                    timeAgoInDays
+                )
+            } else if (timeAgoInHours > 0) {
+                pluralStringResource(
+                    id = R.plurals.product_detail_hours_ago,
+                    count = timeAgoInHours,
+                    timeAgoInHours
+                )
+            } else if (timeAgoInMinutes > 0) {
+                pluralStringResource(
+                    id = R.plurals.product_detail_minutes_ago,
+                    count = timeAgoInMinutes,
+                    timeAgoInMinutes
+                )
+            } else {
+                stringResource(id = R.string.product_detail_moments_ago)
+            }
+
+            val updatedLabel = stringResource(id = R.string.product_detail_updated_label)
+            Text(
+                text = "$updatedLabel $timeAgoText",
+                maxLines = 1,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.6f)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun DefaultPreview() {
+    val viewModelState = object : ProductDetailScreenViewModelState {
+        override val currencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
+        override val productWithPricesFlow: StateFlow<LoadingState<ProductWithMinMaxPrices>>
+            get() = MutableStateFlow(
+                LoadingState.Success(
+                    ProductWithMinMaxPrices(
+                        product = Product(name = "Apple", description = "", categoryId = null),
+                        minPrice = 5.0,
+                        maxPrice = 6.0,
+                        lastUpdatedTimestamp = 0
+                    )
+                )
+            )
+        override val storesWithMinMaxPricesPagingDataFlow: Flow<PagingData<StoreWithMinMaxPrices>>
+            get() = MutableStateFlow(
+                PagingData.from(
+                    listOf(
+                        StoreWithMinMaxPrices(
+                            store = Store(
+                                name = "Apple",
+                                address = Address("Example street", GeoCoordinates(0.0, 0.0))
+                            ),
+                            minPrice = 5.0,
+                            maxPrice = 6.0,
+                            lastUpdatedTimestamp = 1
+                        )
+                    )
+                )
+            )
+    }
+
+    MainContent(
+        viewModelState = viewModelState,
+        state = ProductDetailScreenStateHolder(),
+        onBackButtonClick = {},
+        onStoreClick = {},
+    )
 }

@@ -1,16 +1,18 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
 import com.igrocery.overpriced.infrastructure.AppDatabase
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class LocalStoreDataSource @Inject constructor(
     private val db: AppDatabase,
-) : IStoreDataSource {
+) : ILocalStoreDataSource {
 
     private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "stores")
 
@@ -44,8 +46,22 @@ internal class LocalStoreDataSource @Inject constructor(
         require(rowsDeleted == 1)
     }
 
-    override suspend fun getStoresPage(offset: Int, pageSize: Int): List<StoreRoomEntity> {
-        return db.storeDao().getStoresPage(offset, pageSize)
+    override suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity> {
+        return db.storeDao().getStoresPaging(offset, pageSize)
+    }
+
+    override suspend fun getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
+        productId: Long,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<StoreDao.StoreWithMinMaxPrices> {
+        return db.storeDao().getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
+            productId,
+            currency.currencyCode,
+            offset,
+            pageSize
+        )
     }
 
     override fun getStoreById(id: Long): Flow<StoreRoomEntity?> {

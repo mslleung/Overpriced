@@ -1,9 +1,11 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 
-internal interface IStoreDataSource {
+internal interface ILocalStoreDataSource {
 
     fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver)
 
@@ -13,7 +15,14 @@ internal interface IStoreDataSource {
 
     suspend fun deleteStore(storeRoomEntity: StoreRoomEntity)
 
-    suspend fun getStoresPage(offset: Int, pageSize: Int): List<StoreRoomEntity>
+    suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity>
+
+    suspend fun getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
+        productId: Long,
+        currency: Currency,
+        offset: Int,
+        pageSize: Int
+    ): List<StoreDao.StoreWithMinMaxPrices>
 
     fun getStoreById(id: Long): Flow<StoreRoomEntity?>
 

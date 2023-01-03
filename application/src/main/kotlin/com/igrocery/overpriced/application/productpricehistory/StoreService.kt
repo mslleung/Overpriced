@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
@@ -8,6 +9,7 @@ import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IStoreRepository
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,6 +63,13 @@ class StoreService @Inject constructor(
 
     fun getStoreCount(): Flow<Int> {
         return storeRepository.getStoresCount()
+    }
+
+    fun getStoresWithMinMaxPricesByProductIdAndCurrency(
+        productId: Long,
+        currency: Currency
+    ): PagingSource<Int, StoreWithMinMaxPrices> {
+        return storeRepository.getStoresWithMinMaxPricesByProductIdAndCurrency(productId, currency)
     }
 
 }

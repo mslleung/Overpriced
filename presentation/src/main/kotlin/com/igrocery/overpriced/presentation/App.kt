@@ -38,6 +38,10 @@ import com.igrocery.overpriced.presentation.NavDestinations.ProductList_With_Arg
 import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
 import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
 import com.igrocery.overpriced.presentation.NavDestinations.Settings
+import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail
+import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_ProductId
+import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_StoreId
+import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_With_Args
 import com.igrocery.overpriced.presentation.NavRoutes.CategoryRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
@@ -62,6 +66,8 @@ import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
 import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
+import com.igrocery.overpriced.presentation.storepricedetail.StorePriceDetailScreen
+import com.igrocery.overpriced.presentation.storepricedetail.StorePriceDetailScreenViewModel
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme
 import com.igrocery.overpriced.shared.Logger
 
@@ -103,6 +109,12 @@ object NavDestinations {
     const val ProductDetail_Arg_ProductId = "productId"
     const val ProductDetail_With_Args =
         "$ProductDetail/{$ProductDetail_Arg_ProductId}"
+
+    const val StorePriceDetail = "StorePriceDetail"
+    const val StorePriceDetail_Arg_ProductId = "productId"
+    const val StorePriceDetail_Arg_StoreId = "storeId"
+    const val StorePriceDetail_With_Args =
+        "$StorePriceDetail/{$StorePriceDetail_Arg_ProductId}/{$StorePriceDetail_Arg_StoreId}"
 
     const val SearchProduct = "searchProduct"
     const val SelectCurrency = "selectCurrency"
@@ -330,11 +342,37 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
             arguments = listOf(navArgument(ProductDetail_Arg_ProductId) {
                 type = NavType.LongType
             })
-        ) {
+        ) { backStackEntry ->
             val productDetailViewModel = hiltViewModel<ProductDetailScreenViewModel>()
 
-            ProductDetailScreen(
-                viewModel = productDetailViewModel,
+            backStackEntry.arguments?.let { arg ->
+                val productId = arg.getLong(ProductDetail_Arg_ProductId).takeIf { it != 0L }
+                    ?: throw IllegalArgumentException("Product Id not found")
+
+                ProductDetailScreen(
+                    viewModel = productDetailViewModel,
+                    navigateUp = { navController.navigateUp() },
+                    navigateToStorePriceDetail = { storeId ->
+                        navController.navigate("$StorePriceDetail/$productId/$storeId")
+                    }
+                )
+            } ?: throw IllegalArgumentException("argument should not be null")
+        }
+        composable(
+            StorePriceDetail_With_Args,
+            arguments = listOf(
+                navArgument(StorePriceDetail_Arg_ProductId) {
+                    type = NavType.LongType
+                },
+                navArgument(StorePriceDetail_Arg_StoreId) {
+                    type = NavType.LongType
+                },
+            )
+        ) {
+            val storePriceDetailScreenViewModel = hiltViewModel<StorePriceDetailScreenViewModel>()
+
+            StorePriceDetailScreen(
+                viewModel = storePriceDetailScreenViewModel,
                 navigateUp = { navController.navigateUp() },
             )
         }

@@ -5,7 +5,7 @@ import com.igrocery.overpriced.infrastructure.preference.datasources.datastore.P
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.*
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.IStoreDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalStoreDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalCategoryDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalProductDataSource
@@ -46,7 +46,7 @@ internal abstract class DataSourceModule {
     @Binds
     abstract fun bindLocalStoreDataSource(
         localStoreDataSource: LocalStoreDataSource
-    ): IStoreDataSource
+    ): ILocalStoreDataSource
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
