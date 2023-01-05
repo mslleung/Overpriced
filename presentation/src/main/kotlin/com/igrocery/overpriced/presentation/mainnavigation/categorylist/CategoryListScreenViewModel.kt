@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.categorylist
+package com.igrocery.overpriced.presentation.mainnavigation.categorylist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

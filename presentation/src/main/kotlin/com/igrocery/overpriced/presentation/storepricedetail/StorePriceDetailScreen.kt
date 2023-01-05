@@ -128,8 +128,7 @@ private fun MainContent(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .padding(bottom = 8.dp)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
                         .fillMaxWidth()
                 ) {
                     val productState by viewModelState.productFlow.collectAsState()
@@ -194,7 +193,7 @@ private fun MainContent(
                         modifier = Modifier
 //                            .clickable {  }
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
                         val dateTime = Instant.fromEpochMilliseconds(priceRecord.creationTimestamp)
                             .toLocalDateTime(TimeZone.currentSystemDefault())
