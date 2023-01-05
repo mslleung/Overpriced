@@ -43,7 +43,6 @@ fun CategoryListScreen(
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
     navigateToNewPrice: () -> Unit,
-    navigateToShoppingList: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
@@ -56,7 +55,6 @@ fun CategoryListScreen(
         onNewPriceFabClick = navigateToNewPrice,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToProductList,
-        onNavBarShoppingListClick = navigateToShoppingList,
         modifier = modifier,
     )
 }
@@ -70,7 +68,6 @@ private fun MainContent(
     onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category?) -> Unit,
-    onNavBarShoppingListClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -115,40 +112,9 @@ private fun MainContent(
                     )
                 },
                 onClick = onNewPriceFabClick,
-                // somehow the nav bar padding doesn't get applied in landscape
-                modifier = Modifier.padding(
-                    WindowInsets.navigationBars.only(WindowInsetsSides.End).asPaddingValues()
-                )
             )
         },
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_product_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
-                    selected = true,
-                    onClick = {}
-                )
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
-                    selected = false,
-                    onClick = onNavBarShoppingListClick
-                )
-            }
-        },
+        contentWindowInsets = WindowInsets.systemBars.exclude(WindowInsets.navigationBars),
         modifier = modifier,
     ) { scaffoldPadding ->
         val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()
@@ -357,7 +323,6 @@ private fun EmptyPreview() {
         onSearchBarClick = {},
         onCategoryClick = {},
         onNewPriceFabClick = {},
-        onNavBarShoppingListClick = {},
     )
 }
 
@@ -398,6 +363,5 @@ private fun DefaultPreview() {
         onSearchBarClick = {},
         onCategoryClick = {},
         onNewPriceFabClick = {},
-        onNavBarShoppingListClick = {}
     )
 }

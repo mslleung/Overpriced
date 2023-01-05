@@ -12,7 +12,6 @@ import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
@@ -21,6 +20,7 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
+import com.igrocery.overpriced.presentation.NavDestinations.MainBottomNavigation
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
 import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
@@ -42,14 +42,13 @@ import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_ProductId
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_With_Args
-import com.igrocery.overpriced.presentation.NavRoutes.CategoryRoute
+import com.igrocery.overpriced.presentation.NavRoutes.MainRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreen
-import com.igrocery.overpriced.presentation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
@@ -76,7 +75,7 @@ private val log = Logger { }
 
 object NavDestinations {
 
-    const val CategoryList = "categoryList"
+    const val MainBottomNavigation = "mainBottomNavigation"
 
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
@@ -123,7 +122,7 @@ object NavDestinations {
 }
 
 private object NavRoutes {
-    const val CategoryRoute = "CategoryRoute"
+    const val MainRoute = "MainRoute"
     const val SettingsRoute = "settingsRoute"
 }
 
@@ -132,13 +131,17 @@ private object NavRoutes {
 @Composable
 fun App() {
     AppTheme {
+        // main app nav controller
         val navController = rememberAnimatedNavController()
+
+        // nav controller for the bottom nav bar
+        val bottomNavController = rememberAnimatedNavController()
 
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = CategoryRoute,
+            startDestination = MainRoute,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -164,19 +167,20 @@ fun App() {
                 )
             },
         ) {
-            categoryGraph(navController)
+            navGraph(navController, bottomNavController)
         }
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
-    navigation(startDestination = CategoryList, route = CategoryRoute) {
-        composable(CategoryList) {
-            val categoryListScreenViewModel = hiltViewModel<CategoryListScreenViewModel>()
-
-            CategoryListScreen(
-                categoryListScreenViewModel = categoryListScreenViewModel,
+private fun NavGraphBuilder.navGraph(
+    navController: NavHostController,
+    bottomNavController: NavHostController
+) {
+    navigation(startDestination = MainBottomNavigation, route = MainRoute) {
+        composable(MainBottomNavigation) {
+            MainBottomNavigationScreen(
+                bottomNavController = bottomNavController,
                 navigateToSettings = { navController.navigate(SettingsRoute) },
                 navigateToSearchProduct = { navController.navigate(SearchProduct) },
                 navigateToProductList = {
@@ -187,7 +191,6 @@ private fun NavGraphBuilder.categoryGraph(navController: NavHostController) {
                     }
                 },
                 navigateToNewPrice = { navController.navigate(NewPrice) },
-                navigateToShoppingList = { /* TODO */ }
             )
         }
         composable(
