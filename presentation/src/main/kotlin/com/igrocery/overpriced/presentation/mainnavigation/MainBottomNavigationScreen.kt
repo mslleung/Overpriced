@@ -99,25 +99,25 @@ fun MainBottomNavigationScreen(
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
-                    initialScale = 0.9f
+                    initialScale = 0.8f
                 )
             },
             exitTransition = {
                 fadeOut(animationSpec) + scaleOut(
                     animationSpec,
-                    targetScale = 1.1f
+                    targetScale = 0.8f
                 )
             },
             popEnterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
-                    initialScale = 1.1f
+                    initialScale = 0.8f
                 )
             },
             popExitTransition = {
                 fadeOut(animationSpec) + scaleOut(
                     animationSpec,
-                    targetScale = 0.9f
+                    targetScale = 0.8f
                 )
             },
             modifier = Modifier
