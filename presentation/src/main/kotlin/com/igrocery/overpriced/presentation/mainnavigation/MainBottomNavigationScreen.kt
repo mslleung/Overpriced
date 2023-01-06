@@ -21,7 +21,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.CategoryList
 import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.ShoppingList
@@ -59,11 +58,11 @@ fun MainBottomNavigationScreen(
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                            contentDescription = stringResource(id = R.string.shopping_lists_bottom_nav_content_description),
+                            contentDescription = stringResource(id = R.string.grocery_lists_bottom_nav_content_description),
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    label = { Text(text = stringResource(id = R.string.shopping_lists_bottom_nav_label)) },
+                    label = { Text(text = stringResource(id = R.string.grocery_lists_bottom_nav_label)) },
                     selected = currentRoute == ShoppingList,
                     onClick = {
                         if (currentRoute != ShoppingList) {
@@ -75,11 +74,11 @@ fun MainBottomNavigationScreen(
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                            contentDescription = stringResource(id = R.string.category_product_bottom_nav_content_description),
+                            contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    label = { Text(text = stringResource(id = R.string.category_product_bottom_nav_label)) },
+                    label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
                     selected = currentRoute == CategoryList,
                     onClick = {
                         if (currentRoute != CategoryList) {

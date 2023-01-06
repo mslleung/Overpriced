@@ -10,11 +10,11 @@
     <string name="settings_title">Settings</string>
     <string name="settings_preferred_currency_label">Display currency</string>
 
-    <string name="category_product_new_price_fab_text">New Price Record</string>
-    <string name="category_product_new_price_fab_content_description">Add new price</string>
-    <string name="category_product_bottom_nav_label">Food Prices</string>
-    <string name="category_product_bottom_nav_content_description">Food Prices</string>
-
+    <string name="category_list_top_app_bar_label">Food Prices</string>
+    <string name="category_list_bottom_nav_label">Food Prices</string>
+    <string name="category_list_bottom_nav_content_description">Food Prices</string>
+    <string name="category_list_new_price_fab_text">New Price Record</string>
+    <string name="category_list_new_price_fab_content_description">Add new price</string>
     <string name="category_list_search_bar_icon_content_description">Search product</string>
     <string name="category_list_search_bar_hint">Search product…</string>
     <string name="category_list_empty_list_image_content_description">No price records.</string>
@@ -117,8 +117,9 @@
     <string name="edit_store_update_failed_message">Failed to update store.</string>
     <string name="edit_store_delete_failed_message">Failed to delete store.</string>
 
-    <string name="shopping_lists_bottom_nav_label">Shopping Lists</string>
-    <string name="shopping_lists_bottom_nav_content_description">Shopping Lists</string>
+    <string name="grocery_lists_top_app_bar_label">Grocery Lists</string>
+    <string name="grocery_lists_bottom_nav_label">Grocery Lists</string>
+    <string name="grocery_lists_bottom_nav_content_description">Grocery Lists</string>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
