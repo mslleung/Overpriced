@@ -23,13 +23,13 @@ import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.CategoryList
-import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.ShoppingList
+import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.GroceryList
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryListScreen
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryListScreenViewModel
 
 private object BottomNavDestinations {
 
-    const val ShoppingList = "shoppingList"
+    const val GroceryList = "groceryList"
 
     const val CategoryList = "categoryList"
 
@@ -63,10 +63,10 @@ fun MainBottomNavigationScreen(
                         )
                     },
                     label = { Text(text = stringResource(id = R.string.grocery_lists_bottom_nav_label)) },
-                    selected = currentRoute == ShoppingList,
+                    selected = currentRoute == GroceryList,
                     onClick = {
-                        if (currentRoute != ShoppingList) {
-                            bottomNavController.navigate(ShoppingList)
+                        if (currentRoute != GroceryList) {
+                            bottomNavController.navigate(GroceryList)
                         }
                     }
                 )
@@ -122,7 +122,7 @@ fun MainBottomNavigationScreen(
             modifier = Modifier
                 .padding(it)
         ) {
-            composable(ShoppingList) {
+            composable(GroceryList) {
 
             }
             composable(CategoryList) {

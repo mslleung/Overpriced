@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.mainnavigation.shoppinglist
+package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-interface ShoppingListScreenViewModelState {
+interface GroceryListScreenViewModelState {
     val categoryWithProductCountFlow: StateFlow<LoadingState<List<CategoryWithProductCount>>>
 }
 
 @HiltViewModel
-class ShoppingListScreenViewModel @Inject constructor(
+class GroceryListScreenViewModel @Inject constructor(
     categoryService: CategoryService,
-) : ViewModel(), ShoppingListScreenViewModelState {
+) : ViewModel(), GroceryListScreenViewModelState {
 
     override val categoryWithProductCountFlow: StateFlow<LoadingState<List<CategoryWithProductCount>>> =
         categoryService.getAllCategoriesWithProductCount()
