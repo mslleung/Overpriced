@@ -36,10 +36,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Suppress("unused")
 private val log = Logger { }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListScreen(
+    topBarScrollBehavior: TopAppBarScrollBehavior,
     categoryListScreenViewModel: CategoryListScreenViewModel,
-    navigateToSettings: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
     navigateToNewPrice: () -> Unit,
@@ -49,9 +50,9 @@ fun CategoryListScreen(
 
     val state by rememberCategoryListScreenState()
     MainContent(
+        topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = categoryListScreenViewModel,
         state = state,
-        onSettingsClick = navigateToSettings,
         onNewPriceFabClick = navigateToNewPrice,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToProductList,
@@ -62,41 +63,18 @@ fun CategoryListScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
+    topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
     onNewPriceFabClick: () -> Unit,
-    onSettingsClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val topBarState = rememberTopAppBarState()
-    val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
-
     UseDefaultStatusBarColor()
     UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    // TODO replace with brand icon
-                    Text(text = stringResource(id = R.string.app_name))
-                },
-                actions = {
-                    SettingsButton(
-                        onClick = onSettingsClick,
-                        modifier = Modifier
-                            .padding(14.dp)
-                            .size(24.dp, 24.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
-                scrollBehavior = topBarScrollBehavior,
-                windowInsets = WindowInsets.statusBars
-            )
-        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = {
@@ -114,7 +92,7 @@ private fun MainContent(
                 onClick = onNewPriceFabClick,
             )
         },
-        contentWindowInsets = WindowInsets.systemBars.exclude(WindowInsets.navigationBars),
+        contentWindowInsets = WindowInsets.ime,
         modifier = modifier,
     ) { scaffoldPadding ->
         val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()
@@ -292,43 +270,35 @@ private fun CategoryWithCountListItem(
     }
 }
 
-@Composable
-private fun SettingsButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
-            contentDescription = stringResource(R.string.settings_button_content_description)
-        )
-    }
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun EmptyPreview() {
+    val topBarState = rememberTopAppBarState()
+    val topBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
     val viewModelState = object : CategoryListScreenViewModelState {
         override val categoryWithProductCountFlow =
             MutableStateFlow(LoadingState.Success(emptyList<CategoryWithProductCount>()))
     }
 
     MainContent(
+        topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
-        onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
         onNewPriceFabClick = {},
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val topBarState = rememberTopAppBarState()
+    val topBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
     val categoryWithCountList = listOf(
         CategoryWithProductCount(
             category = NoCategory,
@@ -357,9 +327,9 @@ private fun DefaultPreview() {
     }
 
     MainContent(
+        topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = CategoryListScreenStateHolder(),
-        onSettingsClick = {},
         onSearchBarClick = {},
         onCategoryClick = {},
         onNewPriceFabClick = {},
