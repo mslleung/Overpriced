@@ -1,21 +1,21 @@
-package com.igrocery.overpriced.domain.shopping.models
+package com.igrocery.overpriced.domain.grocerylist.models
 
 import android.os.Parcelable
 import com.igrocery.overpriced.domain.AggregateRoot
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class GroceryListItem(
+data class GroceryList(
     override val id: Long = 0,
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
-    val productId: Long,
-    val quantity: Long
+    val name: String,
+    val itemIds: List<Long>
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {
-        require(productId > 0)
-        require(quantity in 1..98)
+        require(name.isNotBlank())
+        require(name.length <= 100)
     }
 
 }
