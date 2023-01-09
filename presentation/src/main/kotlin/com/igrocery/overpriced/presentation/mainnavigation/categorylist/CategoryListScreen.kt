@@ -43,7 +43,6 @@ fun CategoryListScreen(
     categoryListScreenViewModel: CategoryListScreenViewModel,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
-    navigateToNewPrice: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
@@ -53,7 +52,6 @@ fun CategoryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = categoryListScreenViewModel,
         state = state,
-        onNewPriceFabClick = navigateToNewPrice,
         onSearchBarClick = navigateToSearchProduct,
         onCategoryClick = navigateToProductList,
         modifier = modifier,
@@ -66,7 +64,6 @@ private fun MainContent(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
-    onNewPriceFabClick: () -> Unit,
     onSearchBarClick: () -> Unit,
     onCategoryClick: (Category?) -> Unit,
     modifier: Modifier = Modifier,
@@ -75,23 +72,6 @@ private fun MainContent(
     UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     Scaffold(
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = {
-                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = stringResource(
-                            id = R.string.category_list_new_price_fab_content_description
-                        ),
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                onClick = onNewPriceFabClick,
-            )
-        },
         contentWindowInsets = WindowInsets.ime,
         modifier = modifier,
     ) { scaffoldPadding ->
@@ -288,7 +268,6 @@ private fun EmptyPreview() {
         state = CategoryListScreenStateHolder(),
         onSearchBarClick = {},
         onCategoryClick = {},
-        onNewPriceFabClick = {},
     )
 }
 
@@ -332,6 +311,5 @@ private fun DefaultPreview() {
         state = CategoryListScreenStateHolder(),
         onSearchBarClick = {},
         onCategoryClick = {},
-        onNewPriceFabClick = {},
     )
 }

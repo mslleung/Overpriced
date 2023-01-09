@@ -10,7 +10,6 @@ data class GroceryList(
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
     val name: String,
-    val itemIds: List<Long>
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {
