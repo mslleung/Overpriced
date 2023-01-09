@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
+package com.igrocery.overpriced.infrastructure
 
 import androidx.room.*
 

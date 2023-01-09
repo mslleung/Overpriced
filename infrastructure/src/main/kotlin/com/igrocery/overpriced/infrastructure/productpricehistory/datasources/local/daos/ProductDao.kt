@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
 import androidx.room.*
+import com.igrocery.overpriced.infrastructure.BaseDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
 
