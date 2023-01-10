@@ -23,6 +23,9 @@ import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourF
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @Suppress("unused")
 private val log = Logger { }
@@ -103,17 +106,31 @@ private fun GroceryListContent(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium
             )
+
+            val updateInstant =
+                Instant.fromEpochMilliseconds(groceryListWithItemCount.groceryList.updateTimestamp)
+            val updateDate = updateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
             Text(
-                text = pluralStringResource(
-                    id = R.plurals.grocery_lists_item_count,
-                    count = groceryListWithItemCount.itemCount
-                ),
+                text = "${updateDate.dayOfMonth}/${updateDate.monthNumber}/${updateDate.year}",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.alpha(0.6f)
             )
         }
+
+        Text(
+            text = pluralStringResource(
+                id = R.plurals.grocery_lists_item_count,
+                count = groceryListWithItemCount.itemCount
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(0.6f)
+        )
     }
 }
 
