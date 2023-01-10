@@ -5,13 +5,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
+import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.shared.Logger
@@ -63,9 +70,49 @@ private fun MainContent(
             items(
                 items = groceryListsWithItemCount,
                 key = { it.groceryList.id }
-            ) {
-
+            ) { item ->
+                if (item != null) {
+                    GroceryListContent(
+                        groceryListWithItemCount = item,
+                        modifier = Modifier
+                            .height(48.dp)
+                            .fillMaxSize()
+                    )
+                }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun GroceryListContent(
+    groceryListWithItemCount: GroceryListWithItemCount,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+            Text(
+                text = groceryListWithItemCount.groceryList.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelMedium
+            )
+            Text(
+                text = pluralStringResource(
+                    id = R.plurals.grocery_lists_item_count,
+                    count = groceryListWithItemCount.itemCount
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.alpha(0.6f)
+            )
         }
     }
 }

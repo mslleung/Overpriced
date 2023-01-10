@@ -122,6 +122,10 @@
     <string name="grocery_lists_bottom_nav_content_description">Grocery Lists</string>
     <string name="grocery_lists_new_grocery_list_fab_text">New Grocery List</string>
     <string name="grocery_lists_new_grocery_list_fab_content_description">New Grocery List</string>
+    <plurals name="grocery_lists_item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
