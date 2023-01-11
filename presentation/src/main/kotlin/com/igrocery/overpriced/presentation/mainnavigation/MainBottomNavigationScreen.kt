@@ -6,8 +6,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,6 +55,9 @@ fun MainBottomNavigationScreen(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+
+    var shouldShowFabForGroceryListScreen by remember { mutableStateOf(false) }
+    var shouldShowFabForCategoryListScreen by remember { mutableStateOf(true) } // TODO
 
     Scaffold(
         topBar = {
@@ -126,38 +128,42 @@ fun MainBottomNavigationScreen(
             val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
             when (currentBackStackEntry?.destination?.route) {
                 GroceryList -> {
-                    ExtendedFloatingActionButton(
-                        text = {
-                            Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                contentDescription = stringResource(
-                                    id = R.string.grocery_lists_new_grocery_list_fab_content_description
-                                ),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        onClick = {/*TODO*/ },
-                    )
+                    if (shouldShowFabForGroceryListScreen) {
+                        ExtendedFloatingActionButton(
+                            text = {
+                                Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
+                            },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                    contentDescription = stringResource(
+                                        id = R.string.grocery_lists_new_grocery_list_fab_content_description
+                                    ),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = {/*TODO*/ },
+                        )
+                    }
                 }
                 CategoryList -> {
-                    ExtendedFloatingActionButton(
-                        text = {
-                            Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                contentDescription = stringResource(
-                                    id = R.string.category_list_new_price_fab_content_description
-                                ),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        onClick = navigateToNewPrice,
-                    )
+                    if (shouldShowFabForCategoryListScreen) {
+                        ExtendedFloatingActionButton(
+                            text = {
+                                Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
+                            },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                    contentDescription = stringResource(
+                                        id = R.string.category_list_new_price_fab_content_description
+                                    ),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = navigateToNewPrice,
+                        )
+                    }
                 }
             }
         },
@@ -180,17 +186,29 @@ fun MainBottomNavigationScreen(
                 .padding(it)
         ) {
             navigation(route = BottomNavRoute, startDestination = GroceryList) {
-                composable(GroceryList) {
-                    val groceryListScreenViewModel = hiltViewModel<GroceryListScreenViewModel>()
+                // view models are scoped to the route to prevent excessive recreation when changing
+                // tabs (also helps to maintain fab states)
+                composable(GroceryList) { backStackEntry ->
+                    val rootBackStackEntry = remember(backStackEntry) {
+                        bottomNavController.getBackStackEntry(BottomNavRoute)
+                    }
+                    val groceryListScreenViewModel =
+                        hiltViewModel<GroceryListScreenViewModel>(rootBackStackEntry)
 
                     GroceryListScreen(
                         topBarScrollBehavior = topBarScrollBehavior,
                         groceryListScreenViewModel = groceryListScreenViewModel,
-
-                        )
+                        onFabVisibilityChanged = { showFab ->
+                            shouldShowFabForGroceryListScreen = showFab
+                        }
+                    )
                 }
-                composable(CategoryList) {
-                    val categoryListScreenViewModel = hiltViewModel<CategoryListScreenViewModel>()
+                composable(CategoryList) { backStackEntry ->
+                    val rootBackStackEntry = remember(backStackEntry) {
+                        bottomNavController.getBackStackEntry(BottomNavRoute)
+                    }
+                    val categoryListScreenViewModel =
+                        hiltViewModel<CategoryListScreenViewModel>(rootBackStackEntry)
 
                     CategoryListScreen(
                         topBarScrollBehavior = topBarScrollBehavior,

@@ -120,6 +120,9 @@
     <string name="grocery_lists_top_app_bar_label">Grocery Lists</string>
     <string name="grocery_lists_bottom_nav_label">Grocery Lists</string>
     <string name="grocery_lists_bottom_nav_content_description">Grocery Lists</string>
+    <string name="grocery_lists_empty_image_content_description">You don\'t have any saved grocery lists.</string>
+    <string name="grocery_lists_empty_text">You don\'t have any saved grocery lists.</string>
+    <string name="grocery_lists_empty_add_button_text">Create Grocery List</string>
     <string name="grocery_lists_new_grocery_list_fab_text">New Grocery List</string>
     <string name="grocery_lists_new_grocery_list_fab_content_description">New Grocery List</string>
     <plurals name="grocery_lists_item_count">

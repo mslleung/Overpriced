@@ -1,15 +1,22 @@
 package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +28,7 @@ import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
+import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
@@ -35,6 +43,7 @@ private val log = Logger { }
 fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     groceryListScreenViewModel: GroceryListScreenViewModel,
+    onFabVisibilityChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing GroceryListScreen")
@@ -44,7 +53,8 @@ fun GroceryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
-        onNewGroceryListClick = { /*TODO*/ })
+        onNewGroceryListClick = { /*TODO*/ },
+        onItemCountChanged = { onFabVisibilityChanged(it != 0) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +64,7 @@ private fun MainContent(
     viewModelState: GroceryListScreenViewModelState,
     state: GroceryListScreenStateHolder,
     onNewGroceryListClick: () -> Unit,
+    onItemCountChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     UseDefaultStatusBarColor()
@@ -65,24 +76,81 @@ private fun MainContent(
     ) { scaffoldPaddings ->
         val groceryListsWithItemCount =
             viewModelState.groceryListsWithItemCountFlow.collectAsLazyPagingItems()
-        LazyColumn(
-            modifier = Modifier
-                .padding(scaffoldPaddings)
-                .fillMaxSize()
-        ) {
-            items(
-                items = groceryListsWithItemCount,
-                key = { it.groceryList.id }
-            ) { item ->
-                if (item != null) {
-                    GroceryListContent(
-                        groceryListWithItemCount = item,
-                        modifier = Modifier
-                            .height(48.dp)
-                            .fillMaxSize()
-                    )
+        if (groceryListsWithItemCount.isInitialLoadCompleted()) {
+            SideEffect {
+                onItemCountChanged(groceryListsWithItemCount.itemCount)
+            }
+
+            if (groceryListsWithItemCount.itemCount == 0) {
+                EmptyContent(
+                    onNewGroceryListClick = onNewGroceryListClick,
+                    modifier = Modifier
+                        .padding(scaffoldPaddings)
+                        .fillMaxSize()
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(scaffoldPaddings)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    items(
+                        items = groceryListsWithItemCount,
+                        key = { it.groceryList.id }
+                    ) { item ->
+                        if (item != null) {
+                            GroceryListContent(
+                                groceryListWithItemCount = item,
+                                modifier = Modifier
+                                    .height(48.dp)
+                                    .fillMaxSize()
+                            )
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptyContent(
+    onNewGroceryListClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.shopping_cart_supermarket_svgrepo_com),
+            contentDescription = stringResource(id = R.string.grocery_lists_empty_image_content_description),
+            modifier = Modifier
+                .size(200.dp, 200.dp)
+                .padding(bottom = 16.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+        )
+
+        Text(
+            text = stringResource(id = R.string.grocery_lists_empty_text),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(horizontal = 40.dp)
+                .padding(bottom = 12.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Button(
+            onClick = onNewGroceryListClick,
+        ) {
+            Text(
+                text = stringResource(id = R.string.grocery_lists_empty_add_button_text),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }
@@ -159,5 +227,6 @@ private fun DefaultPreview() {
         viewModelState = viewModelState,
         state = GroceryListScreenStateHolder(),
         onNewGroceryListClick = {},
+        onItemCountChanged = {}
     )
 }
