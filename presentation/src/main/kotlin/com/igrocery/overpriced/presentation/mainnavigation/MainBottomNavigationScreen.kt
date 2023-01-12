@@ -76,7 +76,11 @@ fun MainBottomNavigationScreen(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
                 scrollBehavior = topBarScrollBehavior,
-                windowInsets = WindowInsets.statusBars
+                windowInsets = WindowInsets.statusBars,
+                modifier = Modifier.padding(
+                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                        .asPaddingValues()
+                )
             )
         },
         bottomBar = {
@@ -143,6 +147,10 @@ fun MainBottomNavigationScreen(
                                 )
                             },
                             onClick = {/*TODO*/ },
+                            modifier = Modifier.padding(
+                                WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                                    .asPaddingValues()
+                            )
                         )
                     }
                 }
@@ -162,6 +170,10 @@ fun MainBottomNavigationScreen(
                                 )
                             },
                             onClick = navigateToNewPrice,
+                            modifier = Modifier.padding(
+                                WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                                    .asPaddingValues()
+                            )
                         )
                     }
                 }

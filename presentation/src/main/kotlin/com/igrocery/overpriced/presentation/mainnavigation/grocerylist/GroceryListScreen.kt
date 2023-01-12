@@ -3,6 +3,8 @@ package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -87,6 +89,7 @@ private fun MainContent(
                     modifier = Modifier
                         .padding(scaffoldPaddings)
                         .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 )
             } else {
                 LazyColumn(
@@ -119,10 +122,12 @@ private fun EmptyContent(
     onNewGroceryListClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
+            .verticalScroll(scrollState)
     ) {
         Image(
             painter = painterResource(id = R.drawable.shopping_cart_supermarket_svgrepo_com),
