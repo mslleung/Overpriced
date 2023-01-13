@@ -1,20 +1,14 @@
-package com.igrocery.overpriced.presentation.newgrocerylist
+package com.igrocery.overpriced.presentation.editgrocerylist
 
-import android.Manifest
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresPermission
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
-import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.shared.Logger
@@ -24,8 +18,8 @@ import com.igrocery.overpriced.shared.Logger
 private val log = Logger {}
 
 @Composable
-fun NewGroceryListScreen(
-    newGroceryListViewModel: NewGroceryListScreenViewModel,
+fun EditGroceryListScreen(
+    newGroceryListViewModel: EditGroceryListScreenViewModel,
     navigateUp: () -> Unit,
     navigateDone: (newStoreId: Long) -> Unit,
 ) {
@@ -54,8 +48,8 @@ fun NewGroceryListScreen(
 
 @Composable
 private fun MainContent(
-    viewModelState: NewGroceryListScreenViewModelState,
-    state: NewGroceryListScreenStateHolder,
+    viewModelState: EditGroceryListScreenViewModelState,
+    state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

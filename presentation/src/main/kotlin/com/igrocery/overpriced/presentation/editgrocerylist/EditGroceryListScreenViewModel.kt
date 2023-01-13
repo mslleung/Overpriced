@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newgrocerylist
+package com.igrocery.overpriced.presentation.editgrocerylist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,14 +12,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-interface NewGroceryListScreenViewModelState {
+interface EditGroceryListScreenViewModelState {
     val groceryListsWithItemCountFlow: Flow<PagingData<GroceryListWithItemCount>>
 }
 
 @HiltViewModel
-class NewGroceryListScreenViewModel @Inject constructor(
+class EditGroceryListScreenViewModel @Inject constructor(
     groceryListService: GroceryListService,
-) : ViewModel(), NewGroceryListScreenViewModelState {
+) : ViewModel(), EditGroceryListScreenViewModelState {
 
     override val groceryListsWithItemCountFlow = Pager(
         PagingConfig(

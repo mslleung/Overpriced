@@ -1,16 +1,16 @@
-package com.igrocery.overpriced.presentation.newgrocerylist
+package com.igrocery.overpriced.presentation.editgrocerylist
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 
-class NewGroceryListScreenStateHolder(savedState: List<*>? = null) {
+class EditGroceryListScreenStateHolder(savedState: List<*>? = null) {
     // placeholder...
 }
 
 @Composable
-fun rememberNewGroceryListScreenState() = rememberSaveable(
+fun rememberEditGroceryListScreenState() = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
@@ -18,9 +18,9 @@ fun rememberNewGroceryListScreenState() = rememberSaveable(
             )
         },
         restore = { savedState ->
-            NewGroceryListScreenStateHolder(savedState)
+            EditGroceryListScreenStateHolder(savedState)
         }
     )
 ) {
-    mutableStateOf(NewGroceryListScreenStateHolder())
+    mutableStateOf(EditGroceryListScreenStateHolder())
 }
