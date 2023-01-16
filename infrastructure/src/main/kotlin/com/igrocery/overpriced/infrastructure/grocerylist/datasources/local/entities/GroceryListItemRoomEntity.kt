@@ -27,8 +27,8 @@ internal data class GroceryListItemRoomEntity(
 
     @ColumnInfo(name = "grocery_list_id")
     val groceryListId: Long,
-    @ColumnInfo(name = "product_id")
-    val productId: Long,
+    @ColumnInfo(name = "name")
+    val name: String,
     @ColumnInfo(name = "quantity")
     val quantity: String,
 )
@@ -41,7 +41,7 @@ internal fun GroceryListItemRoomEntity.toDomain(): GroceryListItem {
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         groceryListId = groceryListId,
-        productId = productId,
+        name = name,
         quantity = quantity,
     )
 }
@@ -52,7 +52,7 @@ internal fun GroceryListItem.toData(): GroceryListItemRoomEntity {
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         groceryListId = groceryListId,
-        productId = productId,
+        name = name,
         quantity = quantity,
     )
 }

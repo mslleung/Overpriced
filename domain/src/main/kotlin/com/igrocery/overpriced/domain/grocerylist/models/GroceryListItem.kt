@@ -10,13 +10,13 @@ data class GroceryListItem(
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
     val groceryListId: Long,
-    val productId: Long,
+    val name: String,
     val quantity: String    // quantity is very arbitrary, so we store strings for maximum flexibility
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {
         require(groceryListId > 0)
-        require(productId > 0)
+        require(name.isNotBlank() && name.length < 100)
         require(quantity.length < 100)
     }
 

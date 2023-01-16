@@ -23,7 +23,7 @@ fun EditGroceryListScreen(
     navigateUp: () -> Unit,
     navigateDone: (newStoreId: Long) -> Unit,
 ) {
-    log.debug("Composing NewGroceryListScreen")
+    log.debug("Composing EditGroceryListScreen")
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberNewStoreScreenState()
@@ -41,7 +41,7 @@ fun EditGroceryListScreen(
     )
 
     BackHandler {
-        log.debug("NewGroceryListScreen: BackHandler")
+        log.debug("EditGroceryListScreen: BackHandler")
         navigateUp()
     }
 }
