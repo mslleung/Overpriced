@@ -80,15 +80,16 @@ dependencies {
     // hilt dependency injection
     val hiltVersion: String by rootProject.extra
     implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("androidx.core:core-ktx:1.9.0")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // room
-    val roomVersion = "2.5.0-rc01"
+    val roomVersion = "2.5.0"
     implementation("androidx.room:room-runtime:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-paging:2.5.0-rc01")
+    implementation("androidx.room:room-paging:2.5.0")
 
     // paging
     val pagingVersion = "3.1.1"

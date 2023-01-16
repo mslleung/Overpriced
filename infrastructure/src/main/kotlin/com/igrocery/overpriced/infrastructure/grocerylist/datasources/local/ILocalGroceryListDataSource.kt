@@ -1,12 +1,10 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local
 
+import com.igrocery.overpriced.infrastructure.IBaseLocalDataSource
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
 
-internal interface ILocalGroceryListDataSource {
-
-    fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver)
+internal interface ILocalGroceryListDataSource : IBaseLocalDataSource {
 
     suspend fun insert(groceryListRoomEntity: GroceryListRoomEntity): Long
 

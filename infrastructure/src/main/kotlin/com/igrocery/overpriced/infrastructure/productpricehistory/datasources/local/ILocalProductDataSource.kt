@@ -1,13 +1,12 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.infrastructure.IBaseLocalDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
 import java.util.Currency
 
-internal interface ILocalProductDataSource {
-
-    fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver)
+internal interface ILocalProductDataSource : IBaseLocalDataSource {
 
     suspend fun insert(productRoomEntity: ProductRoomEntity): Long
 

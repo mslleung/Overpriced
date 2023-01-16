@@ -17,11 +17,9 @@ android {
         }
     }
     compileSdk = 33
-
     defaultConfig {
         applicationId = "com.igrocery.overpriced"
         minSdk = 21
-        targetSdk = 33
         versionCode = 1
         versionName = "1.0.0"   // {major.feature.patches}, preferably major version should never change
 
@@ -91,20 +89,21 @@ dependencies {
     implementation(project(":application"))
     implementation(project(":domain"))
     implementation(project(":shared"))
+    implementation("androidx.core:core-ktx:1.9.0")
 
     // android core UI
-    val composeVersion = "1.4.0-alpha03"
+    val composeVersion = "1.4.0-alpha04"
     implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("androidx.appcompat:appcompat:1.6.0")
     implementation("com.google.android.material:material:1.8.0-rc01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha03")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha04")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
     implementation("androidx.activity:activity-compose:1.6.1")
 
-    val lifecycleVersion = "2.6.0-alpha03"
+    val lifecycleVersion = "2.6.0-alpha04"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
@@ -145,7 +144,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
     kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.1.0")
+    implementation("com.github.skydoves:landscapist-glide:2.1.1")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
