@@ -49,6 +49,7 @@ import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewM
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreen
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModel
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
@@ -179,8 +180,12 @@ private fun NavGraphBuilder.navGraph(
 ) {
     navigation(startDestination = MainBottomNavigation, route = MainRoute) {
         composable(MainBottomNavigation) {
+            val mainBottomNavigationScreenViewModel =
+                hiltViewModel<MainBottomNavigationScreenViewModel>()
+
             MainBottomNavigationScreen(
                 bottomNavController = bottomNavController,
+                mainBottomNavigationScreenViewModel = mainBottomNavigationScreenViewModel,
                 navigateToSettings = { navController.navigate(SettingsRoute) },
                 navigateToSearchProduct = { navController.navigate(SearchProduct) },
                 navigateToProductList = {

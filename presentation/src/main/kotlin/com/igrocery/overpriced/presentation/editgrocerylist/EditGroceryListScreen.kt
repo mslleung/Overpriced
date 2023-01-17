@@ -13,7 +13,6 @@ import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourF
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.shared.Logger
 
-
 @Suppress("unused")
 private val log = Logger {}
 

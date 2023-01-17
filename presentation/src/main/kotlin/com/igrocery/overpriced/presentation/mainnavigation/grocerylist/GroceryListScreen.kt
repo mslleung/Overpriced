@@ -46,6 +46,7 @@ fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     groceryListScreenViewModel: GroceryListScreenViewModel,
     onFabVisibilityChanged: (Boolean) -> Unit,
+    onCreateNewGroceryListClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing GroceryListScreen")
@@ -55,7 +56,7 @@ fun GroceryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
-        onNewGroceryListClick = { /*TODO*/ },
+        onNewGroceryListClick = onCreateNewGroceryListClick,
         onItemCountChanged = { onFabVisibilityChanged(it != 0) })
 }
 

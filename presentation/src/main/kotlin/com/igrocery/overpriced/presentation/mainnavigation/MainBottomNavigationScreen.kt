@@ -28,6 +28,11 @@ import com.igrocery.overpriced.presentation.mainnavigation.categorylist.Category
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryListScreenViewModel
 import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.GroceryListScreen
 import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.GroceryListScreenViewModel
+import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 private object BottomNavDestinations {
 
@@ -39,10 +44,10 @@ private object BottomNavDestinations {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun MainBottomNavigationScreen(
     bottomNavController: NavHostController,
+    mainBottomNavigationScreenViewModel: MainBottomNavigationScreenViewModel,
     navigateToSettings: () -> Unit,
 
     // forwarded navigation from ShoppingList
@@ -51,6 +56,28 @@ fun MainBottomNavigationScreen(
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
     navigateToNewPrice: () -> Unit,
+) {
+    log.debug("Composing MainBottomNavigationScreen")
+
+    MainContent(
+        bottomNavController = bottomNavController,
+        viewModelState = mainBottomNavigationScreenViewModel,
+        navigateToSettings = navigateToSettings,
+        navigateToNewPrice = navigateToNewPrice,
+        navigateToSearchProduct = navigateToSearchProduct,
+        navigateToProductList = navigateToProductList
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+private fun MainContent(
+    bottomNavController: NavHostController,
+    viewModelState: MainBottomNavigationScreenViewModelState,
+    navigateToSettings: () -> Unit,
+    navigateToNewPrice: () -> Unit,
+    navigateToSearchProduct: () -> Unit,
+    navigateToProductList: (Category?) -> Unit
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -146,7 +173,7 @@ fun MainBottomNavigationScreen(
                                     modifier = Modifier.size(24.dp)
                                 )
                             },
-                            onClick = {/*TODO*/ },
+                            onClick = { viewModelState.createNewGroceryList() },
                             modifier = Modifier.padding(
                                 WindowInsets.navigationBars.only(WindowInsetsSides.End)
                                     .asPaddingValues()
@@ -176,6 +203,12 @@ fun MainBottomNavigationScreen(
                             )
                         )
                     }
+                }
+            }
+
+            LaunchedEffect(key1 = viewModelState.createNewGroceryListResultState) {
+                if (viewModelState.createNewGroceryListResultState is LoadingState.Success) {
+
                 }
             }
         },
@@ -212,6 +245,9 @@ fun MainBottomNavigationScreen(
                         groceryListScreenViewModel = groceryListScreenViewModel,
                         onFabVisibilityChanged = { showFab ->
                             shouldShowFabForGroceryListScreen = showFab
+                        },
+                        onCreateNewGroceryListClick = {
+                            viewModelState.createNewGroceryList()
                         }
                     )
                 }
@@ -255,9 +291,14 @@ private fun SettingsButton(
 @Composable
 private fun DefaultPreview() {
     val bottomNavController = rememberAnimatedNavController()
+    val viewModelState = object : MainBottomNavigationScreenViewModelState {
+        override val createNewGroceryListResultState: LoadingState<Long> = LoadingState.NotLoading()
+        override fun createNewGroceryList() {}
+    }
 
-    MainBottomNavigationScreen(
+    MainContent(
         bottomNavController = bottomNavController,
+        viewModelState = viewModelState,
         navigateToSettings = {},
         navigateToSearchProduct = {},
         navigateToProductList = {},
