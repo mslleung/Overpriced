@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +21,7 @@ interface MainBottomNavigationScreenViewModelState {
     fun createNewGroceryList()
 }
 
+@HiltViewModel
 class MainBottomNavigationScreenViewModel @Inject constructor(
     private val groceryListService: GroceryListService,
 ) : ViewModel(), MainBottomNavigationScreenViewModelState {
