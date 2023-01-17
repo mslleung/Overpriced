@@ -51,6 +51,7 @@ fun MainBottomNavigationScreen(
     navigateToSettings: () -> Unit,
 
     // forwarded navigation from ShoppingList
+    navigateToEditGroceryList: (groceryListId: Long) -> Unit,
 
     // forwarded navigation from CategoryList
     navigateToSearchProduct: () -> Unit,
@@ -63,6 +64,7 @@ fun MainBottomNavigationScreen(
         bottomNavController = bottomNavController,
         viewModelState = mainBottomNavigationScreenViewModel,
         navigateToSettings = navigateToSettings,
+        navigateToEditGroceryList = navigateToEditGroceryList,
         navigateToNewPrice = navigateToNewPrice,
         navigateToSearchProduct = navigateToSearchProduct,
         navigateToProductList = navigateToProductList
@@ -75,6 +77,7 @@ private fun MainContent(
     bottomNavController: NavHostController,
     viewModelState: MainBottomNavigationScreenViewModelState,
     navigateToSettings: () -> Unit,
+    navigateToEditGroceryList: (groceryListId: Long) -> Unit,
     navigateToNewPrice: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit
@@ -206,9 +209,10 @@ private fun MainContent(
                 }
             }
 
-            LaunchedEffect(key1 = viewModelState.createNewGroceryListResultState) {
-                if (viewModelState.createNewGroceryListResultState is LoadingState.Success) {
-
+            val createNewGroceryListResult = viewModelState.createNewGroceryListResultState
+            LaunchedEffect(createNewGroceryListResult) {
+                if (createNewGroceryListResult is LoadingState.Success) {
+                    navigateToEditGroceryList(createNewGroceryListResult.data)
                 }
             }
         },
@@ -300,6 +304,7 @@ private fun DefaultPreview() {
         bottomNavController = bottomNavController,
         viewModelState = viewModelState,
         navigateToSettings = {},
+        navigateToEditGroceryList = {},
         navigateToSearchProduct = {},
         navigateToProductList = {},
         navigateToNewPrice = {}

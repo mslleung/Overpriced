@@ -16,6 +16,7 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
+import com.igrocery.overpriced.presentation.NavDestinations.EditGroceryList
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
@@ -46,6 +47,8 @@ import com.igrocery.overpriced.presentation.NavRoutes.MainRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
+import com.igrocery.overpriced.presentation.editgrocerylist.EditGroceryListScreen
+import com.igrocery.overpriced.presentation.editgrocerylist.EditGroceryListScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreen
@@ -82,6 +85,10 @@ object NavDestinations {
     const val EditCategory_Arg_CategoryId = "categoryId"
     const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
     const val EditCategory_Result_CategoryId = "editCategoryResultCategoryId"
+
+    const val EditGroceryList = "editGroceryList"
+    const val EditGroceryList_Arg_GroceryListId = "groceryListId"
+    const val EditGroceryList_With_Args = "$EditGroceryList/{$EditGroceryList_Arg_GroceryListId}"
 
     const val EditStore = "editStore"
     const val EditStore_Arg_StoreId = "storeId"
@@ -187,6 +194,7 @@ private fun NavGraphBuilder.navGraph(
                 bottomNavController = bottomNavController,
                 mainBottomNavigationScreenViewModel = mainBottomNavigationScreenViewModel,
                 navigateToSettings = { navController.navigate(SettingsRoute) },
+                navigateToEditGroceryList = { navController.navigate("$EditGroceryList/$it") },
                 navigateToSearchProduct = { navController.navigate(SearchProduct) },
                 navigateToProductList = {
                     if (it != null) {
@@ -196,6 +204,15 @@ private fun NavGraphBuilder.navGraph(
                     }
                 },
                 navigateToNewPrice = { navController.navigate(NewPrice) },
+            )
+        }
+        composable(EditGroceryList) {
+            val editGroceryListScreenViewModel =
+                hiltViewModel<EditGroceryListScreenViewModel>()
+
+            EditGroceryListScreen(
+                editGroceryListViewModel = editGroceryListScreenViewModel,
+                navigateUp = { navController.navigateUp() },
             )
         }
         composable(
