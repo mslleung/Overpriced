@@ -1,37 +1,39 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.BaseRepository
 import kotlinx.coroutines.flow.Flow
 import java.util.Currency
 
-interface IProductRepository : BaseRepository<Product> {
+interface IProductRepository : BaseRepository<ProductId, Product> {
 
-    fun searchProductsByNamePaging(query: String): PagingSource<Int, Product>
+    fun searchProductsPaging(query: String): PagingSource<Int, Product>
 
-    fun searchProductsByNameWithMinMaxPricesPaging(
+    fun searchProductsPaging(
         query: String,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices>
 
-    fun getProductById(productId: Long): Flow<Product?>
+    fun getProduct(productId: ProductId): Flow<Product?>
 
-    fun getProductByNameAndDescription(
+    fun getProduct(
         name: String,
         description: String?
     ): Flow<Product?>
 
-    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product>
+    fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product>
 
-    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        productId: Long,
+    fun getProductWithMinMaxPrices(
+        productId: ProductId,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?>
 
-    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-        categoryId: Long?,
+    fun getProductsWithMinMaxPricesPaging(
+        categoryId: CategoryId?,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices>
 

@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 internal interface ProductDao : BaseDao<ProductRoomEntity> {
 
     @Query("SELECT * FROM products ORDER BY update_timestamp LIMIT :pageSize OFFSET :offset")
-    suspend fun getProductsPage(offset: Int, pageSize: Int): List<ProductRoomEntity>
+    suspend fun getProductsPaging(offset: Int, pageSize: Int): List<ProductRoomEntity>
 
     @Query("SELECT * FROM products WHERE id = :id")
-    fun getProductById(id: Long): Flow<ProductRoomEntity?>
+    fun getProduct(id: Long): Flow<ProductRoomEntity?>
 
     @Query(
         """
@@ -20,7 +20,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             WHERE products.name = :name AND products.description = :description
         """
     )
-    fun getProductByNameAndDescription(
+    fun getProduct(
         name: String,
         description: String?
     ): Flow<ProductRoomEntity?>
@@ -34,7 +34,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun searchProductsByNamePaging(
+    suspend fun searchProductsPaging(
         query: String,
         offset: Int,
         pageSize: Int
@@ -58,7 +58,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             ORDER BY name, description
         """
     )
-    suspend fun searchProductsByNameWithMinMaxPricesPaging(
+    suspend fun searchProductsWithMinMaxPricesPaging(
         query: String,
         currency: String,
         offset: Int,
@@ -72,7 +72,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getProductByCategoryPaging(
+    suspend fun getProductPaging(
         categoryId: Long?,
         offset: Int,
         pageSize: Int
@@ -89,7 +89,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             GROUP BY products.id
         """
     )
-    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
+    fun getProductsWithMinMaxPrices(
         productId: Long,
         currency: String?
     ): Flow<ProductWithMinMaxPrices?>
@@ -106,7 +106,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             ORDER BY name, description LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+    suspend fun getProductsWithMinMaxPricesPaging(
         categoryId: Long?, currency: String, offset: Int, pageSize: Int
     ): List<ProductWithMinMaxPrices>
 

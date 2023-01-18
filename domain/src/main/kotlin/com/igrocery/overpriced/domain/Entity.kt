@@ -1,7 +1,7 @@
 package com.igrocery.overpriced.domain
 
 abstract class Entity(
-    open val id: Long,
+    open val id: Id,
     open val creationTimestamp: Long,
     open val updateTimestamp: Long,
 )

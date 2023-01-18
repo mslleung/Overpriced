@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
@@ -20,34 +21,34 @@ internal class LocalCategoryDataSource @Inject internal constructor(
         invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
     }
 
-    override suspend fun insert(categoryRoomEntity: CategoryRoomEntity): Long {
+    override suspend fun insert(entity: CategoryRoomEntity): CategoryId {
         val time = Clock.System.now().toEpochMilliseconds()
-        val entity = categoryRoomEntity.copy(
+        val entityToInsert = entity.copy(
             creationTimestamp = time,
             updateTimestamp = time
         )
 
-        val rowId = db.categoryDao().insert(entity)
+        val rowId = db.categoryDao().insert(entityToInsert)
         require(rowId > 0)
-        return rowId
+        return CategoryId(rowId)
     }
 
-    override suspend fun update(categoryRoomEntity: CategoryRoomEntity) {
-        val entity = categoryRoomEntity.copy(
+    override suspend fun update(entity: CategoryRoomEntity) {
+        val entityToUpdate = entity.copy(
             updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
-        val rowsUpdated = db.categoryDao().update(entity)
+        val rowsUpdated = db.categoryDao().update(entityToUpdate)
         require(rowsUpdated == 1)
     }
 
-    override suspend fun delete(categoryRoomEntity: CategoryRoomEntity) {
-        val rowsDeleted = db.categoryDao().delete(categoryRoomEntity)
+    override suspend fun delete(entity: CategoryRoomEntity) {
+        val rowsDeleted = db.categoryDao().delete(entity)
         require(rowsDeleted == 1)
     }
 
-    override fun getCategoryById(id: Long): Flow<CategoryRoomEntity?> {
-        return db.categoryDao().getCategoryById(id)
+    override fun getCategory(id: CategoryId): Flow<CategoryRoomEntity?> {
+        return db.categoryDao().getCategory(id.value)
     }
 
     override fun getAllCategories(): Flow<List<CategoryRoomEntity>> {

@@ -5,7 +5,7 @@ package com.igrocery.overpriced.domain
  * All aggregate roots must inherit this.
  */
 abstract class AggregateRoot(
-    id: Long,
+    id: Id,
     creationTimestamp: Long,
     updateTimestamp: Long,
 ) : Entity(id, creationTimestamp, updateTimestamp)

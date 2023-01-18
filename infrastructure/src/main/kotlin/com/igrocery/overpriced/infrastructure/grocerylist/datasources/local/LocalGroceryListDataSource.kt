@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local
 
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
@@ -19,29 +20,29 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
         invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
     }
 
-    override suspend fun insert(groceryListRoomEntity: GroceryListRoomEntity): Long {
+    override suspend fun insert(entity: GroceryListRoomEntity): GroceryListId {
         val time = Clock.System.now().toEpochMilliseconds()
-        val entity = groceryListRoomEntity.copy(
+        val entityToInsert = entity.copy(
             creationTimestamp = time,
             updateTimestamp = time
         )
 
-        val rowId = db.groceryListDao().insert(entity)
+        val rowId = db.groceryListDao().insert(entityToInsert)
         require(rowId > 0)
-        return rowId
+        return GroceryListId(rowId)
     }
 
-    override suspend fun update(groceryListRoomEntity: GroceryListRoomEntity) {
-        val entity = groceryListRoomEntity.copy(
+    override suspend fun update(entity: GroceryListRoomEntity) {
+        val entityToUpdate = entity.copy(
             updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
-        val rowsUpdated = db.groceryListDao().update(entity)
+        val rowsUpdated = db.groceryListDao().update(entityToUpdate)
         require(rowsUpdated == 1)
     }
 
-    override suspend fun delete(groceryListRoomEntity: GroceryListRoomEntity) {
-        val rowsDeleted = db.groceryListDao().delete(groceryListRoomEntity)
+    override suspend fun delete(entity: GroceryListRoomEntity) {
+        val rowsDeleted = db.groceryListDao().delete(entity)
         require(rowsDeleted == 1)
     }
 

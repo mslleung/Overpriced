@@ -48,7 +48,7 @@ class StorePriceDetailScreenViewModel @Inject constructor(
     private val storeId = savedState.get<Long>(NavDestinations.StorePriceDetail_Arg_StoreId)
         ?: throw IllegalArgumentException("Store id cannot be null")
 
-    override val productFlow = productService.getProductById(productId)
+    override val productFlow = productService.getProduct(productId)
         .map {
             if (it == null) {
                 LoadingState.Error(IllegalArgumentException("Product not found"))
@@ -62,7 +62,7 @@ class StorePriceDetailScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    override val storeFlow = storeService.getStoreById(storeId)
+    override val storeFlow = storeService.getStore(storeId)
         .map {
             if (it == null) {
                 LoadingState.Error(IllegalArgumentException("Store not found"))

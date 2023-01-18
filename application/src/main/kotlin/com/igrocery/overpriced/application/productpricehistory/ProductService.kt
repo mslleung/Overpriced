@@ -1,6 +1,9 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -24,9 +27,9 @@ class ProductService @Inject constructor(
     suspend fun createProductWithPriceRecord(
         productName: String,
         productDescription: String,
-        categoryId: Long?,
+        categoryId: CategoryId?,
         priceAmountText: String,
-        storeId: Long,
+        storeId: StoreId,
     ) {
         transaction.execute {
             val product = Product(
@@ -51,44 +54,44 @@ class ProductService @Inject constructor(
         }
     }
 
-    fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
-        return productRepository.searchProductsByNamePaging(query)
+    fun searchProductsPaging(query: String): PagingSource<Int, Product> {
+        return productRepository.searchProductsPaging(query)
     }
 
-    fun searchProductsByNameWithMinMaxPricesPaging(
+    fun searchProductsWithMinMaxPricesPaging(
         query: String,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
-        return productRepository.searchProductsByNameWithMinMaxPricesPaging(query, currency)
+        return productRepository.searchProductsPaging(query, currency)
     }
 
     fun getProduct(name: String, description: String?): Flow<Product?> {
-        return productRepository.getProductByNameAndDescription(name, description)
+        return productRepository.getProduct(name, description)
     }
 
-    fun getProductById(productId: Long): Flow<Product?> {
-        return productRepository.getProductById(productId)
+    fun getProduct(productId: ProductId): Flow<Product?> {
+        return productRepository.getProduct(productId)
     }
 
-    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
-        return productRepository.getProductsByCategoryIdPaging(categoryId)
+    fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product> {
+        return productRepository.getProductsPaging(categoryId)
     }
 
-    fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        productId: Long,
+    fun getProductWithMinMaxPrices(
+        productId: ProductId,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?> {
-        return productRepository.getProductsWithMinMaxPricesByProductIdAndCurrency(
+        return productRepository.getProductWithMinMaxPrices(
             productId,
             currency
         )
     }
 
-    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-        categoryId: Long?,
+    fun getProductsWithMinMaxPricesPaging(
+        categoryId: CategoryId?,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
-        return productRepository.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        return productRepository.getProductsWithMinMaxPricesPaging(
             categoryId,
             currency
         )

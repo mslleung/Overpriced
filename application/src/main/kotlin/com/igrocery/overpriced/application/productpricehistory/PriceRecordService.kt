@@ -1,6 +1,9 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.PriceRecordId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -20,9 +23,9 @@ class PriceRecordService @Inject constructor(
 
     suspend fun createPriceRecord(
         priceAmountText: String,
-        productId: Long,
-        storeId: Long,
-    ): Long {
+        productId: ProductId,
+        storeId: StoreId,
+    ): PriceRecordId {
         return transaction.execute {
             val priceAmount = priceAmountText.trim().toDouble()
             val preferredCurrency =
@@ -38,8 +41,8 @@ class PriceRecordService @Inject constructor(
     }
 
     fun getPriceRecordsPaging(
-        productId: Long,
-        storeId: Long,
+        productId: ProductId,
+        storeId: StoreId,
         currency: Currency
     ): PagingSource<Int, PriceRecord> {
         return priceRecordRepository.getPriceRecordsPaging(productId, storeId, currency)

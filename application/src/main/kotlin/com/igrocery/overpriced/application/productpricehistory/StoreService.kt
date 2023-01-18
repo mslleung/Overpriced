@@ -1,6 +1,8 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
@@ -27,7 +29,7 @@ class StoreService @Inject constructor(
         addressLines: String,
         latitude: Double,
         longitude: Double
-    ): Long {
+    ): StoreId {
         return transaction.execute {
             val store = Store(
                 name = storeName,
@@ -54,22 +56,22 @@ class StoreService @Inject constructor(
     }
 
     fun getStoresPagingSource(): PagingSource<Int, Store> {
-        return storeRepository.getStoresPagingSource()
+        return storeRepository.getStoresPaging()
     }
 
-    fun getStoreById(id: Long): Flow<Store?> {
-        return storeRepository.getStoreById(id)
+    fun getStore(id: StoreId): Flow<Store?> {
+        return storeRepository.getStore(id)
     }
 
     fun getStoreCount(): Flow<Int> {
         return storeRepository.getStoresCount()
     }
 
-    fun getStoresWithMinMaxPricesByProductIdAndCurrency(
-        productId: Long,
+    fun getStoresWithMinMaxPricesPaging(
+        productId: ProductId,
         currency: Currency
     ): PagingSource<Int, StoreWithMinMaxPrices> {
-        return storeRepository.getStoresWithMinMaxPricesByProductIdAndCurrency(productId, currency)
+        return storeRepository.getStoresWithMinMaxPricesPaging(productId, currency)
     }
 
 }

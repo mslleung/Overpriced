@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.application.grocerylist
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -18,7 +19,7 @@ class GroceryListService @Inject constructor(
         return groceryListRepository.getAllGroceryListsWithItemCountPaging()
     }
 
-    suspend fun createNewGroceryList(name: String = "New Grocery List"): Long {
+    suspend fun createNewGroceryList(name: String = "New Grocery List"): GroceryListId {
         return transaction.execute {
             val newGroceryList = GroceryList(
                 name = name,

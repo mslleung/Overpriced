@@ -1,6 +1,9 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.PriceRecordId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.createSimplePagingSource
@@ -21,27 +24,27 @@ class PriceRecordRepository @Inject internal constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IPriceRecordRepository {
 
-    override suspend fun insert(item: PriceRecord): Long {
+    override suspend fun insert(item: PriceRecord): PriceRecordId {
         return transaction.execute {
-            localPriceRecordDataSource.insertPriceRecord(item.toData())
+            localPriceRecordDataSource.insert(item.toData())
         }
     }
 
     override suspend fun update(item: PriceRecord) {
         transaction.execute {
-            localPriceRecordDataSource.updatePriceRecord(item.toData())
+            localPriceRecordDataSource.update(item.toData())
         }
     }
 
     override suspend fun delete(item: PriceRecord) {
         transaction.execute {
-            localPriceRecordDataSource.deletePriceRecord(item.toData())
+            localPriceRecordDataSource.delete(item.toData())
         }
     }
 
     override fun getPriceRecordsPaging(
-        productId: Long,
-        storeId: Long,
+        productId: ProductId,
+        storeId: StoreId,
         currency: Currency
     ): PagingSource<Int, PriceRecord> {
         return createSimplePagingSource(

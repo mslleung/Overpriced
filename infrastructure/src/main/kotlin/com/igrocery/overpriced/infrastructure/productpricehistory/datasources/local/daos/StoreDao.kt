@@ -34,7 +34,7 @@ internal interface StoreDao: BaseDao<StoreRoomEntity> {
             LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
+    suspend fun getStoresWithMinMaxPricesPaging(
         productId: Long,
         currency: String,
         offset: Int,

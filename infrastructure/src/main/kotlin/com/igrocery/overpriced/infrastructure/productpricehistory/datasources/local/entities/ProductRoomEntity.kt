@@ -1,6 +1,8 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 
 @Entity(
@@ -40,22 +42,22 @@ internal data class ProductRoomEntity(
 
 internal fun ProductRoomEntity.toDomain(): Product {
     return Product(
-        id = id,
+        id = ProductId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
         description = description,
-        categoryId = categoryId
+        categoryId = categoryId?.let { CategoryId(categoryId) }
     )
 }
 
 internal fun Product.toData(): ProductRoomEntity {
     return ProductRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
         description = description,
-        categoryId = categoryId,
+        categoryId = categoryId?.value,
     )
 }

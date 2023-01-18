@@ -1,6 +1,8 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -31,7 +33,7 @@ class ProductRepository @Inject internal constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IProductRepository {
 
-    override suspend fun insert(item: Product): Long {
+    override suspend fun insert(item: Product): ProductId {
         return transaction.execute {
             localProductDataSource.insert(item.toData())
         }
@@ -49,7 +51,7 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
+    override fun searchProductsPaging(query: String): PagingSource<Int, Product> {
         return createSimplePagingSource(
             localProductDataSource,
             ioDispatcher
@@ -57,7 +59,7 @@ class ProductRepository @Inject internal constructor(
             if (query.isBlank()) {
                 emptyList()
             } else {
-                localProductDataSource.searchProductsByNamePaging(
+                localProductDataSource.searchProductsPaging(
                     query,
                     offset,
                     loadSize
@@ -66,7 +68,7 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun searchProductsByNameWithMinMaxPricesPaging(
+    override fun searchProductsPaging(
         query: String,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
@@ -80,7 +82,7 @@ class ProductRepository @Inject internal constructor(
             if (query.isBlank()) {
                 emptyList()
             } else {
-                localProductDataSource.searchProductsByNameWithMinMaxPricesPaging(
+                localProductDataSource.searchProductsWithMinMaxPricesPaging(
                     query,
                     currency,
                     offset,
@@ -97,26 +99,26 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun getProductById(productId: Long): Flow<Product?> {
-        return localProductDataSource.getProductById(productId)
+    override fun getProduct(productId: ProductId): Flow<Product?> {
+        return localProductDataSource.getProduct(productId)
             .map { it?.toDomain() }
             .distinctUntilChanged()
     }
 
-    override fun getProductByNameAndDescription(
+    override fun getProduct(
         name: String,
         description: String?
     ): Flow<Product?> {
-        return localProductDataSource.getProductByNameAndDescription(name, description)
+        return localProductDataSource.getProduct(name, description)
             .map { it?.toDomain() }
     }
 
-    override fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
+    override fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product> {
         return createSimplePagingSource(
             localProductDataSource,
             ioDispatcher
         ) { offset, loadSize ->
-            localProductDataSource.getProductByCategoryIdPaging(
+            localProductDataSource.getProductPaging(
                 categoryId,
                 offset,
                 loadSize
@@ -126,11 +128,11 @@ class ProductRepository @Inject internal constructor(
         }
     }
 
-    override fun getProductsWithMinMaxPricesByProductIdAndCurrency(
-        productId: Long,
+    override fun getProductWithMinMaxPrices(
+        productId: ProductId,
         currency: Currency
     ): Flow<ProductWithMinMaxPrices?> {
-        return localProductDataSource.getProductsWithMinMaxPricesByProductIdAndCurrency(
+        return localProductDataSource.getProductWithMinMaxPrices(
             productId,
             currency
         ).map {
@@ -142,19 +144,18 @@ class ProductRepository @Inject internal constructor(
                     it.lastUpdatedTimestamp
                 )
             }
-        }
-            .distinctUntilChanged()
+        }.distinctUntilChanged()
     }
 
-    override fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-        categoryId: Long?,
+    override fun getProductsWithMinMaxPricesPaging(
+        categoryId: CategoryId?,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
         return createSimplePagingSource(
             listOf(localProductDataSource, localPriceRecordDataSource),
             ioDispatcher
         ) { offset, loadSize ->
-            localProductDataSource.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+            localProductDataSource.getProductsWithMinMaxPricesPaging(
                 categoryId,
                 currency,
                 offset,

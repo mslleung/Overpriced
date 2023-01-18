@@ -2,11 +2,12 @@ package com.igrocery.overpriced.domain.grocerylist.models
 
 import android.os.Parcelable
 import com.igrocery.overpriced.domain.AggregateRoot
+import com.igrocery.overpriced.domain.GroceryListItemId
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GroceryListItem(
-    override val id: Long = 0,
+    override val id: GroceryListItemId = GroceryListItemId(0),
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
     val groceryListId: Long,

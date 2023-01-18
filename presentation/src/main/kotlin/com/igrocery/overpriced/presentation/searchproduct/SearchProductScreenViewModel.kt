@@ -52,7 +52,7 @@ class SearchProductScreenViewModel @Inject constructor(
                     prefetchDistance = 30
                 )
             ) {
-                productService.searchProductsByNameWithMinMaxPricesPaging(
+                productService.searchProductsWithMinMaxPricesPaging(
                     "$query*",
                     it.preferredCurrency
                 )

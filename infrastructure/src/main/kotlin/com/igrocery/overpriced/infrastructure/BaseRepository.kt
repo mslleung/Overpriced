@@ -1,10 +1,11 @@
 package com.igrocery.overpriced.infrastructure
 
 import com.igrocery.overpriced.domain.AggregateRoot
+import com.igrocery.overpriced.domain.Id
 
-interface BaseRepository<T : AggregateRoot> {
+interface BaseRepository<IdT : Id, T : AggregateRoot> {
 
-    suspend fun insert(item: T) : Long
+    suspend fun insert(item: T) : IdT
 
     suspend fun update(item: T)
 

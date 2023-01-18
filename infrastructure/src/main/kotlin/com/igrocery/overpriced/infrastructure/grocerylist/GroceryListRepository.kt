@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.grocerylist
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -21,7 +22,7 @@ class GroceryListRepository @Inject internal constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IGroceryListRepository {
 
-    override suspend fun insert(item: GroceryList): Long {
+    override suspend fun insert(item: GroceryList): GroceryListId {
         return transaction.execute {
             localGroceryListDataSource.insert(item.toData())
         }

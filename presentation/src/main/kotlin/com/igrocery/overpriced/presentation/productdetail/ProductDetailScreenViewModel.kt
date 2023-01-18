@@ -54,7 +54,7 @@ class ProductDetailScreenViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override val productWithPricesFlow =
         preferenceService.getAppPreference().flatMapLatest {
-            productService.getProductsWithMinMaxPricesByProductIdAndCurrency(
+            productService.getProductWithMinMaxPrices(
                 productId,
                 it.preferredCurrency
             )
@@ -79,7 +79,7 @@ class ProductDetailScreenViewModel @Inject constructor(
                     prefetchDistance = 30
                 )
             ) {
-                storeService.getStoresWithMinMaxPricesByProductIdAndCurrency(
+                storeService.getStoresWithMinMaxPricesPaging(
                     productId,
                     it.preferredCurrency
                 )

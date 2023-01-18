@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 internal interface PriceRecordDao : BaseDao<PriceRecordRoomEntity> {
 
     @Query("SELECT * FROM price_records WHERE product_id = :productId")
-    fun getPriceRecordsByProductId(productId: Long): Flow<List<PriceRecordRoomEntity>>
+    fun getPriceRecords(productId: Long): Flow<List<PriceRecordRoomEntity>>
 
     @Query(
         """

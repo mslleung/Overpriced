@@ -72,7 +72,7 @@ class ProductListScreenViewModel @Inject constructor(
                     prefetchDistance = 30
                 )
             ) {
-                productService.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+                productService.getProductsWithMinMaxPricesPaging(
                     categoryId,
                     it.preferredCurrency
                 )

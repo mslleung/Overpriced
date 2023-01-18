@@ -1,6 +1,8 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -26,25 +28,25 @@ class StoreRepository @Inject internal constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IStoreRepository {
 
-    override suspend fun insert(item: Store): Long {
+    override suspend fun insert(item: Store): StoreId {
         return transaction.execute {
-            localStoreDataSource.insertStore(item.toData())
+            localStoreDataSource.insert(item.toData())
         }
     }
 
     override suspend fun update(item: Store) {
         transaction.execute {
-            localStoreDataSource.updateStore(item.toData())
+            localStoreDataSource.update(item.toData())
         }
     }
 
     override suspend fun delete(item: Store) {
         transaction.execute {
-            localStoreDataSource.deleteStore(item.toData())
+            localStoreDataSource.delete(item.toData())
         }
     }
 
-    override fun getStoresPagingSource(): PagingSource<Int, Store> {
+    override fun getStoresPaging(): PagingSource<Int, Store> {
         return createSimplePagingSource(
             localStoreDataSource,
             ioDispatcher
@@ -54,8 +56,8 @@ class StoreRepository @Inject internal constructor(
         }
     }
 
-    override fun getStoreById(id: Long): Flow<Store?> {
-        return localStoreDataSource.getStoreById(id)
+    override fun getStore(id: StoreId): Flow<Store?> {
+        return localStoreDataSource.getStore(id)
             .map { it?.toDomain() }
     }
 
@@ -63,8 +65,8 @@ class StoreRepository @Inject internal constructor(
         return localStoreDataSource.getStoresCount()
     }
 
-    override fun getStoresWithMinMaxPricesByProductIdAndCurrency(
-        productId: Long,
+    override fun getStoresWithMinMaxPricesPaging(
+        productId: ProductId,
         currency: Currency
     ): PagingSource<Int, StoreWithMinMaxPrices> {
         return createSimplePagingSource(
@@ -74,7 +76,7 @@ class StoreRepository @Inject internal constructor(
             ),
             ioDispatcher,
         ) { offset, loadSize ->
-            localStoreDataSource.getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
+            localStoreDataSource.getStoresWithMinMaxPricesPaging(
                 productId,
                 currency,
                 offset,

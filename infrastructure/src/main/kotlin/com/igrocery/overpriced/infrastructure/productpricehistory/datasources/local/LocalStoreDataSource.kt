@@ -1,5 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
@@ -26,29 +28,29 @@ internal class LocalStoreDataSource @Inject constructor(
         invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
     }
 
-    override suspend fun insertStore(storeRoomEntity: StoreRoomEntity): Long {
+    override suspend fun insert(entity: StoreRoomEntity): StoreId {
         val time = Clock.System.now().toEpochMilliseconds()
-        val entity = storeRoomEntity.copy(
+        val entityToInsert = entity.copy(
             creationTimestamp = time,
             updateTimestamp = time
         )
 
-        val rowId = db.storeDao().insert(entity)
+        val rowId = db.storeDao().insert(entityToInsert)
         require(rowId > 0)
-        return rowId
+        return StoreId(rowId)
     }
 
-    override suspend fun updateStore(storeRoomEntity: StoreRoomEntity) {
-        val entity = storeRoomEntity.copy(
+    override suspend fun update(entity: StoreRoomEntity) {
+        val entityToUpdate = entity.copy(
             updateTimestamp = Clock.System.now().toEpochMilliseconds()
         )
 
-        val rowsUpdated = db.storeDao().update(entity)
+        val rowsUpdated = db.storeDao().update(entityToUpdate)
         require(rowsUpdated == 1)
     }
 
-    override suspend fun deleteStore(storeRoomEntity: StoreRoomEntity) {
-        val rowsDeleted = db.storeDao().delete(storeRoomEntity)
+    override suspend fun delete(entity: StoreRoomEntity) {
+        val rowsDeleted = db.storeDao().delete(entity)
         require(rowsDeleted == 1)
     }
 
@@ -56,22 +58,22 @@ internal class LocalStoreDataSource @Inject constructor(
         return db.storeDao().getStoresPaging(offset, pageSize)
     }
 
-    override suspend fun getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
-        productId: Long,
+    override suspend fun getStoresWithMinMaxPricesPaging(
+        productId: ProductId,
         currency: Currency,
         offset: Int,
         pageSize: Int
     ): List<StoreDao.StoreWithMinMaxPrices> {
-        return db.storeDao().getStoresWithMinMaxPricesByProductIdAndCurrencyPaging(
-            productId,
+        return db.storeDao().getStoresWithMinMaxPricesPaging(
+            productId.value,
             currency.currencyCode,
             offset,
             pageSize
         )
     }
 
-    override fun getStoreById(id: Long): Flow<StoreRoomEntity?> {
-        return db.storeDao().getStoreById(id).distinctUntilChanged()
+    override fun getStore(id: StoreId): Flow<StoreRoomEntity?> {
+        return db.storeDao().getStoreById(id.value).distinctUntilChanged()
     }
 
     override fun getStoresCount(): Flow<Int> {

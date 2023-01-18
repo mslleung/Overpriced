@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 
 @Entity(
@@ -37,7 +38,7 @@ internal data class GroceryListItemRoomEntity(
 // mapping functions
 internal fun GroceryListItemRoomEntity.toDomain(): GroceryListItem {
     return GroceryListItem(
-        id = id,
+        id = GroceryListItemId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         groceryListId = groceryListId,
@@ -48,7 +49,7 @@ internal fun GroceryListItemRoomEntity.toDomain(): GroceryListItem {
 
 internal fun GroceryListItem.toData(): GroceryListItemRoomEntity {
     return GroceryListItemRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         groceryListId = groceryListId,

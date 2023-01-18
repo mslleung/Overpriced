@@ -3,6 +3,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
@@ -36,7 +37,7 @@ internal fun StoreRoomEntity.toDomain(): Store {
         geoCoordinates = GeoCoordinates(latitude, longitude)
     )
     return Store(
-        id = id,
+        id = StoreId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
@@ -46,7 +47,7 @@ internal fun StoreRoomEntity.toDomain(): Store {
 
 internal fun Store.toData(): StoreRoomEntity {
     return StoreRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,

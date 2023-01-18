@@ -3,7 +3,6 @@ package com.igrocery.overpriced.presentation.newprice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -84,7 +83,7 @@ class NewPriceScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        productService.searchProductsByNamePaging("$query*")
+        productService.searchProductsPaging("$query*")
     }.flow
         .cachedIn(viewModelScope)
 
@@ -109,7 +108,7 @@ class NewPriceScreenViewModel @Inject constructor(
         storeFlow = if (storeId == null) {
             MutableStateFlow(LoadingState.Success(null))
         } else {
-            storeService.getStoreById(storeId)
+            storeService.getStore(storeId)
                 .map {
                     LoadingState.Success(it)
                 }

@@ -37,7 +37,7 @@ class EditCategoryScreenViewModel @Inject constructor(
     override val categoryFlow = if (categoryId == null)
         MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
     else
-        categoryService.getCategoryById(categoryId)
+        categoryService.getCategory(categoryId)
             .map {
                 LoadingState.Success(it)
             }
