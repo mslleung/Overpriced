@@ -16,7 +16,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface MainBottomNavigationScreenViewModelState {
-    val createNewGroceryListResultState: LoadingState<Long>
+    var createNewGroceryListResultState: LoadingState<Long>
 
     fun createNewGroceryList()
 }

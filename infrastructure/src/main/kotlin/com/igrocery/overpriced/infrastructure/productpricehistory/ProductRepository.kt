@@ -1,7 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -10,7 +9,6 @@ import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSourc
 import com.igrocery.overpriced.infrastructure.di.IoDispatcher
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import com.igrocery.overpriced.shared.Logger
@@ -18,7 +16,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton

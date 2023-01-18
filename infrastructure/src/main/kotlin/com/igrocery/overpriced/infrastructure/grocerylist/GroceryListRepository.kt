@@ -1,7 +1,6 @@
 package com.igrocery.overpriced.infrastructure.grocerylist
 
 import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -11,9 +10,7 @@ import com.igrocery.overpriced.infrastructure.di.IoDispatcher
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListDataSource
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toDomain
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -213,6 +213,7 @@ private fun MainContent(
             LaunchedEffect(createNewGroceryListResult) {
                 if (createNewGroceryListResult is LoadingState.Success) {
                     navigateToEditGroceryList(createNewGroceryListResult.data)
+                    viewModelState.createNewGroceryListResultState = LoadingState.NotLoading()
                 }
             }
         },
@@ -296,7 +297,7 @@ private fun SettingsButton(
 private fun DefaultPreview() {
     val bottomNavController = rememberAnimatedNavController()
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
-        override val createNewGroceryListResultState: LoadingState<Long> = LoadingState.NotLoading()
+        override var createNewGroceryListResultState: LoadingState<Long> = LoadingState.NotLoading()
         override fun createNewGroceryList() {}
     }
 

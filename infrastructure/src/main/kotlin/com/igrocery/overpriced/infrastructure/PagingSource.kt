@@ -2,7 +2,6 @@ package com.igrocery.overpriced.infrastructure
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

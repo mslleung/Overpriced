@@ -3,10 +3,12 @@ package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
+import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import kotlinx.datetime.Clock
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 internal class LocalGroceryListDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalGroceryListDataSource {

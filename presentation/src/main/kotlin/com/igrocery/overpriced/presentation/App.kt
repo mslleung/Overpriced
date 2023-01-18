@@ -17,6 +17,8 @@ import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_Cat
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditGroceryList
+import com.igrocery.overpriced.presentation.NavDestinations.EditGroceryList_Arg_GroceryListId
+import com.igrocery.overpriced.presentation.NavDestinations.EditGroceryList_With_Args
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
@@ -206,7 +208,13 @@ private fun NavGraphBuilder.navGraph(
                 navigateToNewPrice = { navController.navigate(NewPrice) },
             )
         }
-        composable(EditGroceryList) {
+        composable(
+            route = EditGroceryList_With_Args,
+            arguments = listOf(navArgument(EditGroceryList_Arg_GroceryListId) {
+                type = NavType.LongType
+                defaultValue = 0L
+            })
+        ) {
             val editGroceryListScreenViewModel =
                 hiltViewModel<EditGroceryListScreenViewModel>()
 

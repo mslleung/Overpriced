@@ -1,7 +1,6 @@
-package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
+package com.igrocery.overpriced.infrastructure
 
 import androidx.room.InvalidationTracker
-import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.shared.Logger
 import java.lang.ref.WeakReference
 
