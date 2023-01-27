@@ -96,7 +96,7 @@ dependencies {
     val composeVersion = "1.4.0-alpha04"
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.0")
-    implementation("com.google.android.material:material:1.8.0-rc01")
+    implementation("com.google.android.material:material:1.9.0-alpha01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.material3:material3:1.1.0-alpha04")
@@ -150,7 +150,7 @@ dependencies {
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.8.0")
+    implementation("com.google.maps.android:maps-compose:2.9.1")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")

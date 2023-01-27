@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
 internal open class SimplePagingSource<T : Any> constructor(
-    dataSources: List<IBaseLocalDataSource>,    // all data sources involved in the query
+    dataSources: List<IBaseLocalDataSource<*,*>>,    // all data sources involved in the query
     private val ioDispatcher: CoroutineDispatcher,
     private val pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
 ) : PagingSource<Int, T>(), InvalidationObserverDelegate.InvalidationObserver {
@@ -55,7 +55,7 @@ internal open class SimplePagingSource<T : Any> constructor(
 }
 
 internal fun <T : Any> createSimplePagingSource(
-    dataSources: List<IBaseLocalDataSource>,    // all data sources involved in the query
+    dataSources: List<IBaseLocalDataSource<*,*>>,    // all data sources involved in the query
     ioDispatcher: CoroutineDispatcher,
     pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
 ): SimplePagingSource<T> {
@@ -67,7 +67,7 @@ internal fun <T : Any> createSimplePagingSource(
 }
 
 internal fun <T : Any> createSimplePagingSource(
-    dataSource: IBaseLocalDataSource,    // all data sources involved in the query
+    dataSource: IBaseLocalDataSource<*,*>,    // all data sources involved in the query
     ioDispatcher: CoroutineDispatcher,
     pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
 ): SimplePagingSource<T> {

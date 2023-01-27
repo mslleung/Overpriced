@@ -72,3 +72,19 @@ fun SaveButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Bool
         )
     }
 }
+
+@Composable
+fun SettingsButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
+            contentDescription = stringResource(R.string.settings_button_content_description)
+        )
+    }
+}

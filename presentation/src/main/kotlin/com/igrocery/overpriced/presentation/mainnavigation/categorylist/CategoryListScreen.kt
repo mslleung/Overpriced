@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
@@ -195,7 +195,7 @@ private fun SearchBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryWithCountListItem(
     categoryWithCount: CategoryWithProductCount,
@@ -285,19 +285,19 @@ private fun DefaultPreview() {
             productCount = 25
         ),
         CategoryWithProductCount(
-            category = Category(id = 1, icon = CategoryIcon.Apple, name = "Fruits"),
+            category = Category(id = CategoryId(1), icon = CategoryIcon.Apple, name = "Fruits"),
             productCount = 10
         ),
         CategoryWithProductCount(
-            category = Category(id = 2, icon = CategoryIcon.Carrot, name = "Vegetables"),
+            category = Category(id = CategoryId(2), icon = CategoryIcon.Carrot, name = "Vegetables"),
             productCount = 500
         ),
         CategoryWithProductCount(
-            category = Category(id = 3, icon = CategoryIcon.Beer, name = "Beverages"),
+            category = Category(id = CategoryId(3), icon = CategoryIcon.Beer, name = "Beverages"),
             productCount = 7
         ),
         CategoryWithProductCount(
-            category = Category(id = 4, icon = CategoryIcon.Cheese, name = "Dairy"),
+            category = Category(id = CategoryId(4), icon = CategoryIcon.Cheese, name = "Dairy"),
             productCount = 23
         ),
     )
