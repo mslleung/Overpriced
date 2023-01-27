@@ -9,13 +9,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -52,20 +47,18 @@ import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_ProductId
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_Arg_StoreId
 import com.igrocery.overpriced.presentation.NavDestinations.StorePriceDetail_With_Args
-import com.igrocery.overpriced.presentation.NavRoutes.BottomNavRoute
-import com.igrocery.overpriced.presentation.NavRoutes.MainRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
 import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
+import com.igrocery.overpriced.presentation.editcategory.editCategoryScreen
 import com.igrocery.overpriced.presentation.editgrocerylist.EditGroceryListScreen
 import com.igrocery.overpriced.presentation.editgrocerylist.EditGroceryListScreenViewModel
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
 import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
-import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigation
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreen
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModel
-import com.igrocery.overpriced.presentation.mainnavigation.SettingsButton
-import com.igrocery.overpriced.presentation.mainnavigation.categorylist.categoryListScreen
+import com.igrocery.overpriced.presentation.mainnavigation.mainBottomNavigationScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
 import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
@@ -82,8 +75,6 @@ import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
 import com.igrocery.overpriced.presentation.settings.SettingsScreen
 import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
-import com.igrocery.overpriced.presentation.shared.LoadingState
-import com.igrocery.overpriced.presentation.shared.SettingsButton
 import com.igrocery.overpriced.presentation.storepricedetail.StorePriceDetailScreen
 import com.igrocery.overpriced.presentation.storepricedetail.StorePriceDetailScreenViewModel
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme
@@ -94,16 +85,10 @@ private val log = Logger { }
 
 object NavDestinations {
 
-    const val MainBottomNavigation = "mainBottomNavigation"
-
     const val EditCategory = "editCategory"
     const val EditCategory_Arg_CategoryId = "categoryId"
     const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
     const val EditCategory_Result_CategoryId = "editCategoryResultCategoryId"
-
-    const val EditGroceryList = "editGroceryList"
-    const val EditGroceryList_Arg_GroceryListId = "groceryListId"
-    const val EditGroceryList_With_Args = "$EditGroceryList/{$EditGroceryList_Arg_GroceryListId}"
 
     const val EditStore = "editStore"
     const val EditStore_Arg_StoreId = "storeId"
@@ -145,8 +130,7 @@ object NavDestinations {
 }
 
 private object NavRoutes {
-    const val BottomNavRoute = "BottomNavRoute"
-    const val SettingsRoute = "settingsRoute"
+    const val SettingsRoute = "SettingsRoute"
 }
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
@@ -154,201 +138,69 @@ private object NavRoutes {
 @Composable
 fun App() {
     AppTheme {
+        // main app nav controller
         val navController = rememberAnimatedNavController()
 
-        val topBarState = rememberTopAppBarState()
-        val topBarScrollBehavior =
-            TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        // TODO replace with brand icon
-                        Text(text = stringResource(id = R.string.app_name))
-                    },
-                    actions = {
-                        SettingsButton(
-                            onClick = navigateToSettings,
-                            modifier = Modifier
-                                .padding(14.dp)
-                                .size(24.dp, 24.dp)
-                        )
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
-                    scrollBehavior = topBarScrollBehavior,
-                    windowInsets = WindowInsets.statusBars,
-                    modifier = Modifier.padding(
-                        WindowInsets.navigationBars.only(WindowInsetsSides.End)
-                            .asPaddingValues()
-                    )
+        // nav controller for the bottom nav bar
+        val bottomNavController = rememberAnimatedNavController()
+
+        val animationSpec: FiniteAnimationSpec<Float> =
+            spring(stiffness = Spring.StiffnessMediumLow)
+        AnimatedNavHost(
+            navController = navController,
+            startDestination = MainBottomNavigation,
+            enterTransition = {
+                fadeIn(animationSpec) + scaleIn(
+                    animationSpec,
+                    initialScale = 0.9f
                 )
             },
-            bottomBar = {
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = currentBackStackEntry?.destination?.route
-
-                NavigationBar {
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_shopping_cart_24),
-                                contentDescription = stringResource(id = R.string.grocery_lists_bottom_nav_content_description),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.grocery_lists_bottom_nav_label)) },
-                        selected = currentRoute == BottomNavDestinations.GroceryList,
-                        onClick = {
-                            if (currentRoute != BottomNavDestinations.GroceryList) {
-                                bottomNavController.navigate(BottomNavDestinations.GroceryList) {
-                                    launchSingleTop = true
-                                    popUpTo(BottomNavDestinations.BottomNavRoute)
-                                }
-                            }
-                        }
-                    )
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_attach_money_24),
-                                contentDescription = stringResource(id = R.string.category_list_bottom_nav_content_description),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.category_list_bottom_nav_label)) },
-                        selected = currentRoute == CategoryList,
-                        onClick = {
-                            if (currentRoute != CategoryList) {
-                                bottomNavController.navigate(CategoryList) {
-                                    launchSingleTop = true
-                                    popUpTo(BottomNavDestinations.BottomNavRoute)
-                                }
-                            }
-                        }
-                    )
-                }
+            exitTransition = {
+                fadeOut(animationSpec) + scaleOut(
+                    animationSpec,
+                    targetScale = 1.1f
+                )
             },
-            floatingActionButton = {
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                when (currentBackStackEntry?.destination?.route) {
-                    BottomNavDestinations.GroceryList -> {
-                        if (shouldShowFabForGroceryListScreen) {
-                            ExtendedFloatingActionButton(
-                                text = {
-                                    Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                        contentDescription = stringResource(
-                                            id = R.string.grocery_lists_new_grocery_list_fab_content_description
-                                        ),
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                },
-                                onClick = { viewModelState.createNewGroceryList() },
-                                modifier = Modifier.padding(
-                                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
-                                        .asPaddingValues()
-                                )
-                            )
-                        }
-                    }
-                    CategoryList -> {
-                        if (shouldShowFabForCategoryListScreen) {
-                            ExtendedFloatingActionButton(
-                                text = {
-                                    Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
-                                },
-                                icon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                        contentDescription = stringResource(
-                                            id = R.string.category_list_new_price_fab_content_description
-                                        ),
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                },
-                                onClick = navigateToNewPrice,
-                                modifier = Modifier.padding(
-                                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
-                                        .asPaddingValues()
-                                )
-                            )
-                        }
-                    }
-                }
-
-                val createNewGroceryListResult = viewModelState.createNewGroceryListResultState
-                LaunchedEffect(createNewGroceryListResult) {
-                    if (createNewGroceryListResult is LoadingState.Success) {
-                        navigateToEditGroceryList(createNewGroceryListResult.data)
-                        viewModelState.createNewGroceryListResultState = LoadingState.NotLoading()
-                    }
-                }
+            popEnterTransition = {
+                fadeIn(animationSpec) + scaleIn(
+                    animationSpec,
+                    initialScale = 1.1f
+                )
+            },
+            popExitTransition = {
+                fadeOut(animationSpec) + scaleOut(
+                    animationSpec,
+                    targetScale = 0.9f
+                )
             },
         ) {
-            val animationSpec: FiniteAnimationSpec<Float> =
-                spring(stiffness = Spring.StiffnessMediumLow)
-            AnimatedNavHost(
+            navGraph(
                 navController = navController,
-                startDestination = BottomNavRoute,
-                enterTransition = {
-                    fadeIn(animationSpec) + scaleIn(
-                        animationSpec,
-                        initialScale = 0.9f
-                    )
-                },
-                exitTransition = {
-                    fadeOut(animationSpec) + scaleOut(
-                        animationSpec,
-                        targetScale = 1.1f
-                    )
-                },
-                popEnterTransition = {
-                    fadeIn(animationSpec) + scaleIn(
-                        animationSpec,
-                        initialScale = 1.1f
-                    )
-                },
-                popExitTransition = {
-                    fadeOut(animationSpec) + scaleOut(
-                        animationSpec,
-                        targetScale = 0.9f
-                    )
-                },
-                modifier = Modifier.padding(it)
-            ) {
-                navGraph(navController)
-            }
+                bottomNavController = bottomNavController,
+            )
         }
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 private fun NavGraphBuilder.navGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    bottomNavController: NavHostController,
 ) {
-    composable(MainBottomNavigation) {
-        val mainBottomNavigationScreenViewModel =
-            hiltViewModel<MainBottomNavigationScreenViewModel>()
-
-        MainBottomNavigationScreen(
-            bottomNavController = bottomNavController,
-            mainBottomNavigationScreenViewModel = mainBottomNavigationScreenViewModel,
-            navigateToSettings = { navController.navigate(SettingsRoute) },
-            navigateToEditGroceryList = { navController.navigate("$EditGroceryList/$it") },
-            navigateToSearchProduct = { navController.navigate(SearchProduct) },
-            navigateToProductList = {
-                if (it != null) {
-                    navController.navigate("${ProductList}?$ProductList_Arg_CategoryId=${it.id}")
-                } else {
-                    navController.navigate(ProductList)
-                }
-            },
-            navigateToNewPrice = { navController.navigate(NewPrice) },
-        )
-    }
+    mainBottomNavigationScreen(
+        bottomNavController = bottomNavController,
+        navigateToSettings = { navController.navigate(SettingsRoute) },
+        navigateToEditGroceryList = { navController.navigate("$EditGroceryList/$it") },
+        navigateToSearchProduct = { navController.navigate(SearchProduct) },
+        navigateToProductList = {
+            if (it != null) {
+                navController.navigate("${ProductList}?$ProductList_Arg_CategoryId=${it.id}")
+            } else {
+                navController.navigate(ProductList)
+            }
+        },
+        navigateToNewPrice = { navController.navigate(NewPrice) },
+    )
     composable(
         route = EditGroceryList_With_Args,
         arguments = listOf(navArgument(EditGroceryList_Arg_GroceryListId) {
@@ -448,6 +300,16 @@ private fun NavGraphBuilder.navGraph(
             }
         )
     }
+    editCategoryScreen(
+        navigateUp = { navController.navigateUp() },
+        navigateDone = { categoryId ->
+            navController.previousBackStackEntry?.savedStateHandle?.set(
+                EditCategory_Result_CategoryId,
+                categoryId
+            ) ?: throw IllegalStateException("EditCategory result is not received.")
+            navController.navigateUp()
+        }
+    )
     composable(
         EditCategory_With_Args,
         arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
@@ -552,21 +414,6 @@ private fun NavGraphBuilder.navGraph(
     }
 
     settingsGraph(navController)
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-private fun NavGraphBuilder.bottomNavGraph(navController: NavHostController) {
-    navigation(route = BottomNavRoute, startDestination = Settings) {
-        categoryListScreen(
-            rootBackStackEntry = navController.getBackStackEntry(BottomNavRoute),
-            navigateToSearchProduct = {
-
-            },
-            navigateToProductList = {
-
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)

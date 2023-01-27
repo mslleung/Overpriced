@@ -31,13 +31,9 @@ class EditCategoryScreenViewModel @Inject constructor(
     private val categoryService: CategoryService,
 ) : ViewModel(), EditCategoryScreenViewModelState {
 
-    private val categoryId =
-        savedStateHandle.get<Long>(NavDestinations.EditCategory_Arg_CategoryId).takeIf { it != 0L }
+    private val args = EditCategoryScreenArgs(savedStateHandle)
 
-    override val categoryFlow = if (categoryId == null)
-        MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
-    else
-        categoryService.getCategory(categoryId)
+    override val categoryFlow = categoryService.getCategory(args.categoryId)
             .map {
                 LoadingState.Success(it)
             }

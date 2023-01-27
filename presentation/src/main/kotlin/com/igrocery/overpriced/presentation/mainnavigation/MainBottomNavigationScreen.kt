@@ -12,36 +12,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.BottomNavRoute
-import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.CategoryList
-import com.igrocery.overpriced.presentation.mainnavigation.BottomNavDestinations.GroceryList
-import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryListScreen
-import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryListScreenViewModel
-import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.GroceryListScreen
-import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.GroceryListScreenViewModel
+import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryList
+import com.igrocery.overpriced.presentation.mainnavigation.categorylist.categoryListScreen
+import com.igrocery.overpriced.presentation.mainnavigation.categorylist.navigateToCategoryListScreen
+import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.*
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
 private val log = Logger { }
 
-private object BottomNavDestinations {
-
-    const val BottomNavRoute = "bottomNavRoute"
-
-    const val GroceryList = "groceryList"
-
-
-}
+private const val BottomNavRoute = "bottomNavRoute"
 
 @Composable
 fun MainBottomNavigationScreen(
@@ -129,7 +117,7 @@ private fun MainContent(
                     selected = currentRoute == GroceryList,
                     onClick = {
                         if (currentRoute != GroceryList) {
-                            bottomNavController.navigate(GroceryList) {
+                            bottomNavController.navigateToGroceryListScreen {
                                 launchSingleTop = true
                                 popUpTo(BottomNavRoute)
                             }
@@ -148,7 +136,7 @@ private fun MainContent(
                     selected = currentRoute == CategoryList,
                     onClick = {
                         if (currentRoute != CategoryList) {
-                            bottomNavController.navigate(CategoryList) {
+                            bottomNavController.navigateToCategoryListScreen {
                                 launchSingleTop = true
                                 popUpTo(BottomNavRoute)
                             }
@@ -237,40 +225,40 @@ private fun MainContent(
             navigation(route = BottomNavRoute, startDestination = GroceryList) {
                 // view models are scoped to the route to prevent excessive recreation when changing
                 // tabs (also helps to maintain fab states)
-                composable(GroceryList) { backStackEntry ->
-                    val rootBackStackEntry = remember(backStackEntry) {
-                        bottomNavController.getBackStackEntry(BottomNavRoute)
+                groceryListScreen(
+                    topBarScrollBehavior = topBarScrollBehavior,
+                    rootBackStackEntry = bottomNavController.getBackStackEntry(BottomNavRoute),
+                    onFabVisibilityChanged = { showFab ->
+                        shouldShowFabForGroceryListScreen = showFab
+                    },
+                    onCreateNewGroceryListClick = {
+                        viewModelState.createNewGroceryList()
                     }
-                    val groceryListScreenViewModel =
-                        hiltViewModel<GroceryListScreenViewModel>(rootBackStackEntry)
-
-                    GroceryListScreen(
-                        topBarScrollBehavior = topBarScrollBehavior,
-                        groceryListScreenViewModel = groceryListScreenViewModel,
-                        onFabVisibilityChanged = { showFab ->
-                            shouldShowFabForGroceryListScreen = showFab
-                        },
-                        onCreateNewGroceryListClick = {
-                            viewModelState.createNewGroceryList()
-                        }
-                    )
-                }
-                composable(CategoryList) { backStackEntry ->
-                    val rootBackStackEntry = remember(backStackEntry) {
-                        bottomNavController.getBackStackEntry(BottomNavRoute)
-                    }
-                    val categoryListScreenViewModel =
-                        hiltViewModel<CategoryListScreenViewModel>(rootBackStackEntry)
-
-                    CategoryListScreen(
-                        topBarScrollBehavior = topBarScrollBehavior,
-                        categoryListScreenViewModel = categoryListScreenViewModel,
-                        navigateToSearchProduct = navigateToSearchProduct,
-                        navigateToProductList = navigateToProductList,
-                    )
-                }
+                )
+                categoryListScreen(
+                    topBarScrollBehavior = topBarScrollBehavior,
+                    rootBackStackEntry = bottomNavController.getBackStackEntry(BottomNavRoute),
+                    navigateToSearchProduct = navigateToSearchProduct,
+                    navigateToProductList = navigateToProductList,
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_baseline_settings_24),
+            contentDescription = stringResource(R.string.settings_button_content_description)
+        )
     }
 }
 

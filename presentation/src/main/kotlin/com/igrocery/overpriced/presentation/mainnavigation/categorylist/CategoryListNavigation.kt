@@ -1,23 +1,21 @@
 package com.igrocery.overpriced.presentation.mainnavigation.categorylist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
+import androidx.navigation.*
 import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 
-private const val CategoryList = "categoryList"
+const val CategoryList = "categoryList"
 
-fun NavController.navigateToCategoryListScreen(navOptions: NavOptions? = null) {
-    navigate(CategoryList, navOptions)
+fun NavController.navigateToCategoryListScreen(builder: NavOptionsBuilder.() -> Unit = {}) {
+    navigate(CategoryList, builder)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.categoryListScreen(
+    topBarScrollBehavior: TopAppBarScrollBehavior,
     rootBackStackEntry: NavBackStackEntry,
     navigateToSearchProduct: () -> Unit,
     navigateToProductList: (Category?) -> Unit,
