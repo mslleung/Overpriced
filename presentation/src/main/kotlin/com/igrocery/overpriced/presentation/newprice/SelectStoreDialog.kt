@@ -22,6 +22,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
@@ -32,7 +33,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun SelectStoreDialog(
     viewModel: SelectStoreDialogViewModel,
-    selectedStoreId: Long?,
+    selectedStoreId: StoreId?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
@@ -55,7 +56,7 @@ fun SelectStoreDialog(
 @Composable
 private fun MainLayout(
     storesPagingItems: LazyPagingItems<Store>,
-    selectedStoreId: Long?,
+    selectedStoreId: StoreId?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,
     onEditStoreClick: (Store) -> Unit,
@@ -204,7 +205,7 @@ private fun DefaultPreview() {
         PagingData.from(
             listOf(
                 Store(
-                    id = 0,
+                    id = StoreId(0),
                     name = "Welcome",
                     address = Address(
                         "100 Happy Street, Mong Kok, HK",
@@ -217,7 +218,7 @@ private fun DefaultPreview() {
 
     MainLayout(
         storesPagingItems = stores,
-        selectedStoreId = 0,
+        selectedStoreId = StoreId(0),
         onDismiss = {},
         onStoreSelect = {},
         onEditStoreClick = {},

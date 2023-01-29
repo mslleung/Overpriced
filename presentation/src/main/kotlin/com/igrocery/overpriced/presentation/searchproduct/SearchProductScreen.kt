@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.R
@@ -43,7 +44,7 @@ private val log = Logger { }
 fun SearchProductScreen(
     viewModel: SearchProductScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToProductDetails: (ProductWithMinMaxPrices) -> Unit,
+    navigateToProductDetails: (ProductId) -> Unit,
 ) {
     log.debug("Composing SearchProductScreen")
 
@@ -87,7 +88,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
-    onProductClick: (ProductWithMinMaxPrices) -> Unit,
+    onProductClick: (ProductId) -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)

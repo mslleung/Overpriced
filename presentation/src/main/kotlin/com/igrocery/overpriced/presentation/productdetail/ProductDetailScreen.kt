@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.*
@@ -44,7 +44,7 @@ private val log = Logger { }
 fun ProductDetailScreen(
     viewModel: ProductDetailScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToStorePriceDetail: (storeId: Long) -> Unit,
+    navigateToStorePriceDetail: (StoreId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductDetailScreen")
@@ -205,7 +205,6 @@ private fun MainContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun StoreListItem(
     item: StoreWithMinMaxPrices,

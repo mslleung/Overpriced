@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -18,8 +19,11 @@ interface EditGroceryListScreenViewModelState {
 
 @HiltViewModel
 class EditGroceryListScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     groceryListService: GroceryListService,
 ) : ViewModel(), EditGroceryListScreenViewModelState {
+
+    private val args = EditGroceryListScreenArgs(savedStateHandle)
 
     override val groceryListsWithItemCountFlow = Pager(
         PagingConfig(

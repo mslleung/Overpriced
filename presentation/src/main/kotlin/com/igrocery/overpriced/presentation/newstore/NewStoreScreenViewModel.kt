@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.StoreService
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface NewStoreScreenViewModelState {
-    val createStoreResultState: LoadingState<Long>
+    val createStoreResultState: LoadingState<StoreId>
 }
 
 @HiltViewModel
@@ -24,7 +25,7 @@ class NewStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService
 ) : ViewModel(), NewStoreScreenViewModelState {
 
-    override var createStoreResultState: LoadingState<Long> by mutableStateOf(LoadingState.NotLoading())
+    override var createStoreResultState: LoadingState<StoreId> by mutableStateOf(LoadingState.NotLoading())
 
     fun createStore(
         storeName: String,

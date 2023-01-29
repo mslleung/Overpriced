@@ -14,7 +14,6 @@ import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,20 +34,16 @@ interface StorePriceDetailScreenViewModelState {
 
 @HiltViewModel
 class StorePriceDetailScreenViewModel @Inject constructor(
-    savedState: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     preferenceService: PreferenceService,
     productService: ProductService,
     storeService: StoreService,
     priceRecordService: PriceRecordService
 ) : ViewModel(), StorePriceDetailScreenViewModelState {
 
-    private val productId = savedState.get<Long>(NavDestinations.StorePriceDetail_Arg_ProductId)
-        ?: throw IllegalArgumentException("Product id cannot be null")
+    private val args = StorePriceDetailScreenArgs(savedStateHandle)
 
-    private val storeId = savedState.get<Long>(NavDestinations.StorePriceDetail_Arg_StoreId)
-        ?: throw IllegalArgumentException("Store id cannot be null")
-
-    override val productFlow = productService.getProduct(productId)
+    override val productFlow = productService.getProduct(args.productId)
         .map {
             if (it == null) {
                 LoadingState.Error(IllegalArgumentException("Product not found"))
@@ -62,7 +57,7 @@ class StorePriceDetailScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    override val storeFlow = storeService.getStore(storeId)
+    override val storeFlow = storeService.getStore(args.storeId)
         .map {
             if (it == null) {
                 LoadingState.Error(IllegalArgumentException("Store not found"))
@@ -96,8 +91,8 @@ class StorePriceDetailScreenViewModel @Inject constructor(
                 )
             ) {
                 priceRecordService.getPriceRecordsPaging(
-                    productId,
-                    storeId,
+                    args.productId,
+                    args.storeId,
                     it.preferredCurrency
                 )
             }.flow

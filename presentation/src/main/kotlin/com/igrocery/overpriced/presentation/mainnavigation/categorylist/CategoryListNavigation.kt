@@ -5,7 +5,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.composable
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.CategoryId
 
 const val CategoryList = "categoryList"
 
@@ -18,7 +18,7 @@ fun NavGraphBuilder.categoryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     rootBackStackEntry: NavBackStackEntry,
     navigateToSearchProduct: () -> Unit,
-    navigateToProductList: (Category?) -> Unit,
+    navigateToProductList: (CategoryId?) -> Unit,
 ) {
     composable(CategoryList) {
         val categoryListScreenViewModel =

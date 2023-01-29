@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
@@ -42,7 +43,7 @@ fun ProductListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
-    navigateToProductDetail: (productId: Long) -> Unit,
+    navigateToProductDetail: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductListScreen")
@@ -54,7 +55,7 @@ fun ProductListScreen(
         onBackButtonClick = navigateUp,
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
-        onProductClick = { navigateToProductDetail(it.product.id) },
+        onProductClick = { navigateToProductDetail(it) },
         modifier = modifier
     )
 
@@ -72,7 +73,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
-    onProductClick: (ProductWithMinMaxPrices) -> Unit,
+    onProductClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -209,13 +210,13 @@ private fun EmptyListContent(
 fun ProductListItem(
     item: ProductWithMinMaxPrices,
     currency: LoadingState<Currency>,
-    onClick: (ProductWithMinMaxPrices) -> Unit,
+    onClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable { onClick(item) }
+            .clickable { onClick(item.product.id) }
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {

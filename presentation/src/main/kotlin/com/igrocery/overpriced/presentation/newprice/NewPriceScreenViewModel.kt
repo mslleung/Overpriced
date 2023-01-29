@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.newprice
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -13,6 +14,8 @@ import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.PriceRecordService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
@@ -33,18 +36,21 @@ interface NewPriceScreenViewModelState {
 
     val submitResultState: LoadingState<Unit>
 
-    fun updateCategoryId(categoryId: Long?)
-    fun updateStoreId(storeId: Long?)
+    fun updateCategoryId(categoryId: CategoryId?)
+    fun updateStoreId(storeId: StoreId?)
 }
 
 @HiltViewModel
 class NewPriceScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val categoryService: CategoryService,
     private val productService: ProductService,
     private val priceRecordService: PriceRecordService,
     private val storeService: StoreService,
     preferenceService: PreferenceService
 ) : ViewModel(), NewPriceScreenViewModelState {
+
+    private val args = NewPriceScreenArgs(savedStateHandle)
 
     override var categoryFlow: StateFlow<LoadingState<Category?>>
             by mutableStateOf(MutableStateFlow<LoadingState<Category?>>(LoadingState.NotLoading()))
@@ -87,12 +93,12 @@ class NewPriceScreenViewModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
-    override fun updateCategoryId(categoryId: Long?) {
+    override fun updateCategoryId(categoryId: CategoryId?) {
         categoryFlow = MutableStateFlow(LoadingState.Loading())
         categoryFlow = if (categoryId == null) {
             MutableStateFlow(LoadingState.Success(null))
         } else {
-            categoryService.getCategoryById(categoryId)
+            categoryService.getCategory(categoryId)
                 .map {
                     LoadingState.Success(it)
                 }
@@ -104,7 +110,7 @@ class NewPriceScreenViewModel @Inject constructor(
         }
     }
 
-    override fun updateStoreId(storeId: Long?) {
+    override fun updateStoreId(storeId: StoreId?) {
         storeFlow = if (storeId == null) {
             MutableStateFlow(LoadingState.Success(null))
         } else {
@@ -123,9 +129,9 @@ class NewPriceScreenViewModel @Inject constructor(
     fun submitForm(
         productName: String,
         productDescription: String,
-        productCategoryId: Long?,
+        productCategoryId: CategoryId?,
         priceAmountText: String,
-        priceStoreId: Long,
+        priceStoreId: StoreId,
     ) {
         viewModelScope.launch {
             try {

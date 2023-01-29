@@ -57,7 +57,9 @@ fun GroceryListScreen(
         viewModelState = groceryListScreenViewModel,
         state = state,
         onNewGroceryListClick = onCreateNewGroceryListClick,
-        onItemCountChanged = { onFabVisibilityChanged(it != 0) })
+        onItemCountChanged = { onFabVisibilityChanged(it != 0) },
+        modifier = modifier
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +163,6 @@ private fun EmptyContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun GroceryListContent(
     groceryListWithItemCount: GroceryListWithItemCount,

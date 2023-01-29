@@ -4,14 +4,14 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.SavedStateHandle
-import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Result_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Result_StoreId
-import com.igrocery.overpriced.presentation.NavDestinations.NewCategory_Result_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.NewPrice_Arg_ProductId
-import com.igrocery.overpriced.presentation.NavDestinations.NewStore_Result_StoreId
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.StoreId
+import com.igrocery.overpriced.presentation.editcategory.EditCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.editstore.EditStore_Result_StoreId
+import com.igrocery.overpriced.presentation.newcategory.NewCategory_Result_CategoryId
+import com.igrocery.overpriced.presentation.newstore.NewStore_Result_StoreId
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NewPriceScreenStateHolder(
@@ -25,9 +25,9 @@ class NewPriceScreenStateHolder(
 
     var productName by mutableStateOf(savedState?.get(2) as? String ?: "")
     var productDescription by mutableStateOf(savedState?.get(3) as? String ?: "")
-    var productCategoryId by mutableStateOf(savedState?.get(4) as? Long?)
+    var productCategoryId by mutableStateOf(savedState?.get(4) as? CategoryId?)
     var priceAmountText by mutableStateOf(savedState?.get(5) as? String ?: "")
-    var priceStoreId by mutableStateOf(savedState?.get(6) as? Long?)
+    var priceStoreId by mutableStateOf(savedState?.get(6) as? StoreId?)
 
     var isDiscardDialogShown by mutableStateOf(savedState?.get(7) as? Boolean ?: false)
     var isSelectCategoryDialogShown by mutableStateOf(savedState?.get(8) as? Boolean ?: false)
@@ -46,15 +46,15 @@ class NewPriceScreenStateHolder(
         val productId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
         val categoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
 
-        productCategoryId = savedStateHandle.get<Long>(
+        productCategoryId = savedStateHandle.get<CategoryId>(
             NewCategory_Result_CategoryId
-        ) ?: savedStateHandle.get<Long>(
+        ) ?: savedStateHandle.get<CategoryId>(
             EditCategory_Result_CategoryId
         ) ?: productCategoryId
 
-        priceStoreId = savedStateHandle.get<Long>(
+        priceStoreId = savedStateHandle.get<StoreId>(
             NewStore_Result_StoreId
-        ) ?: savedStateHandle.get<Long>(
+        ) ?: savedStateHandle.get<StoreId>(
             EditStore_Result_StoreId
         ) ?: priceStoreId
 

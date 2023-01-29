@@ -1,9 +1,13 @@
 package com.igrocery.overpriced.presentation.mainnavigation
 
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.*
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.GroceryListId
 
 const val MainBottomNavigation = "mainBottomNavigation"
 
@@ -16,11 +20,11 @@ fun NavGraphBuilder.mainBottomNavigationScreen(
     navigateToSettings: () -> Unit,
 
     // forwarded navigation from ShoppingList
-    navigateToEditGroceryList: (groceryListId: Long) -> Unit,
+    navigateToEditGroceryList: (GroceryListId) -> Unit,
 
     // forwarded navigation from CategoryList
     navigateToSearchProduct: () -> Unit,
-    navigateToProductList: (Category?) -> Unit,
+    navigateToProductList: (CategoryId?) -> Unit,
     navigateToNewPrice: () -> Unit,
 ) {
     composable(MainBottomNavigation) {

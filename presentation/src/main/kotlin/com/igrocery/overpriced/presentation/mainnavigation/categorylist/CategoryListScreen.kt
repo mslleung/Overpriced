@@ -42,7 +42,7 @@ fun CategoryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     categoryListScreenViewModel: CategoryListScreenViewModel,
     navigateToSearchProduct: () -> Unit,
-    navigateToProductList: (Category?) -> Unit,
+    navigateToProductList: (CategoryId?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing CategoryListScreen")
@@ -65,7 +65,7 @@ private fun MainContent(
     viewModelState: CategoryListScreenViewModelState,
     state: CategoryListScreenStateHolder,
     onSearchBarClick: () -> Unit,
-    onCategoryClick: (Category?) -> Unit,
+    onCategoryClick: (CategoryId?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     UseDefaultStatusBarColor()
@@ -199,14 +199,14 @@ private fun SearchBar(
 @Composable
 private fun CategoryWithCountListItem(
     categoryWithCount: CategoryWithProductCount,
-    onClick: (Category?) -> Unit,
+    onClick: (CategoryId?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val category = categoryWithCount.category ?: NoCategory
     val productCount = categoryWithCount.productCount
 
     Card(
-        onClick = { onClick(category) },
+        onClick = { onClick(category.id) },
         modifier = modifier
     ) {
         Row(

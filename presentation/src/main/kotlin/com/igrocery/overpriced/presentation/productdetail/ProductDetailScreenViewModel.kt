@@ -12,7 +12,6 @@ import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
-import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,14 +31,13 @@ interface ProductDetailScreenViewModelState {
 
 @HiltViewModel
 class ProductDetailScreenViewModel @Inject constructor(
-    savedState: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     preferenceService: PreferenceService,
     productService: ProductService,
     storeService: StoreService,
 ) : ViewModel(), ProductDetailScreenViewModelState {
 
-    private val productId = savedState.get<Long>(NavDestinations.ProductDetail_Arg_ProductId)
-        ?: throw IllegalArgumentException("Product id cannot be null")
+    private val args = ProductDetailScreenArgs(savedStateHandle)
 
     override val currencyFlow = preferenceService.getAppPreference()
         .map {
@@ -55,7 +53,7 @@ class ProductDetailScreenViewModel @Inject constructor(
     override val productWithPricesFlow =
         preferenceService.getAppPreference().flatMapLatest {
             productService.getProductWithMinMaxPrices(
-                productId,
+                args.productId,
                 it.preferredCurrency
             )
         }.map {
@@ -80,7 +78,7 @@ class ProductDetailScreenViewModel @Inject constructor(
                 )
             ) {
                 storeService.getStoresWithMinMaxPricesPaging(
-                    productId,
+                    args.productId,
                     it.preferredCurrency
                 )
             }.flow

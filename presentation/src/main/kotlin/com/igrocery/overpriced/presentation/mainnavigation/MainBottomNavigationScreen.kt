@@ -17,7 +17,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryList
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.categoryListScreen
@@ -38,11 +39,11 @@ fun MainBottomNavigationScreen(
     navigateToSettings: () -> Unit,
 
     // forwarded navigation from ShoppingList
-    navigateToEditGroceryList: (groceryListId: Long) -> Unit,
+    navigateToEditGroceryList: (GroceryListId) -> Unit,
 
     // forwarded navigation from CategoryList
     navigateToSearchProduct: () -> Unit,
-    navigateToProductList: (Category?) -> Unit,
+    navigateToProductList: (CategoryId?) -> Unit,
     navigateToNewPrice: () -> Unit,
 ) {
     log.debug("Composing MainBottomNavigationScreen")
@@ -64,10 +65,10 @@ private fun MainContent(
     bottomNavController: NavHostController,
     viewModelState: MainBottomNavigationScreenViewModelState,
     navigateToSettings: () -> Unit,
-    navigateToEditGroceryList: (groceryListId: Long) -> Unit,
+    navigateToEditGroceryList: (GroceryListId) -> Unit,
     navigateToNewPrice: () -> Unit,
     navigateToSearchProduct: () -> Unit,
-    navigateToProductList: (Category?) -> Unit
+    navigateToProductList: (CategoryId?) -> Unit
 ) {
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
@@ -205,6 +206,8 @@ private fun MainContent(
             }
         },
     ) {
+        // (workaround) we use another nav host instead of nested navigation so we can separate the
+        // transition animation.
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
@@ -268,7 +271,7 @@ private fun SettingsButton(
 private fun DefaultPreview() {
     val bottomNavController = rememberAnimatedNavController()
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
-        override var createNewGroceryListResultState: LoadingState<Long> = LoadingState.NotLoading()
+        override var createNewGroceryListResultState: LoadingState<GroceryListId> = LoadingState.NotLoading()
         override fun createNewGroceryList() {}
     }
 

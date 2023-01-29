@@ -42,6 +42,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
@@ -65,7 +68,7 @@ fun NewPriceScreen(
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (Category) -> Unit,
     navigateToNewStore: () -> Unit,
-    navigateToEditStore: (Store) -> Unit,
+    navigateToEditStore: (StoreId) -> Unit,
 ) {
     log.debug("Composing NewPriceScreen")
 
@@ -193,7 +196,7 @@ fun NewPriceScreen(
             onEditStoreClick = {
                 state.isSelectStoreDialogShown = false
                 keyboardController?.hide()
-                navigateToEditStore(it)
+                navigateToEditStore(it.id)
             },
             onNewStoreClick = {
                 state.isSelectStoreDialogShown = false
@@ -811,18 +814,18 @@ private fun DefaultPreview() {
 
         override val submitResultState: LoadingState<Unit> = LoadingState.NotLoading()
 
-        override fun updateCategoryId(categoryId: Long?) {}
-        override fun updateStoreId(storeId: Long?) {}
+        override fun updateCategoryId(categoryId: CategoryId?) {}
+        override fun updateStoreId(storeId: StoreId?) {}
     }
 
     val productsPagingItems = flowOf(
         PagingData.from(
             listOf(
                 Product(
-                    id = 0,
+                    id = ProductId(0),
                     name = "Apple",
                     description = "Pack of 6",
-                    categoryId = 0L,
+                    categoryId = CategoryId(0),
                     creationTimestamp = 0,
                     updateTimestamp = 0,
                 )

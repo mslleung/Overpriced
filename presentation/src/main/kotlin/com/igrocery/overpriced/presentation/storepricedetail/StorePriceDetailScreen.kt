@@ -21,6 +21,8 @@ import androidx.paging.compose.items
 import com.himanshoe.charty.line.LineChart
 import com.himanshoe.charty.line.config.LineConfig
 import com.himanshoe.charty.line.model.LineData
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
@@ -254,9 +256,9 @@ private fun DefaultPreview() {
             PagingData.from(
                 listOf(
                     PriceRecord(
-                        productId = 0,
+                        productId = ProductId(0),
                         price = Money(5.0, Currency.getInstance(Locale.US)),
-                        storeId = 0
+                        storeId = StoreId(0)
                     )
                 )
             )

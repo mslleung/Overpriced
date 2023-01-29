@@ -10,7 +10,6 @@ import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
-import com.igrocery.overpriced.presentation.NavDestinations
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,10 +35,9 @@ class EditStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService,
 ) : ViewModel(), EditStoreScreenViewModelState {
 
-    private val storeId = savedStateHandle.get<Long>(NavDestinations.EditStore_Arg_StoreId)
-        ?: throw IllegalArgumentException("Store id cannot be null")
+    private val args = EditStoreScreenArgs(savedStateHandle)
 
-    override val storeFlow = storeService.getStore(storeId)
+    override val storeFlow = storeService.getStore(args.storeId)
         .map {
             if (it == null) {
                 LoadingState.Error(Exception("Store not found"))

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
@@ -26,7 +27,7 @@ import com.igrocery.overpriced.presentation.shared.ifLoaded
 @Composable
 fun SelectCategoryDialog(
     viewModel: SelectCategoryDialogViewModel,
-    selectedCategoryId: Long?,
+    selectedCategoryId: CategoryId?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,
@@ -49,7 +50,7 @@ fun SelectCategoryDialog(
 @Composable
 private fun MainLayout(
     categoryList: List<Category>,
-    selectedCategoryId: Long?,
+    selectedCategoryId: CategoryId?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,
     onEditCategoryClick: (Category) -> Unit,
@@ -188,13 +189,13 @@ private fun NewCategoryItemLayout(
 @Composable
 private fun DefaultPreview() {
     val categoryList = listOf(
-        Category(id = 0, icon = CategoryIcon.Apple, name = "Fruits"),
-        Category(id = 1, icon = CategoryIcon.Broccoli, name = "Vegetables")
+        Category(id = CategoryId(0), icon = CategoryIcon.Apple, name = "Fruits"),
+        Category(id = CategoryId(1), icon = CategoryIcon.Broccoli, name = "Vegetables")
     )
 
     MainLayout(
         categoryList = categoryList,
-        selectedCategoryId = 0,
+        selectedCategoryId = CategoryId(0),
         onDismiss = {},
         onCategorySelect = {},
         onEditCategoryClick = {},

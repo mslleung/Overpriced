@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.productpricehistory.CategoryService
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface NewCategoryScreenViewModelState {
-    val createCategoryResult: LoadingState<Long>
+    val createCategoryResult: LoadingState<CategoryId>
 }
 
 @HiltViewModel
@@ -22,7 +23,7 @@ class NewCategoryScreenViewModel @Inject constructor(
     private val categoryService: CategoryService,
 ) : ViewModel(), NewCategoryScreenViewModelState {
 
-    override var createCategoryResult by mutableStateOf<LoadingState<Long>>(LoadingState.NotLoading())
+    override var createCategoryResult by mutableStateOf<LoadingState<CategoryId>>(LoadingState.NotLoading())
 
     fun createCategory(
         categoryName: String,

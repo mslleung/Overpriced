@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface MainBottomNavigationScreenViewModelState {
-    var createNewGroceryListResultState: LoadingState<Long>
+    var createNewGroceryListResultState: LoadingState<GroceryListId>
 
     fun createNewGroceryList()
 }
@@ -26,7 +27,7 @@ class MainBottomNavigationScreenViewModel @Inject constructor(
     private val groceryListService: GroceryListService,
 ) : ViewModel(), MainBottomNavigationScreenViewModelState {
 
-    override var createNewGroceryListResultState: LoadingState<Long> by mutableStateOf(LoadingState.NotLoading())
+    override var createNewGroceryListResultState: LoadingState<GroceryListId> by mutableStateOf(LoadingState.NotLoading())
 
     override fun createNewGroceryList() {
         viewModelScope.launch {
