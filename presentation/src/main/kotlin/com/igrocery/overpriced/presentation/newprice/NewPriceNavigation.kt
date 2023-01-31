@@ -85,7 +85,11 @@ internal class NewPriceScreenArgs(
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                productId = savedStateHandle.get<ProductId>(NewPrice_Arg_ProductId),
-                categoryId = savedStateHandle.get<CategoryId>(NewPrice_Arg_CategoryId)
+                productId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
+                    .takeIf { it != 0L }
+                    ?.let { ProductId(it) },
+                categoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
+                    .takeIf { it != 0L }
+                    ?.let { CategoryId(it) }
             )
 }

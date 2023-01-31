@@ -1,13 +1,18 @@
 package com.igrocery.overpriced.presentation.mainnavigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.GroceryListId
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 const val MainBottomNavigation = "mainBottomNavigation"
 
@@ -15,6 +20,7 @@ fun NavController.navigateToMainBottomNavigationScreen(builder: NavOptionsBuilde
     navigate(MainBottomNavigation, builder)
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.mainBottomNavigationScreen(
     bottomNavController: NavHostController,
     navigateToSettings: () -> Unit,

@@ -14,10 +14,10 @@ const val EditCategory_Result_CategoryId = "editCategoryResultCategoryId"
 
 fun NavController.navigateToEditCategoryScreen(
     categoryId: CategoryId,
-    navOptions: NavOptions? = null
+    builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     require(categoryId.value > 0)
-    navigate("$EditCategory/$categoryId", navOptions)
+    navigate("$EditCategory/$categoryId", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)

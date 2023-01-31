@@ -229,8 +229,8 @@ private fun MainContent(
                 // view models are scoped to the route to prevent excessive recreation when changing
                 // tabs (also helps to maintain fab states)
                 groceryListScreen(
+                    previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    rootBackStackEntry = bottomNavController.getBackStackEntry(BottomNavRoute),
                     onFabVisibilityChanged = { showFab ->
                         shouldShowFabForGroceryListScreen = showFab
                     },
@@ -239,8 +239,8 @@ private fun MainContent(
                     }
                 )
                 categoryListScreen(
+                    previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    rootBackStackEntry = bottomNavController.getBackStackEntry(BottomNavRoute),
                     navigateToSearchProduct = navigateToSearchProduct,
                     navigateToProductList = navigateToProductList,
                 )

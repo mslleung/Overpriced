@@ -5,6 +5,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.SavedStateHandle
 import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.editcategory.EditCategory_Result_CategoryId
 import com.igrocery.overpriced.presentation.editstore.EditStore_Result_StoreId
@@ -43,20 +44,17 @@ class NewPriceScreenStateHolder(
     var submitError by mutableStateOf(savedState?.get(10) as? SubmitError ?: SubmitError.None)
 
     init {
-        val productId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)
-        val categoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)
+        val productId = savedStateHandle.get<Long>(NewPrice_Arg_ProductId)?.let { ProductId(it) }
+        val categoryId = savedStateHandle.get<Long>(NewPrice_Arg_CategoryId)?.let { CategoryId(it) }
 
-        productCategoryId = savedStateHandle.get<CategoryId>(
-            NewCategory_Result_CategoryId
-        ) ?: savedStateHandle.get<CategoryId>(
-            EditCategory_Result_CategoryId
-        ) ?: productCategoryId
+        productCategoryId =
+            savedStateHandle.get<Long>(NewCategory_Result_CategoryId)?.let { CategoryId(it) }
+            ?: savedStateHandle.get<Long>(EditCategory_Result_CategoryId)?.let { CategoryId(it) }
+            ?: productCategoryId
 
-        priceStoreId = savedStateHandle.get<StoreId>(
-            NewStore_Result_StoreId
-        ) ?: savedStateHandle.get<StoreId>(
-            EditStore_Result_StoreId
-        ) ?: priceStoreId
+        priceStoreId = savedStateHandle.get<Long>(NewStore_Result_StoreId)?.let { StoreId(it) }
+            ?: savedStateHandle.get<Long>(EditStore_Result_StoreId)?.let { StoreId(it) }
+            ?: priceStoreId
 
         coroutineScope.launch {
             snapshotFlow { productCategoryId }
