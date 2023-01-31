@@ -18,7 +18,7 @@ fun NavController.navigateToEditStoreScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     require(storeId.value > 0)
-    navigate("$EditStore/$storeId", builder)
+    navigate("$EditStore/${storeId.value}", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -49,16 +49,17 @@ internal class EditStoreScreenArgs(
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(
-                storeId = StoreId(
-                    backStackEntry.arguments?.getLong(EditStore_Arg_StoreId)
-                        ?: throw IllegalArgumentException("storeId should not be null")
-                )
+                storeId = backStackEntry.arguments?.getLong(EditStore_Arg_StoreId)
+                    .takeIf { it != 0L }
+                    ?.let { StoreId(it) }
+                    ?: throw IllegalArgumentException("storeId should not be null")
             )
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                storeId = savedStateHandle.get<StoreId>(EditStore_Arg_StoreId)
-                    .takeIf { it?.value != 0L }
+                storeId = savedStateHandle.get<Long>(EditStore_Arg_StoreId)
+                    .takeIf { it != 0L }
+                    ?.let { StoreId(it) }
                     ?: throw IllegalArgumentException("storeId should not be null")
             )
 }

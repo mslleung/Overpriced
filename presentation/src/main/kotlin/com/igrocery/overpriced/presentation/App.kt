@@ -134,7 +134,7 @@ private fun NavGraphBuilder.navGraph(
         navigateDone = {
             navController.previousBackStackEntry?.savedStateHandle?.set(
                 NewCategory_Result_CategoryId,
-                it
+                it.value
             ) ?: throw IllegalStateException("NewCategory result is not received.")
             navController.navigateUp()
         }
@@ -144,7 +144,7 @@ private fun NavGraphBuilder.navGraph(
         navigateDone = {
             navController.previousBackStackEntry?.savedStateHandle?.set(
                 EditCategory_Result_CategoryId,
-                it
+                it.value
             ) ?: throw IllegalStateException("EditCategory result is not received.")
             navController.navigateUp()
         }
@@ -154,7 +154,7 @@ private fun NavGraphBuilder.navGraph(
         navigateDone = {
             navController.previousBackStackEntry?.savedStateHandle?.set(
                 NewStore_Result_StoreId,
-                it
+                it.value
             ) ?: throw IllegalStateException("NewStore result is not received.")
             navController.navigateUp()
         }
@@ -164,7 +164,7 @@ private fun NavGraphBuilder.navGraph(
         navigateDone = {
             navController.previousBackStackEntry?.savedStateHandle?.set(
                 EditStore_Result_StoreId,
-                it
+                it.value
             ) ?: throw IllegalStateException("EditStore result is not received.")
             navController.navigateUp()
         }

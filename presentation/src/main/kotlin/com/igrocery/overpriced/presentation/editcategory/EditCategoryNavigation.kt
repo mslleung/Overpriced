@@ -17,7 +17,7 @@ fun NavController.navigateToEditCategoryScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     require(categoryId.value > 0)
-    navigate("$EditCategory/$categoryId", builder)
+    navigate("$EditCategory/${categoryId.value}", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -48,16 +48,17 @@ internal class EditCategoryScreenArgs(
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(
-                categoryId = CategoryId(
-                    backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId)
-                        ?: throw IllegalArgumentException("categoryId should not be null")
-                )
+                categoryId = backStackEntry.arguments?.getLong(EditCategory_Arg_CategoryId)
+                    .takeIf { it != 0L }
+                    ?.let { CategoryId(it) }
+                    ?: throw IllegalArgumentException("categoryId should not be null")
             )
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                categoryId = savedStateHandle.get<CategoryId>(EditCategory_Arg_CategoryId)
-                    .takeIf { it?.value != 0L }
+                categoryId = savedStateHandle.get<Long>(EditCategory_Arg_CategoryId)
+                    .takeIf { it != 0L }
+                    ?.let { CategoryId(it) }
                     ?: throw IllegalArgumentException("categoryId should not be null")
             )
 }

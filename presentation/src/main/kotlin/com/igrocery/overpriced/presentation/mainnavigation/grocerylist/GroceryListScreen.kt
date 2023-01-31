@@ -110,7 +110,7 @@ private fun MainContent(
                                 groceryListWithItemCount = item,
                                 modifier = Modifier
                                     .height(48.dp)
-                                    .fillMaxSize()
+                                    .fillMaxWidth()
                             )
                         }
                     }
@@ -202,6 +202,7 @@ private fun GroceryListContent(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.End,
             modifier = Modifier
                 .fillMaxWidth()
                 .alpha(0.6f)

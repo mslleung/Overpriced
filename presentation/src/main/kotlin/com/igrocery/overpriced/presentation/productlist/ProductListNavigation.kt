@@ -20,7 +20,7 @@ fun NavController.navigateToProductListScreen(
     var navString = ProductList
     if (categoryId != null) {
         require(categoryId.value > 0)
-        navString += "?$ProductList_Arg_CategoryId={$categoryId}"
+        navString += "?$ProductList_Arg_CategoryId={${categoryId.value}}"
     }
     navigate(navString, builder)
 }
@@ -68,6 +68,8 @@ internal class ProductListScreenArgs(
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                categoryId = savedStateHandle.get<CategoryId>(ProductList_Arg_CategoryId)
+                categoryId = savedStateHandle.get<Long>(ProductList_Arg_CategoryId)
+                    .takeIf { it != 0L }
+                    ?.let { CategoryId(it) },
             )
 }

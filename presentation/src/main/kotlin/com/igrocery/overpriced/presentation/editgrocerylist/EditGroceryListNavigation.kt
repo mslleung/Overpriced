@@ -17,7 +17,7 @@ fun NavController.navigateToEditGroceryListScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     require(groceryListId.value > 0)
-    navigate("$EditGroceryList/$groceryListId", builder)
+    navigate("$EditGroceryList/${groceryListId.value}", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -48,16 +48,17 @@ internal class EditGroceryListScreenArgs(
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(
-                groceryListId = GroceryListId(
-                    backStackEntry.arguments?.getLong(EditGroceryList_Arg_GroceryListId)
-                        ?: throw IllegalArgumentException("groceryListId should not be null")
-                )
+                groceryListId = backStackEntry.arguments?.getLong(EditGroceryList_Arg_GroceryListId)
+                    .takeIf { it != 0L }
+                    ?.let { GroceryListId(it) }
+                    ?: throw IllegalArgumentException("groceryListId should not be null")
             )
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                groceryListId = savedStateHandle.get<GroceryListId>(EditGroceryList_Arg_GroceryListId)
-                    .takeIf { it?.value != 0L }
+                groceryListId = savedStateHandle.get<Long>(EditGroceryList_Arg_GroceryListId)
+                    .takeIf { it != 0L }
+                    ?.let { GroceryListId(it) }
                     ?: throw IllegalArgumentException("groceryListId should not be null")
             )
 }

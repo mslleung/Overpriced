@@ -19,7 +19,7 @@ fun NavController.navigateToProductDetailScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     require(productId.value > 0)
-    navigate("$ProductDetail/$productId", builder)
+    navigate("$ProductDetail/${productId.value}", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -50,16 +50,17 @@ internal class ProductDetailScreenArgs(
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(
-                productId = ProductId(
-                    backStackEntry.arguments?.getLong(ProductDetail_Arg_ProductId)
-                        ?: throw IllegalArgumentException("productId should not be null")
-                )
+                productId = backStackEntry.arguments?.getLong(ProductDetail_Arg_ProductId)
+                    .takeIf { it != 0L }
+                    ?.let { ProductId(it) }
+                    ?: throw IllegalArgumentException("productId should not be null")
             )
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                productId = savedStateHandle.get<ProductId>(ProductDetail_Arg_ProductId)
-                    .takeIf { it?.value != 0L }
+                productId = savedStateHandle.get<Long>(ProductDetail_Arg_ProductId)
+                    .takeIf { it != 0L }
+                    ?.let { ProductId(it) }
                     ?: throw IllegalArgumentException("productId should not be null")
             )
 }

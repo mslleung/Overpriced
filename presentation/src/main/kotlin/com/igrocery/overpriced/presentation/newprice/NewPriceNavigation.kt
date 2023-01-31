@@ -25,11 +25,11 @@ fun NavController.navigateToNewPriceScreen(
     var navString = NewPrice
     if (productId != null) {
         require(productId.value > 0)
-        navString += "?$NewPrice_Arg_ProductId={$productId}"
+        navString += "?$NewPrice_Arg_ProductId={${productId.value}}"
     }
     if (categoryId != null) {
         require(categoryId.value > 0)
-        navString += "?$NewPrice_Arg_CategoryId={$categoryId}"
+        navString += "?$NewPrice_Arg_CategoryId={${categoryId.value}}"
     }
     navigate(navString, builder)
 }

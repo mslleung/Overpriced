@@ -21,7 +21,7 @@ fun NavController.navigateToStorePriceDetailScreen(
 ) {
     require(productId.value > 0)
     require(storeId.value > 0)
-    navigate("$StorePriceDetail/$productId/$storeId", builder)
+    navigate("$StorePriceDetail/${productId.value}/${storeId.value}", builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -54,23 +54,25 @@ internal class StorePriceDetailScreenArgs(
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(
-                productId = ProductId(
-                    backStackEntry.arguments?.getLong(StorePriceDetail_Arg_ProductId)
-                        ?: throw IllegalArgumentException("productId should not be null")
-                ),
-                storeId = StoreId(
-                    backStackEntry.arguments?.getLong(StorePriceDetail_Arg_StoreId)
-                        ?: throw IllegalArgumentException("storeId should not be null")
-                )
+                productId = backStackEntry.arguments?.getLong(StorePriceDetail_Arg_ProductId)
+                    .takeIf { it != 0L }
+                    ?.let { ProductId(it) }
+                    ?: throw IllegalArgumentException("productId should not be null"),
+                storeId = backStackEntry.arguments?.getLong(StorePriceDetail_Arg_StoreId)
+                    .takeIf { it != 0L }
+                    ?.let { StoreId(it) }
+                    ?: throw IllegalArgumentException("storeId should not be null")
             )
 
     constructor(savedStateHandle: SavedStateHandle) :
             this(
-                productId = savedStateHandle.get<ProductId>(StorePriceDetail_Arg_ProductId)
-                    .takeIf { it?.value != 0L }
+                productId = savedStateHandle.get<Long>(StorePriceDetail_Arg_ProductId)
+                    .takeIf { it != 0L }
+                    ?.let { ProductId(it) }
                     ?: throw IllegalArgumentException("productId should not be null"),
-                storeId = savedStateHandle.get<StoreId>(StorePriceDetail_Arg_StoreId)
-                    .takeIf { it?.value != 0L }
+                storeId = savedStateHandle.get<Long>(StorePriceDetail_Arg_StoreId)
+                    .takeIf { it != 0L }
+                    ?.let { StoreId(it) }
                     ?: throw IllegalArgumentException("storeId should not be null")
             )
 }
