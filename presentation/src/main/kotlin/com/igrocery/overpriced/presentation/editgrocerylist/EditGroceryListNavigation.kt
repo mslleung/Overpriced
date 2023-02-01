@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.GroceryListId
-import com.igrocery.overpriced.presentation.editcategory.*
 
 private const val EditGroceryList = "editGroceryList"
 private const val EditGroceryList_Arg_GroceryListId = "groceryListId"
@@ -34,7 +33,7 @@ fun NavGraphBuilder.editGroceryListScreen(
         val editGroceryListScreenViewModel =
             hiltViewModel<EditGroceryListScreenViewModel>()
 
-        val args = EditCategoryScreenArgs(backStackEntry)
+        val args = EditGroceryListScreenArgs(backStackEntry)
 
         EditGroceryListScreen(
             editGroceryListViewModel = editGroceryListScreenViewModel,

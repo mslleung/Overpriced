@@ -82,7 +82,6 @@ private fun MainContent(
                     modifier = Modifier
                         .padding(scaffoldPadding)
                         .fillMaxSize()
-                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 )
             } else {
                 LazyColumn(
