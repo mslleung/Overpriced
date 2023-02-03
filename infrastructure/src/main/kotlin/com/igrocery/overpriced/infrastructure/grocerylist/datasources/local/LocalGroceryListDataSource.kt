@@ -14,7 +14,7 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalGroceryListDataSource {
 
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "price_records")
+    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "grocery_lists")
 
     override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
         invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)

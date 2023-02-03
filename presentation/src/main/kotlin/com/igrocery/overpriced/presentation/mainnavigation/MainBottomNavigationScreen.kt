@@ -48,9 +48,11 @@ fun MainBottomNavigationScreen(
 ) {
     log.debug("Composing MainBottomNavigationScreen")
 
+    val state by rememberMainBottomNavigationScreenState()
     MainContent(
         bottomNavController = bottomNavController,
         viewModelState = mainBottomNavigationScreenViewModel,
+        state = state,
         navigateToSettings = navigateToSettings,
         navigateToEditGroceryList = navigateToEditGroceryList,
         navigateToNewPrice = navigateToNewPrice,
@@ -64,6 +66,7 @@ fun MainBottomNavigationScreen(
 private fun MainContent(
     bottomNavController: NavHostController,
     viewModelState: MainBottomNavigationScreenViewModelState,
+    state: MainBottomNavigationScreenStateHolder,
     navigateToSettings: () -> Unit,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
     navigateToNewPrice: () -> Unit,
@@ -73,9 +76,6 @@ private fun MainContent(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
-
-    var shouldShowFabForGroceryListScreen by remember { mutableStateOf(false) }
-    var shouldShowFabForCategoryListScreen by remember { mutableStateOf(true) } // TODO
 
     Scaffold(
         topBar = {
@@ -150,7 +150,7 @@ private fun MainContent(
             val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
             when (currentBackStackEntry?.destination?.route) {
                 GroceryList -> {
-                    if (shouldShowFabForGroceryListScreen) {
+                    if (state.shouldShowFabForGroceryListScreen) {
                         ExtendedFloatingActionButton(
                             text = {
                                 Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
@@ -173,7 +173,7 @@ private fun MainContent(
                     }
                 }
                 CategoryList -> {
-                    if (shouldShowFabForCategoryListScreen) {
+                    if (state.shouldShowFabForCategoryListScreen) {
                         ExtendedFloatingActionButton(
                             text = {
                                 Text(text = stringResource(id = R.string.category_list_new_price_fab_text))
@@ -232,7 +232,7 @@ private fun MainContent(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
                     onFabVisibilityChanged = { showFab ->
-                        shouldShowFabForGroceryListScreen = showFab
+                        state.shouldShowFabForGroceryListScreen = showFab
                     },
                     onCreateNewGroceryListClick = {
                         viewModelState.createNewGroceryList()
@@ -278,10 +278,10 @@ private fun DefaultPreview() {
     MainContent(
         bottomNavController = bottomNavController,
         viewModelState = viewModelState,
+        state = MainBottomNavigationScreenStateHolder(),
         navigateToSettings = {},
         navigateToEditGroceryList = {},
-        navigateToSearchProduct = {},
-        navigateToProductList = {},
-        navigateToNewPrice = {}
-    )
+        navigateToNewPrice = {},
+        navigateToSearchProduct = {}
+    ) {}
 }

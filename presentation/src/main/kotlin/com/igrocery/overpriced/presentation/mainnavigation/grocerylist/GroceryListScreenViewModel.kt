@@ -8,9 +8,13 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
+import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+
+@Suppress("unused")
+private val log = Logger { }
 
 interface GroceryListScreenViewModelState {
     val groceryListsWithItemCountFlow: Flow<PagingData<GroceryListWithItemCount>>

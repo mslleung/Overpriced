@@ -50,7 +50,7 @@ class PriceRecordRepository @Inject internal constructor(
         return createSimplePagingSource(
             localPriceRecordDataSource,
             ioDispatcher
-        ) {offset, loadSize ->
+        ) { offset, loadSize ->
             localPriceRecordDataSource.getPriceRecordsPaging(
                 productId,
                 storeId,
