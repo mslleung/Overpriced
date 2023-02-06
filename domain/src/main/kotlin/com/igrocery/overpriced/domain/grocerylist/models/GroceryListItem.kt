@@ -12,7 +12,8 @@ data class GroceryListItem(
     override val updateTimestamp: Long = 0,
     val groceryListId: Long,
     val name: String,
-    val quantity: String    // quantity is very arbitrary, so we store strings for maximum flexibility
+    val quantity: String,    // quantity is very arbitrary, so we store strings for maximum flexibility
+    val isChecked: Boolean = false
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {

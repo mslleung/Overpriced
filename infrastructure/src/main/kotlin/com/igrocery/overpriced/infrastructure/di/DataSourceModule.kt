@@ -1,7 +1,9 @@
 package com.igrocery.overpriced.infrastructure.di
 
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListItemDataSource
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.LocalGroceryListDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.LocalGroceryListItemDataSource
 import com.igrocery.overpriced.infrastructure.preference.datasources.IPreferenceDataSource
 import com.igrocery.overpriced.infrastructure.preference.datasources.datastore.PreferenceDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.*
@@ -55,6 +57,12 @@ internal abstract class DataSourceModule {
     abstract fun bindLocalGroceryListDataSource(
         localGroceryListDataSource: LocalGroceryListDataSource
     ): ILocalGroceryListDataSource
+
+    @LocalDataSource
+    @Binds
+    abstract fun bindLocalGroceryListItemDataSource(
+        localGroceryListItemDataSource: LocalGroceryListItemDataSource
+    ): ILocalGroceryListItemDataSource
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)

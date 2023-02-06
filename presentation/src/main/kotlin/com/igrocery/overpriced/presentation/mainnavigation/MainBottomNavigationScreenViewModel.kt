@@ -19,7 +19,7 @@ private val log = Logger { }
 interface MainBottomNavigationScreenViewModelState {
     var createNewGroceryListResultState: LoadingState<GroceryListId>
 
-    fun createNewGroceryList()
+    fun createNewGroceryList(groceryListName: String)
 }
 
 @HiltViewModel
@@ -29,11 +29,11 @@ class MainBottomNavigationScreenViewModel @Inject constructor(
 
     override var createNewGroceryListResultState: LoadingState<GroceryListId> by mutableStateOf(LoadingState.NotLoading())
 
-    override fun createNewGroceryList() {
+    override fun createNewGroceryList(groceryListName: String) {
         viewModelScope.launch {
             createNewGroceryListResultState = LoadingState.Loading()
             createNewGroceryListResultState = try {
-                val id = groceryListService.createNewGroceryList()
+                val id = groceryListService.createNewGroceryList(groceryListName)
                 LoadingState.Success(id)
             } catch (e: Exception) {
                 log.error(e.toString())

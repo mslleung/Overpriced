@@ -151,6 +151,7 @@ private fun MainContent(
             when (currentBackStackEntry?.destination?.route) {
                 GroceryList -> {
                     if (state.shouldShowFabForGroceryListScreen) {
+                        val defaultGroceryListName = stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
                         ExtendedFloatingActionButton(
                             text = {
                                 Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
@@ -164,7 +165,7 @@ private fun MainContent(
                                     modifier = Modifier.size(24.dp)
                                 )
                             },
-                            onClick = { viewModelState.createNewGroceryList() },
+                            onClick = { viewModelState.createNewGroceryList(defaultGroceryListName) },
                             modifier = Modifier.padding(
                                 WindowInsets.navigationBars.only(WindowInsetsSides.End)
                                     .asPaddingValues()
@@ -210,6 +211,7 @@ private fun MainContent(
         // transition animation.
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
+        val defaultGroceryListName = stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
         AnimatedNavHost(
             navController = bottomNavController,
             startDestination = BottomNavRoute,
@@ -235,7 +237,7 @@ private fun MainContent(
                         state.shouldShowFabForGroceryListScreen = showFab
                     },
                     onCreateNewGroceryListClick = {
-                        viewModelState.createNewGroceryList()
+                        viewModelState.createNewGroceryList(defaultGroceryListName)
                     }
                 )
                 categoryListScreen(
@@ -272,7 +274,7 @@ private fun DefaultPreview() {
     val bottomNavController = rememberAnimatedNavController()
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
         override var createNewGroceryListResultState: LoadingState<GroceryListId> = LoadingState.NotLoading()
-        override fun createNewGroceryList() {}
+        override fun createNewGroceryList(groceryListName: String) {}
     }
 
     MainContent(

@@ -1,6 +1,8 @@
 package com.igrocery.overpriced.application.di
 
+import com.igrocery.overpriced.infrastructure.grocerylist.GroceryListItemRepository
 import com.igrocery.overpriced.infrastructure.grocerylist.GroceryListRepository
+import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListItemRepository
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListRepository
 import com.igrocery.overpriced.infrastructure.preference.IPreferenceRepository
 import com.igrocery.overpriced.infrastructure.preference.PreferenceRepository
@@ -41,9 +43,15 @@ internal abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindGroceryListsRepository(
+    abstract fun bindGroceryListRepository(
         groceryListRepository: GroceryListRepository
     ): IGroceryListRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindGroceryListItemRepository(
+        groceryListItemRepository: GroceryListItemRepository
+    ): IGroceryListItemRepository
 
     @Singleton
     @Binds
