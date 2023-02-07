@@ -238,7 +238,8 @@ private fun MainContent(
                     },
                     onCreateNewGroceryListClick = {
                         viewModelState.createNewGroceryList(defaultGroceryListName)
-                    }
+                    },
+                    navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },

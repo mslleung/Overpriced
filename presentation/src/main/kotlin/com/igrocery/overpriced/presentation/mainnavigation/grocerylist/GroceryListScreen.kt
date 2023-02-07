@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
@@ -46,6 +48,7 @@ fun GroceryListScreen(
     groceryListScreenViewModel: GroceryListScreenViewModel,
     onFabVisibilityChanged: (Boolean) -> Unit,
     onCreateNewGroceryListClick: () -> Unit,
+    navigateToEditGroceryList: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing GroceryListScreen")
@@ -55,20 +58,22 @@ fun GroceryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
-        onNewGroceryListClick = onCreateNewGroceryListClick,
         onItemCountChanged = { onFabVisibilityChanged(it != 0) },
+        onNewGroceryListClick = onCreateNewGroceryListClick,
+        onGroceryListClick = navigateToEditGroceryList,
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: GroceryListScreenViewModelState,
     state: GroceryListScreenStateHolder,
-    onNewGroceryListClick: () -> Unit,
     onItemCountChanged: (Int) -> Unit,
+    onNewGroceryListClick: () -> Unit,
+    onGroceryListClick: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     UseDefaultStatusBarColor()
@@ -106,9 +111,12 @@ private fun MainContent(
                         if (item != null) {
                             GroceryListContent(
                                 groceryListWithItemCount = item,
+                                onClick = onGroceryListClick,
                                 modifier = Modifier
-                                    .height(48.dp)
+                                    .animateItemPlacement()
+                                    .wrapContentHeight()
                                     .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
                             )
                         }
                     }
@@ -161,50 +169,61 @@ private fun EmptyContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GroceryListContent(
     groceryListWithItemCount: GroceryListWithItemCount,
+    onClick: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Card(
+        onClick = { onClick(groceryListWithItemCount.groceryList.id) },
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(0.6f)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(
-                text = groceryListWithItemCount.groceryList.name,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelMedium
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .padding(bottom = 4.dp)
+            ) {
+                Text(
+                    text = groceryListWithItemCount.groceryList.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-            val updateInstant =
-                Instant.fromEpochMilliseconds(groceryListWithItemCount.groceryList.updateTimestamp)
-            val updateDate = updateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val updateInstant =
+                    Instant.fromEpochMilliseconds(groceryListWithItemCount.groceryList.updateTimestamp)
+                val updateDate = updateInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                Text(
+                    text = "${updateDate.dayOfMonth}/${updateDate.monthNumber}/${updateDate.year}",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
+
             Text(
-                text = "${updateDate.dayOfMonth}/${updateDate.monthNumber}/${updateDate.year}",
+                text = pluralStringResource(
+                    id = R.plurals.grocery_lists_item_count,
+                    count = groceryListWithItemCount.itemCount,
+                    groceryListWithItemCount.itemCount
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.alpha(0.6f)
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.6f)
             )
         }
-
-        Text(
-            text = pluralStringResource(
-                id = R.plurals.grocery_lists_item_count,
-                count = groceryListWithItemCount.itemCount
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.End,
-            modifier = Modifier
-                .fillMaxWidth()
-                .alpha(0.6f)
-        )
     }
 }
 
@@ -232,7 +251,8 @@ private fun DefaultPreview() {
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = GroceryListScreenStateHolder(),
+        onItemCountChanged = {},
         onNewGroceryListClick = {},
-        onItemCountChanged = {}
+        onGroceryListClick = {}
     )
 }

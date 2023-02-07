@@ -9,6 +9,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import com.google.accompanist.navigation.animation.composable
+import com.igrocery.overpriced.domain.GroceryListId
 
 const val GroceryList = "groceryList"
 
@@ -22,6 +23,7 @@ fun NavGraphBuilder.groceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     onFabVisibilityChanged: (Boolean) -> Unit,
     onCreateNewGroceryListClick: () -> Unit,
+    navigateToEditGroceryList: (GroceryListId) -> Unit,
 ) {
     composable(GroceryList) {
         val groceryListScreenViewModel =
@@ -31,7 +33,8 @@ fun NavGraphBuilder.groceryListScreen(
             topBarScrollBehavior = topBarScrollBehavior,
             groceryListScreenViewModel = groceryListScreenViewModel,
             onFabVisibilityChanged = onFabVisibilityChanged,
-            onCreateNewGroceryListClick = onCreateNewGroceryListClick
+            onCreateNewGroceryListClick = onCreateNewGroceryListClick,
+            navigateToEditGroceryList = navigateToEditGroceryList
         )
     }
 }

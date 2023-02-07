@@ -102,7 +102,7 @@ dependencies {
     // date
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
 
     implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")
