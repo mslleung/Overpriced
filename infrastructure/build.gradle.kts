@@ -107,7 +107,7 @@ dependencies {
     implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")
 
-    val kotestVersion = "5.5.4"
+    val kotestVersion = "5.5.5"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("androidx.test:runner:1.5.2")

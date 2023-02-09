@@ -5,10 +5,15 @@ import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
+internal data class InvalidationParams<T : Any>(
+    val observedDataSources: List<IBaseLocalDataSource<*, *>>, // all data sources involved in the query
+    val onDataSourcesInvalidated: PagingSource<Int, T>.() -> Unit = { invalidate() },
+)
+
 internal open class SimplePagingSource<T : Any> constructor(
-    dataSources: List<IBaseLocalDataSource<*,*>>,    // all data sources involved in the query
+    private val invalidationParams: InvalidationParams<T>,
     private val ioDispatcher: CoroutineDispatcher,
-    private val pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
+    private val pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>,
 ) : PagingSource<Int, T>(), InvalidationObserverDelegate.InvalidationObserver {
 
     init {
@@ -18,7 +23,7 @@ internal open class SimplePagingSource<T : Any> constructor(
     }
 
     override fun onInvalidate() {
-        invalidate()
+        invalidationParams.onDataSourcesInvalidated(this)
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
@@ -57,23 +62,27 @@ internal open class SimplePagingSource<T : Any> constructor(
 internal fun <T : Any> createSimplePagingSource(
     dataSources: List<IBaseLocalDataSource<*,*>>,    // all data sources involved in the query
     ioDispatcher: CoroutineDispatcher,
-    pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
+    pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>,
+    onDataSourcesInvalidated: PagingSource<Int, T>.() -> Unit = { invalidate() },
 ): SimplePagingSource<T> {
     return SimplePagingSource(
         dataSources,
         ioDispatcher,
-        pageDataCreator
+        pageDataCreator,
+        onDataSourcesInvalidated
     )
 }
 
 internal fun <T : Any> createSimplePagingSource(
     dataSource: IBaseLocalDataSource<*,*>,    // all data sources involved in the query
     ioDispatcher: CoroutineDispatcher,
-    pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>
+    pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>,
+    onDataSourcesInvalidated: PagingSource<Int, T>.() -> Unit = { invalidate() },
 ): SimplePagingSource<T> {
     return createSimplePagingSource(
         listOf(dataSource),
         ioDispatcher,
-        pageDataCreator
+        pageDataCreator,
+        onDataSourcesInvalidated
     )
 }

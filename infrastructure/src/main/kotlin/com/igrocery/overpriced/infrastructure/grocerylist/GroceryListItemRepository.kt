@@ -44,15 +44,16 @@ class GroceryListItemRepository @Inject internal constructor(
 
     override fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {
         return createSimplePagingSource(
-            localGroceryListItemDataSource,
-            ioDispatcher
-        ) { offset, loadSize ->
-            localGroceryListItemDataSource.getAllGroceryListItemsPaging(
-                groceryListId,
-                offset,
-                loadSize
-            ).map { it.toDomain() }
-        }
+            dataSource = localGroceryListItemDataSource,
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localGroceryListItemDataSource.getAllGroceryListItemsPaging(
+                    groceryListId,
+                    offset,
+                    loadSize
+                ).map { it.toDomain() }
+            }
+        )
     }
 
 }
