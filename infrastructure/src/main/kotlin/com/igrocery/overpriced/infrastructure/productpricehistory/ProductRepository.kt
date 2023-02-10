@@ -53,19 +53,20 @@ class ProductRepository @Inject internal constructor(
 
     override fun searchProductsPaging(query: String): PagingSource<Int, Product> {
         return createSimplePagingSource(
-            localProductDataSource,
-            ioDispatcher
-        ) { offset, loadSize ->
-            if (query.isBlank()) {
-                emptyList()
-            } else {
-                localProductDataSource.searchProductsPaging(
-                    query,
-                    offset,
-                    loadSize
-                ).map { it.toDomain() }
-            }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                if (query.isBlank()) {
+                    emptyList()
+                } else {
+                    localProductDataSource.searchProductsPaging(
+                        query,
+                        offset,
+                        loadSize
+                    ).map { it.toDomain() }
+                }
+            },
+            observedDataSources = listOf(localProductDataSource)
+        )
     }
 
     override fun searchProductsPaging(
@@ -73,30 +74,31 @@ class ProductRepository @Inject internal constructor(
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
         return createSimplePagingSource(
-            listOf(
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                if (query.isBlank()) {
+                    emptyList()
+                } else {
+                    localProductDataSource.searchProductsWithMinMaxPricesPaging(
+                        query,
+                        currency,
+                        offset,
+                        loadSize
+                    ).map {
+                        ProductWithMinMaxPrices(
+                            it.productRoomEntity.toDomain(),
+                            it.minPrice,
+                            it.maxPrice,
+                            it.lastUpdatedTimestamp
+                        )
+                    }
+                }
+            },
+            observedDataSources = listOf(
                 localProductDataSource,
                 localPriceRecordDataSource
             ),
-            ioDispatcher
-        ) { offset, loadSize ->
-            if (query.isBlank()) {
-                emptyList()
-            } else {
-                localProductDataSource.searchProductsWithMinMaxPricesPaging(
-                    query,
-                    currency,
-                    offset,
-                    loadSize
-                ).map {
-                    ProductWithMinMaxPrices(
-                        it.productRoomEntity.toDomain(),
-                        it.minPrice,
-                        it.maxPrice,
-                        it.lastUpdatedTimestamp
-                    )
-                }
-            }
-        }
+        )
     }
 
     override fun getProduct(productId: ProductId): Flow<Product?> {
@@ -115,17 +117,16 @@ class ProductRepository @Inject internal constructor(
 
     override fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product> {
         return createSimplePagingSource(
-            localProductDataSource,
-            ioDispatcher
-        ) { offset, loadSize ->
-            localProductDataSource.getProductPaging(
-                categoryId,
-                offset,
-                loadSize
-            ).map {
-                it.toDomain()
-            }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localProductDataSource.getProductPaging(
+                    categoryId,
+                    offset,
+                    loadSize
+                ).map { it.toDomain() }
+            },
+            observedDataSources = listOf(localProductDataSource)
+        )
     }
 
     override fun getProductWithMinMaxPrices(
@@ -152,22 +153,23 @@ class ProductRepository @Inject internal constructor(
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
         return createSimplePagingSource(
-            listOf(localProductDataSource, localPriceRecordDataSource),
-            ioDispatcher
-        ) { offset, loadSize ->
-            localProductDataSource.getProductsWithMinMaxPricesPaging(
-                categoryId,
-                currency,
-                offset,
-                loadSize
-            ).map {
-                ProductWithMinMaxPrices(
-                    it.productRoomEntity.toDomain(),
-                    it.minPrice,
-                    it.maxPrice,
-                    it.lastUpdatedTimestamp
-                )
-            }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localProductDataSource.getProductsWithMinMaxPricesPaging(
+                    categoryId,
+                    currency,
+                    offset,
+                    loadSize
+                ).map {
+                    ProductWithMinMaxPrices(
+                        it.productRoomEntity.toDomain(),
+                        it.minPrice,
+                        it.maxPrice,
+                        it.lastUpdatedTimestamp
+                    )
+                }
+            },
+            observedDataSources = listOf(localProductDataSource, localPriceRecordDataSource),
+        )
     }
 }

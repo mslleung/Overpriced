@@ -48,19 +48,20 @@ class PriceRecordRepository @Inject internal constructor(
         currency: Currency
     ): PagingSource<Int, PriceRecord> {
         return createSimplePagingSource(
-            dataSource = localPriceRecordDataSource,
-            ioDispatcher = ioDispatcher
-        ) { offset, loadSize ->
-            localPriceRecordDataSource.getPriceRecordsPaging(
-                productId,
-                storeId,
-                currency,
-                offset,
-                loadSize
-            ).map {
-                it.toDomain()
-            }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localPriceRecordDataSource.getPriceRecordsPaging(
+                    productId,
+                    storeId,
+                    currency,
+                    offset,
+                    loadSize
+                ).map {
+                    it.toDomain()
+                }
+            },
+            observedDataSources = listOf(localPriceRecordDataSource)
+        )
     }
 
 }

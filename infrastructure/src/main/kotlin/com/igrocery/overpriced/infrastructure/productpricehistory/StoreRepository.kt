@@ -48,12 +48,13 @@ class StoreRepository @Inject internal constructor(
 
     override fun getStoresPaging(): PagingSource<Int, Store> {
         return createSimplePagingSource(
-            localStoreDataSource,
-            ioDispatcher
-        ) { offset, loadSize ->
-            localStoreDataSource.getStoresPaging(offset, loadSize)
-                .map { it.toDomain() }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localStoreDataSource.getStoresPaging(offset, loadSize)
+                    .map { it.toDomain() }
+            },
+            observedDataSources = listOf(localStoreDataSource)
+        )
     }
 
     override fun getStore(id: StoreId): Flow<Store?> {
@@ -70,26 +71,24 @@ class StoreRepository @Inject internal constructor(
         currency: Currency
     ): PagingSource<Int, StoreWithMinMaxPrices> {
         return createSimplePagingSource(
-            listOf(
-                localStoreDataSource,
-                localPriceRecordDataSource,
-            ),
-            ioDispatcher,
-        ) { offset, loadSize ->
-            localStoreDataSource.getStoresWithMinMaxPricesPaging(
-                productId,
-                currency,
-                offset,
-                loadSize
-            ).map {
-                StoreWithMinMaxPrices(
-                    it.storeRoomEntity.toDomain(),
-                    it.minPrice,
-                    it.maxPrice,
-                    it.lastUpdatedTimestamp
-                )
-            }
-        }
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localStoreDataSource.getStoresWithMinMaxPricesPaging(
+                    productId,
+                    currency,
+                    offset,
+                    loadSize
+                ).map {
+                    StoreWithMinMaxPrices(
+                        it.storeRoomEntity.toDomain(),
+                        it.minPrice,
+                        it.maxPrice,
+                        it.lastUpdatedTimestamp
+                    )
+                }
+            },
+            observedDataSources = listOf(localStoreDataSource, localPriceRecordDataSource),
+        )
     }
 
 }
