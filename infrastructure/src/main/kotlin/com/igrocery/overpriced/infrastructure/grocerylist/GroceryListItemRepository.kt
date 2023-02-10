@@ -3,8 +3,6 @@ package com.igrocery.overpriced.infrastructure.grocerylist
 import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.GroceryListItemId
-import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
-import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.createSimplePagingSource
@@ -44,7 +42,6 @@ class GroceryListItemRepository @Inject internal constructor(
 
     override fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {
         return createSimplePagingSource(
-            dataSource = localGroceryListItemDataSource,
             ioDispatcher = ioDispatcher,
             pageDataCreator = { offset, loadSize ->
                 localGroceryListItemDataSource.getAllGroceryListItemsPaging(
@@ -52,7 +49,8 @@ class GroceryListItemRepository @Inject internal constructor(
                     offset,
                     loadSize
                 ).map { it.toDomain() }
-            }
+            },
+            observedDataSources = listOf(localGroceryListItemDataSource),
         )
     }
 
