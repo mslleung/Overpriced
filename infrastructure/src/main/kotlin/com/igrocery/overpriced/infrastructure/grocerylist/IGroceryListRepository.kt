@@ -5,9 +5,14 @@ import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.infrastructure.BaseRepository
+import kotlinx.coroutines.flow.Flow
 
 interface IGroceryListRepository : BaseRepository<GroceryListId, GroceryList> {
 
-    fun getAllGroceryListsWithItemCountPaging(): PagingSource<Int, GroceryListWithItemCount>
+
+    fun getGroceryListCount(): Flow<Int>
+    fun getAllGroceryListsWithItemCountPaging(
+        onDataSourcesInvalidated: PagingSource<Int, GroceryListWithItemCount>.() -> Unit
+    ): PagingSource<Int, GroceryListWithItemCount>
 
 }

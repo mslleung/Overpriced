@@ -26,6 +26,8 @@ import com.igrocery.overpriced.presentation.mainnavigation.categorylist.navigate
 import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.*
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Suppress("unused")
 private val log = Logger { }
@@ -147,6 +149,7 @@ private fun MainContent(
             }
         },
         floatingActionButton = {
+
             val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
             when (currentBackStackEntry?.destination?.route) {
                 GroceryList -> {
@@ -233,9 +236,6 @@ private fun MainContent(
                 groceryListScreen(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    onFabVisibilityChanged = { showFab ->
-                        state.shouldShowFabForGroceryListScreen = showFab
-                    },
                     onCreateNewGroceryListClick = {
                         viewModelState.createNewGroceryList(defaultGroceryListName)
                     },
@@ -274,6 +274,8 @@ private fun SettingsButton(
 private fun DefaultPreview() {
     val bottomNavController = rememberAnimatedNavController()
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
+        override val groceryListCountFlow: StateFlow<LoadingState<Int>> =
+            MutableStateFlow(LoadingState.Success(0))
         override var createNewGroceryListResultState: LoadingState<GroceryListId> = LoadingState.NotLoading()
         override fun createNewGroceryList(groceryListName: String) {}
     }

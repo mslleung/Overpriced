@@ -31,7 +31,11 @@ class GroceryListScreenViewModel @Inject constructor(
             prefetchDistance = 30
         )
     ) {
-        groceryListService.getAllGroceryListsWithItemCountPaging()
+        groceryListService.getAllGroceryListsWithItemCountPaging(
+            onDataSourcesInvalidated = {
+                invalidate()
+            }
+        )
     }.flow
         .cachedIn(viewModelScope)
 

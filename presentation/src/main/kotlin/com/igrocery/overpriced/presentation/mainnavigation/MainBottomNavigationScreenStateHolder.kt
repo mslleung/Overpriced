@@ -9,9 +9,6 @@ import androidx.compose.runtime.setValue
 
 class MainBottomNavigationScreenStateHolder(savedState: List<*>? = null) {
 
-    var shouldShowFabForGroceryListScreen by mutableStateOf(
-        savedState?.get(0) as? Boolean ?: false
-    )
     var shouldShowFabForCategoryListScreen by mutableStateOf( // TODO
         savedState?.get(0) as? Boolean ?: true
     )
@@ -22,7 +19,6 @@ fun rememberMainBottomNavigationScreenState() = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
-                it.shouldShowFabForGroceryListScreen,
                 it.shouldShowFabForCategoryListScreen
             )
         },

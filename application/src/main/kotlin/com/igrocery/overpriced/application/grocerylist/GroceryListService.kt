@@ -8,6 +8,7 @@ import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListItemRepository
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,8 +19,14 @@ class GroceryListService @Inject constructor(
     private val transaction: Transaction
 ) {
 
-    fun getAllGroceryListsWithItemCountPaging(): PagingSource<Int, GroceryListWithItemCount> {
-        return groceryListRepository.getAllGroceryListsWithItemCountPaging()
+    fun getGroceryListCount(): Flow<Int> {
+        return groceryListRepository.getGroceryListCount()
+    }
+
+    fun getAllGroceryListsWithItemCountPaging(
+        onDataSourcesInvalidated: PagingSource<Int, GroceryListWithItemCount>.() -> Unit
+    ): PagingSource<Int, GroceryListWithItemCount> {
+        return groceryListRepository.getAllGroceryListsWithItemCountPaging(onDataSourcesInvalidated)
     }
 
     fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {

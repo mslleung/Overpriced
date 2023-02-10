@@ -12,6 +12,7 @@ import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILoc
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toDomain
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,7 +41,13 @@ class GroceryListRepository @Inject internal constructor(
         }
     }
 
-    override fun getAllGroceryListsWithItemCountPaging(): PagingSource<Int, GroceryListWithItemCount> {
+    override fun getGroceryListCount(): Flow<Int> {
+        return localGroceryListDataSource.getGroceryListCount()
+    }
+
+    override fun getAllGroceryListsWithItemCountPaging(
+        onDataSourcesInvalidated: PagingSource<Int, GroceryListWithItemCount>.() -> Unit
+    ): PagingSource<Int, GroceryListWithItemCount> {
         return createSimplePagingSource(
             ioDispatcher = ioDispatcher,
             pageDataCreator = { offset, loadSize ->
@@ -54,7 +61,8 @@ class GroceryListRepository @Inject internal constructor(
                     )
                 }
             },
-            observedDataSources = listOf(localGroceryListDataSource)
+            observedDataSources = listOf(localGroceryListDataSource),
+            onDataSourcesInvalidated = onDataSourcesInvalidated
         )
     }
 

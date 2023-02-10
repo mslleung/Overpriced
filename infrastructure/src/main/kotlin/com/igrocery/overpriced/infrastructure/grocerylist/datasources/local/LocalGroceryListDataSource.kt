@@ -5,6 +5,7 @@ import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
 import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,6 +45,10 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
     override suspend fun delete(entity: GroceryListRoomEntity) {
         val rowsDeleted = db.groceryListDao().delete(entity)
         require(rowsDeleted == 1)
+    }
+
+    override fun getGroceryListCount(): Flow<Int> {
+        return db.groceryListDao().getGroceryListCount()
     }
 
     override suspend fun getAllGroceryListsWithItemCountPaging(
