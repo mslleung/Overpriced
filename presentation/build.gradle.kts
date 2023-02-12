@@ -93,17 +93,17 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
 
     // android core UI
-    val composeVersion = "1.4.0-alpha05"
+    val composeVersion = "1.4.0-beta01"
     implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-alpha01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha05")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha06")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.6.1")
 
-    val lifecycleVersion = "2.6.0-alpha05"
+    val lifecycleVersion = "2.6.0-beta01"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
@@ -122,7 +122,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -144,12 +144,12 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.14.2")
     kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.1.2")
+    implementation("com.github.skydoves:landscapist-glide:2.1.3")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.9.1")
+    implementation("com.google.maps.android:maps-compose:2.10.0")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")
