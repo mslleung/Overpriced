@@ -8,9 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,6 +28,7 @@ import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModelState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
@@ -46,21 +45,23 @@ private val log = Logger { }
 @Composable
 fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
+    mainBottomNavigationViewModelState: MainBottomNavigationScreenViewModelState,
     groceryListScreenViewModel: GroceryListScreenViewModel,
-    onFabVisibilityChanged: (Boolean) -> Unit,
-    onCreateNewGroceryListClick: () -> Unit,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing GroceryListScreen")
 
+    val defaultGroceryListName =
+        stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
     val state by rememberGroceryListScreenState()
     MainContent(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
-        onItemCountChanged = { onFabVisibilityChanged(it != 0) },
-        onNewGroceryListClick = onCreateNewGroceryListClick,
+        onNewGroceryListClick = {
+            mainBottomNavigationViewModelState.createNewGroceryList(defaultGroceryListName)
+        },
         onGroceryListClick = navigateToEditGroceryList,
         modifier = modifier
     )
@@ -72,7 +73,6 @@ private fun MainContent(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: GroceryListScreenViewModelState,
     state: GroceryListScreenStateHolder,
-    onItemCountChanged: (Int) -> Unit,
     onNewGroceryListClick: () -> Unit,
     onGroceryListClick: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier
@@ -87,10 +87,6 @@ private fun MainContent(
         val groceryListsWithItemCount =
             viewModelState.groceryListsWithItemCountFlow.collectAsLazyPagingItems()
         if (groceryListsWithItemCount.isInitialLoadCompleted()) {
-            SideEffect {
-                onItemCountChanged(groceryListsWithItemCount.itemCount)
-            }
-
             if (groceryListsWithItemCount.itemCount == 0) {
                 EmptyContent(
                     onNewGroceryListClick = onNewGroceryListClick,
@@ -252,7 +248,6 @@ private fun DefaultPreview() {
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = GroceryListScreenStateHolder(),
-        onItemCountChanged = {},
         onNewGroceryListClick = {},
         onGroceryListClick = {}
     )

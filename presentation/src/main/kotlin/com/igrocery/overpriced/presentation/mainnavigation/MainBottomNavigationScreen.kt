@@ -25,6 +25,7 @@ import com.igrocery.overpriced.presentation.mainnavigation.categorylist.category
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.navigateToCategoryListScreen
 import com.igrocery.overpriced.presentation.mainnavigation.grocerylist.*
 import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.presentation.shared.ifLoaded
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,6 +62,16 @@ fun MainBottomNavigationScreen(
         navigateToSearchProduct = navigateToSearchProduct,
         navigateToProductList = navigateToProductList
     )
+
+    val createNewGroceryListResult =
+        mainBottomNavigationScreenViewModel.createNewGroceryListResultState
+    LaunchedEffect(createNewGroceryListResult) {
+        if (createNewGroceryListResult is LoadingState.Success) {
+            navigateToEditGroceryList(createNewGroceryListResult.data)
+            mainBottomNavigationScreenViewModel.createNewGroceryListResultState =
+                LoadingState.NotLoading()
+        }
+    }
 }
 
 @Composable
@@ -149,31 +160,34 @@ private fun MainContent(
             }
         },
         floatingActionButton = {
-
+            val groceryListCount by viewModelState.groceryListCountFlow.collectAsState()
             val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
             when (currentBackStackEntry?.destination?.route) {
                 GroceryList -> {
-                    if (state.shouldShowFabForGroceryListScreen) {
-                        val defaultGroceryListName = stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
-                        ExtendedFloatingActionButton(
-                            text = {
-                                Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text))
-                            },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                    contentDescription = stringResource(
-                                        id = R.string.grocery_lists_new_grocery_list_fab_content_description
-                                    ),
-                                    modifier = Modifier.size(24.dp)
+                    groceryListCount.ifLoaded {
+                        if (it > 0) {
+                            val defaultGroceryListName =
+                                stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
+                            ExtendedFloatingActionButton(
+                                text = { Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                        contentDescription = stringResource(
+                                            id = R.string.grocery_lists_new_grocery_list_fab_content_description
+                                        ),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                },
+                                onClick = {
+                                    viewModelState.createNewGroceryList(defaultGroceryListName)
+                                },
+                                modifier = Modifier.padding(
+                                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                                        .asPaddingValues()
                                 )
-                            },
-                            onClick = { viewModelState.createNewGroceryList(defaultGroceryListName) },
-                            modifier = Modifier.padding(
-                                WindowInsets.navigationBars.only(WindowInsetsSides.End)
-                                    .asPaddingValues()
                             )
-                        )
+                        }
                     }
                 }
                 CategoryList -> {
@@ -200,21 +214,12 @@ private fun MainContent(
                     }
                 }
             }
-
-            val createNewGroceryListResult = viewModelState.createNewGroceryListResultState
-            LaunchedEffect(createNewGroceryListResult) {
-                if (createNewGroceryListResult is LoadingState.Success) {
-                    navigateToEditGroceryList(createNewGroceryListResult.data)
-                    viewModelState.createNewGroceryListResultState = LoadingState.NotLoading()
-                }
-            }
         },
     ) {
         // (workaround) we use another nav host instead of nested navigation so we can separate the
         // transition animation.
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
-        val defaultGroceryListName = stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
         AnimatedNavHost(
             navController = bottomNavController,
             startDestination = BottomNavRoute,
@@ -236,9 +241,7 @@ private fun MainContent(
                 groceryListScreen(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    onCreateNewGroceryListClick = {
-                        viewModelState.createNewGroceryList(defaultGroceryListName)
-                    },
+                    mainBottomNavigationViewModelState = viewModelState,
                     navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(
@@ -276,7 +279,9 @@ private fun DefaultPreview() {
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
         override val groceryListCountFlow: StateFlow<LoadingState<Int>> =
             MutableStateFlow(LoadingState.Success(0))
-        override var createNewGroceryListResultState: LoadingState<GroceryListId> = LoadingState.NotLoading()
+        override var createNewGroceryListResultState: LoadingState<GroceryListId> =
+            LoadingState.NotLoading()
+
         override fun createNewGroceryList(groceryListName: String) {}
     }
 
