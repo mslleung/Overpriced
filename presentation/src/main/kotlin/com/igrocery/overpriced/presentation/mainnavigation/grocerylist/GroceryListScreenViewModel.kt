@@ -33,6 +33,7 @@ class GroceryListScreenViewModel @Inject constructor(
     ) {
         groceryListService.getAllGroceryListsWithItemCountPaging(
             onDataSourcesInvalidated = {
+                // TODO should we freeze update while a new grocery list is created?
                 invalidate()
             }
         )

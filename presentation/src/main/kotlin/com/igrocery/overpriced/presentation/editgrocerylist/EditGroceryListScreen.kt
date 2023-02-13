@@ -87,7 +87,7 @@ private fun MainContent(
                 scrollBehavior = topBarScrollBehavior,
             )
         },
-    ) {scaffoldPaddings ->
+    ) { scaffoldPaddings ->
         val groceryListItems = viewModelState.groceryListItemFlow.collectAsLazyPagingItems()
         if (groceryListItems.isInitialLoadCompleted()) {
             if (groceryListItems.itemCount == 0) {

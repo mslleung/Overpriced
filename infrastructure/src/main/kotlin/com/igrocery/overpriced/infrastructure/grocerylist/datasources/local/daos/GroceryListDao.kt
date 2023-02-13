@@ -19,7 +19,7 @@ internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
             FROM grocery_lists LEFT JOIN grocery_list_items 
                 ON grocery_lists.id = grocery_list_items.grocery_list_id
             GROUP BY grocery_lists.id
-            ORDER BY grocery_lists.update_timestamp
+            ORDER BY grocery_lists.update_timestamp DESC
             LIMIT :pageSize OFFSET :offset
         """
     )
