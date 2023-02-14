@@ -13,7 +13,7 @@ fun DiscardAlertDialog(
     onCancelButtonClick: () -> Unit
 ) {
     AlertDialog(
-        onDismissRequest = onConfirmButtonClick,
+        onDismissRequest = onCancelButtonClick,
         confirmButton = {
             TextButton(
                 onClick = onConfirmButtonClick

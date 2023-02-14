@@ -76,7 +76,7 @@ private fun MainContent(
                     )
                 },
                 title = {
-                    Text(text = stringResource(id = com.igrocery.overpriced.presentation.R.string.new_price_title))
+                    Text(text = stringResource(id = R.string.new_price_title))
                 },
                 actions = {
 //                    SaveButton(
