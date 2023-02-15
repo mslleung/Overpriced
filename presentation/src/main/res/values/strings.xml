@@ -131,8 +131,11 @@
     </plurals>
     <string name="grocery_lists_new_grocery_list_default_name">New Grocery List</string>
 
-    <string name="edit_grocery_list_name_dialog_confirm_button_text">Confirm</string>
-    <string name="edit_grocery_list_name_dialog_dismiss_button_text">Cancel</string>
+    <string name="grocery_list_name_dialog_new_title_text">New Grocery List</string>
+    <string name="grocery_list_name_dialog_edit_title_text">Edit Grocery List</string>
+    <string name="grocery_list_name_dialog_name_input_label_text">Grocery List Name</string>
+    <string name="grocery_list_name_dialog_confirm_button_text">Confirm</string>
+    <string name="grocery_list_name_dialog_dismiss_button_text">Cancel</string>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
