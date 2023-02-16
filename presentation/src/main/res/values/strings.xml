@@ -129,7 +129,7 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="grocery_lists_new_grocery_list_default_name">New Grocery List</string>
+    <string name="grocery_lists_new_grocery_list_default_name">Untitled List</string>
 
     <string name="grocery_list_name_dialog_new_title_text">New Grocery List</string>
     <string name="grocery_list_name_dialog_edit_title_text">Edit Grocery List</string>

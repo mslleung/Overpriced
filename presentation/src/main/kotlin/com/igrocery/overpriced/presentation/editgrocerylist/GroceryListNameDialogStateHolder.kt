@@ -6,31 +6,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import com.igrocery.overpriced.presentation.R
 
-class GroceryListNameDialogStateHolder(
-    defaultGroceryListName: String,
-    savedState: List<*>? = null
-) {
+class GroceryListNameDialogStateHolder(savedState: List<*>? = null) {
 
-    var groceryListName by mutableStateOf(savedState?.get(0) as? String ?: defaultGroceryListName)
+    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: false)
+    var groceryListName by mutableStateOf(savedState?.get(1) as? String ?: "")
 
 }
 
 @Composable
 fun rememberGroceryListNameDialogState(): MutableState<GroceryListNameDialogStateHolder> {
-    val defaultGroceryListName =
-        stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
     return rememberSaveable(
         stateSaver = listSaver(
             save = {
                 listOf(
+                    it.isRequestingFirstFocus,
                     it.groceryListName,
                 )
             },
             restore = { savedState ->
-                GroceryListNameDialogStateHolder(defaultGroceryListName, savedState)
+                GroceryListNameDialogStateHolder(savedState)
             }
         )
     ) {
-        mutableStateOf(GroceryListNameDialogStateHolder(defaultGroceryListName))
+        mutableStateOf(GroceryListNameDialogStateHolder())
     }
 }
