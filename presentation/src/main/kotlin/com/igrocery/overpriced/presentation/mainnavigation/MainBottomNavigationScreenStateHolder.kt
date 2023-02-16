@@ -12,6 +12,9 @@ class MainBottomNavigationScreenStateHolder(savedState: List<*>? = null) {
     var shouldShowFabForCategoryListScreen by mutableStateOf( // TODO
         savedState?.get(0) as? Boolean ?: true
     )
+
+    var isGroceryListNameDialogShown by mutableStateOf(savedState?.get(1) as? Boolean ?: false)
+
 }
 
 @Composable
@@ -19,7 +22,8 @@ fun rememberMainBottomNavigationScreenState() = rememberSaveable(
     stateSaver = listSaver(
         save = {
             listOf(
-                it.shouldShowFabForCategoryListScreen
+                it.shouldShowFabForCategoryListScreen,
+                it.isGroceryListNameDialogShown
             )
         },
         restore = { savedState ->

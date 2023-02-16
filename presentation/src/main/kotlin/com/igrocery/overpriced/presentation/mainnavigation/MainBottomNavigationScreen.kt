@@ -20,6 +20,8 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.editgrocerylist.NewGroceryListNameDialog
+import com.igrocery.overpriced.presentation.editgrocerylist.rememberGroceryListNameDialogState
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.CategoryList
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.categoryListScreen
 import com.igrocery.overpriced.presentation.mainnavigation.categorylist.navigateToCategoryListScreen
@@ -62,6 +64,20 @@ fun MainBottomNavigationScreen(
         navigateToSearchProduct = navigateToSearchProduct,
         navigateToProductList = navigateToProductList
     )
+
+    if (state.isGroceryListNameDialogShown) {
+        val groceryListNameDialogState by rememberGroceryListNameDialogState()
+        NewGroceryListNameDialog(
+            state = groceryListNameDialogState,
+            onConfirm = {
+                state.isGroceryListNameDialogShown = false
+                mainBottomNavigationScreenViewModel.createNewGroceryList(
+                    groceryListNameDialogState.groceryListName
+                )
+            },
+            onDismiss = { state.isGroceryListNameDialogShown = false }
+        )
+    }
 
     val createNewGroceryListResult =
         mainBottomNavigationScreenViewModel.createNewGroceryListResultState
@@ -166,8 +182,6 @@ private fun MainContent(
                 GroceryList -> {
                     groceryListCount.ifLoaded {
                         if (it > 0) {
-                            val defaultGroceryListName =
-                                stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
                             ExtendedFloatingActionButton(
                                 text = { Text(text = stringResource(id = R.string.grocery_lists_new_grocery_list_fab_text)) },
                                 icon = {
@@ -180,7 +194,7 @@ private fun MainContent(
                                     )
                                 },
                                 onClick = {
-                                    viewModelState.createNewGroceryList(defaultGroceryListName)
+                                    state.isGroceryListNameDialogShown = true
                                 },
                                 modifier = Modifier.padding(
                                     WindowInsets.navigationBars.only(WindowInsetsSides.End)
@@ -241,7 +255,7 @@ private fun MainContent(
                 groceryListScreen(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    mainBottomNavigationViewModelState = viewModelState,
+                    mainBottomNavigationState = state,
                     navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(

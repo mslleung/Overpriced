@@ -28,6 +28,7 @@ import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModelState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
@@ -45,22 +46,20 @@ private val log = Logger { }
 @Composable
 fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
-    mainBottomNavigationViewModelState: MainBottomNavigationScreenViewModelState,
+    mainBottomNavigationState: MainBottomNavigationScreenStateHolder,
     groceryListScreenViewModel: GroceryListScreenViewModel,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing GroceryListScreen")
 
-    val defaultGroceryListName =
-        stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
     val state by rememberGroceryListScreenState()
     MainContent(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
         onNewGroceryListClick = {
-            mainBottomNavigationViewModelState.createNewGroceryList(defaultGroceryListName)
+            mainBottomNavigationState.isGroceryListNameDialogShown = true
         },
         onGroceryListClick = navigateToEditGroceryList,
         modifier = modifier
