@@ -4,7 +4,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -61,13 +65,15 @@ private fun GroceryListNameDialog(
             Text(text = title)
         },
         text = {
+            val focusRequester = remember { FocusRequester() }
             OutlinedTextField(
                 value = state.groceryListName,
                 onValueChange = {
                     state.groceryListName = it.take(100)
                 },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
                 singleLine = true,
                 label = {
                     Text(text = stringResource(id = R.string.grocery_list_name_dialog_name_input_label_text))
@@ -77,6 +83,13 @@ private fun GroceryListNameDialog(
                     imeAction = ImeAction.Done
                 ),
             )
+
+            if (state.isRequestingFirstFocus) {
+                state.isRequestingFirstFocus = false
+                LaunchedEffect(key1 = Unit) {
+                    focusRequester.requestFocus()
+                }
+            }
         },
         modifier = modifier
     )
