@@ -11,7 +11,7 @@ class GroceryListNameDialogStateHolder(
     savedState: List<*>? = null
 ) {
 
-    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: false)
+    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
     var groceryListName by mutableStateOf(savedState?.get(1) as? String ?: defaultGroceryListName)
 
 }
