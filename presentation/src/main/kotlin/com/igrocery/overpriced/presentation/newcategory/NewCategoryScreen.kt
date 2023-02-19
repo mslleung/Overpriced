@@ -258,9 +258,10 @@ private fun DefaultPreview() {
         override val createCategoryResult: LoadingState<CategoryId> = LoadingState.NotLoading()
     }
 
+    val state by rememberNewCategoryScreenState()
     MainLayout(
         viewModelState = viewModelState,
-        state = NewCategoryScreenStateHolder(),
+        state = state,
         onBackButtonClick = {},
         onSaveButtonClick = {}
     )

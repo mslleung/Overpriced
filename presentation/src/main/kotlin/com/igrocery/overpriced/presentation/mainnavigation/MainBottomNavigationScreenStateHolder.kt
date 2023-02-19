@@ -3,33 +3,49 @@ package com.igrocery.overpriced.presentation.mainnavigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-class MainBottomNavigationScreenStateHolder(savedState: List<*>? = null) {
+class MainBottomNavigationScreenStateHolder(
+    shouldShowFabForCategoryListScreen: Boolean,
+    isGroceryListNameDialogShown: Boolean
+) {
 
-    var shouldShowFabForCategoryListScreen by mutableStateOf( // TODO
-        savedState?.get(0) as? Boolean ?: true
-    )
+    var shouldShowFabForCategoryListScreen by mutableStateOf(shouldShowFabForCategoryListScreen)
 
-    var isGroceryListNameDialogShown by mutableStateOf(savedState?.get(1) as? Boolean ?: false)
+    var isGroceryListNameDialogShown by mutableStateOf(isGroceryListNameDialogShown)
 
+    companion object {
+        fun Saver() = listSaver(
+            save = {
+                listOf(
+                    it.shouldShowFabForCategoryListScreen,
+                    it.isGroceryListNameDialogShown
+                )
+            },
+            restore = {
+                MainBottomNavigationScreenStateHolder(
+                    it[0] as Boolean,
+                    it[1] as Boolean,
+                )
+            }
+        )
+    }
 }
 
 @Composable
 fun rememberMainBottomNavigationScreenState() = rememberSaveable(
-    stateSaver = listSaver(
-        save = {
-            listOf(
-                it.shouldShowFabForCategoryListScreen,
-                it.isGroceryListNameDialogShown
-            )
-        },
-        restore = { savedState ->
-            MainBottomNavigationScreenStateHolder(savedState)
-        }
+    stateSaver = Saver(
+        save = { with(MainBottomNavigationScreenStateHolder.Saver()) { save(it) } },
+        restore = { value -> with(MainBottomNavigationScreenStateHolder.Saver()) { restore(value)!! } }
     )
 ) {
-    mutableStateOf(MainBottomNavigationScreenStateHolder())
+    mutableStateOf(
+        MainBottomNavigationScreenStateHolder(
+            shouldShowFabForCategoryListScreen = true, // TODO
+            isGroceryListNameDialogShown = false
+        )
+    )
 }

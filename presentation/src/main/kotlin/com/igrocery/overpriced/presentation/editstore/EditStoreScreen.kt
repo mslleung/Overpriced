@@ -97,8 +97,8 @@ fun EditStoreScreen(
 
         if (state.isSaveDialogShown) {
             val saveDialogState by rememberSaveAlertDialogState(
-                initialStoreName = store.name,
-                initialAddress = storeMapState.address
+                storeName = store.name,
+                address = storeMapState.address
             )
             SaveAlertDialog(
                 state = saveDialogState,
@@ -257,10 +257,12 @@ private fun DefaultPreview() {
             get() = LoadingState.NotLoading()
     }
 
+    val state by rememberEditStoreScreenState()
+
     MainContent(
         viewModelState = viewModelState,
         snackbarHostState = SnackbarHostState(),
-        state = EditStoreScreenStateHolder(),
+        state = state,
         storeMapState = StoreGoogleMapStateHolder(LocalContext.current),
         onBackButtonClick = {},
         onDeleteButtonClick = {},

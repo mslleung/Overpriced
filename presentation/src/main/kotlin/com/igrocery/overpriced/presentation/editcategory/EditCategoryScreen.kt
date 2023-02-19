@@ -178,9 +178,10 @@ private fun DefaultPreview() {
         override val updateCategoryResult: LoadingState<Unit> = LoadingState.NotLoading()
     }
 
+    val state by rememberEditCategoryScreenState()
     MainLayout(
         viewModelState = viewModelState,
-        state = EditCategoryScreenStateHolder(),
+        state = state,
         onBackButtonClick = {},
         onDeleteButtonClick = {},
         onSaveButtonClick = {},

@@ -72,7 +72,7 @@ fun MainBottomNavigationScreen(
             onConfirm = {
                 state.isGroceryListNameDialogShown = false
                 mainBottomNavigationScreenViewModel.createNewGroceryList(
-                    groceryListNameDialogState.groceryListName
+                    groceryListNameDialogState.groceryListName.text
                 )
             },
             onDismiss = { state.isGroceryListNameDialogShown = false }
@@ -299,10 +299,11 @@ private fun DefaultPreview() {
         override fun createNewGroceryList(groceryListName: String) {}
     }
 
+    val state by rememberMainBottomNavigationScreenState()
     MainContent(
         bottomNavController = bottomNavController,
         viewModelState = viewModelState,
-        state = MainBottomNavigationScreenStateHolder(),
+        state = state,
         navigateToSettings = {},
         navigateToEditGroceryList = {},
         navigateToNewPrice = {},

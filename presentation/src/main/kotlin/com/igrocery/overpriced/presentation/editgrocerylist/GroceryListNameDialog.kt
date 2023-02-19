@@ -69,7 +69,7 @@ private fun GroceryListNameDialog(
             OutlinedTextField(
                 value = state.groceryListName,
                 onValueChange = {
-                    state.groceryListName = it.take(100)
+                    state.groceryListName = it.copy(text = it.text.take(100))
                 },
                 modifier = Modifier
                     .fillMaxWidth()

@@ -50,8 +50,8 @@ fun NewStoreScreen(
 
     if (state.isSaveDialogShown) {
         val saveDialogState by rememberSaveAlertDialogState(
-            initialStoreName = "",
-            initialAddress = storeMapState.address
+            storeName = "",
+            address = storeMapState.address
         )
         SaveAlertDialog(
             state = saveDialogState,
@@ -161,9 +161,10 @@ private fun MainContent(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val state by rememberNewStoreScreenState()
     MainContent(
         snackbarHostState = SnackbarHostState(),
-        state = NewStoreScreenStateHolder(),
+        state = state,
         storeMapState = StoreGoogleMapStateHolder(LocalContext.current),
         onCameraPositionChanged = { },
         onBackButtonClick = { },

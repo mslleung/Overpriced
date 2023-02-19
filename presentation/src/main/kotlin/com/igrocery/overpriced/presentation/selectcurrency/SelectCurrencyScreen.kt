@@ -215,9 +215,10 @@ private fun DefaultPreview() {
             get() = MutableStateFlow(LoadingState.Loading())
     }
 
+    val state by rememberSelectCurrencyScreenState()
     MainContent(
         viewModelState = viewModelState,
-        state = SelectCurrencyScreenStateHolder(),
+        state = state,
         onBackButtonClick = {},
         onCurrencyRowClick = {}
     )

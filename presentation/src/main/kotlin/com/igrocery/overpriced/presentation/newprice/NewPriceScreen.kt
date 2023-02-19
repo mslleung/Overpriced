@@ -833,13 +833,14 @@ private fun DefaultPreview() {
         )
     ).collectAsLazyPagingItems()
 
+    val state by rememberNewPriceScreenState(
+        SavedStateHandle(),
+        rememberCoroutineScope(),
+        viewModelState
+    )
     MainLayout(
         viewModelState = viewModelState,
-        state = NewPriceScreenStateHolder(
-            SavedStateHandle(),
-            rememberCoroutineScope(),
-            viewModelState
-        ),
+        state = state,
         snackbarHostState = SnackbarHostState(),
         productSuggestionsPagingItems = productsPagingItems,
         onCloseButtonClick = {},

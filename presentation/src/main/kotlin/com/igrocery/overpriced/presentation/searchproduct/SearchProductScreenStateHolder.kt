@@ -1,39 +1,49 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 
 class SearchProductScreenStateHolder(
-    savedState: List<*>? = null,
-    val productPagingItems: LazyPagingItems<ProductWithMinMaxPrices>
+    isRequestingFirstFocus: Boolean,
+    query: String
 ) {
 
-    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
-    var query by mutableStateOf(savedState?.get(1) as? String ?: "")
+    var isRequestingFirstFocus by mutableStateOf(isRequestingFirstFocus)
+    var query by mutableStateOf(query)
 
-}
-
-@Composable
-fun rememberSearchProductScreenState(viewModelState: SearchProductScreenViewModelState): MutableState<SearchProductScreenStateHolder> {
-    val productPagingItems =
-        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
-    return rememberSaveable(
-        stateSaver = listSaver(
+    companion object {
+        fun Saver() = listSaver(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
                     it.query,
                 )
             },
-            restore = { savedState ->
-                SearchProductScreenStateHolder(savedState, productPagingItems)
+            restore = {
+                SearchProductScreenStateHolder(
+                    it[0] as Boolean,
+                    it[1] as String,
+                )
             }
         )
+    }
+}
+
+@Composable
+fun rememberSearchProductScreenState(): MutableState<SearchProductScreenStateHolder> {
+    return rememberSaveable(
+        stateSaver = Saver(
+            save = { with(SearchProductScreenStateHolder.Saver()) { save(it) } },
+            restore = { value -> with(SearchProductScreenStateHolder.Saver()) { restore(value)!! } }
+        )
     ) {
-        mutableStateOf(SearchProductScreenStateHolder(null, productPagingItems))
+        mutableStateOf(
+            SearchProductScreenStateHolder(
+                isRequestingFirstFocus = true,
+                query = ""
+            )
+        )
     }
 }

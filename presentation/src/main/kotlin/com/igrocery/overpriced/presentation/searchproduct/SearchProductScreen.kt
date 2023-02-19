@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
@@ -48,27 +50,24 @@ fun SearchProductScreen(
 ) {
     log.debug("Composing SearchProductScreen")
 
-    val state by rememberSearchProductScreenState(viewModel)
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModel.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModel,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
             state.isRequestingFirstFocus = false
         },
         onQueryChanged = {
             state.query = it.take(100)
+            viewModel.query = state.query
+            productPagingItems.refresh()
         },
         onProductClick = navigateToProductDetails,
     )
-
-    LaunchedEffect(key1 = state) {
-        snapshotFlow { state.query }
-            .collect {
-                viewModel.query = it
-                state.productPagingItems.refresh()
-            }
-    }
 
     BackHandler {
         log.debug("SearchProductScreen: BackHandler")
@@ -85,6 +84,7 @@ fun SearchProductScreen(
 private fun MainContent(
     viewModelState: SearchProductScreenViewModelState,
     state: SearchProductScreenStateHolder,
+    productPagingItems: LazyPagingItems<ProductWithMinMaxPrices>,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
@@ -162,7 +162,7 @@ private fun MainContent(
         },
         contentWindowInsets = WindowInsets.safeDrawing
     ) {
-        if (state.productPagingItems.itemCount == 0) {
+        if (productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
@@ -177,7 +177,7 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = state.productPagingItems,
+                    items = productPagingItems,
                     key = { item -> item.product.id }
                 ) { item ->
                     if (item != null) {
@@ -238,15 +238,18 @@ private fun EmptyPreview() {
         override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = emptyFlow()
     }
-    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
+
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
-        onProductClick = {},
-    )
+    ) {}
 }
 
 @Preview
@@ -260,7 +263,11 @@ private fun DefaultPreview() {
                 PagingData.from(
                     listOf(
                         ProductWithMinMaxPrices(
-                            product = Product(name = "Apple", description = "Fuji", categoryId = null),
+                            product = Product(
+                                name = "Apple",
+                                description = "Fuji",
+                                categoryId = null
+                            ),
                             minPrice = 5.0,
                             maxPrice = 8.0,
                             lastUpdatedTimestamp = 1668651806992000L
@@ -269,13 +276,15 @@ private fun DefaultPreview() {
                 )
             )
     }
-    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
-        onProductClick = {},
-    )
+    ) {}
 }

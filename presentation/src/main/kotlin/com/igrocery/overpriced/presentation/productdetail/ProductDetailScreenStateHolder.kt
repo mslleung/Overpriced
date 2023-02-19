@@ -1,29 +1,34 @@
 package com.igrocery.overpriced.presentation.productdetail
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 
-class ProductDetailScreenStateHolder(savedState: List<*>? = null) {
+class ProductDetailScreenStateHolder() {
 
-//    var isLazyListPagingFirstLoad by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
+    companion object {
+        fun Saver() = listSaver(
+            save = {
+                listOf(
+                    false
+                )
+            },
+            restore = {
+                ProductDetailScreenStateHolder(
 
+                )
+            }
+        )
+    }
 }
 
 @Composable
 fun rememberProductDetailScreenState() = rememberSaveable(
-    stateSaver = listSaver(
-        save = {
-            listOf(
-                false,
-            )
-        },
-        restore = { savedState ->
-            ProductDetailScreenStateHolder(savedState)
-        }
+    stateSaver = Saver(
+        save = { with(ProductDetailScreenStateHolder.Saver()) { save(it) } },
+        restore = { value -> with(ProductDetailScreenStateHolder.Saver()) { restore(value)!! } }
     )
 ) {
     mutableStateOf(ProductDetailScreenStateHolder())
