@@ -17,6 +17,13 @@ class GroceryListNameDialogStateHolder(
     var isRequestingFirstFocus by mutableStateOf(isRequestingFirstFocus)
     var groceryListName by mutableStateOf(groceryListName)
 
+    enum class ErrorState {
+        None,
+        ErrorNameCannotBeBlank
+    }
+
+    var errorState by mutableStateOf(ErrorState.None)
+
     companion object {
         fun Saver() = listSaver(
             save = {

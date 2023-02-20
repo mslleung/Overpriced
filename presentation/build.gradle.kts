@@ -149,7 +149,7 @@ dependencies {
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.10.0")
+    implementation("com.google.maps.android:maps-compose:2.11.0")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")

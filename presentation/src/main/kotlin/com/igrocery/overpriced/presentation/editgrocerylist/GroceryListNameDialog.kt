@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -49,7 +50,14 @@ private fun GroceryListNameDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = onConfirm
+                onClick = {
+                    if (state.groceryListName.text.isBlank()) {
+                        state.errorState = GroceryListNameDialogStateHolder.ErrorState.ErrorNameCannotBeBlank
+                    } else {
+                        state.errorState = GroceryListNameDialogStateHolder.ErrorState.ErrorNameCannotBeBlank
+                        onConfirm()
+                    }
+                }
             ) {
                 Text(text = stringResource(id = R.string.grocery_list_name_dialog_confirm_button_text))
             }
@@ -65,29 +73,35 @@ private fun GroceryListNameDialog(
             Text(text = title)
         },
         text = {
-            val focusRequester = remember { FocusRequester() }
-            OutlinedTextField(
-                value = state.groceryListName,
-                onValueChange = {
-                    state.groceryListName = it.copy(text = it.text.take(100))
-                },
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
-                singleLine = true,
-                label = {
-                    Text(text = stringResource(id = R.string.grocery_list_name_dialog_name_input_label_text))
-                },
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
-                ),
-            )
+            ) {
+                val focusRequester = remember { FocusRequester() }
+                OutlinedTextField(
+                    value = state.groceryListName,
+                    onValueChange = {
+                        state.groceryListName = it.copy(text = it.text.take(100))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    singleLine = true,
+                    label = {
+                        Text(text = stringResource(id = R.string.grocery_list_name_dialog_name_input_label_text))
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done
+                    ),
+                    isError = state.errorState != GroceryListNameDialogStateHolder.ErrorState.None
+                )
 
-            if (state.isRequestingFirstFocus) {
-                state.isRequestingFirstFocus = false
-                LaunchedEffect(key1 = Unit) {
-                    focusRequester.requestFocus()
+                if (state.isRequestingFirstFocus) {
+                    state.isRequestingFirstFocus = false
+                    LaunchedEffect(key1 = Unit) {
+                        focusRequester.requestFocus()
+                    }
                 }
             }
         },
