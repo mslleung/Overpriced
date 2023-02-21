@@ -7,11 +7,18 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 class MainBottomNavigationScreenStateHolder(
     shouldShowFabForCategoryListScreen: Boolean,
     isGroceryListNameDialogShown: Boolean
 ) {
+    init {
+        log.error("create")
+    }
 
     var shouldShowFabForCategoryListScreen by mutableStateOf(shouldShowFabForCategoryListScreen)
 

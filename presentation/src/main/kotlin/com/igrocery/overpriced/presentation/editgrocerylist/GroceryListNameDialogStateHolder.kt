@@ -29,7 +29,7 @@ class GroceryListNameDialogStateHolder(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
-                    it.groceryListName,
+                    with(TextFieldValue.Saver) { save(it.groceryListName) },
                 )
             },
             restore = {
