@@ -14,6 +14,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.editgrocerylist.GroceryListNameDialogStateHolder.ErrorState
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Composable
 fun NewGroceryListNameDialog(
@@ -52,9 +57,9 @@ private fun GroceryListNameDialog(
             TextButton(
                 onClick = {
                     if (state.groceryListName.text.isBlank()) {
-                        state.errorState = GroceryListNameDialogStateHolder.ErrorState.ErrorNameCannotBeBlank
+                        state.errorState = ErrorState.ErrorNameCannotBeBlank
                     } else {
-                        state.errorState = GroceryListNameDialogStateHolder.ErrorState.ErrorNameCannotBeBlank
+                        state.errorState = ErrorState.None
                         onConfirm()
                     }
                 }
@@ -94,8 +99,15 @@ private fun GroceryListNameDialog(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Done
                     ),
-                    isError = state.errorState != GroceryListNameDialogStateHolder.ErrorState.None
+                    isError = state.errorState != ErrorState.None
                 )
+                if (state.errorState == ErrorState.ErrorNameCannotBeBlank) {
+                    Text(
+                        text = stringResource(id = R.string.grocery_list_name_dialog_empty_name_error_text),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
 
                 if (state.isRequestingFirstFocus) {
                     state.isRequestingFirstFocus = false

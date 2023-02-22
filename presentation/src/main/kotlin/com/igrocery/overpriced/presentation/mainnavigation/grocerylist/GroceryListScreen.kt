@@ -29,7 +29,6 @@ import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
-import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModelState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted

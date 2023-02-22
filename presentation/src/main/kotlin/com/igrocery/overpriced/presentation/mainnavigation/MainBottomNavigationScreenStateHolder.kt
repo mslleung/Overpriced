@@ -16,9 +16,6 @@ class MainBottomNavigationScreenStateHolder(
     shouldShowFabForCategoryListScreen: Boolean,
     isGroceryListNameDialogShown: Boolean
 ) {
-    init {
-        log.error("create")
-    }
 
     var shouldShowFabForCategoryListScreen by mutableStateOf(shouldShowFabForCategoryListScreen)
 
