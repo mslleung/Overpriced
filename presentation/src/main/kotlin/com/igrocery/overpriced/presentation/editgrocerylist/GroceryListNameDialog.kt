@@ -55,14 +55,8 @@ private fun GroceryListNameDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = {
-                    if (state.groceryListName.text.isBlank()) {
-                        state.errorState = ErrorState.ErrorNameCannotBeBlank
-                    } else {
-                        state.errorState = ErrorState.None
-                        onConfirm()
-                    }
-                }
+                onClick = onConfirm,
+                enabled = state.groceryListName.text.isNotBlank()
             ) {
                 Text(text = stringResource(id = R.string.grocery_list_name_dialog_confirm_button_text))
             }
@@ -101,13 +95,6 @@ private fun GroceryListNameDialog(
                     ),
                     isError = state.errorState != ErrorState.None
                 )
-                if (state.errorState == ErrorState.ErrorNameCannotBeBlank) {
-                    Text(
-                        text = stringResource(id = R.string.grocery_list_name_dialog_empty_name_error_text),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
 
                 if (state.isRequestingFirstFocus) {
                     state.isRequestingFirstFocus = false
