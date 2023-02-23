@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.mainnavigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
@@ -86,6 +87,13 @@ fun MainBottomNavigationScreen(
             navigateToEditGroceryList(createNewGroceryListResult.data)
             mainBottomNavigationScreenViewModel.createNewGroceryListResultState =
                 LoadingState.NotLoading()
+        }
+    }
+
+    BackHandler(enabled = state.isGroceryListNameDialogShown) {
+        log.debug("MainBottomNavigationScreen: BackHandler")
+        if (state.isGroceryListNameDialogShown) {
+            state.isGroceryListNameDialogShown = false
         }
     }
 }
