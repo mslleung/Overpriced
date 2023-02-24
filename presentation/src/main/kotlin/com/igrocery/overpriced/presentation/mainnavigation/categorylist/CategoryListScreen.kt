@@ -111,9 +111,19 @@ private fun MainContent(
                         items = it.filter { categoryWithCount -> categoryWithCount.productCount > 0 },
                         key = { categoryWithCount -> categoryWithCount.category?.id ?: 0 }
                     ) { categoryWithCount ->
-                        CategoryWithCountListItem(
-                            categoryWithCount = categoryWithCount,
-                            onClick = onCategoryClick,
+                        categoryWithCount.category?.let { category ->
+                            CategoryWithCountListItem(
+                                category = category,
+                                productCount = categoryWithCount.productCount,
+                                onClick = { onCategoryClick(category.id) },
+                                modifier = Modifier
+                                    .animateItemPlacement()
+                                    .fillMaxWidth()
+                            )
+                        } ?: CategoryWithCountListItem(
+                            category = NoCategory,
+                            productCount = categoryWithCount.productCount,
+                            onClick = { onCategoryClick(null) },
                             modifier = Modifier
                                 .animateItemPlacement()
                                 .fillMaxWidth()
@@ -197,15 +207,13 @@ private fun SearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoryWithCountListItem(
-    categoryWithCount: CategoryWithProductCount,
-    onClick: (CategoryId?) -> Unit,
+    category: Category,
+    productCount: Int,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val category = categoryWithCount.category ?: NoCategory
-    val productCount = categoryWithCount.productCount
-
     Card(
-        onClick = { onClick(category.id) },
+        onClick = onClick,
         modifier = modifier
     ) {
         Row(
@@ -288,7 +296,11 @@ private fun DefaultPreview() {
             productCount = 10
         ),
         CategoryWithProductCount(
-            category = Category(id = CategoryId(2), icon = CategoryIcon.Carrot, name = "Vegetables"),
+            category = Category(
+                id = CategoryId(2),
+                icon = CategoryIcon.Carrot,
+                name = "Vegetables"
+            ),
             productCount = 500
         ),
         CategoryWithProductCount(
