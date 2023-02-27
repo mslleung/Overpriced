@@ -29,9 +29,9 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface NewPriceScreenViewModelState {
+    val productFlow: StateFlow<LoadingState<Product?>>
     val categoryFlow: StateFlow<LoadingState<Category?>>
     val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
-    val storesCountFlow: StateFlow<LoadingState<Int>>
     val storeFlow: StateFlow<LoadingState<Store?>>
 
     val submitResultState: LoadingState<Unit>
@@ -52,8 +52,19 @@ class NewPriceScreenViewModel @Inject constructor(
 
     private val args = NewPriceScreenArgs(savedStateHandle)
 
-    override var categoryFlow: StateFlow<LoadingState<Category?>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Category?>>(LoadingState.NotLoading()))
+    override val productFlow: StateFlow<LoadingState<Product?>> =
+        args.productId?.let { productId ->
+            productService.getProduct(productId)
+                .map { LoadingState.Success(it) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(),
+                    initialValue = LoadingState.Loading()
+                )
+        } ?: MutableStateFlow<LoadingState<Product?>>(LoadingState.Success(null))
+
+    override var categoryFlow: StateFlow<LoadingState<Category?>> =
+        MutableStateFlow<LoadingState<Category?>>(LoadingState.NotLoading())
         private set
 
     override val preferredCurrencyFlow = preferenceService.getAppPreference()
@@ -66,18 +77,8 @@ class NewPriceScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    override val storesCountFlow = storeService.getStoreCount()
-        .map {
-            LoadingState.Success(it)
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = LoadingState.Loading()
-        )
-
-    override var storeFlow: StateFlow<LoadingState<Store?>>
-            by mutableStateOf(MutableStateFlow<LoadingState<Store?>>(LoadingState.NotLoading()))
+    override var storeFlow: StateFlow<LoadingState<Store?>> =
+        MutableStateFlow<LoadingState<Store?>>(LoadingState.NotLoading())
         private set
 
     override var submitResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())

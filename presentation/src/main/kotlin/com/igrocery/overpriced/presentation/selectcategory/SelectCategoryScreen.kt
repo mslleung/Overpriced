@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newprice
+package com.igrocery.overpriced.presentation.selectcategory
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -25,8 +25,8 @@ import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
 
 @Composable
-fun SelectCategoryDialog(
-    viewModel: SelectCategoryDialogViewModel,
+fun SelectCategoryScreen(
+    viewModel: SelectCategoryScreenViewModel,
     selectedCategoryId: CategoryId?,
     onDismiss: () -> Unit,
     onCategorySelect: (Category) -> Unit,

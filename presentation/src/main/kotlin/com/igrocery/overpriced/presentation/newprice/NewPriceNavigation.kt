@@ -12,8 +12,8 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 
 private const val NewPrice = "newPrice"
-const val NewPrice_Arg_ProductId = "productId"
-const val NewPrice_Arg_CategoryId = "categoryId"
+private const val NewPrice_Arg_ProductId = "productId"
+private const val NewPrice_Arg_CategoryId = "categoryId"
 private const val NewPrice_With_Args =
     "$NewPrice?$NewPrice_Arg_ProductId={$NewPrice_Arg_ProductId}?$NewPrice_Arg_CategoryId={$NewPrice_Arg_CategoryId}"
 
@@ -37,10 +37,8 @@ fun NavController.navigateToNewPriceScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.newPriceScreen(
     navigateUp: () -> Unit,
-    navigateToNewCategory: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
-    navigateToNewStore: () -> Unit,
-    navigateToEditStore: (StoreId) -> Unit,
+    navigateToSelectCategory: (CategoryId?) -> Unit,
+    navigateToSelectStore: (StoreId?) -> Unit,
 ) {
     composable(
         NewPrice_With_Args,
@@ -57,19 +55,19 @@ fun NavGraphBuilder.newPriceScreen(
     ) { backStackEntry ->
         val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
 
+        val args = NewPriceScreenArgs(backStackEntry)
+
         NewPriceScreen(
-            savedStateHandle = backStackEntry.savedStateHandle,
+            args = args,
             newPriceScreenViewModel = newPriceViewModel,
             navigateUp = navigateUp,
-            navigateToNewCategory = navigateToNewCategory,
-            navigateToEditCategory = navigateToEditCategory,
-            navigateToNewStore = navigateToNewStore,
-            navigateToEditStore = navigateToEditStore,
+            navigateToSelectCategory = navigateToSelectCategory,
+            navigateToSelectStore = navigateToSelectStore,
         )
     }
 }
 
-internal class NewPriceScreenArgs(
+class NewPriceScreenArgs(
     val productId: ProductId?,
     val categoryId: CategoryId?
 ) {

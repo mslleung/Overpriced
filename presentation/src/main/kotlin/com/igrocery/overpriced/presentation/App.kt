@@ -33,6 +33,7 @@ import com.igrocery.overpriced.presentation.productlist.navigateToProductListScr
 import com.igrocery.overpriced.presentation.productlist.productListScreen
 import com.igrocery.overpriced.presentation.searchproduct.navigateToSearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.searchProductScreen
+import com.igrocery.overpriced.presentation.selectcategory.navigateToSelectCategoryScreen
 import com.igrocery.overpriced.presentation.selectcurrency.navigateToSelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.selectCurrencyScreen
 import com.igrocery.overpriced.presentation.settings.*
@@ -124,10 +125,8 @@ private fun NavGraphBuilder.navGraph(
     )
     newPriceScreen(
         navigateUp = { navController.navigateUp() },
-        navigateToNewCategory = { navController.navigateToNewCategoryScreen() },
-        navigateToEditCategory = { navController.navigateToEditCategoryScreen(it.id) },
-        navigateToNewStore = { navController.navigateToNewStoreScreen() },
-        navigateToEditStore = { navController.navigateToEditStoreScreen(it) },
+        navigateToSelectCategory = { navController.navigateToSelectCategoryScreen(it) },
+        navigateToSelectStore = { navController.navigateToNewStoreScreen() },
     )
     newCategoryScreen(
         navigateUp = { navController.navigateUp() },

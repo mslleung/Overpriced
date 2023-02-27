@@ -142,8 +142,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
     // glide
-    implementation("com.github.bumptech.glide:glide:4.14.2")
-    kapt("com.github.bumptech.glide:compiler:4.14.2")
+    implementation("com.github.bumptech.glide:glide:4.15.0")
+    kapt("com.github.bumptech.glide:compiler:4.15.0")
     implementation("com.github.skydoves:landscapist-glide:2.1.3")
 
     // google play services

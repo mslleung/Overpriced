@@ -36,8 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -62,28 +60,25 @@ private val log = Logger { }
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun NewPriceScreen(
-    savedStateHandle: SavedStateHandle,
+    args: NewPriceScreenArgs,
     newPriceScreenViewModel: NewPriceScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToNewCategory: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
-    navigateToNewStore: () -> Unit,
-    navigateToEditStore: (StoreId) -> Unit,
+    navigateToSelectCategory: (CategoryId?) -> Unit,
+    navigateToSelectStore: (StoreId?) -> Unit,
 ) {
     log.debug("Composing NewPriceScreen")
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val coroutineScope = rememberCoroutineScope()
-    val state by rememberNewPriceScreenState(
-        savedStateHandle,
-        coroutineScope,
-        newPriceScreenViewModel
-    )
+    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel)
+    LaunchedEffect(Unit) {
+        newPriceScreenViewModel.productFlow.collect {
+            // TODO state should have an isEdit mode?
+        }
+    }
     val productSuggestionsPagingItems =
         newPriceScreenViewModel.suggestedProductsPagingDataFlow.collectAsLazyPagingItems()
-    val storesCount by newPriceScreenViewModel.storesCountFlow.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     MainLayout(
         viewModelState = newPriceScreenViewModel,
@@ -145,66 +140,57 @@ fun NewPriceScreen(
         },
         onCategoryClick = {
             keyboardController?.hide()
-            state.isSelectCategoryDialogShown = true
+            navigateToSelectCategory(state.productCategoryId)
         },
         onStoreButtonClick = {
             keyboardController?.hide()
-            storesCount.let {
-                if (it is LoadingState.Success) {
-                    if (it.data == 0) {
-                        keyboardController?.hide()
-                        navigateToNewStore()
-                    } else {
-                        state.isSelectStoreDialogShown = true
-                    }
-                }
-            }
+            navigateToSelectStore(state.priceStoreId)
         },
     )
 
-    if (state.isSelectCategoryDialogShown) {
-        val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
-        SelectCategoryDialog(
-            viewModel = selectCategoryDialogViewModel,
-            selectedCategoryId = state.productCategoryId,
-            onDismiss = { state.isSelectCategoryDialogShown = false },
-            onCategorySelect = {
-                state.isSelectCategoryDialogShown = false
-                state.productCategoryId = it.id
-            },
-            onEditCategoryClick = {
-                state.isSelectCategoryDialogShown = false
-                navigateToEditCategory(it)
-            },
-            onNewCategoryClick = {
-                state.isSelectCategoryDialogShown = false
-                navigateToNewCategory()
-            },
-        )
-    }
+//    if (state.isSelectCategoryDialogShown) {
+//        val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
+//        SelectCategoryDialog(
+//            viewModel = selectCategoryDialogViewModel,
+//            selectedCategoryId = state.productCategoryId,
+//            onDismiss = { state.isSelectCategoryDialogShown = false },
+//            onCategorySelect = {
+//                state.isSelectCategoryDialogShown = false
+//                state.productCategoryId = it.id
+//            },
+//            onEditCategoryClick = {
+//                state.isSelectCategoryDialogShown = false
+//                navigateToEditCategory(it)
+//            },
+//            onNewCategoryClick = {
+//                state.isSelectCategoryDialogShown = false
+//                navigateToNewCategory()
+//            },
+//        )
+//    }
 
-    if (state.isSelectStoreDialogShown) {
-        val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
-        SelectStoreDialog(
-            viewModel = selectStoreDialogViewModel,
-            selectedStoreId = state.priceStoreId,
-            onDismiss = { state.isSelectStoreDialogShown = false },
-            onStoreSelect = {
-                state.isSelectStoreDialogShown = false
-                state.priceStoreId = it.id
-            },
-            onEditStoreClick = {
-                state.isSelectStoreDialogShown = false
-                keyboardController?.hide()
-                navigateToEditStore(it.id)
-            },
-            onNewStoreClick = {
-                state.isSelectStoreDialogShown = false
-                keyboardController?.hide()
-                navigateToNewStore()
-            },
-        )
-    }
+//    if (state.isSelectStoreDialogShown) {
+//        val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
+//        SelectStoreDialog(
+//            viewModel = selectStoreDialogViewModel,
+//            selectedStoreId = state.priceStoreId,
+//            onDismiss = { state.isSelectStoreDialogShown = false },
+//            onStoreSelect = {
+//                state.isSelectStoreDialogShown = false
+//                state.priceStoreId = it.id
+//            },
+//            onEditStoreClick = {
+//                state.isSelectStoreDialogShown = false
+//                keyboardController?.hide()
+//                navigateToEditStore(it.id)
+//            },
+//            onNewStoreClick = {
+//                state.isSelectStoreDialogShown = false
+//                keyboardController?.hide()
+//                navigateToNewStore()
+//            },
+//        )
+//    }
 
     when (newPriceScreenViewModel.submitResultState) {
         is LoadingState.Success -> {
@@ -803,12 +789,12 @@ private fun StoreLocation(
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : NewPriceScreenViewModelState {
+        override val productFlow: StateFlow<LoadingState<Product?>> =
+            MutableStateFlow(LoadingState.Success(null))
         override val categoryFlow: StateFlow<LoadingState<Category?>> =
             MutableStateFlow(LoadingState.Success(null))
         override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>> =
             MutableStateFlow(LoadingState.Success(Currency.getInstance("USD")))
-        override val storesCountFlow: StateFlow<LoadingState<Int>> =
-            MutableStateFlow(LoadingState.Success(5))
         override val storeFlow: StateFlow<LoadingState<Store?>> =
             MutableStateFlow(LoadingState.Success(null))
 
@@ -834,8 +820,7 @@ private fun DefaultPreview() {
     ).collectAsLazyPagingItems()
 
     val state by rememberNewPriceScreenState(
-        SavedStateHandle(),
-        rememberCoroutineScope(),
+        NewPriceScreenArgs(null, null),
         viewModelState
     )
     MainLayout(

@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newprice
+package com.igrocery.overpriced.presentation.selectcategory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +15,7 @@ interface SelectCategoryDialogViewModelState {
 }
 
 @HiltViewModel
-class SelectCategoryDialogViewModel @Inject constructor(
+class SelectCategoryScreenViewModel @Inject constructor(
     categoryService: CategoryService,
 ) : ViewModel(), SelectCategoryDialogViewModelState {
 
