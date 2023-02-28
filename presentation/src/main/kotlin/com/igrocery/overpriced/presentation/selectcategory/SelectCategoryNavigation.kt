@@ -30,6 +30,7 @@ fun NavController.navigateToSelectCategoryScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.selectCategoryScreen(
     navigateUp: () -> Unit,
+    navigateUpWithResults: (CategoryId) -> Unit,
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (Category) -> Unit,
     navigateToNewStore: () -> Unit,

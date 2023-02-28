@@ -10,7 +10,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.presentation.shared.LoadingState
 
 class NewPriceScreenStateHolder(
-    val newPriceScreenViewModel: NewPriceScreenViewModelState,
+    private val newPriceScreenViewModel: NewPriceScreenViewModelState,
     isRequestingFirstFocus: Boolean,
     wantToShowSuggestionBox: Boolean,
     productName: String,

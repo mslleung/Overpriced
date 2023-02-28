@@ -34,6 +34,7 @@ import com.igrocery.overpriced.presentation.productlist.productListScreen
 import com.igrocery.overpriced.presentation.searchproduct.navigateToSearchProductScreen
 import com.igrocery.overpriced.presentation.searchproduct.searchProductScreen
 import com.igrocery.overpriced.presentation.selectcategory.navigateToSelectCategoryScreen
+import com.igrocery.overpriced.presentation.selectcategory.selectCategoryScreen
 import com.igrocery.overpriced.presentation.selectcurrency.navigateToSelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.selectCurrencyScreen
 import com.igrocery.overpriced.presentation.settings.*
@@ -147,6 +148,9 @@ private fun NavGraphBuilder.navGraph(
             ) ?: throw IllegalStateException("EditCategory result is not received.")
             navController.navigateUp()
         }
+    )
+    selectCategoryScreen(
+
     )
     newStoreScreen(
         navigateUp = { navController.navigateUp() },
