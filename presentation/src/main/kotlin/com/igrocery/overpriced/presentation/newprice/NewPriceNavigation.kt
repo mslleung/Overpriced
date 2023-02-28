@@ -10,6 +10,7 @@ import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 
 private const val NewPrice = "newPrice"
 private const val NewPrice_Arg_ProductId = "productId"
@@ -54,6 +55,7 @@ fun NavGraphBuilder.newPriceScreen(
         )
     ) { backStackEntry ->
         val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
+        val selectCategoryResultViewModel = hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
 
         val args = NewPriceScreenArgs(backStackEntry)
 

@@ -1,28 +1,31 @@
 package com.igrocery.overpriced.presentation.selectcategory
 
+import android.os.Parcelable
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import kotlinx.parcelize.Parcelize
 
 private const val SelectCategory = "selectCategory"
-const val SelectCategory_Arg_CategoryId = "categoryId"
+private const val SelectCategory_Arg_CategoryId = "categoryId"
 private const val SelectCategory_With_Args =
     "$SelectCategory?$SelectCategory_Arg_CategoryId={$SelectCategory_Arg_CategoryId}"
 
 fun NavController.navigateToSelectCategoryScreen(
-    selectedCategoryId: CategoryId? = null,
+    initialCategoryId: CategoryId? = null,
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     var navString = SelectCategory
-    if (selectedCategoryId != null) {
-        require(selectedCategoryId.value > 0)
-        navString += "?$SelectCategory_Arg_CategoryId={${selectedCategoryId.value}}"
+    if (initialCategoryId != null) {
+        require(initialCategoryId.value > 0)
+        navString += "?$SelectCategory_Arg_CategoryId={${initialCategoryId.value}}"
     }
     navigate(navString, builder)
 }
@@ -45,12 +48,15 @@ fun NavGraphBuilder.selectCategoryScreen(
             },
         )
     ) { backStackEntry ->
-        val newPriceViewModel = hiltViewModel<SelectCategoryScreenViewModel>()
+        val selectCategoryViewModel = hiltViewModel<SelectCategoryScreenViewModel>()
+        val selectCategoryResultViewModel = hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
 
         val args = SelectCategoryScreenArgs(backStackEntry)
 
+
+
         NewPriceScreen(
-            savedStateHandle = backStackEntry.savedStateHandle,
+            savedStateHandle = backStackEntry.savedStateHandle.saveable(),
             newPriceScreenViewModel = newPriceViewModel,
             navigateUp = navigateUp,
             navigateToNewCategory = navigateToNewCategory,
