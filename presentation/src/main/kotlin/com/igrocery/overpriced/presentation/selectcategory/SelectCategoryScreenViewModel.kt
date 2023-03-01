@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-interface SelectCategoryDialogViewModelState {
+interface SelectCategoryScreenViewModelState {
     var allCategoriesFlow: StateFlow<List<Category>>
 }
 
 @HiltViewModel
 class SelectCategoryScreenViewModel @Inject constructor(
     categoryService: CategoryService,
-) : ViewModel(), SelectCategoryDialogViewModelState {
+) : ViewModel(), SelectCategoryScreenViewModelState {
 
     override var allCategoriesFlow = categoryService.getAllCategories()
         .stateIn(

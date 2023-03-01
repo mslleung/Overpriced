@@ -8,6 +8,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 class SelectCategoryScreenStateHolder {
 
+
+
     companion object {
         fun Saver() = listSaver(
             save = {
@@ -23,7 +25,7 @@ class SelectCategoryScreenStateHolder {
     }
 }
 @Composable
-fun rememberSelectCategoryScreenState() = rememberSaveable(
+internal fun rememberSelectCategoryScreenState(args: SelectCategoryScreenArgs) = rememberSaveable(
     stateSaver = Saver(
         save = { with(SelectCategoryScreenStateHolder.Saver()) { save(it) } },
         restore = { value -> with(SelectCategoryScreenStateHolder.Saver()) { restore(value)!! } }

@@ -40,8 +40,7 @@ internal fun SelectCategoryScreen(
 ) {
     log.debug("Composing SelectCategoryScreen")
 
-    val state by rememberSelectCategoryScreenState()
-    val allCategories by viewModel.allCategoriesFlow.collectAsState()
+    val state by rememberSelectCategoryScreenState(args)
     MainLayout(
         allCategories,
         selectedCategoryId,
@@ -59,13 +58,14 @@ internal fun SelectCategoryScreen(
 
 @Composable
 private fun MainLayout(
-    categoryList: List<Category>,
-    selectedCategoryId: CategoryId?,
-    onDismiss: () -> Unit,
-    onCategorySelect: (Category) -> Unit,
+    viewModelState: SelectCategoryScreenViewModelState,
+    state: SelectCategoryScreenStateHolder,
+    onBackButtonClick: () -> Unit,
+    onCategoryClick: (Category) -> Unit,
+    onNewCategoryClick: () -> Unit,
     onEditCategoryClick: (Category) -> Unit,
-    onNewCategoryClick: () -> Unit
 ) {
+    val allCategories by viewModel.allCategoriesFlow.collectAsState()
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { },
