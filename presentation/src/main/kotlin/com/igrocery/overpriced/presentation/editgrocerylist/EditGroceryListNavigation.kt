@@ -42,7 +42,7 @@ fun NavGraphBuilder.editGroceryListScreen(
     }
 }
 
-internal class EditGroceryListScreenArgs(
+internal data class EditGroceryListScreenArgs(
     val groceryListId: GroceryListId
 ) {
     constructor(backStackEntry: NavBackStackEntry) :

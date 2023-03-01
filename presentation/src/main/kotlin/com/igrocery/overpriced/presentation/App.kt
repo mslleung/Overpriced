@@ -150,7 +150,9 @@ private fun NavGraphBuilder.navGraph(
         }
     )
     selectCategoryScreen(
-
+        navigateUp = { navController.navigateUp() },
+        navigateToNewCategory = { navController.navigateToNewCategoryScreen() },
+        navigateToEditCategory = { navController.navigateToEditCategoryScreen(it) }
     )
     newStoreScreen(
         navigateUp = { navController.navigateUp() },

@@ -44,7 +44,7 @@ fun NavGraphBuilder.editStoreScreen(
     }
 }
 
-internal class EditStoreScreenArgs(
+internal data class EditStoreScreenArgs(
     val storeId: StoreId,
 ) {
     constructor(backStackEntry: NavBackStackEntry) :

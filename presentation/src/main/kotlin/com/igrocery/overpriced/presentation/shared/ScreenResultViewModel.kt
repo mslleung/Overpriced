@@ -13,13 +13,17 @@ private const val ResultTag = "result"
 abstract class ScreenResultViewModel<ResultT : Parcelable>(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var result: ResultT?
-        get() = savedStateHandle[ResultTag]
-        set(value) {
-            savedStateHandle[ResultTag] = value
-        }
 
-    fun clear() {
-        result = null
+    fun setResult(result: ResultT) {
+        savedStateHandle[ResultTag] = result
     }
+
+    // result can only be retrieved once, this prevents the receiver from accidentally reprocessing
+    // the result
+    fun consumeResults() : ResultT? {
+        val result: ResultT? = savedStateHandle[ResultTag]
+        savedStateHandle[ResultTag] = null
+        return result
+    }
+
 }

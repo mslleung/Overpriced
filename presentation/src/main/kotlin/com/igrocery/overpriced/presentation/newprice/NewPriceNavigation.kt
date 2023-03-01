@@ -8,8 +8,6 @@ import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 
 private const val NewPrice = "newPrice"
@@ -62,6 +60,7 @@ fun NavGraphBuilder.newPriceScreen(
         NewPriceScreen(
             args = args,
             newPriceScreenViewModel = newPriceViewModel,
+            selectCategoryResultViewModel = selectCategoryResultViewModel,
             navigateUp = navigateUp,
             navigateToSelectCategory = navigateToSelectCategory,
             navigateToSelectStore = navigateToSelectStore,

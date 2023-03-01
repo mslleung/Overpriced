@@ -1,17 +1,11 @@
 package com.igrocery.overpriced.presentation.selectcategory
 
-import android.os.Parcelable
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.CategoryId
-import com.igrocery.overpriced.domain.ProductId
-import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import kotlinx.parcelize.Parcelize
 
 private const val SelectCategory = "selectCategory"
 private const val SelectCategory_Arg_CategoryId = "categoryId"
@@ -33,11 +27,8 @@ fun NavController.navigateToSelectCategoryScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.selectCategoryScreen(
     navigateUp: () -> Unit,
-    navigateUpWithResults: (CategoryId) -> Unit,
     navigateToNewCategory: () -> Unit,
-    navigateToEditCategory: (Category) -> Unit,
-    navigateToNewStore: () -> Unit,
-    navigateToEditStore: (StoreId) -> Unit,
+    navigateToEditCategory: (CategoryId) -> Unit,
 ) {
     composable(
         SelectCategory_With_Args,
@@ -49,26 +40,27 @@ fun NavGraphBuilder.selectCategoryScreen(
         )
     ) { backStackEntry ->
         val selectCategoryViewModel = hiltViewModel<SelectCategoryScreenViewModel>()
-        val selectCategoryResultViewModel = hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
+        val selectCategoryResultViewModel =
+            hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
 
         val args = SelectCategoryScreenArgs(backStackEntry)
 
-
-
-        NewPriceScreen(
-            savedStateHandle = backStackEntry.savedStateHandle.saveable(),
-            newPriceScreenViewModel = newPriceViewModel,
+        SelectCategoryScreen(
+            args = args,
+            viewModel = selectCategoryViewModel,
             navigateUp = navigateUp,
+            navigateUpWithResults = {
+                selectCategoryResultViewModel.setResult(Result(it))
+                navigateUp()
+            },
             navigateToNewCategory = navigateToNewCategory,
             navigateToEditCategory = navigateToEditCategory,
-            navigateToNewStore = navigateToNewStore,
-            navigateToEditStore = navigateToEditStore,
         )
     }
 }
 
-internal class SelectCategoryScreenArgs(
-    selectedCategoryId: CategoryId? = null,
+internal data class SelectCategoryScreenArgs(
+    val selectedCategoryId: CategoryId? = null,
 ) {
     constructor(backStackEntry: NavBackStackEntry) :
             this(

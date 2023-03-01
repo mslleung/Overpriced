@@ -6,8 +6,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.domain.productpricehistory.models.Product
-import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 
 class NewPriceScreenStateHolder(
     private val newPriceScreenViewModel: NewPriceScreenViewModelState,
@@ -64,7 +63,10 @@ class NewPriceScreenStateHolder(
     }
 
     companion object {
-        fun Saver(newPriceScreenViewModel: NewPriceScreenViewModelState) = listSaver(
+        fun Saver(
+            newPriceScreenViewModel: NewPriceScreenViewModelState,
+            selectCategoryResultViewModel: SelectCategoryScreenResultViewModel
+        ) = listSaver(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
@@ -79,13 +81,15 @@ class NewPriceScreenStateHolder(
                 )
             },
             restore = {
+                val productCategoryId =
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it[4]
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
                     wantToShowSuggestionBox = it[1] as Boolean,
                     productName = it[2] as String,
                     productDescription = it[3] as String,
-                    productCategoryId = it[4] as CategoryId?,
+                    productCategoryId = productCategoryId,
                     priceAmountText = it[5] as String,
                     priceStoreId = it[6] as StoreId?,
                     isDiscardDialogShown = it[7] as Boolean,
@@ -100,15 +104,26 @@ class NewPriceScreenStateHolder(
 @Composable
 fun rememberNewPriceScreenState(
     args: NewPriceScreenArgs,
-    newPriceScreenViewModel: NewPriceScreenViewModelState
+    newPriceScreenViewModel: NewPriceScreenViewModelState,
+    selectCategoryResultViewModel: SelectCategoryScreenResultViewModel
 ) = rememberSaveable(
-    inputs = arrayOf(args, newPriceScreenViewModel),
+    inputs = arrayOf(args, newPriceScreenViewModel, selectCategoryResultViewModel),
     stateSaver = Saver(
         save = {
-            with(NewPriceScreenStateHolder.Saver(newPriceScreenViewModel)) { save(it) }
+            with(
+                NewPriceScreenStateHolder.Saver(
+                    newPriceScreenViewModel,
+                    selectCategoryResultViewModel
+                )
+            ) { save(it) }
         },
         restore = { value ->
-            with(NewPriceScreenStateHolder.Saver(newPriceScreenViewModel)) { restore(value)!! }
+            with(
+                NewPriceScreenStateHolder.Saver(
+                    newPriceScreenViewModel,
+                    selectCategoryResultViewModel
+                )
+            ) { restore(value)!! }
         }
     )
 ) {

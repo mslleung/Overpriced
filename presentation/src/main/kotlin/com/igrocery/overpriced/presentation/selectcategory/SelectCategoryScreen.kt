@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.selectcategory
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,16 +24,23 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.shared.Logger
+
+@Suppress("unused")
+private val log = Logger { }
 
 @Composable
-fun SelectCategoryScreen(
+internal fun SelectCategoryScreen(
+    args: SelectCategoryScreenArgs,
     viewModel: SelectCategoryScreenViewModel,
-    selectedCategoryId: CategoryId?,
-    onDismiss: () -> Unit,
-    onCategorySelect: (Category) -> Unit,
-    onEditCategoryClick: (Category) -> Unit,
-    onNewCategoryClick: () -> Unit,
+    navigateUp: () -> Unit,
+    navigateUpWithResults: (CategoryId) -> Unit,
+    navigateToNewCategory: () -> Unit,
+    navigateToEditCategory: (CategoryId) -> Unit,
 ) {
+    log.debug("Composing SelectCategoryScreen")
+
+    val state by rememberSelectCategoryScreenState()
     val allCategories by viewModel.allCategoriesFlow.collectAsState()
     MainLayout(
         allCategories,
@@ -42,6 +50,11 @@ fun SelectCategoryScreen(
         onEditCategoryClick,
         onNewCategoryClick
     )
+
+    BackHandler {
+        log.debug("SelectCategoryScreen: BackHandler")
+        navigateUp()
+    }
 }
 
 @Composable

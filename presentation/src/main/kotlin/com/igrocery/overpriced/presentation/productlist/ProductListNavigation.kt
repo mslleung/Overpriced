@@ -56,7 +56,7 @@ fun NavGraphBuilder.productListScreen(
     }
 }
 
-internal class ProductListScreenArgs(
+internal data class ProductListScreenArgs(
     val categoryId: CategoryId?
 ) {
     constructor(backStackEntry: NavBackStackEntry) :

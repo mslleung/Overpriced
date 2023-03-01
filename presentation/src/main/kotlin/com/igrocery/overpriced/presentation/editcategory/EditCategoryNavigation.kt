@@ -43,7 +43,7 @@ fun NavGraphBuilder.editCategoryScreen(
     }
 }
 
-internal class EditCategoryScreenArgs(
+internal data class EditCategoryScreenArgs(
     val categoryId: CategoryId
 ) {
     constructor(backStackEntry: NavBackStackEntry) :

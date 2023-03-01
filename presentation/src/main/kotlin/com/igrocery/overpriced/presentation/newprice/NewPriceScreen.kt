@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -48,6 +49,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.*
@@ -62,6 +64,7 @@ private val log = Logger { }
 fun NewPriceScreen(
     args: NewPriceScreenArgs,
     newPriceScreenViewModel: NewPriceScreenViewModel,
+    selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
     navigateUp: () -> Unit,
     navigateToSelectCategory: (CategoryId?) -> Unit,
     navigateToSelectStore: (StoreId?) -> Unit,
@@ -71,7 +74,7 @@ fun NewPriceScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel)
+    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel, selectCategoryResultViewModel)
     LaunchedEffect(Unit) {
         newPriceScreenViewModel.productFlow.collect {
             // TODO state should have an isEdit mode?
@@ -147,50 +150,6 @@ fun NewPriceScreen(
             navigateToSelectStore(state.priceStoreId)
         },
     )
-
-//    if (state.isSelectCategoryDialogShown) {
-//        val selectCategoryDialogViewModel = hiltViewModel<SelectCategoryDialogViewModel>()
-//        SelectCategoryDialog(
-//            viewModel = selectCategoryDialogViewModel,
-//            selectedCategoryId = state.productCategoryId,
-//            onDismiss = { state.isSelectCategoryDialogShown = false },
-//            onCategorySelect = {
-//                state.isSelectCategoryDialogShown = false
-//                state.productCategoryId = it.id
-//            },
-//            onEditCategoryClick = {
-//                state.isSelectCategoryDialogShown = false
-//                navigateToEditCategory(it)
-//            },
-//            onNewCategoryClick = {
-//                state.isSelectCategoryDialogShown = false
-//                navigateToNewCategory()
-//            },
-//        )
-//    }
-
-//    if (state.isSelectStoreDialogShown) {
-//        val selectStoreDialogViewModel = hiltViewModel<SelectStoreDialogViewModel>()
-//        SelectStoreDialog(
-//            viewModel = selectStoreDialogViewModel,
-//            selectedStoreId = state.priceStoreId,
-//            onDismiss = { state.isSelectStoreDialogShown = false },
-//            onStoreSelect = {
-//                state.isSelectStoreDialogShown = false
-//                state.priceStoreId = it.id
-//            },
-//            onEditStoreClick = {
-//                state.isSelectStoreDialogShown = false
-//                keyboardController?.hide()
-//                navigateToEditStore(it.id)
-//            },
-//            onNewStoreClick = {
-//                state.isSelectStoreDialogShown = false
-//                keyboardController?.hide()
-//                navigateToNewStore()
-//            },
-//        )
-//    }
 
     when (newPriceScreenViewModel.submitResultState) {
         is LoadingState.Success -> {
@@ -821,7 +780,8 @@ private fun DefaultPreview() {
 
     val state by rememberNewPriceScreenState(
         NewPriceScreenArgs(null, null),
-        viewModelState
+        viewModelState,
+        SelectCategoryScreenResultViewModel(SavedStateHandle())
     )
     MainLayout(
         viewModelState = viewModelState,

@@ -48,7 +48,7 @@ fun NavGraphBuilder.storePriceDetailScreen(
     }
 }
 
-internal class StorePriceDetailScreenArgs(
+internal data class StorePriceDetailScreenArgs(
     val productId: ProductId,
     val storeId: StoreId
 ) {
