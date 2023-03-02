@@ -79,11 +79,16 @@
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
     <string name="no_category">No Category</string>
-    <string name="select_category_dialog_title">Select Category</string>
-    <string name="select_category_dialog_category_icon_content_description">Category icon</string>
-    <string name="select_category_dialog_edit_content_description">Edit Category</string>
-    <string name="select_category_dialog_new_category">New Category</string>
-    <string name="select_category_dialog_new_category_icon_content_description">New Category</string>
+    <string name="select_category_title">Select Category</string>
+    <string name="select_category_category_icon_content_description">Category icon</string>
+    <string name="select_category_edit_content_description">Edit Category</string>
+    <string name="select_category_empty_icon_content_description">No category</string>
+    <string name="select_category_empty_text">You don\'t have any saved category.</string>
+    <string name="select_category_empty_new_category_button_text">Create New Category</string>
+    <string name="select_category_more_edit">Edit</string>
+    <string name="select_category_more_delete">Delete</string>
+    <string name="select_category_new_category">New Category</string>
+    <string name="select_category_new_category_icon_content_description">New Category</string>
 
     <string name="scan_barcode_no_permission_message_text">Camera permission is required to scan barcodes.</string>
     <string name="scan_barcode_no_permission_button_text">Open Camera</string>
@@ -139,10 +144,5 @@
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
-
-    <!--  Permissions  -->
-<!--    <string name="permission_dialog_cancel">Cancel</string>-->
-<!--    <string name="permission_dialog_ok">@android:string/ok</string>-->
-<!--    <string name="permission_dialog_settings">Settings</string>-->
 
 </resources>

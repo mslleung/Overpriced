@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,18 +15,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Dialog
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenStateHolder.CategoryMoreDialogData
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Suppress("unused")
 private val log = Logger { }
@@ -42,13 +50,44 @@ internal fun SelectCategoryScreen(
 
     val state by rememberSelectCategoryScreenState(args)
     MainLayout(
-        allCategories,
-        selectedCategoryId,
-        onDismiss,
-        onCategorySelect,
-        onEditCategoryClick,
-        onNewCategoryClick
+        viewModelState = viewModel,
+        state = state,
+        onBackButtonClick = navigateUp,
+        onCategoryClick = navigateUpWithResults,
+        onNewCategoryClick = navigateToNewCategory,
+        onCategoryMoreClick = {
+            state.categoryMoreDialogData = CategoryMoreDialogData(it)
+        }
     )
+
+    state.categoryMoreDialogData?.let { dialogData ->
+        Dialog(
+            onDismissRequest = {
+                state.categoryMoreDialogData = null
+            }
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.select_category_more_edit),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable {
+                        navigateToEditCategory(dialogData.categoryId)
+                        state.categoryMoreDialogData = null
+                    }
+                )
+                Text(
+                    text = stringResource(id = R.string.select_category_more_delete),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable {
+
+                        state.categoryMoreDialogData = null
+                    }
+                )
+            }
+        }
+    }
 
     BackHandler {
         log.debug("SelectCategoryScreen: BackHandler")
@@ -56,92 +95,170 @@ internal fun SelectCategoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
     viewModelState: SelectCategoryScreenViewModelState,
     state: SelectCategoryScreenStateHolder,
     onBackButtonClick: () -> Unit,
-    onCategoryClick: (Category) -> Unit,
     onNewCategoryClick: () -> Unit,
-    onEditCategoryClick: (Category) -> Unit,
+    onCategoryClick: (CategoryId) -> Unit,
+    onCategoryMoreClick: (CategoryId) -> Unit,
 ) {
-    val allCategories by viewModel.allCategoriesFlow.collectAsState()
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { },
-        modifier = Modifier.padding(horizontal = 16.dp),
-        title = {
-            Text(
-                text = stringResource(id = R.string.select_category_dialog_title)
+    val topBarScrollState = rememberTopAppBarState()
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
+    UseDefaultSystemNavBarColor()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    BackButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                            .padding(14.dp)
+                            .size(24.dp, 24.dp)
+                    )
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.select_category_title))
+                },
+                scrollBehavior = topBarScrollBehavior,
             )
         },
-        text = {
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = stringResource(id = R.string.select_category_new_category)) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = stringResource(
+                            id = R.string.select_category_new_category_icon_content_description
+                        ),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                onClick = onNewCategoryClick,
+                modifier = Modifier.padding(
+                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                        .asPaddingValues()
+                )
+            )
+        }
+    ) {
+        val allCategories by viewModelState.allCategoriesFlow.collectAsState()
+        if (allCategories.isEmpty()) {
+            EmptyLayout(
+                onNewCategoryClick = onNewCategoryClick,
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize()
+                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+            )
+        } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
                 contentPadding = PaddingValues(vertical = 8.dp),
                 modifier = Modifier
-                    .navigationBarsPadding()
+                    .padding(it)
+                    .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = categoryList,
+                    items = allCategories,
                     key = { category -> category.id }
                 ) { category ->
-                    CategoryOptionLayout(
+                    CategoryItemLayout(
                         category = category,
-                        isSelected = category.id == selectedCategoryId,
-                        onClick = onCategorySelect,
-                        onEditClick = onEditCategoryClick,
+                        isSelected = category.id == state.selectedCategoryId,
+                        onClick = onCategoryClick,
+                        onMoreClick = onCategoryMoreClick,
                         modifier = Modifier
                             .fillMaxWidth()
-                    )
-                }
-
-                item {
-                    NewCategoryItemLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .clickable { onNewCategoryClick() }
                     )
                 }
             }
-        },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    )
+        }
+    }
 }
 
 @Composable
-private fun CategoryOptionLayout(
+private fun EmptyLayout(
+    onNewCategoryClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .verticalScroll(scrollState)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.outline_category_24),
+            contentDescription = stringResource(id = R.string.select_category_empty_icon_content_description),
+            modifier = Modifier
+                .size(200.dp, 200.dp)
+                .padding(bottom = 36.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+        )
+
+        Text(
+            text = stringResource(id = R.string.select_category_empty_text),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(horizontal = 40.dp)
+                .padding(bottom = 130.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Button(
+            onClick = onNewCategoryClick,
+        ) {
+            Text(
+                text = stringResource(id = R.string.select_category_empty_new_category_button_text),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryItemLayout(
     category: Category,
     isSelected: Boolean,
-    onClick: (Category) -> Unit,
-    onEditClick: (Category) -> Unit,
+    onClick: (CategoryId) -> Unit,
+    onMoreClick: (CategoryId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = modifier
-            .clickable { onClick(category) }
+            .clickable { onClick(category.id) }
     ) {
-        Image(
-            painter = if (isSelected) {
-                painterResource(id = R.drawable.ic_baseline_check_circle_24)
-            } else {
-                painterResource(id = R.drawable.ic_baseline_radio_button_unchecked_24)
-            },
-            contentDescription = stringResource(id = R.string.new_price_select_store_dialog_selected_store_content_description),
-            contentScale = ContentScale.Fit,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+        Row(
             modifier = Modifier
                 .padding(end = 12.dp)
-                .size(24.dp)
-                .clickable { onClick(category) },
-        )
+                .size(24.dp),
+        ) {
+            if (isSelected) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                    contentDescription = stringResource(id = R.string.new_price_select_store_dialog_selected_store_content_description),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .size(24.dp),
+                )
+            }
+        }
 
         Image(
             painter = painterResource(id = category.icon.iconRes),
-            contentDescription = stringResource(id = R.string.select_category_dialog_category_icon_content_description),
+            contentDescription = stringResource(id = R.string.select_category_category_icon_content_description),
             modifier = Modifier
                 .padding(end = 6.dp)
                 .size(30.dp)
@@ -159,56 +276,36 @@ private fun CategoryOptionLayout(
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = MaterialTheme.colorScheme.primary
             ),
-            onClick = { onEditClick(category) },
+            onClick = { onMoreClick(category.id) },
             modifier = Modifier
                 .size(48.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                contentDescription = stringResource(id = R.string.select_category_dialog_edit_content_description)
+                painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
+                contentDescription = stringResource(id = R.string.select_category_edit_content_description)
             )
         }
-    }
-}
-
-@Composable
-private fun NewCategoryItemLayout(
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier,
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_add_24),
-            contentDescription = stringResource(id = R.string.select_category_dialog_new_category_icon_content_description),
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .size(24.dp)
-        )
-
-        Text(
-            text = stringResource(id = R.string.select_category_dialog_new_category),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
     }
 }
 
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val categoryList = listOf(
-        Category(id = CategoryId(0), icon = CategoryIcon.Apple, name = "Fruits"),
-        Category(id = CategoryId(1), icon = CategoryIcon.Broccoli, name = "Vegetables")
-    )
+    val viewModelState = object : SelectCategoryScreenViewModelState {
+        override var allCategoriesFlow: StateFlow<List<Category>> = MutableStateFlow(
+            listOf(
+                Category(id = CategoryId(0), icon = CategoryIcon.Apple, name = "Fruits"),
+                Category(id = CategoryId(1), icon = CategoryIcon.Broccoli, name = "Vegetables")
+            )
+        )
+    }
 
     MainLayout(
-        categoryList = categoryList,
-        selectedCategoryId = CategoryId(0),
-        onDismiss = {},
-        onCategorySelect = {},
-        onEditCategoryClick = {},
+        viewModelState = viewModelState,
+        state = SelectCategoryScreenStateHolder(null, null),
+        onBackButtonClick = {},
         onNewCategoryClick = {},
+        onCategoryClick = {},
+        onCategoryMoreClick = {},
     )
 }
