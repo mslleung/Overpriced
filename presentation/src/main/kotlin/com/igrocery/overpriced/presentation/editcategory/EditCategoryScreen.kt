@@ -61,7 +61,7 @@ fun EditCategoryScreen(
     }
 
     if (state.isConfirmDeleteDialogShown) {
-        ConfirmDeleteDialog(
+        ConfirmDeleteCategoryDialog(
             onDismiss = {
                 state.isConfirmDeleteDialogShown = false
             },
@@ -71,7 +71,6 @@ fun EditCategoryScreen(
 
                 viewModel.deleteCategory()
             },
-            messageText = stringResource(id = R.string.edit_category_delete_dialog_message)
         )
     }
 
@@ -167,6 +166,18 @@ private fun MainLayout(
             )
         }
     }
+}
+
+@Composable
+fun ConfirmDeleteCategoryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    ConfirmDeleteDialog(
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        messageText = stringResource(id = R.string.edit_category_delete_dialog_message)
+    )
 }
 
 @Preview

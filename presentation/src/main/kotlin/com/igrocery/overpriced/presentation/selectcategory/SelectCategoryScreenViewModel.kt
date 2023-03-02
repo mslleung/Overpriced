@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface SelectCategoryScreenViewModelState {
@@ -16,7 +17,7 @@ interface SelectCategoryScreenViewModelState {
 
 @HiltViewModel
 class SelectCategoryScreenViewModel @Inject constructor(
-    categoryService: CategoryService,
+    private val categoryService: CategoryService,
 ) : ViewModel(), SelectCategoryScreenViewModelState {
 
     override var allCategoriesFlow = categoryService.getAllCategories()
@@ -26,4 +27,9 @@ class SelectCategoryScreenViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch {
+            categoryService.deleteCategory(category)
+        }
+    }
 }
