@@ -26,6 +26,7 @@ fun NavController.navigateToSelectCategoryScreen(
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.selectCategoryScreen(
+    navController: NavController,
     navigateUp: () -> Unit,
     navigateToNewCategory: () -> Unit,
     navigateToEditCategory: (CategoryId) -> Unit,
@@ -40,8 +41,11 @@ fun NavGraphBuilder.selectCategoryScreen(
         )
     ) { backStackEntry ->
         val selectCategoryViewModel = hiltViewModel<SelectCategoryScreenViewModel>()
+
+        val prevBackStackEntry = navController.previousBackStackEntry
+            ?: throw IllegalArgumentException("This destination expects a parent.")
         val selectCategoryResultViewModel =
-            hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
+            hiltViewModel<SelectCategoryScreenResultViewModel>(prevBackStackEntry)
 
         val args = SelectCategoryScreenArgs(backStackEntry)
 

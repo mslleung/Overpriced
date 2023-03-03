@@ -10,7 +10,6 @@ import com.igrocery.overpriced.domain.CategoryId
 private const val EditCategory = "editCategory"
 private const val EditCategory_Arg_CategoryId = "categoryId"
 private const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
-const val EditCategory_Result_CategoryId = "editCategoryResultCategoryId"
 
 fun NavController.navigateToEditCategoryScreen(
     categoryId: CategoryId,
@@ -23,7 +22,6 @@ fun NavController.navigateToEditCategoryScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.editCategoryScreen(
     navigateUp: () -> Unit,
-    navigateDone: (categoryId: CategoryId) -> Unit
 ) {
     composable(
         EditCategory_With_Args,
@@ -38,7 +36,6 @@ fun NavGraphBuilder.editCategoryScreen(
         EditCategoryScreen(
             viewModel = editCategoryViewModel,
             navigateUp = navigateUp,
-            navigateDone = { navigateDone(args.categoryId) }
         )
     }
 }

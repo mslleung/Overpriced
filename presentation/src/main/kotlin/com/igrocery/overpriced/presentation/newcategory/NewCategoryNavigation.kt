@@ -8,7 +8,6 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.presentation.editcategory.*
 
 private const val NewCategory = "newCategory"
-const val NewCategory_Result_CategoryId = "newCategoryResultCategoryId"
 
 fun NavController.navigateToNewCategoryScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
@@ -19,7 +18,6 @@ fun NavController.navigateToNewCategoryScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.newCategoryScreen(
     navigateUp: () -> Unit,
-    navigateDone: (CategoryId) -> Unit
 ) {
     composable(NewCategory) {
         val newCategoryScreenViewModel = hiltViewModel<NewCategoryScreenViewModel>()
@@ -27,7 +25,7 @@ fun NavGraphBuilder.newCategoryScreen(
         NewCategoryScreen(
             viewModel = newCategoryScreenViewModel,
             navigateUp = navigateUp,
-            navigateDone = { navigateDone(it) }
+            navigateDone = { /* navigateDone(it) */ }
         )
     }
 }

@@ -26,7 +26,6 @@ private val log = Logger { }
 fun EditCategoryScreen(
     viewModel: EditCategoryScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditCategoryScreen")
 
@@ -77,7 +76,7 @@ fun EditCategoryScreen(
     LaunchedEffect(key1 = viewModel.updateCategoryResult) {
         val result = viewModel.updateCategoryResult
         if (result is LoadingState.Success) {
-            navigateDone()
+            navigateUp()
         }
     }
 

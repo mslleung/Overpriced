@@ -131,25 +131,12 @@ private fun NavGraphBuilder.navGraph(
     )
     newCategoryScreen(
         navigateUp = { navController.navigateUp() },
-        navigateDone = {
-            navController.previousBackStackEntry?.savedStateHandle?.set(
-                NewCategory_Result_CategoryId,
-                it.value
-            ) ?: throw IllegalStateException("NewCategory result is not received.")
-            navController.navigateUp()
-        }
     )
     editCategoryScreen(
         navigateUp = { navController.navigateUp() },
-        navigateDone = {
-            navController.previousBackStackEntry?.savedStateHandle?.set(
-                EditCategory_Result_CategoryId,
-                it.value
-            ) ?: throw IllegalStateException("EditCategory result is not received.")
-            navController.navigateUp()
-        }
     )
     selectCategoryScreen(
+        navController = navController,
         navigateUp = { navController.navigateUp() },
         navigateToNewCategory = { navController.navigateToNewCategoryScreen() },
         navigateToEditCategory = { navController.navigateToEditCategoryScreen(it) }
