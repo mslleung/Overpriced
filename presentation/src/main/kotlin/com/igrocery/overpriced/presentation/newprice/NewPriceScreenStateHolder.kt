@@ -82,7 +82,7 @@ class NewPriceScreenStateHolder(
             },
             restore = {
                 val productCategoryId =
-                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it[4]
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4)
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
@@ -107,7 +107,6 @@ fun rememberNewPriceScreenState(
     newPriceScreenViewModel: NewPriceScreenViewModelState,
     selectCategoryResultViewModel: SelectCategoryScreenResultViewModel
 ) = rememberSaveable(
-    inputs = arrayOf(args, newPriceScreenViewModel, selectCategoryResultViewModel),
     stateSaver = Saver(
         save = {
             with(

@@ -142,10 +142,12 @@ fun NewPriceScreen(
             focusManager.clearFocus()
         },
         onCategoryClick = {
+            focusManager.clearFocus()
             keyboardController?.hide()
             navigateToSelectCategory(state.productCategoryId)
         },
         onStoreButtonClick = {
+            focusManager.clearFocus()
             keyboardController?.hide()
             navigateToSelectStore(state.priceStoreId)
         },
@@ -451,7 +453,6 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductNameTextField(
     productName: String,
@@ -505,7 +506,6 @@ private fun ProductNameTextField(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductDescriptionTextField(
     productDescription: String,
@@ -576,7 +576,6 @@ private fun PriceHeader(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PriceTextFieldButton(
     text: String,

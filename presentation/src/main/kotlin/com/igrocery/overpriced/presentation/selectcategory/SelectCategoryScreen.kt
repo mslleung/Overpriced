@@ -167,30 +167,23 @@ private fun MainLayout(
                 title = {
                     Text(text = stringResource(id = R.string.select_category_title))
                 },
+                actions = {
+                    if (allCategories.isNotEmpty()) {
+                        IconButton(
+                            onClick = onNewCategoryClick,
+                            modifier = Modifier
+                                .size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                contentDescription = stringResource(id = R.string.select_category_new_category_icon_content_description)
+                            )
+                        }
+                    }
+                },
                 scrollBehavior = topBarScrollBehavior,
             )
         },
-        floatingActionButton = {
-            if (allCategories.isNotEmpty()) {
-                ExtendedFloatingActionButton(
-                    text = { Text(text = stringResource(id = R.string.select_category_new_category)) },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                            contentDescription = stringResource(
-                                id = R.string.select_category_new_category_icon_content_description
-                            ),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    onClick = onNewCategoryClick,
-                    modifier = Modifier.padding(
-                        WindowInsets.navigationBars.only(WindowInsetsSides.End)
-                            .asPaddingValues()
-                    )
-                )
-            }
-        }
     ) {
         if (allCategories.isEmpty()) {
             EmptyLayout(

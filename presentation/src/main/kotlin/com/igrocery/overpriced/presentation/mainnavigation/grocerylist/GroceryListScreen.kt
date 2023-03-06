@@ -79,7 +79,6 @@ private fun MainContent(
     UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     Scaffold(
-        contentWindowInsets = WindowInsets.ime,
         modifier = modifier,
     ) { scaffoldPaddings ->
         val groceryListsWithItemCount =
