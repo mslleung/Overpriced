@@ -19,7 +19,7 @@ fun NavController.navigateToSelectCategoryScreen(
     var navString = SelectCategory
     if (initialCategoryId != null) {
         require(initialCategoryId.value > 0)
-        navString += "?$SelectCategory_Arg_CategoryId={${initialCategoryId.value}}"
+        navString += "?$SelectCategory_Arg_CategoryId=${initialCategoryId.value}"
     }
     navigate(navString, builder)
 }

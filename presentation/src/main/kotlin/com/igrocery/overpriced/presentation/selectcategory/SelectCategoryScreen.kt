@@ -278,7 +278,7 @@ private fun CategoryItemLayout(
     ) {
         Row(
             modifier = Modifier
-                .padding(end = 12.dp)
+                .padding(horizontal = 12.dp)
                 .size(24.dp),
         ) {
             if (isSelected) {

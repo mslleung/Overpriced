@@ -20,7 +20,7 @@ fun NavController.navigateToProductListScreen(
     var navString = ProductList
     if (categoryId != null) {
         require(categoryId.value > 0)
-        navString += "?$ProductList_Arg_CategoryId={${categoryId.value}}"
+        navString += "?$ProductList_Arg_CategoryId=${categoryId.value}"
     }
     navigate(navString, builder)
 }
