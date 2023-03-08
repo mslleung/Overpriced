@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newprice
+package com.igrocery.overpriced.presentation.selectstore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,16 +10,17 @@ import com.igrocery.overpriced.application.productpricehistory.StoreService
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface SelectStoreDialogViewModelState {
+interface SelectStoreScreenViewModelState {
     var storesPagingDataFlow: Flow<PagingData<Store>>
 }
 
 @HiltViewModel
-class SelectStoreDialogViewModel @Inject constructor(
+class SelectStoreScreenViewModel @Inject constructor(
     private val storeService: StoreService,
-) : ViewModel(), SelectStoreDialogViewModelState {
+) : ViewModel(), SelectStoreScreenViewModelState {
 
     override var storesPagingDataFlow = Pager(
         PagingConfig(
@@ -31,4 +32,9 @@ class SelectStoreDialogViewModel @Inject constructor(
     }.flow
         .cachedIn(viewModelScope)
 
+    fun deleteStore(store: Store) {
+        viewModelScope.launch {
+            storeService.deleteStore(store)
+        }
+    }
 }

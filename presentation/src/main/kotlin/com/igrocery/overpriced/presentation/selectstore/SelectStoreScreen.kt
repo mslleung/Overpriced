@@ -1,4 +1,4 @@
-package com.igrocery.overpriced.presentation.newprice
+package com.igrocery.overpriced.presentation.selectstore
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -30,8 +30,8 @@ import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
-fun SelectStoreDialog(
-    viewModel: SelectStoreDialogViewModel,
+fun SelectStoreScreen(
+    viewModel: SelectStoreScreenViewModel,
     selectedStoreId: StoreId?,
     onDismiss: () -> Unit,
     onStoreSelect: (Store) -> Unit,

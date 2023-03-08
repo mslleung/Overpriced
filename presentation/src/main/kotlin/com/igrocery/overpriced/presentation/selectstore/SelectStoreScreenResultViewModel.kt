@@ -1,8 +1,8 @@
-package com.igrocery.overpriced.presentation.selectcategory
+package com.igrocery.overpriced.presentation.selectstore
 
 import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
-import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.shared.ScreenResultViewModel
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,10 +14,10 @@ private val log = Logger { }
 
 @Parcelize
 data class Result(
-    val categoryId: CategoryId
+    val storeId: StoreId
 ) : Parcelable
 
 @HiltViewModel
-class SelectCategoryScreenResultViewModel @Inject constructor(
+class SelectStoreScreenResultViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ScreenResultViewModel<Result>(savedStateHandle)

@@ -13,13 +13,13 @@ private const val SelectCategory_With_Args =
     "$SelectCategory?$SelectCategory_Arg_CategoryId={$SelectCategory_Arg_CategoryId}"
 
 fun NavController.navigateToSelectCategoryScreen(
-    initialCategoryId: CategoryId? = null,
+    selectedCategoryId: CategoryId? = null,
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     var navString = SelectCategory
-    if (initialCategoryId != null) {
-        require(initialCategoryId.value > 0)
-        navString += "?$SelectCategory_Arg_CategoryId=${initialCategoryId.value}"
+    if (selectedCategoryId != null) {
+        require(selectedCategoryId.value > 0)
+        navString += "?$SelectCategory_Arg_CategoryId=${selectedCategoryId.value}"
     }
     navigate(navString, builder)
 }
