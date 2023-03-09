@@ -10,6 +10,14 @@ import androidx.compose.ui.res.stringResource
 import com.igrocery.overpriced.presentation.R
 
 @Composable
+fun ListSelectionDialog(
+    selections: List<String>,
+    onSelected: (index: Int) -> Unit,
+) {
+
+}
+
+@Composable
 fun ConfirmDeleteDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,

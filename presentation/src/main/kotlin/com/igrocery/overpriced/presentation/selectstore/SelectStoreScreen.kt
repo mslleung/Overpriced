@@ -1,11 +1,13 @@
 package com.igrocery.overpriced.presentation.selectstore
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -21,23 +23,34 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenArgs
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenViewModel
+import com.igrocery.overpriced.presentation.selectcategory.rememberSelectCategoryScreenState
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
+import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
 
+@Suppress("unused")
+private val log = Logger { }
+
 @Composable
-fun SelectStoreScreen(
+internal fun SelectStoreScreen(
+    args: SelectStoreScreenArgs,
     viewModel: SelectStoreScreenViewModel,
-    selectedStoreId: StoreId?,
-    onDismiss: () -> Unit,
-    onStoreSelect: (Store) -> Unit,
-    onEditStoreClick: (Store) -> Unit,
-    onNewStoreClick: () -> Unit,
+    navigateUp: () -> Unit,
+    navigateUpWithResults: (StoreId) -> Unit,
+    navigateToNewStore: () -> Unit,
+    navigateToEditStore: (StoreId) -> Unit,
 ) {
+    log.debug("Composing SelectStoreScreen")
+
+    val state by rememberSelectStoreScreenState(args)
     val storesPagingItems = viewModel.storesPagingDataFlow.collectAsLazyPagingItems()
     if (storesPagingItems.isInitialLoadCompleted()) {
         MainLayout(
@@ -48,6 +61,11 @@ fun SelectStoreScreen(
             onEditStoreClick,
             onNewStoreClick
         )
+    }
+
+    BackHandler {
+        log.debug("SelectStoreScreen: BackHandler")
+        navigateUp()
     }
 }
 

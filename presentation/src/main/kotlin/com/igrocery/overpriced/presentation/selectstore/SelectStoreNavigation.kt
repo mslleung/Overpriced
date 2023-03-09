@@ -5,12 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.composable
-import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.presentation.selectcategory.Result
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreen
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenViewModel
 
 private const val SelectStore = "selectStore"
 private const val SelectStore_Arg_StoreId = "storeId"
@@ -56,14 +51,14 @@ fun NavGraphBuilder.selectStoreScreen(
 
         SelectStoreScreen(
             args = args,
-            viewModel = selectCategoryViewModel,
+            viewModel = selectStoreViewModel,
             navigateUp = navigateUp,
             navigateUpWithResults = {
-                selectCategoryResultViewModel.setResult(Result(it))
+                selectStoreResultViewModel.setResult(Result(it))
                 navigateUp()
             },
-            navigateToNewCategory = navigateToNewCategory,
-            navigateToEditCategory = navigateToEditCategory,
+            navigateToNewStore = navigateToNewStore,
+            navigateToEditStore = navigateToEditStore,
         )
     }
 }
