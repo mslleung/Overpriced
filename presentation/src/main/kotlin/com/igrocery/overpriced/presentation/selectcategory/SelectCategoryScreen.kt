@@ -80,6 +80,7 @@ internal fun SelectCategoryScreen(
                             SelectCategoryScreenStateHolder.DeleteCategoryDialogData(dialogData.category)
                         state.categoryMoreDialogData = null
                     }
+                    else -> { throw NotImplementedError("selection $it not handled") }
                 }
             }
         )

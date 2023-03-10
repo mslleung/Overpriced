@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +30,10 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Address
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenArgs
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenViewModel
-import com.igrocery.overpriced.presentation.selectcategory.rememberSelectCategoryScreenState
+import com.igrocery.overpriced.presentation.selectcategory.*
+import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.UseAnimatedFadeTopBarColorForStatusBarColor
+import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
@@ -51,17 +53,17 @@ internal fun SelectStoreScreen(
     log.debug("Composing SelectStoreScreen")
 
     val state by rememberSelectStoreScreenState(args)
-    val storesPagingItems = viewModel.storesPagingDataFlow.collectAsLazyPagingItems()
-    if (storesPagingItems.isInitialLoadCompleted()) {
-        MainLayout(
-            storesPagingItems,
-            selectedStoreId,
-            onDismiss,
-            onStoreSelect,
-            onEditStoreClick,
-            onNewStoreClick
-        )
-    }
+    MainLayout(
+        viewModelState = viewModel,
+        state = state,
+        onBackButtonClick = navigateUp,
+        onStoreClick = navigateUpWithResults,
+        onNewStoreClick = navigateToNewStore,
+        onStoreMoreClick = {
+            state.categoryMoreDialogData =
+                SelectCategoryScreenStateHolder.CategoryMoreDialogData(it)
+        }
+    )
 
     BackHandler {
         log.debug("SelectStoreScreen: BackHandler")
@@ -69,15 +71,56 @@ internal fun SelectStoreScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    storesPagingItems: LazyPagingItems<Store>,
-    selectedStoreId: StoreId?,
-    onDismiss: () -> Unit,
-    onStoreSelect: (Store) -> Unit,
-    onEditStoreClick: (Store) -> Unit,
-    onNewStoreClick: () -> Unit
+    viewModelState: SelectStoreScreenViewModel,
+    state: SelectStoreScreenStateHolder,
+    onBackButtonClick: () -> Unit,
+    onStoreClick: (StoreId) -> Unit,
+    onNewStoreClick: () -> Unit,
+    onStoreMoreClick: (StoreId) -> Unit
 ) {
+    val topBarScrollState = rememberTopAppBarState()
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
+
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarScrollState)
+    UseDefaultSystemNavBarColor()
+
+    val storesPagingItems = viewModelState.storesPagingDataFlow.collectAsLazyPagingItems()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    BackButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                            .padding(14.dp)
+                            .size(24.dp, 24.dp)
+                    )
+                },
+                title = {
+                    Text(text = stringResource(id = R.string.select_category_title))
+                },
+                actions = {
+                    if (storesPagingItems.itemCount != 0) {
+                        IconButton(
+                            onClick = onNewStoreClick,
+                            modifier = Modifier
+                                .size(48.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                                contentDescription = stringResource(id = R.string.select_category_new_category_icon_content_description)
+                            )
+                        }
+                    }
+                },
+                scrollBehavior = topBarScrollBehavior,
+            )
+        },) {
+
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { },

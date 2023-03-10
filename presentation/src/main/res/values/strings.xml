@@ -55,11 +55,6 @@
     <string name="new_price_discard_changes_confirmation_dialog_confirm_text">Keep editing</string>
     <string name="new_price_discard_changes_confirmation_dialog_cancel_text">Discard</string>
     <string name="new_price_discard_changes_confirmation_dialog_message_text">Discard this price record?</string>
-    <string name="new_price_select_store_dialog_title_text">Select Store</string>
-    <string name="new_price_select_store_dialog_selected_store_content_description">Store location</string>
-    <string name="new_price_select_store_dialog_edit_content_description">Edit store</string>
-    <string name="new_price_select_store_dialog_new_store_icon_content_description">New Store Location</string>
-    <string name="new_price_select_store_dialog_new_store_text">New Store Location</string>
     <string name="new_price_product_info_header">Product Information</string>
     <string name="new_price_product_name_label">Product Name</string>
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
@@ -89,6 +84,12 @@
     <string name="select_category_more_delete">Delete</string>
     <string name="select_category_new_category">New Category</string>
     <string name="select_category_new_category_icon_content_description">New Category</string>
+
+    <string name="select_store_title_text">Select Store</string>
+    <string name="select_store_selected_store_content_description">Store location</string>
+    <string name="select_store_edit_content_description">Edit store</string>
+    <string name="select_store_new_store_icon_content_description">New Store Location</string>
+    <string name="select_store_new_store_text">New Store Location</string>
 
     <string name="scan_barcode_no_permission_message_text">Camera permission is required to scan barcodes.</string>
     <string name="scan_barcode_no_permission_button_text">Open Camera</string>
