@@ -1,20 +1,52 @@
 package com.igrocery.overpriced.presentation.shared
 
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.igrocery.overpriced.presentation.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListSelectionDialog(
     selections: List<String>,
+    onDismiss: () -> Unit,
     onSelected: (index: Int) -> Unit,
 ) {
-
+    AlertDialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Surface(
+            shape = AlertDialogDefaults.shape,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                selections.forEachIndexed { index, selection ->
+                    TextButton(
+                        onClick = { onSelected(index) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = selection,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

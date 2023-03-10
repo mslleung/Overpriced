@@ -29,7 +29,6 @@ import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.editcategory.ConfirmDeleteCategoryDialog
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenStateHolder.CategoryMoreDialogData
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenStateHolder.DeleteCategoryDialogData
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.StateFlow
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SelectCategoryScreen(
     args: SelectCategoryScreenArgs,
@@ -63,53 +61,28 @@ internal fun SelectCategoryScreen(
     )
 
     state.categoryMoreDialogData?.let { dialogData ->
-        AlertDialog(
-            onDismissRequest = {
+        ListSelectionDialog(
+            selections = listOf(
+                stringResource(id = R.string.select_category_more_edit),
+                stringResource(id = R.string.select_category_more_delete)
+            ),
+            onDismiss = {
                 state.categoryMoreDialogData = null
             },
-        ) {
-            Surface(
-                shape = AlertDialogDefaults.shape,
-                tonalElevation = AlertDialogDefaults.TonalElevation,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                        .fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            navigateToEditCategory(dialogData.category.id)
-                            state.categoryMoreDialogData = null
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.select_category_more_edit),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+            onSelected = {
+                when (it) {
+                    0 -> {
+                        navigateToEditCategory(dialogData.category.id)
+                        state.categoryMoreDialogData = null
                     }
-
-                    TextButton(
-                        onClick = {
-                            state.deleteCategoryDialogData =
-                                DeleteCategoryDialogData(dialogData.category)
-                            state.categoryMoreDialogData = null
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.select_category_more_delete),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                    1 -> {
+                        state.deleteCategoryDialogData =
+                            SelectCategoryScreenStateHolder.DeleteCategoryDialogData(dialogData.category)
+                        state.categoryMoreDialogData = null
                     }
                 }
             }
-        }
+        )
     }
 
     state.deleteCategoryDialogData?.let { dialogData ->
