@@ -8,7 +8,6 @@ import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.editcategory.*
 
 private const val NewStore = "newStore"
-const val NewStore_Result_StoreId = "newStoreResultStoreId"
 
 fun NavController.navigateToNewStoreScreen(
     builder: NavOptionsBuilder.() -> Unit = {}
@@ -19,7 +18,6 @@ fun NavController.navigateToNewStoreScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.newStoreScreen(
     navigateUp: () -> Unit,
-    navigateDone: (StoreId) -> Unit
 ) {
     composable(NewStore) {
         val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
@@ -27,7 +25,10 @@ fun NavGraphBuilder.newStoreScreen(
         NewStoreScreen(
             newStoreViewModel = newStoreViewModel,
             navigateUp = navigateUp,
-            navigateDone = navigateDone
+            navigateDone = {
+                // TODO so far we don't have a need for returning the category id
+                navigateUp()
+            }
         )
     }
 }

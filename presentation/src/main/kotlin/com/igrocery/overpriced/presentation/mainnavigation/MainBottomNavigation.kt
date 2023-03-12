@@ -4,7 +4,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.CategoryId
@@ -22,7 +21,6 @@ fun NavController.navigateToMainBottomNavigationScreen(builder: NavOptionsBuilde
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.mainBottomNavigationScreen(
-    bottomNavController: NavHostController,
     navigateToSettings: () -> Unit,
 
     // forwarded navigation from ShoppingList
@@ -38,7 +36,6 @@ fun NavGraphBuilder.mainBottomNavigationScreen(
             hiltViewModel<MainBottomNavigationScreenViewModel>()
 
         MainBottomNavigationScreen(
-            bottomNavController = bottomNavController,
             mainBottomNavigationScreenViewModel = mainBottomNavigationScreenViewModel,
             navigateToSettings = navigateToSettings,
             navigateToEditGroceryList = navigateToEditGroceryList,

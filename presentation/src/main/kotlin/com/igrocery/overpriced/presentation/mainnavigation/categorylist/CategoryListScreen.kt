@@ -72,6 +72,7 @@ private fun MainContent(
     UseDefaultBottomNavBarColourForSystemNavBarColor()
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0.dp),
         modifier = modifier,
     ) { scaffoldPadding ->
         val categoryWithCountList by viewModelState.categoryWithProductCountFlow.collectAsState()

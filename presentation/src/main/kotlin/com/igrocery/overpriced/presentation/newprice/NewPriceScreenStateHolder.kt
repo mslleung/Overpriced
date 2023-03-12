@@ -7,6 +7,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 
 class NewPriceScreenStateHolder(
     private val newPriceScreenViewModel: NewPriceScreenViewModelState,
@@ -65,8 +66,9 @@ class NewPriceScreenStateHolder(
     companion object {
         fun Saver(
             newPriceScreenViewModel: NewPriceScreenViewModelState,
-            selectCategoryResultViewModel: SelectCategoryScreenResultViewModel
-        ) = listSaver(
+            selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
+            selectStoreResultViewModel: SelectStoreScreenResultViewModel
+        ) = listSaver<NewPriceScreenStateHolder, Any?>(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
@@ -82,7 +84,9 @@ class NewPriceScreenStateHolder(
             },
             restore = {
                 val productCategoryId =
-                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4)
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4) as? CategoryId
+                val productStoreId =
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(6) as? StoreId
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
@@ -91,7 +95,7 @@ class NewPriceScreenStateHolder(
                     productDescription = it[3] as String,
                     productCategoryId = productCategoryId,
                     priceAmountText = it[5] as String,
-                    priceStoreId = it[6] as StoreId?,
+                    priceStoreId = productStoreId,
                     isDiscardDialogShown = it[7] as Boolean,
                     submitError = it[8] as SubmitError,
                 )
@@ -105,14 +109,16 @@ class NewPriceScreenStateHolder(
 fun rememberNewPriceScreenState(
     args: NewPriceScreenArgs,
     newPriceScreenViewModel: NewPriceScreenViewModelState,
-    selectCategoryResultViewModel: SelectCategoryScreenResultViewModel
+    selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
+    selectStoreResultViewModel: SelectStoreScreenResultViewModel
 ) = rememberSaveable(
     stateSaver = Saver(
         save = {
             with(
                 NewPriceScreenStateHolder.Saver(
                     newPriceScreenViewModel,
-                    selectCategoryResultViewModel
+                    selectCategoryResultViewModel,
+                    selectStoreResultViewModel
                 )
             ) { save(it) }
         },
@@ -120,7 +126,8 @@ fun rememberNewPriceScreenState(
             with(
                 NewPriceScreenStateHolder.Saver(
                     newPriceScreenViewModel,
-                    selectCategoryResultViewModel
+                    selectCategoryResultViewModel,
+                    selectStoreResultViewModel
                 )
             ) { restore(value)!! }
         }

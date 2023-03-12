@@ -5,37 +5,35 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.domain.productpricehistory.models.Address
-import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
-import com.igrocery.overpriced.domain.productpricehistory.models.Store
+import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.R
-import com.igrocery.overpriced.presentation.selectcategory.*
-import com.igrocery.overpriced.presentation.shared.BackButton
-import com.igrocery.overpriced.presentation.shared.UseAnimatedFadeTopBarColorForStatusBarColor
-import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
-import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
+import com.igrocery.overpriced.presentation.editstore.ConfirmDeleteStoreDialog
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenStateHolder.*
+import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
@@ -60,26 +58,70 @@ internal fun SelectStoreScreen(
         onStoreClick = navigateUpWithResults,
         onNewStoreClick = navigateToNewStore,
         onStoreMoreClick = {
-            state.categoryMoreDialogData =
-                SelectCategoryScreenStateHolder.CategoryMoreDialogData(it)
+            state.storeMoreDialogData = StoreMoreDialogData(it)
         }
     )
 
+    state.storeMoreDialogData?.let { dialogData ->
+        ListSelectionDialog(
+            selections = listOf(
+                stringResource(id = R.string.select_store_more_edit),
+                stringResource(id = R.string.select_store_more_delete)
+            ),
+            onDismiss = {
+                state.storeMoreDialogData = null
+            },
+            onSelected = {
+                when (it) {
+                    0 -> {
+                        navigateToEditStore(dialogData.store.id)
+                        state.storeMoreDialogData = null
+                    }
+                    1 -> {
+                        state.deleteStoreDialogData = DeleteStoreDialogData(dialogData.store)
+                        state.storeMoreDialogData = null
+                    }
+                    else -> {
+                        throw NotImplementedError("selection $it not handled")
+                    }
+                }
+            }
+        )
+    }
+
+    state.deleteStoreDialogData?.let { dialogData ->
+        ConfirmDeleteStoreDialog(
+            onDismiss = {
+                state.deleteStoreDialogData = null
+            },
+            onConfirm = {
+                viewModel.deleteStore(dialogData.store)
+                state.deleteStoreDialogData = null
+            }
+        )
+    }
+
     BackHandler {
         log.debug("SelectStoreScreen: BackHandler")
-        navigateUp()
+        if (state.deleteStoreDialogData != null) {
+            state.deleteStoreDialogData = null
+        } else if (state.storeMoreDialogData != null) {
+            state.storeMoreDialogData = null
+        } else {
+            navigateUp()
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainLayout(
-    viewModelState: SelectStoreScreenViewModel,
+    viewModelState: SelectStoreScreenViewModelState,
     state: SelectStoreScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onStoreClick: (StoreId) -> Unit,
     onNewStoreClick: () -> Unit,
-    onStoreMoreClick: (StoreId) -> Unit
+    onStoreMoreClick: (Store) -> Unit
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
@@ -100,7 +142,7 @@ private fun MainLayout(
                     )
                 },
                 title = {
-                    Text(text = stringResource(id = R.string.select_category_title))
+                    Text(text = stringResource(id = R.string.select_store_title_text))
                 },
                 actions = {
                     if (storesPagingItems.itemCount != 0) {
@@ -111,176 +153,206 @@ private fun MainLayout(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                                contentDescription = stringResource(id = R.string.select_category_new_category_icon_content_description)
+                                contentDescription = stringResource(id = R.string.select_store_new_store_icon_content_description)
                             )
                         }
                     }
                 },
                 scrollBehavior = topBarScrollBehavior,
             )
-        },) {
-
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { },
-        modifier = Modifier.padding(horizontal = 16.dp),
-        title = {
-            Text(
-                text = stringResource(id = R.string.new_price_select_store_dialog_title_text)
-            )
         },
-        text = {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier
-                    .navigationBarsPadding()
-            ) {
-                items(
-                    items = storesPagingItems,
-                    key = { store -> store.id }
-                ) { store ->
-                    if (store != null) {
-                        StoreLocationOptionLayout(
-                            store = store,
-                            isSelected = selectedStoreId == store.id,
-                            onStoreSelect = onStoreSelect,
-                            onEditStoreClick = onEditStoreClick,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        )
+    ) { scaffoldPadding ->
+        if (storesPagingItems.isInitialLoadCompleted()) {
+            if (storesPagingItems.itemCount == 0) {
+                EmptyLayout(
+                    onNewStoreClick = onNewStoreClick,
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier
+                        .padding(scaffoldPadding)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    items(
+                        items = storesPagingItems,
+                        key = { store -> store.id }
+                    ) { store ->
+                        if (store != null) {
+                            StoreLocationOptionLayout(
+                                store = store,
+                                isSelected = state.selectedStoreId == store.id,
+                                onStoreClick = onStoreClick,
+                                onMoreClick = onStoreMoreClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
-
-                item {
-                    NewStoreLocationItemLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .clickable { onNewStoreClick() }
-                    )
-                }
             }
-        },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    )
+        }
+    }
+}
+
+@Composable
+private fun EmptyLayout(
+    onNewStoreClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .verticalScroll(scrollState)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_market),
+            contentDescription = stringResource(id = R.string.select_store_empty_icon_content_description),
+            modifier = Modifier
+                .size(200.dp, 200.dp)
+                .padding(bottom = 32.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+        )
+
+        Text(
+            text = stringResource(id = R.string.select_store_empty_text),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(horizontal = 40.dp)
+                .padding(bottom = 24.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Button(
+            onClick = onNewStoreClick,
+        ) {
+            Text(
+                text = stringResource(id = R.string.select_store_empty_new_category_button_text),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
 }
 
 @Composable
 private fun StoreLocationOptionLayout(
     store: Store,
     isSelected: Boolean,
-    onStoreSelect: (Store) -> Unit,
-    onEditStoreClick: (Store) -> Unit,
+    onStoreClick: (StoreId) -> Unit,
+    onMoreClick: (Store) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = modifier
-            .clickable { onStoreSelect(store) }
+            .clickable { onStoreClick(store.id) }
     ) {
-        Image(
-            painter = if (isSelected) {
-                painterResource(id = R.drawable.ic_baseline_check_circle_24)
-            } else {
-                painterResource(id = R.drawable.ic_baseline_radio_button_unchecked_24)
-            },
-            contentDescription = stringResource(id = R.string.new_price_select_store_dialog_selected_store_content_description),
-            contentScale = ContentScale.Fit,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+        Row(
             modifier = Modifier
-                .padding(end = 12.dp)
-                .size(24.dp)
-                .clickable { onStoreSelect(store) },
-        )
+                .padding(horizontal = 12.dp)
+                .size(24.dp),
+        ) {
+            if (isSelected) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                    contentDescription = stringResource(id = R.string.select_store_selected_content_description),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .size(24.dp),
+                )
+            }
+        }
 
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
         ) {
             Text(
                 text = store.name,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
 
-            Text(
-                text = store.address.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .alpha(0.8f)
-            )
+            val addressLines = store.address.lines
+            if (addressLines.isNullOrBlank()) {
+                Text(
+                    text = stringResource(id = R.string.product_detail_store_no_address),
+                    maxLines = 1,
+                    fontStyle = FontStyle.Italic,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            } else {
+                Text(
+                    text = addressLines,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            }
         }
+
+        // TODO view on map button
 
         IconButton(
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = MaterialTheme.colorScheme.primary
             ),
-            onClick = { onEditStoreClick(store) },
+            onClick = { onMoreClick(store) },
             modifier = Modifier
                 .size(48.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_edit_24),
-                contentDescription = stringResource(id = R.string.new_price_select_store_dialog_edit_content_description)
+                painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
+                contentDescription = stringResource(id = R.string.select_store_more_content_description)
             )
         }
-    }
-}
-
-@Composable
-private fun NewStoreLocationItemLayout(
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier,
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_baseline_add_24),
-            contentDescription = stringResource(id = R.string.new_price_select_store_dialog_new_store_icon_content_description),
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .size(24.dp)
-        )
-
-        Text(
-            text = stringResource(id = R.string.new_price_select_store_dialog_new_store_text),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
     }
 }
 
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val stores = flowOf(
-        PagingData.from(
-            listOf(
-                Store(
-                    id = StoreId(0),
-                    name = "Welcome",
-                    address = Address(
-                        "100 Happy Street, Mong Kok, HK",
-                        geoCoordinates = GeoCoordinates(0.0, 0.0)
+    val viewModelState = object : SelectStoreScreenViewModelState {
+        override var storesPagingDataFlow: Flow<PagingData<Store>> = flowOf(
+            PagingData.from(
+                listOf(
+                    Store(
+                        id = StoreId(0),
+                        name = "Welcome",
+                        address = Address(
+                            "100 Happy Street, Mong Kok, HK",
+                            geoCoordinates = GeoCoordinates(0.0, 0.0)
+                        )
                     )
                 )
             )
         )
-    ).collectAsLazyPagingItems()
+    }
 
     MainLayout(
-        storesPagingItems = stores,
-        selectedStoreId = StoreId(0),
-        onDismiss = {},
-        onStoreSelect = {},
-        onEditStoreClick = {},
-        onNewStoreClick = {}
+        viewModelState = viewModelState,
+        state = SelectStoreScreenStateHolder(StoreId(0), null, null),
+        onBackButtonClick = {},
+        onNewStoreClick = {},
+        onStoreClick = {},
+        onStoreMoreClick = {},
     )
 }

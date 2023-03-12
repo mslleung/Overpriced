@@ -32,7 +32,6 @@ private val log = Logger {}
 fun EditStoreScreen(
     viewModel: EditStoreScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditStoreScreen")
 
@@ -62,7 +61,7 @@ fun EditStoreScreen(
         )
 
         if (state.isConfirmDeleteDialogShown) {
-            ConfirmDeleteDialog(
+            ConfirmDeleteStoreDialog(
                 onDismiss = {
                     state.isConfirmDeleteDialogShown = false
                 },
@@ -71,7 +70,6 @@ fun EditStoreScreen(
                     navigateUp()
                     viewModel.deleteStore(store)
                 },
-                messageText = stringResource(id = R.string.store_delete_dialog_message)
             )
         }
 
@@ -79,7 +77,7 @@ fun EditStoreScreen(
             when (it) {
                 is LoadingState.Success -> {
                     LaunchedEffect(key1 = Unit) {
-                        navigateDone()
+                        navigateUp()
                     }
                 }
                 is LoadingState.Error -> {
@@ -122,7 +120,7 @@ fun EditStoreScreen(
             when (it) {
                 is LoadingState.Success -> {
                     LaunchedEffect(key1 = Unit) {
-                        navigateDone()
+                        navigateUp()
                     }
                 }
                 is LoadingState.Error -> {
@@ -232,6 +230,18 @@ private fun MainContent(
             }
         }
     }
+}
+
+@Composable
+fun ConfirmDeleteStoreDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    ConfirmDeleteDialog(
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        messageText = stringResource(id = R.string.edit_store_delete_dialog_message)
+    )
 }
 
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])

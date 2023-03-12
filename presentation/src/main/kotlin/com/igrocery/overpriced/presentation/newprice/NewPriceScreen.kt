@@ -50,6 +50,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.*
@@ -65,6 +66,7 @@ fun NewPriceScreen(
     args: NewPriceScreenArgs,
     newPriceScreenViewModel: NewPriceScreenViewModel,
     selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
+    selectStoreResultViewModel: SelectStoreScreenResultViewModel,
     navigateUp: () -> Unit,
     navigateToSelectCategory: (CategoryId?) -> Unit,
     navigateToSelectStore: (StoreId?) -> Unit,
@@ -74,7 +76,7 @@ fun NewPriceScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel, selectCategoryResultViewModel)
+    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel, selectCategoryResultViewModel, selectStoreResultViewModel)
     LaunchedEffect(Unit) {
         newPriceScreenViewModel.productFlow.collect {
             // TODO state should have an isEdit mode?
@@ -769,7 +771,7 @@ private fun DefaultPreview() {
                     id = ProductId(0),
                     name = "Apple",
                     description = "Pack of 6",
-                    categoryId = CategoryId(0),
+                    categoryId = CategoryId(1),
                     creationTimestamp = 0,
                     updateTimestamp = 0,
                 )
@@ -780,7 +782,8 @@ private fun DefaultPreview() {
     val state by rememberNewPriceScreenState(
         NewPriceScreenArgs(null, null),
         viewModelState,
-        SelectCategoryScreenResultViewModel(SavedStateHandle())
+        SelectCategoryScreenResultViewModel(SavedStateHandle()),
+        SelectStoreScreenResultViewModel(SavedStateHandle()),
     )
     MainLayout(
         viewModelState = viewModelState,

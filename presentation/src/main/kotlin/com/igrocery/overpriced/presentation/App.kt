@@ -16,7 +16,6 @@ import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editcategory.*
 import com.igrocery.overpriced.presentation.editgrocerylist.editGroceryListScreen
 import com.igrocery.overpriced.presentation.editgrocerylist.navigateToEditGroceryListScreen
-import com.igrocery.overpriced.presentation.editstore.EditStore_Result_StoreId
 import com.igrocery.overpriced.presentation.editstore.editStoreScreen
 import com.igrocery.overpriced.presentation.editstore.navigateToEditStoreScreen
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigation
@@ -24,7 +23,6 @@ import com.igrocery.overpriced.presentation.mainnavigation.mainBottomNavigationS
 import com.igrocery.overpriced.presentation.newcategory.*
 import com.igrocery.overpriced.presentation.newprice.navigateToNewPriceScreen
 import com.igrocery.overpriced.presentation.newprice.newPriceScreen
-import com.igrocery.overpriced.presentation.newstore.NewStore_Result_StoreId
 import com.igrocery.overpriced.presentation.newstore.navigateToNewStoreScreen
 import com.igrocery.overpriced.presentation.newstore.newStoreScreen
 import com.igrocery.overpriced.presentation.productdetail.navigateToProductDetailScreen
@@ -37,6 +35,8 @@ import com.igrocery.overpriced.presentation.selectcategory.navigateToSelectCateg
 import com.igrocery.overpriced.presentation.selectcategory.selectCategoryScreen
 import com.igrocery.overpriced.presentation.selectcurrency.navigateToSelectCurrencyScreen
 import com.igrocery.overpriced.presentation.selectcurrency.selectCurrencyScreen
+import com.igrocery.overpriced.presentation.selectstore.navigateToSelectStoreScreen
+import com.igrocery.overpriced.presentation.selectstore.selectStoreScreen
 import com.igrocery.overpriced.presentation.settings.*
 import com.igrocery.overpriced.presentation.storepricedetail.navigateToStorePriceDetailScreen
 import com.igrocery.overpriced.presentation.storepricedetail.storePriceDetailScreen
@@ -65,7 +65,7 @@ fun App() {
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = "mainBottomNavigation",
+            startDestination = MainBottomNavigation,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -104,7 +104,6 @@ private fun NavGraphBuilder.navGraph(
     bottomNavController: NavHostController,
 ) {
     mainBottomNavigationScreen(
-        bottomNavController = bottomNavController,
         navigateToSettings = { navController.navigateToSettingsScreen() },
         navigateToEditGroceryList = { navController.navigateToEditGroceryListScreen(it) },
         navigateToSearchProduct = { navController.navigateToSearchProductScreen() },
@@ -127,7 +126,7 @@ private fun NavGraphBuilder.navGraph(
     newPriceScreen(
         navigateUp = { navController.navigateUp() },
         navigateToSelectCategory = { navController.navigateToSelectCategoryScreen(it) },
-        navigateToSelectStore = { navController.navigateToNewStoreScreen() },
+        navigateToSelectStore = { navController.navigateToSelectStoreScreen(it) },
     )
     newCategoryScreen(
         navigateUp = { navController.navigateUp() },
@@ -143,23 +142,15 @@ private fun NavGraphBuilder.navGraph(
     )
     newStoreScreen(
         navigateUp = { navController.navigateUp() },
-        navigateDone = {
-            navController.previousBackStackEntry?.savedStateHandle?.set(
-                NewStore_Result_StoreId,
-                it.value
-            ) ?: throw IllegalStateException("NewStore result is not received.")
-            navController.navigateUp()
-        }
     )
     editStoreScreen(
         navigateUp = { navController.navigateUp() },
-        navigateDone = {
-            navController.previousBackStackEntry?.savedStateHandle?.set(
-                EditStore_Result_StoreId,
-                it.value
-            ) ?: throw IllegalStateException("EditStore result is not received.")
-            navController.navigateUp()
-        }
+    )
+    selectStoreScreen(
+        navController = navController,
+        navigateUp = { navController.navigateUp() },
+        navigateToNewStore = { navController.navigateToNewStoreScreen() },
+        navigateToEditStore = { navController.navigateToEditStoreScreen(it) }
     )
     productDetailScreen(
         navigateUp = { navController.navigateUp() },

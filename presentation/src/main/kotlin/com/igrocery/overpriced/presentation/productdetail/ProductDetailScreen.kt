@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -230,7 +231,16 @@ private fun StoreListItem(
             )
 
             val addressLines = store.address.lines
-            if (addressLines != null && addressLines.isNotBlank()) {
+            if (addressLines.isNullOrBlank()) {
+                Text(
+                    text = stringResource(id = R.string.product_detail_store_no_address),
+                    maxLines = 1,
+                    fontStyle = Italic,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.alpha(0.6f)
+                )
+            } else {
                 Text(
                     text = addressLines,
                     maxLines = 1,

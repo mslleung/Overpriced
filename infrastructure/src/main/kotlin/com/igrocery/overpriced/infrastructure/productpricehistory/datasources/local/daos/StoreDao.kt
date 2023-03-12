@@ -11,7 +11,7 @@ import java.util.*
 @Dao
 internal interface StoreDao: BaseDao<StoreRoomEntity> {
 
-    @Query("SELECT * FROM stores ORDER BY creation_timestamp LIMIT :pageSize OFFSET :offset")
+    @Query("SELECT * FROM stores ORDER BY name, creation_timestamp LIMIT :pageSize OFFSET :offset")
     suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity>
 
     @Query("SELECT * FROM stores WHERE id = :id")

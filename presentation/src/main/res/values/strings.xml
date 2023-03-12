@@ -29,6 +29,7 @@
     <string name="product_list_edit_button_content_description">Edit Category</string>
     <string name="product_list_empty_text">No product in this category.</string>
 
+    <string name="product_detail_store_no_address">No address</string>
     <string name="product_detail_updated_label">Updated </string>
     <plurals name="product_detail_days_ago">
         <item quantity="one">%1$d day ago</item>
@@ -76,18 +77,25 @@
     <string name="no_category">No Category</string>
     <string name="select_category_title">Select Category</string>
     <string name="select_category_category_icon_content_description">Category icon</string>
-    <string name="select_category_edit_content_description">Edit Category</string>
     <string name="select_category_empty_icon_content_description">No category</string>
     <string name="select_category_empty_text">You don\'t have any saved category.</string>
     <string name="select_category_empty_new_category_button_text">Create New Category</string>
+    <string name="select_category_more_content_description">More options</string>
     <string name="select_category_more_edit">Edit</string>
     <string name="select_category_more_delete">Delete</string>
     <string name="select_category_new_category">New Category</string>
     <string name="select_category_new_category_icon_content_description">New Category</string>
+    <string name="select_category_selected_content_description">Selected</string>
 
     <string name="select_store_title_text">Select Store</string>
-    <string name="select_store_selected_store_content_description">Store location</string>
+    <string name="select_store_selected_content_description">Selected</string>
     <string name="select_store_edit_content_description">Edit store</string>
+    <string name="select_store_empty_icon_content_description">No saved store location.</string>
+    <string name="select_store_empty_new_category_button_text">Create New Store Location</string>
+    <string name="select_store_empty_text">You don\'t have any saved store locations.</string>
+    <string name="select_store_more_content_description">More options</string>
+    <string name="select_store_more_edit">Edit</string>
+    <string name="select_store_more_delete">Delete</string>
     <string name="select_store_new_store_icon_content_description">New Store Location</string>
     <string name="select_store_new_store_text">New Store Location</string>
 
@@ -109,17 +117,18 @@
     <string name="edit_category_delete_dialog_message">Are you sure you want to delete this category? All products in this category will become uncategorized.</string>
 
     <string name="new_store_title">New Store Location</string>
-    <string name="edit_store_title">Edit Store Location</string>
     <string name="store_save_button_text">Save</string>
     <string name="store_map_my_location_button_content_description">My Location</string>
     <string name="store_map_selected_location_image_content_description">Selected location</string>
     <string name="store_loading_address">Loading address</string>
-    <string name="store_delete_dialog_message">Are you sure you want to delete this store? All price records for this store will also be deleted.</string>
     <string name="store_save_dialog_store_name_label">Store name (e.g. Walmart)</string>
     <string name="store_save_dialog_address_label">Store address</string>
     <string name="store_save_dialog_confirm_button_text">Confirm</string>
     <string name="store_save_dialog_dismiss_button_text">Cancel</string>
     <string name="new_store_create_failed_message">Failed to create store.</string>
+
+    <string name="edit_store_title">Edit Store Location</string>
+    <string name="edit_store_delete_dialog_message">Are you sure you want to delete this store? All price records for this store will also be deleted.</string>
     <string name="edit_store_update_failed_message">Failed to update store.</string>
     <string name="edit_store_delete_failed_message">Failed to delete store.</string>
 

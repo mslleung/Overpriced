@@ -258,7 +258,7 @@ private fun CategoryItemLayout(
             if (isSelected) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_baseline_check_24),
-                    contentDescription = stringResource(id = R.string.new_price_select_store_dialog_selected_store_content_description),
+                    contentDescription = stringResource(id = R.string.select_category_selected_content_description),
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                     modifier = Modifier
@@ -277,7 +277,7 @@ private fun CategoryItemLayout(
 
         Text(
             text = category.name,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.labelLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
@@ -293,7 +293,7 @@ private fun CategoryItemLayout(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
-                contentDescription = stringResource(id = R.string.select_category_edit_content_description)
+                contentDescription = stringResource(id = R.string.select_category_more_content_description)
             )
         }
     }

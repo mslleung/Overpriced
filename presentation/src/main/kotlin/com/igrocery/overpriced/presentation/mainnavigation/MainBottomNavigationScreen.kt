@@ -13,7 +13,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -40,7 +39,6 @@ private const val BottomNavRoute = "bottomNavRoute"
 
 @Composable
 fun MainBottomNavigationScreen(
-    bottomNavController: NavHostController,
     mainBottomNavigationScreenViewModel: MainBottomNavigationScreenViewModel,
     navigateToSettings: () -> Unit,
 
@@ -56,7 +54,6 @@ fun MainBottomNavigationScreen(
 
     val state by rememberMainBottomNavigationScreenState()
     MainContent(
-        bottomNavController = bottomNavController,
         viewModelState = mainBottomNavigationScreenViewModel,
         state = state,
         navigateToSettings = navigateToSettings,
@@ -101,7 +98,6 @@ fun MainBottomNavigationScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 private fun MainContent(
-    bottomNavController: NavHostController,
     viewModelState: MainBottomNavigationScreenViewModelState,
     state: MainBottomNavigationScreenStateHolder,
     navigateToSettings: () -> Unit,
@@ -113,6 +109,8 @@ private fun MainContent(
     val topBarState = rememberTopAppBarState()
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+
+    val bottomNavController = rememberAnimatedNavController()
 
     Scaffold(
         topBar = {
@@ -262,8 +260,8 @@ private fun MainContent(
                 // tabs (also helps to maintain fab states)
                 groceryListScreen(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
+                    mainBottomNavigationState = { state },
                     topBarScrollBehavior = topBarScrollBehavior,
-                    mainBottomNavigationState = state,
                     navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(
@@ -293,11 +291,9 @@ private fun SettingsButton(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Preview
 @Composable
 private fun DefaultPreview() {
-    val bottomNavController = rememberAnimatedNavController()
     val viewModelState = object : MainBottomNavigationScreenViewModelState {
         override val groceryListCountFlow: StateFlow<LoadingState<Int>> =
             MutableStateFlow(LoadingState.Success(0))
@@ -309,7 +305,6 @@ private fun DefaultPreview() {
 
     val state by rememberMainBottomNavigationScreenState()
     MainContent(
-        bottomNavController = bottomNavController,
         viewModelState = viewModelState,
         state = state,
         navigateToSettings = {},

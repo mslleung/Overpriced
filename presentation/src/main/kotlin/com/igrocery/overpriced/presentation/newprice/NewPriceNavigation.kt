@@ -9,6 +9,7 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 
 private const val NewPrice = "newPrice"
 private const val NewPrice_Arg_ProductId = "productId"
@@ -54,6 +55,7 @@ fun NavGraphBuilder.newPriceScreen(
     ) { backStackEntry ->
         val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>()
         val selectCategoryResultViewModel = hiltViewModel<SelectCategoryScreenResultViewModel>(backStackEntry)
+        val selectStoreResultViewModel = hiltViewModel<SelectStoreScreenResultViewModel>(backStackEntry)
 
         val args = NewPriceScreenArgs(backStackEntry)
 
@@ -61,6 +63,7 @@ fun NavGraphBuilder.newPriceScreen(
             args = args,
             newPriceScreenViewModel = newPriceViewModel,
             selectCategoryResultViewModel = selectCategoryResultViewModel,
+            selectStoreResultViewModel = selectStoreResultViewModel,
             navigateUp = navigateUp,
             navigateToSelectCategory = navigateToSelectCategory,
             navigateToSelectStore = navigateToSelectStore,

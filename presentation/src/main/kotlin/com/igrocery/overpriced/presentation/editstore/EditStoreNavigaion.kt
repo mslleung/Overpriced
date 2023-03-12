@@ -11,7 +11,6 @@ import com.igrocery.overpriced.presentation.editcategory.*
 private const val EditStore = "editStore"
 private const val EditStore_Arg_StoreId = "storeId"
 private const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
-const val EditStore_Result_StoreId = "editStoreResultStoreId"
 
 fun NavController.navigateToEditStoreScreen(
     storeId: StoreId,
@@ -24,7 +23,6 @@ fun NavController.navigateToEditStoreScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.editStoreScreen(
     navigateUp: () -> Unit,
-    navigateDone: (StoreId) -> Unit
 ) {
     composable(
         EditStore_With_Args,
@@ -39,7 +37,6 @@ fun NavGraphBuilder.editStoreScreen(
         EditStoreScreen(
             viewModel = editStoreScreenViewModel,
             navigateUp = navigateUp,
-            navigateDone = { navigateDone(args.storeId) },
         )
     }
 }

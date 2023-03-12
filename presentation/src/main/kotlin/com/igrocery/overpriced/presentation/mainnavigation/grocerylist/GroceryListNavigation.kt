@@ -11,7 +11,6 @@ import androidx.navigation.NavOptionsBuilder
 import com.google.accompanist.navigation.animation.composable
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
-import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenViewModelState
 
 const val GroceryList = "groceryList"
 
@@ -22,8 +21,8 @@ fun NavController.navigateToGroceryListScreen(builder: NavOptionsBuilder.() -> U
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 fun NavGraphBuilder.groceryListScreen(
     previousBackStackEntry: () -> NavBackStackEntry,
+    mainBottomNavigationState: () -> MainBottomNavigationScreenStateHolder,
     topBarScrollBehavior: TopAppBarScrollBehavior,
-    mainBottomNavigationState: MainBottomNavigationScreenStateHolder,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
 ) {
     composable(GroceryList) {
@@ -32,7 +31,7 @@ fun NavGraphBuilder.groceryListScreen(
 
         GroceryListScreen(
             topBarScrollBehavior = topBarScrollBehavior,
-            mainBottomNavigationState = mainBottomNavigationState,
+            mainBottomNavigationState = mainBottomNavigationState(),
             groceryListScreenViewModel = groceryListScreenViewModel,
             navigateToEditGroceryList = navigateToEditGroceryList
         )
