@@ -2,9 +2,11 @@ package com.igrocery.overpriced.application.grocerylist
 
 import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
+import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListItemRepository
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListRepository
@@ -19,6 +21,20 @@ class GroceryListService @Inject constructor(
     private val transaction: Transaction
 ) {
 
+    suspend fun createNewGroceryList(name: String): GroceryListId {
+        return transaction.execute {
+            val newGroceryList = GroceryList(
+                name = name,
+            )
+
+            groceryListRepository.insert(newGroceryList)
+        }
+    }
+
+    fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
+        return groceryListRepository.get(id)
+    }
+
     fun getGroceryListCount(): Flow<Int> {
         return groceryListRepository.getGroceryListCount()
     }
@@ -31,16 +47,6 @@ class GroceryListService @Inject constructor(
 
     fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {
         return groceryListItemRepository.getAllGroceryListItemsPaging(groceryListId)
-    }
-
-    suspend fun createNewGroceryList(name: String): GroceryListId {
-        return transaction.execute {
-            val newGroceryList = GroceryList(
-                name = name,
-            )
-
-            groceryListRepository.insert(newGroceryList)
-        }
     }
 
 }

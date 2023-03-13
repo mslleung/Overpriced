@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface ILocalCategoryDataSource : IBaseLocalDataSource<CategoryId, CategoryRoomEntity> {
 
-    fun getCategory(id: CategoryId): Flow<CategoryRoomEntity?>
+    fun getCategory(id: CategoryId): Flow<CategoryRoomEntity>
 
     fun getAllCategories(): Flow<List<CategoryRoomEntity>>
 

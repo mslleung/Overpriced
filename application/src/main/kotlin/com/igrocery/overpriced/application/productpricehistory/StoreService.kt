@@ -59,7 +59,7 @@ class StoreService @Inject constructor(
         return storeRepository.getStoresPaging()
     }
 
-    fun getStore(id: StoreId): Flow<Store?> {
+    fun getStore(id: StoreId): Flow<Store> {
         return storeRepository.getStore(id)
     }
 

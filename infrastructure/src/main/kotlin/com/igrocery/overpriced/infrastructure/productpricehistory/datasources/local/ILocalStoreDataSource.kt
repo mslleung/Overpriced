@@ -19,7 +19,7 @@ internal interface ILocalStoreDataSource : IBaseLocalDataSource<StoreId, StoreRo
         pageSize: Int
     ): List<StoreDao.StoreWithMinMaxPrices>
 
-    fun getStore(id: StoreId): Flow<StoreRoomEntity?>
+    fun getStore(id: StoreId): Flow<StoreRoomEntity>
 
     fun getStoresCount(): Flow<Int>
 }

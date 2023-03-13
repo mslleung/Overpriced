@@ -37,9 +37,9 @@ class CategoryRepository @Inject internal constructor(
         }
     }
 
-    override fun getCategory(id: CategoryId): Flow<Category?> {
+    override fun getCategory(id: CategoryId): Flow<Category> {
         return localCategoryDataSource.getCategory(id)
-            .map { it?.toDomain() }
+            .map { it.toDomain() }
     }
 
     override fun getAllCategories(): Flow<List<Category>> {

@@ -72,7 +72,7 @@ internal class LocalStoreDataSource @Inject constructor(
         )
     }
 
-    override fun getStore(id: StoreId): Flow<StoreRoomEntity?> {
+    override fun getStore(id: StoreId): Flow<StoreRoomEntity> {
         return db.storeDao().getStoreById(id.value).distinctUntilChanged()
     }
 

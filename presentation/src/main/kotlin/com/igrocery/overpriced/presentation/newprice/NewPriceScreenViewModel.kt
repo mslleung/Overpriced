@@ -116,9 +116,7 @@ class NewPriceScreenViewModel @Inject constructor(
             MutableStateFlow(LoadingState.Success(null))
         } else {
             storeService.getStore(storeId)
-                .map {
-                    LoadingState.Success(it)
-                }
+                .map { LoadingState.Success<Store?>(it) }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(),

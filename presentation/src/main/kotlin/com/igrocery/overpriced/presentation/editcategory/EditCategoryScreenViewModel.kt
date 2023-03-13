@@ -20,7 +20,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface EditCategoryScreenViewModelState {
-    val categoryFlow: StateFlow<LoadingState<Category?>>
+    val categoryFlow: StateFlow<LoadingState<Category>>
     val updateCategoryResult: LoadingState<Unit>
 }
 
@@ -33,14 +33,12 @@ class EditCategoryScreenViewModel @Inject constructor(
     private val args = EditCategoryScreenArgs(savedStateHandle)
 
     override val categoryFlow = categoryService.getCategory(args.categoryId)
-            .map {
-                LoadingState.Success(it)
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = LoadingState.Loading()
-            )
+        .map { LoadingState.Success(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
 
     override var updateCategoryResult: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
@@ -49,7 +47,7 @@ class EditCategoryScreenViewModel @Inject constructor(
         categoryIcon: CategoryIcon,
     ) {
         val originalCategory = categoryFlow.value
-        if (originalCategory is LoadingState.Success && originalCategory.data != null) {
+        if (originalCategory is LoadingState.Success) {
             viewModelScope.launch {
                 runCatching {
                     val updatedCategory = originalCategory.data.copy(
@@ -71,7 +69,7 @@ class EditCategoryScreenViewModel @Inject constructor(
     fun deleteCategory() {
         viewModelScope.launch {
             val category = categoryFlow.value
-            if (category is LoadingState.Success && category.data != null) {
+            if (category is LoadingState.Success) {
                 categoryService.deleteCategory(category.data)
 
             }

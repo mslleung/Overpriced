@@ -58,13 +58,7 @@ class StorePriceDetailScreenViewModel @Inject constructor(
         )
 
     override val storeFlow = storeService.getStore(args.storeId)
-        .map {
-            if (it == null) {
-                LoadingState.Error(IllegalArgumentException("Store not found"))
-            } else {
-                LoadingState.Success(it)
-            }
-        }
+        .map { LoadingState.Success(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

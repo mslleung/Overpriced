@@ -38,7 +38,7 @@ class CategoryService @Inject constructor(
         }
     }
 
-    fun getCategory(id: CategoryId): Flow<Category?> {
+    fun getCategory(id: CategoryId): Flow<Category> {
         return categoryRepository.getCategory(id)
     }
 

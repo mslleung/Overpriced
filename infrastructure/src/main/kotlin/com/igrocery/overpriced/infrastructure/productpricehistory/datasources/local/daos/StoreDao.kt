@@ -15,7 +15,7 @@ internal interface StoreDao: BaseDao<StoreRoomEntity> {
     suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity>
 
     @Query("SELECT * FROM stores WHERE id = :id")
-    fun getStoreById(id: Long) : Flow<StoreRoomEntity?>
+    fun getStoreById(id: Long) : Flow<StoreRoomEntity>
 
     @Query("SELECT COUNT(id) FROM stores")
     fun getStoresCount() : Flow<Int>

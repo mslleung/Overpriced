@@ -58,9 +58,6 @@ fun App() {
         // main app nav controller
         val navController = rememberAnimatedNavController()
 
-        // nav controller for the bottom nav bar
-        val bottomNavController = rememberAnimatedNavController()
-
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
@@ -93,7 +90,6 @@ fun App() {
         ) {
             navGraph(
                 navController = navController,
-                bottomNavController = bottomNavController,
             )
         }
     }
@@ -101,7 +97,6 @@ fun App() {
 
 private fun NavGraphBuilder.navGraph(
     navController: NavHostController,
-    bottomNavController: NavHostController,
 ) {
     mainBottomNavigationScreen(
         navigateToSettings = { navController.navigateToSettingsScreen() },

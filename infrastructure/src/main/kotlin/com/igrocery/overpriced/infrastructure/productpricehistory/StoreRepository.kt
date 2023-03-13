@@ -57,9 +57,9 @@ class StoreRepository @Inject internal constructor(
         )
     }
 
-    override fun getStore(id: StoreId): Flow<Store?> {
+    override fun getStore(id: StoreId): Flow<Store> {
         return localStoreDataSource.getStore(id)
-            .map { it?.toDomain() }
+            .map { it.toDomain() }
     }
 
     override fun getStoresCount(): Flow<Int> {

@@ -38,13 +38,7 @@ class EditStoreScreenViewModel @Inject constructor(
     private val args = EditStoreScreenArgs(savedStateHandle)
 
     override val storeFlow = storeService.getStore(args.storeId)
-        .map {
-            if (it == null) {
-                LoadingState.Error(Exception("Store not found"))
-            } else {
-                LoadingState.Success(it)
-            }
-        }
+        .map { LoadingState.Success(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

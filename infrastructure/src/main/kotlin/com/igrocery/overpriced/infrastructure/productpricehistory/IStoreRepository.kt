@@ -13,7 +13,7 @@ interface IStoreRepository : BaseRepository<StoreId, Store> {
 
     fun getStoresPaging(): PagingSource<Int, Store>
 
-    fun getStore(id: StoreId): Flow<Store?>
+    fun getStore(id: StoreId): Flow<Store>
 
     fun getStoresCount(): Flow<Int>
 

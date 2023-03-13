@@ -47,7 +47,7 @@ internal class LocalCategoryDataSource @Inject internal constructor(
         require(rowsDeleted == 1)
     }
 
-    override fun getCategory(id: CategoryId): Flow<CategoryRoomEntity?> {
+    override fun getCategory(id: CategoryId): Flow<CategoryRoomEntity> {
         return db.categoryDao().getCategory(id.value)
     }
 
