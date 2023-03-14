@@ -100,9 +100,7 @@ class NewPriceScreenViewModel @Inject constructor(
             MutableStateFlow(LoadingState.Success(null))
         } else {
             categoryService.getCategory(categoryId)
-                .map {
-                    LoadingState.Success(it)
-                }
+                .map { LoadingState.Success<Category?>(it) }
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(),
