@@ -12,7 +12,7 @@ internal interface ILocalProductDataSource : IBaseLocalDataSource<ProductId, Pro
 
     suspend fun getProductsPaging(offset: Int, pageSize: Int): List<ProductRoomEntity>
 
-    fun getProduct(productId: ProductId): Flow<ProductRoomEntity?>
+    fun getProduct(productId: ProductId): Flow<ProductRoomEntity>
 
     fun getProduct(
         name: String,

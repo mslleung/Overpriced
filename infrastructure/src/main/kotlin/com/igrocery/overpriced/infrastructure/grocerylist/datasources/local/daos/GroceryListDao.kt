@@ -5,10 +5,14 @@ import androidx.room.Embedded
 import androidx.room.Query
 import com.igrocery.overpriced.infrastructure.BaseDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
+
+    @Query("SELECT * FROM grocery_lists WHERE id = :id")
+    fun getGroceryList(id: Long) : Flow<GroceryListRoomEntity>
 
     @Query("SELECT COUNT(id) FROM grocery_lists")
     fun getGroceryListCount(): Flow<Int>

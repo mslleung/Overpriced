@@ -13,6 +13,7 @@ import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.enti
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toDomain
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,6 +40,11 @@ class GroceryListRepository @Inject internal constructor(
         transaction.execute {
             localGroceryListDataSource.delete(item.toData())
         }
+    }
+
+    override fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
+        return localGroceryListDataSource.getGroceryList(id)
+            .map { it.toDomain() }
     }
 
     override fun getGroceryListCount(): Flow<Int> {

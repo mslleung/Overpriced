@@ -29,7 +29,7 @@ import javax.inject.Inject
 private val log = Logger { }
 
 interface NewPriceScreenViewModelState {
-    val productFlow: StateFlow<LoadingState<Product?>>
+    val productFlow: StateFlow<LoadingState<Product>>
     val categoryFlow: StateFlow<LoadingState<Category?>>
     val preferredCurrencyFlow: StateFlow<LoadingState<Currency>>
     val storeFlow: StateFlow<LoadingState<Store?>>
@@ -52,7 +52,7 @@ class NewPriceScreenViewModel @Inject constructor(
 
     private val args = NewPriceScreenArgs(savedStateHandle)
 
-    override val productFlow: StateFlow<LoadingState<Product?>> =
+    override val productFlow: StateFlow<LoadingState<Product>> =
         args.productId?.let { productId ->
             productService.getProduct(productId)
                 .map { LoadingState.Success(it) }
@@ -61,7 +61,7 @@ class NewPriceScreenViewModel @Inject constructor(
                     started = SharingStarted.WhileSubscribed(),
                     initialValue = LoadingState.Loading()
                 )
-        } ?: MutableStateFlow<LoadingState<Product?>>(LoadingState.Success(null))
+        } ?: MutableStateFlow<LoadingState<Product>>(LoadingState.NotLoading()).asStateFlow()
 
     override var categoryFlow: StateFlow<LoadingState<Category?>> =
         MutableStateFlow<LoadingState<Category?>>(LoadingState.NotLoading())

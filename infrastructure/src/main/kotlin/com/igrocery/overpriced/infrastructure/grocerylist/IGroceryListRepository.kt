@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 interface IGroceryListRepository : BaseRepository<GroceryListId, GroceryList> {
 
 
+    fun getGroceryList(id: GroceryListId): Flow<GroceryList>
+
     fun getGroceryListCount(): Flow<Int>
     fun getAllGroceryListsWithItemCountPaging(
         onDataSourcesInvalidated: PagingSource<Int, GroceryListWithItemCount>.() -> Unit

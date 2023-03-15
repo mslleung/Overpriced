@@ -12,7 +12,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     suspend fun getProductsPaging(offset: Int, pageSize: Int): List<ProductRoomEntity>
 
     @Query("SELECT * FROM products WHERE id = :id")
-    fun getProduct(id: Long): Flow<ProductRoomEntity?>
+    fun getProduct(id: Long): Flow<ProductRoomEntity>
 
     @Query(
         """

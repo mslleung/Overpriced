@@ -32,7 +32,7 @@ class GroceryListService @Inject constructor(
     }
 
     fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
-        return groceryListRepository.get(id)
+        return groceryListRepository.getGroceryList(id)
     }
 
     fun getGroceryListCount(): Flow<Int> {

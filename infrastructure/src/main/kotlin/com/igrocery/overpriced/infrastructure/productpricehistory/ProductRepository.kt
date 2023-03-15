@@ -101,9 +101,9 @@ class ProductRepository @Inject internal constructor(
         )
     }
 
-    override fun getProduct(productId: ProductId): Flow<Product?> {
+    override fun getProduct(productId: ProductId): Flow<Product> {
         return localProductDataSource.getProduct(productId)
-            .map { it?.toDomain() }
+            .map { it.toDomain() }
             .distinctUntilChanged()
     }
 

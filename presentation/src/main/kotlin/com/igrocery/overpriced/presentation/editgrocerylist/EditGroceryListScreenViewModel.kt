@@ -10,13 +10,13 @@ import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 interface EditGroceryListScreenViewModelState {
-    val groceryListFlow: StateFlow<GroceryList>
+    val groceryListFlow: StateFlow<LoadingState<GroceryList>>
     val groceryListItemFlow: Flow<PagingData<GroceryListItem>>
 }
 
@@ -28,7 +28,13 @@ class EditGroceryListScreenViewModel @Inject constructor(
 
     private val args = EditGroceryListScreenArgs(savedStateHandle)
 
-    override val groceryListFlow = groceryListService.
+    override val groceryListFlow = groceryListService.getGroceryList(args.groceryListId)
+        .map { LoadingState.Success(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = LoadingState.Loading()
+        )
 
     override val groceryListItemFlow = Pager(
         PagingConfig(

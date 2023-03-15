@@ -69,7 +69,7 @@ class ProductService @Inject constructor(
         return productRepository.getProduct(name, description)
     }
 
-    fun getProduct(productId: ProductId): Flow<Product?> {
+    fun getProduct(productId: ProductId): Flow<Product> {
         return productRepository.getProduct(productId)
     }
 

@@ -58,7 +58,7 @@ internal class LocalProductDataSource @Inject internal constructor(
         return db.productDao().getProductsPaging(offset, pageSize)
     }
 
-    override fun getProduct(productId: ProductId): Flow<ProductRoomEntity?> {
+    override fun getProduct(productId: ProductId): Flow<ProductRoomEntity> {
         return db.productDao().getProduct(productId.value)
             .distinctUntilChanged()
     }

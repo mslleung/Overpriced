@@ -18,7 +18,7 @@ interface IProductRepository : BaseRepository<ProductId, Product> {
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices>
 
-    fun getProduct(productId: ProductId): Flow<Product?>
+    fun getProduct(productId: ProductId): Flow<Product>
 
     fun getProduct(
         name: String,
