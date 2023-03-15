@@ -153,6 +153,7 @@
     <string name="grocery_list_name_dialog_dismiss_button_text">Cancel</string>
 
     <string name="edit_grocery_list_title">Cancel</string>
+    <string name="edit_grocery_list_fab_text">Add Item</string>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>

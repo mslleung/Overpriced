@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,6 +65,8 @@ private fun MainContent(
     UseAnimatedFadeTopBarColorForStatusBarColor(topAppBarState = topBarScrollState)
     UseDefaultSystemNavBarColor()
 
+    val groceryList by viewModelState.groceryListFlow.collectAsState()
+    val groceryListItems = viewModelState.groceryListItemFlow.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,7 +79,9 @@ private fun MainContent(
                     )
                 },
                 title = {
-                    Text(text = stringResource(id = R.string.new_price_title))
+                    groceryList.ifLoaded {
+                        Text(text = it.name)
+                    }
                 },
                 actions = {
 //                    SaveButton(
@@ -87,8 +92,28 @@ private fun MainContent(
                 scrollBehavior = topBarScrollBehavior,
             )
         },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = stringResource(id = R.string.edit_grocery_list_fab_text)) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = stringResource(
+                            id = R.string.edit_grocery_list_fab_text
+                        ),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                onClick = {
+                          // TODO
+                },
+                modifier = Modifier.padding(
+                    WindowInsets.navigationBars.only(WindowInsetsSides.End)
+                        .asPaddingValues()
+                )
+            )
+        }
     ) { scaffoldPaddings ->
-        val groceryListItems = viewModelState.groceryListItemFlow.collectAsLazyPagingItems()
         if (groceryListItems.isInitialLoadCompleted()) {
             if (groceryListItems.itemCount == 0) {
                 EmptyContent(

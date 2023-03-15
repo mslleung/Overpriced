@@ -91,16 +91,18 @@ private fun MainContent(
                                     .padding(end = 8.dp),
                             )
 
-                            Text(
-                                text = it.name,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .alpha(0.6f),
-                            )
+                            it.address.lines?.let {
+                                Text(
+                                    text = it,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .padding(end = 8.dp)
+                                        .alpha(0.6f),
+                                )
+                            }
                         }
                     }
                 },
