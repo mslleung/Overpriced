@@ -14,6 +14,7 @@ data class PriceRecord(
     override val updateTimestamp: Long = 0,
     val productId: ProductId,
     val price: Money,
+    val isSale: Boolean,
     val storeId: StoreId,
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 

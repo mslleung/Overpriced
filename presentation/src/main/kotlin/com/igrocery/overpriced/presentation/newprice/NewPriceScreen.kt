@@ -749,8 +749,8 @@ private fun StoreLocation(
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : NewPriceScreenViewModelState {
-        override val productFlow: StateFlow<LoadingState<Product?>> =
-            MutableStateFlow(LoadingState.Success(null))
+        override val productFlow: StateFlow<LoadingState<Product>> =
+            MutableStateFlow(LoadingState.NotLoading())
         override val categoryFlow: StateFlow<LoadingState<Category?>> =
             MutableStateFlow(LoadingState.Success(null))
         override val preferredCurrencyFlow: StateFlow<LoadingState<Currency>> =

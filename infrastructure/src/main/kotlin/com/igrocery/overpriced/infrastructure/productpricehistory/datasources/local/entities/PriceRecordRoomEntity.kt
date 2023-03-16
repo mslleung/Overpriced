@@ -47,6 +47,8 @@ internal data class PriceRecordRoomEntity(
     val price: Double,
     @ColumnInfo(name = "currency")
     val currency: String,
+    @ColumnInfo(name = "is_sale")
+    val isSale: Boolean,
 )
 
 
@@ -64,6 +66,7 @@ internal fun PriceRecordRoomEntity.toDomain(): PriceRecord {
             currency = Currency.getInstance(currency)
         ),
         storeId = StoreId(storeId),
+        isSale = isSale
     )
 }
 
@@ -75,6 +78,7 @@ internal fun PriceRecord.toData(): PriceRecordRoomEntity {
         productId = productId.value,
         price = price.amount,
         currency = price.currency.currencyCode,
+        isSale = isSale,
         storeId = storeId.value,
     )
 }
