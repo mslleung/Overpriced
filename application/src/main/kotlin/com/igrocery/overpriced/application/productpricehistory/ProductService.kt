@@ -29,6 +29,7 @@ class ProductService @Inject constructor(
         productDescription: String,
         categoryId: CategoryId?,
         priceAmountText: String,
+        isSale: Boolean,
         storeId: StoreId,
     ) {
         transaction.execute {
@@ -43,7 +44,8 @@ class ProductService @Inject constructor(
             priceRecordService.createPriceRecord(
                 priceAmountText = priceAmountText,
                 productId = productId,
-                storeId = storeId
+                storeId = storeId,
+                isSale = isSale
             )
         }
     }

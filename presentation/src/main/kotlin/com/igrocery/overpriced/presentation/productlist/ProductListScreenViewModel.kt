@@ -44,7 +44,7 @@ class ProductListScreenViewModel @Inject constructor(
     else
         categoryService.getCategory(args.categoryId)
             .map {
-                LoadingState.Success(it)
+                LoadingState.Success<Category?>(it)
             }
             .stateIn(
                 scope = viewModelScope,

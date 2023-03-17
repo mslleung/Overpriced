@@ -17,6 +17,7 @@ class NewPriceScreenStateHolder(
     productDescription: String,
     productCategoryId: CategoryId?,
     priceAmountText: String,
+    priceIsSale: Boolean,
     priceStoreId: StoreId?,
     isDiscardDialogShown: Boolean,
     submitError: SubmitError
@@ -32,6 +33,8 @@ class NewPriceScreenStateHolder(
             newPriceScreenViewModel.updateCategoryId(value)
         }
     var priceAmountText by mutableStateOf(priceAmountText)
+    var priceIsSale by mutableStateOf(priceIsSale)
+
     var priceStoreId: StoreId? = priceStoreId
         set(value) {
             field = value
@@ -77,6 +80,7 @@ class NewPriceScreenStateHolder(
                     it.productDescription,
                     it.productCategoryId,
                     it.priceAmountText,
+                    it.priceIsSale,
                     it.priceStoreId,
                     it.isDiscardDialogShown,
                     it.submitError
@@ -86,7 +90,7 @@ class NewPriceScreenStateHolder(
                 val productCategoryId =
                     selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4) as? CategoryId
                 val productStoreId =
-                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(6) as? StoreId
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(7) as? StoreId
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
@@ -95,9 +99,10 @@ class NewPriceScreenStateHolder(
                     productDescription = it[3] as String,
                     productCategoryId = productCategoryId,
                     priceAmountText = it[5] as String,
+                    priceIsSale = it[6] as Boolean,
                     priceStoreId = productStoreId,
-                    isDiscardDialogShown = it[7] as Boolean,
-                    submitError = it[8] as SubmitError,
+                    isDiscardDialogShown = it[8] as Boolean,
+                    submitError = it[9] as SubmitError,
                 )
             }
         )
@@ -142,6 +147,7 @@ fun rememberNewPriceScreenState(
             productDescription = "",
             productCategoryId = args.categoryId,
             priceAmountText = "",
+            priceIsSale = false,
             priceStoreId = null,
             isDiscardDialogShown = false,
             submitError = NewPriceScreenStateHolder.SubmitError.None,

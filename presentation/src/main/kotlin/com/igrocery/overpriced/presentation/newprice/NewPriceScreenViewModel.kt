@@ -128,6 +128,7 @@ class NewPriceScreenViewModel @Inject constructor(
         productDescription: String,
         productCategoryId: CategoryId?,
         priceAmountText: String,
+        isSale: Boolean,
         priceStoreId: StoreId,
     ) {
         viewModelScope.launch {
@@ -143,6 +144,7 @@ class NewPriceScreenViewModel @Inject constructor(
                         productDescription,
                         productCategoryId,
                         priceAmountText,
+                        isSale,
                         priceStoreId,
                     )
                 } else {
@@ -158,6 +160,7 @@ class NewPriceScreenViewModel @Inject constructor(
                         priceAmountText,
                         existingProduct.id,
                         priceStoreId,
+                        isSale
                     )
                 }
 

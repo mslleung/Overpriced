@@ -49,7 +49,7 @@ fun EditCategoryScreen(
         val categoryLoadState by viewModel.categoryFlow.collectAsState()
         categoryLoadState.let {
             if (it is LoadingState.Success) {
-                val category = it.data ?: NoCategory
+                val category = it.data
                 LaunchedEffect(key1 = Unit) {
                     state.categoryName = category.name
                     state.categoryIcon = category.icon
@@ -183,8 +183,8 @@ fun ConfirmDeleteCategoryDialog(
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : EditCategoryScreenViewModelState {
-        override val categoryFlow: StateFlow<LoadingState<Category?>> =
-            MutableStateFlow(LoadingState.Success(null))
+        override val categoryFlow: StateFlow<LoadingState<Category>> =
+            MutableStateFlow(LoadingState.NotLoading())
         override val updateCategoryResult: LoadingState<Unit> = LoadingState.NotLoading()
     }
 

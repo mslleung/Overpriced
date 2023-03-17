@@ -260,7 +260,8 @@ private fun DefaultPreview() {
                     PriceRecord(
                         productId = ProductId(0),
                         price = Money(5.0, Currency.getInstance(Locale.US)),
-                        storeId = StoreId(0)
+                        storeId = StoreId(0),
+                        isSale = false
                     )
                 )
             )

@@ -76,7 +76,12 @@ fun NewPriceScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val state by rememberNewPriceScreenState(args, newPriceScreenViewModel, selectCategoryResultViewModel, selectStoreResultViewModel)
+    val state by rememberNewPriceScreenState(
+        args,
+        newPriceScreenViewModel,
+        selectCategoryResultViewModel,
+        selectStoreResultViewModel
+    )
     LaunchedEffect(Unit) {
         newPriceScreenViewModel.productFlow.collect {
             // TODO state should have an isEdit mode?
@@ -105,8 +110,8 @@ fun NewPriceScreen(
                 } else if (priceAmountText.toDoubleOrNull() == null || priceAmountText.toDouble() !in 0.0..1000000.0) {
                     submitError = SubmitError.InvalidPriceAmount
                 } else {
-                    val price = priceStoreId
-                    if (price == null) {
+                    val priceStoreId = priceStoreId
+                    if (priceStoreId == null) {
                         submitError = SubmitError.StoreCannotBeEmpty
                     } else {
                         state.submitError = SubmitError.None
@@ -115,7 +120,8 @@ fun NewPriceScreen(
                             productDescription.trim(),
                             productCategoryId,
                             priceAmountText.trim(),
-                            price,
+                            priceIsSale,
+                            priceStoreId,
                         )
                     }
                 }
@@ -301,15 +307,15 @@ private fun MainLayout(
                 }
             }
 
-            ProductDescriptionTextField(
-                productDescription = state.productDescription,
-                onProductDescriptionChange = { text ->
-                    onProductDescriptionChange(text.take(100))
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 4.dp)
-            )
+//            ProductDescriptionTextField(
+//                productDescription = state.productDescription,
+//                onProductDescriptionChange = { text ->
+//                    onProductDescriptionChange(text.take(100))
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(bottom = 4.dp)
+//            )
 
             val category by viewModelState.categoryFlow.collectAsState()
             ProductCategory(
@@ -341,6 +347,14 @@ private fun MainLayout(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 4.dp)
+            )
+
+            PriceIsSaleCheckbox(
+                isChecked = state.priceIsSale,
+                onCheckedChange = { isChecked ->
+                    state.priceIsSale = isChecked
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
             StoreLocationHeader(
@@ -403,6 +417,31 @@ private fun MainLayout(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PriceIsSaleCheckbox(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onCheckedChange(!isChecked) }
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+        )
+
+        Text(
+            text = stringResource(id = R.string.new_price_is_sale_label),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 

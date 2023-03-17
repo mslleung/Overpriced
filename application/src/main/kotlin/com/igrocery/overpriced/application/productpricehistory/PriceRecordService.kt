@@ -25,6 +25,7 @@ class PriceRecordService @Inject constructor(
         priceAmountText: String,
         productId: ProductId,
         storeId: StoreId,
+        isSale: Boolean
     ): PriceRecordId {
         return transaction.execute {
             val priceAmount = priceAmountText.trim().toDouble()
@@ -34,7 +35,8 @@ class PriceRecordService @Inject constructor(
             val priceRecord = PriceRecord(
                 productId = productId,
                 price = Money(priceAmount, preferredCurrency),
-                storeId = storeId
+                storeId = storeId,
+                isSale = isSale
             )
             priceRecordRepository.insert(priceRecord)
         }
