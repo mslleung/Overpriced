@@ -1,25 +1,29 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.GroceryListItemId
+import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
 import com.igrocery.overpriced.presentation.shared.*
@@ -35,13 +39,17 @@ fun EditGroceryListScreen(
 ) {
     log.debug("Composing EditGroceryListScreen")
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberEditGroceryListScreenState()
     MainContent(
         viewModelState = editGroceryListViewModel,
         state = state,
         onBackButtonClick = navigateUp,
-        onNewGroceryListItemClick = {}
+        onGroceryListSelectChange = {
+
+        },
+        onGroceryListItemClick = {
+            // TODO edit item?
+        }
     )
 
     BackHandler {
@@ -50,13 +58,14 @@ fun EditGroceryListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
     viewModelState: EditGroceryListScreenViewModelState,
     state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
-    onNewGroceryListItemClick: () -> Unit,
+    onGroceryListSelectChange: (Boolean) -> Unit,
+    onGroceryListItemClick: (GroceryListItemId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val topBarScrollState = rememberTopAppBarState()
@@ -66,7 +75,6 @@ private fun MainContent(
     UseDefaultSystemNavBarColor()
 
     val groceryList by viewModelState.groceryListFlow.collectAsState()
-    val groceryListItems = viewModelState.groceryListItemFlow.collectAsLazyPagingItems()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -105,25 +113,49 @@ private fun MainContent(
                     )
                 },
                 onClick = {
-                          // TODO
+                    // TODO
                 },
                 modifier = Modifier.padding(
                     WindowInsets.navigationBars.only(WindowInsetsSides.End)
                         .asPaddingValues()
                 )
             )
-        }
+        },
+        modifier = modifier
     ) { scaffoldPaddings ->
+        val groceryListItems = viewModelState.groceryListItemFlow.collectAsLazyPagingItems()
         if (groceryListItems.isInitialLoadCompleted()) {
             if (groceryListItems.itemCount == 0) {
                 EmptyContent(
-                    onNewGroceryListItemClick = onNewGroceryListItemClick,
                     modifier = Modifier
                         .padding(scaffoldPaddings)
                         .fillMaxSize()
                 )
             } else {
-
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(scaffoldPaddings)
+                        .fillMaxSize()
+                        .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
+                ) {
+                    items(
+                        items = groceryListItems,
+                        key = { it.id }
+                    ) { item ->
+                        if (item != null) {
+                            MainContent(
+                                groceryListItem = item,
+                                onSelectChange = onGroceryListSelectChange,
+                                onItemClick = onGroceryListItemClick,
+                                modifier = Modifier
+                                    .animateItemPlacement()
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -131,7 +163,6 @@ private fun MainContent(
 
 @Composable
 private fun EmptyContent(
-    onNewGroceryListItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -142,8 +173,8 @@ private fun EmptyContent(
             .verticalScroll(scrollState)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.shopping_cart_supermarket_svgrepo_com),
-            contentDescription = stringResource(id = R.string.grocery_lists_empty_image_content_description),
+            painter = painterResource(id = R.drawable.empty_cart_svgrepo_com),
+            contentDescription = stringResource(id = R.string.edit_grocery_list_empty_text),
             modifier = Modifier
                 .size(200.dp, 200.dp)
                 .padding(bottom = 16.dp),
@@ -151,25 +182,27 @@ private fun EmptyContent(
         )
 
         Text(
-            text = stringResource(id = R.string.grocery_lists_empty_text),
+            text = stringResource(id = R.string.edit_grocery_list_empty_text),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(horizontal = 40.dp)
                 .padding(bottom = 12.dp),
             style = MaterialTheme.typography.bodyLarge
         )
-
-        Button(
-            onClick = onNewGroceryListItemClick,
-        ) {
-            Text(
-                text = stringResource(id = R.string.grocery_lists_empty_add_button_text),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
     }
+}
+
+@Composable
+private fun MainContent(
+    groceryListItem: GroceryListItem,
+    onItemCheckChange: (Boolean) -> Unit,
+    onItemClick: (GroceryListItemId) -> Unit,
+
+    modifier: Modifier = Modifier
+) {
+    Row(
+
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
