@@ -96,14 +96,14 @@ dependencies {
     val composeVersion = "1.4.0-rc01"
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0-alpha02")
+    implementation("com.google.android.material:material:1.9.0-beta01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha08")
+    implementation("androidx.compose.material3:material3:1.1.0-beta01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.activity:activity-compose:1.7.0")
 
-    val lifecycleVersion = "2.6.0"
+    val lifecycleVersion = "2.6.1"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
@@ -134,7 +134,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // accompanist
-    val accompanistVersion = "0.28.0"
+    val accompanistVersion = "0.30.0"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -142,14 +142,14 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
     // glide
-    implementation("com.github.bumptech.glide:glide:4.15.0")
-    kapt("com.github.bumptech.glide:compiler:4.15.0")
-    implementation("com.github.skydoves:landscapist-glide:2.1.7")
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("com.github.skydoves:landscapist-glide:2.1.9")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.11.1")
+    implementation("com.google.maps.android:maps-compose:2.11.3")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")

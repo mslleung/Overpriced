@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -44,7 +46,7 @@ fun EditGroceryListScreen(
         viewModelState = editGroceryListViewModel,
         state = state,
         onBackButtonClick = navigateUp,
-        onGroceryListSelectChange = {
+        onGroceryListItemCheckChange = { groceryListItemId, checked ->
 
         },
         onGroceryListItemClick = {
@@ -64,7 +66,7 @@ private fun MainContent(
     viewModelState: EditGroceryListScreenViewModelState,
     state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
-    onGroceryListSelectChange: (Boolean) -> Unit,
+    onGroceryListItemCheckChange: (GroceryListItemId, Boolean) -> Unit,
     onGroceryListItemClick: (GroceryListItemId) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -145,8 +147,8 @@ private fun MainContent(
                         if (item != null) {
                             MainContent(
                                 groceryListItem = item,
-                                onSelectChange = onGroceryListSelectChange,
-                                onItemClick = onGroceryListItemClick,
+                                onItemCheckChange = { onGroceryListItemCheckChange(item.id, it) },
+                                onItemClick = { onGroceryListItemClick(item.id) },
                                 modifier = Modifier
                                     .animateItemPlacement()
                                     .wrapContentHeight()
@@ -196,13 +198,31 @@ private fun EmptyContent(
 private fun MainContent(
     groceryListItem: GroceryListItem,
     onItemCheckChange: (Boolean) -> Unit,
-    onItemClick: (GroceryListItemId) -> Unit,
-
+    onItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
+        modifier = modifier
+    ) {
+        Checkbox(
+            checked = groceryListItem.isChecked,
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                uncheckedColor = MaterialTheme.colorScheme.primary,
+                checkmarkColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            onCheckedChange = onItemCheckChange,
+            modifier = Modifier.size(24.dp)
+        )
 
-    )
+        Text(
+            text = groceryListItem.name,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelLarge,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
