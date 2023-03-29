@@ -307,15 +307,15 @@ private fun MainLayout(
                 }
             }
 
-//            ProductDescriptionTextField(
-//                productDescription = state.productDescription,
-//                onProductDescriptionChange = { text ->
-//                    onProductDescriptionChange(text.take(100))
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 4.dp)
-//            )
+            ProductDescriptionTextField(
+                productDescription = state.productDescription,
+                onProductDescriptionChange = { text ->
+                    onProductDescriptionChange(text.take(100))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
+            )
 
             val category by viewModelState.categoryFlow.collectAsState()
             ProductCategory(
@@ -643,8 +643,7 @@ private fun PriceTextFieldButton(
                 value = text,
                 onValueChange = { text -> onTextChange(text) },
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 6.dp),
+                    .weight(1f),
                 singleLine = true,
                 label = {
                     Text(text = stringResource(id = R.string.new_price_amount_label))
