@@ -5,6 +5,7 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
@@ -29,6 +30,8 @@ class ProductService @Inject constructor(
         productDescription: String,
         categoryId: CategoryId?,
         priceAmountText: String,
+        quantityAmountText: String,
+        quantityUnit: PriceQuantityUnit,
         isSale: Boolean,
         storeId: StoreId,
     ) {
@@ -42,10 +45,12 @@ class ProductService @Inject constructor(
             val productId = productRepository.insert(product)
 
             priceRecordService.createPriceRecord(
-                priceAmountText = priceAmountText,
                 productId = productId,
+                priceAmountText = priceAmountText,
+                quantityAmountText = quantityAmountText,
+                quantityUnit = quantityUnit,
+                isSale = isSale,
                 storeId = storeId,
-                isSale = isSale
             )
         }
     }

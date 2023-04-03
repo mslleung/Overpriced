@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,6 +47,7 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
@@ -109,6 +112,8 @@ fun NewPriceScreen(
                     submitError = SubmitError.ProductNameShouldNotBeEmpty
                 } else if (priceAmountText.toDoubleOrNull() == null || priceAmountText.toDouble() !in 0.0..1000000.0) {
                     submitError = SubmitError.InvalidPriceAmount
+                } else if (quantityText.toDoubleOrNull() == null || quantityText.toDouble() <= 0) {
+                    submitError = SubmitError.InvalidQuantityAmount
                 } else {
                     val priceStoreId = priceStoreId
                     if (priceStoreId == null) {
@@ -120,6 +125,8 @@ fun NewPriceScreen(
                             productDescription.trim(),
                             productCategoryId,
                             priceAmountText.trim(),
+                            quantityText.trim(),
+                            quantityUnit,
                             priceIsSale,
                             priceStoreId,
                         )
@@ -335,13 +342,32 @@ private fun MainLayout(
             PriceTextFieldButton(
                 text = state.priceAmountText,
                 onTextChange = { text ->
-                    if (text.length > 100) {
+                    if (text.length > 10) {
                         state.priceAmountText = text.substring(0, 10)
                     } else {
                         state.priceAmountText = text
                     }
                 },
                 preferredCurrency = preferredCurrency,
+                scrollState = scrollState,
+                submitError = state.submitError,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            QuantityField(
+                amountText = state.quantityText,
+                onAmountTextChange = { text ->
+                    if (text.length > 10) {
+                        state.quantityText = text.substring(0, 10)
+                    } else {
+                        state.quantityText = text
+                    }
+                },
+                unit = state.quantityUnit,
+                onUnitChange = { unit ->
+                    state.quantityUnit = unit
+                },
                 scrollState = scrollState,
                 submitError = state.submitError,
                 modifier = Modifier
@@ -635,8 +661,6 @@ private fun PriceTextFieldButton(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(bottom = 4.dp)
         ) {
             val focusManager = LocalFocusManager.current
             OutlinedTextField(
@@ -650,10 +674,10 @@ private fun PriceTextFieldButton(
                 },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
-                keyboardActions = KeyboardActions(onDone = {
-                    focusManager.clearFocus()
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
                 }),
                 leadingIcon = {
                     preferredCurrency.ifLoaded {
@@ -676,6 +700,120 @@ private fun PriceTextFieldButton(
         if (submitError == SubmitError.InvalidPriceAmount) {
             LaunchedEffect(Unit) {
                 scrollState.animateScrollTo(priceTextFieldScrollPosition.roundToInt())
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuantityField(
+    amountText: String,
+    onAmountTextChange: (String) -> Unit,
+    unit: PriceQuantityUnit,
+    onUnitChange: (PriceQuantityUnit) -> Unit,
+    scrollState: ScrollState,
+    submitError: SubmitError,
+    modifier: Modifier
+) {
+    var quantityFieldScrollPosition by remember { mutableStateOf(0f) }
+    Column(
+        modifier = modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                quantityFieldScrollPosition = layoutCoordinates.positionInParent().y
+            }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val focusManager = LocalFocusManager.current
+            OutlinedTextField(
+                value = amountText,
+                onValueChange = onAmountTextChange,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp),
+                singleLine = true,
+                label = {
+                    Text(text = stringResource(id = R.string.new_price_quantity_label))
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                isError = submitError == SubmitError.InvalidPriceAmount
+            )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth(0.28f)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                TextButton(
+                    onClick = { expanded = !expanded },
+                    shape = RoundedCornerShape(4.dp),
+                ) {
+                    Text(
+                        text = unit.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    PriceQuantityUnit.values().map {
+                        val selectedColors = if (it == unit) {
+                            MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.primary,
+                                trailingIconColor = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            MenuDefaults.itemColors()
+                        }
+                        DropdownMenuItem(
+                            text = { Text(text = it.name) },
+                            trailingIcon = {
+                                if (it == unit) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            onClick = {
+                                onUnitChange(it)
+                                expanded = false
+                            },
+                            colors = selectedColors
+                        )
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(visible = submitError == SubmitError.InvalidQuantityAmount) {
+            Text(
+                text = stringResource(id = R.string.new_price_quantity_input_error_text),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        if (submitError == SubmitError.InvalidQuantityAmount) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(quantityFieldScrollPosition.roundToInt())
             }
         }
     }

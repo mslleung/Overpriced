@@ -6,6 +6,8 @@ import com.igrocery.overpriced.domain.PriceRecordId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import java.util.*
 
@@ -47,6 +49,12 @@ internal data class PriceRecordRoomEntity(
     val price: Double,
     @ColumnInfo(name = "currency")
     val currency: String,
+
+    @ColumnInfo(name = "quantity_amount")
+    val quantityAmount: Double,
+    @ColumnInfo(name = "quantity_unit")
+    val quantityUnit: String,
+
     @ColumnInfo(name = "is_sale")
     val isSale: Boolean,
 )
@@ -65,6 +73,7 @@ internal fun PriceRecordRoomEntity.toDomain(): PriceRecord {
             amount = price,
             currency = Currency.getInstance(currency)
         ),
+        quantity = PriceQuantity(quantityAmount, PriceQuantityUnit.valueOf(quantityUnit)),
         storeId = StoreId(storeId),
         isSale = isSale
     )
@@ -78,6 +87,8 @@ internal fun PriceRecord.toData(): PriceRecordRoomEntity {
         productId = productId.value,
         price = price.amount,
         currency = price.currency.currencyCode,
+        quantityAmount = quantity.amount,
+        quantityUnit = quantity.unit.name,
         isSale = isSale,
         storeId = storeId.value,
     )

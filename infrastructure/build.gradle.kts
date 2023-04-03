@@ -10,9 +10,8 @@ plugins {
 
 android {
     compileSdk = 33
+//    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
@@ -102,7 +101,7 @@ dependencies {
     // date
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.20")
 
     implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")

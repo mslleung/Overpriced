@@ -17,10 +17,13 @@ android {
         }
     }
     compileSdk = 33
+//    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
-        applicationId = "com.igrocery.overpriced"
-        minSdk = 21
+//        targetSdkPreview = "UpsideDownCake"
         targetSdk = 33
+        minSdk = 21
+
+        applicationId = "com.igrocery.overpriced"
         versionCode = 1
         versionName = "1.0.0"   // {major.feature.patches}, preferably major version should never change
 
@@ -149,7 +152,7 @@ dependencies {
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.11.3")
+    implementation("com.google.maps.android:maps-compose:2.11.4")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")
