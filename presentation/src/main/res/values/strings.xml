@@ -77,6 +77,19 @@
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
+    <string name="price_record_unit_pieces">Pieces</string>
+    <string name="price_record_unit_pieces_abbrev">Pc</string>
+    <string name="price_record_unit_pounds">Pounds</string>
+    <string name="price_record_unit_pounds_abbrev">lb</string>
+    <string name="price_record_unit_grams">Grams</string>
+    <string name="price_record_unit_grams_abbrev">g</string>
+    <string name="price_record_unit_kilograms">Kilograms</string>
+    <string name="price_record_unit_kilograms_abbrev">Kg</string>
+    <string name="price_record_unit_litres">Litres</string>
+    <string name="price_record_unit_litres_abbrev">L</string>
+    <string name="price_record_unit_millilitres">MilliLitres</string>
+    <string name="price_record_unit_millilitres_abbrev">mL</string>
+
     <string name="no_category">No Category</string>
     <string name="select_category_title">Select Category</string>
     <string name="select_category_category_icon_content_description">Category icon</string>

@@ -750,7 +750,7 @@ private fun QuantityField(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .fillMaxWidth(0.28f)
+                    .fillMaxWidth(0.21f)
             ) {
                 var expanded by remember { mutableStateOf(false) }
                 TextButton(
@@ -758,7 +758,7 @@ private fun QuantityField(
                     shape = RoundedCornerShape(4.dp),
                 ) {
                     Text(
-                        text = unit.name,
+                        text = unit.getShortDisplayString(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -783,7 +783,7 @@ private fun QuantityField(
                             MenuDefaults.itemColors()
                         }
                         DropdownMenuItem(
-                            text = { Text(text = it.name) },
+                            text = { Text(text = it.getDisplayString()) },
                             trailingIcon = {
                                 if (it == unit) {
                                     Icon(
