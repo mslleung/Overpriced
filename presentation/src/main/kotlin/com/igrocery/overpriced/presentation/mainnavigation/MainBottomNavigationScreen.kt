@@ -250,7 +250,7 @@ private fun MainContent(
                 )
             },
             exitTransition = {
-                fadeOut(animationSpec)
+                ExitTransition.None
             },
             modifier = Modifier
                 .padding(it)

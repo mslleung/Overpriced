@@ -314,15 +314,15 @@ private fun MainLayout(
                 }
             }
 
-            ProductDescriptionTextField(
-                productDescription = state.productDescription,
-                onProductDescriptionChange = { text ->
-                    onProductDescriptionChange(text.take(100))
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 4.dp)
-            )
+//            ProductDescriptionTextField(
+//                productDescription = state.productDescription,
+//                onProductDescriptionChange = { text ->
+//                    onProductDescriptionChange(text.take(100))
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(bottom = 4.dp)
+//            )
 
             val category by viewModelState.categoryFlow.collectAsState()
             ProductCategory(
