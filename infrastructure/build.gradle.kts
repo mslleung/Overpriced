@@ -79,7 +79,7 @@ dependencies {
     // hilt dependency injection
     val hiltVersion: String by rootProject.extra
     implementation("com.google.dagger:hilt-android:$hiltVersion")
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.10.0")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // room
