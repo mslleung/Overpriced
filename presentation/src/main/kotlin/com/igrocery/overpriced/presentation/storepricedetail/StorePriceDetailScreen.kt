@@ -260,7 +260,7 @@ private fun DefaultPreview() {
                     PriceRecord(
                         productId = ProductId(0),
                         price = Money(5.0, Currency.getInstance(Locale.US)),
-                        quantity = PriceQuantity(1.0, PriceQuantityUnit.Pieces),
+                        quantity = SaleQuantity(1.0, SaleQuantityUnit.Pieces),
                         storeId = StoreId(0),
                         isSale = false
                     )

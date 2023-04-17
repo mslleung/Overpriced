@@ -6,7 +6,8 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 
@@ -15,11 +16,12 @@ class NewPriceScreenStateHolder(
     isRequestingFirstFocus: Boolean,
     wantToShowSuggestionBox: Boolean,
     productName: String,
-    productDescription: String,
+    productQuantityAmountText: String,
+    productQuantityUnit: ProductQuantityUnit,
     productCategoryId: CategoryId?,
     priceAmountText: String,
-    quantityText: String,
-    quantityUnit: PriceQuantityUnit,
+    saleQuantityAmountText: String,
+    saleQuantityUnit: SaleQuantityUnit,
     priceIsSale: Boolean,
     priceStoreId: StoreId?,
     isDiscardDialogShown: Boolean,
@@ -29,15 +31,16 @@ class NewPriceScreenStateHolder(
     var wantToShowSuggestionBox by mutableStateOf(wantToShowSuggestionBox)
 
     var productName by mutableStateOf(productName)
-    var productDescription by mutableStateOf(productDescription)
+    var productQuantityAmountText by mutableStateOf(productQuantityAmountText)
+    var productQuantityUnit by mutableStateOf(productQuantityUnit)
     var productCategoryId: CategoryId? = productCategoryId
         set(value) {
             field = value
             newPriceScreenViewModel.updateCategoryId(value)
         }
     var priceAmountText by mutableStateOf(priceAmountText)
-    var quantityText by mutableStateOf(quantityText)
-    var quantityUnit by mutableStateOf(quantityUnit)
+    var saleQuantityAmountText by mutableStateOf(saleQuantityAmountText)
+    var saleQuantityUnit by mutableStateOf(saleQuantityUnit)
     var priceIsSale by mutableStateOf(priceIsSale)
 
     var priceStoreId: StoreId? = priceStoreId
@@ -57,8 +60,9 @@ class NewPriceScreenStateHolder(
     enum class SubmitError {
         None,
         ProductNameShouldNotBeEmpty,
+        InvalidProductQuantityAmount,
         InvalidPriceAmount,
-        InvalidQuantityAmount,
+        InvalidSaleQuantityAmount,
         StoreCannotBeEmpty
     }
 
@@ -66,10 +70,10 @@ class NewPriceScreenStateHolder(
 
     fun hasModifications(): Boolean {
         return productName.isNotBlank()
-                || productDescription.isNotBlank()
+                || productQuantityAmountText.isNotBlank()
                 || productCategoryId != null
                 || priceAmountText.isNotBlank()
-                || quantityText.isNotBlank()
+                || saleQuantityAmountText.isNotBlank()
                 || priceStoreId != null
     }
 
@@ -84,11 +88,12 @@ class NewPriceScreenStateHolder(
                     it.isRequestingFirstFocus,
                     it.wantToShowSuggestionBox,
                     it.productName,
-                    it.productDescription,
+                    it.productQuantityAmountText,
+                    it.productQuantityUnit,
                     it.productCategoryId,
                     it.priceAmountText,
-                    it.quantityText,
-                    it.quantityUnit,
+                    it.saleQuantityAmountText,
+                    it.saleQuantityUnit,
                     it.priceIsSale,
                     it.priceStoreId,
                     it.isDiscardDialogShown,
@@ -97,23 +102,24 @@ class NewPriceScreenStateHolder(
             },
             restore = {
                 val productCategoryId =
-                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4) as? CategoryId
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(5) as? CategoryId
                 val productStoreId =
-                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(9) as? StoreId
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(10) as? StoreId
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
                     wantToShowSuggestionBox = it[1] as Boolean,
                     productName = it[2] as String,
-                    productDescription = it[3] as String,
+                    productQuantityAmountText = it[3] as String,
+                    productQuantityUnit = it[4] as ProductQuantityUnit,
                     productCategoryId = productCategoryId,
-                    priceAmountText = it[5] as String,
-                    quantityText = it[6] as String,
-                    quantityUnit = it[7] as PriceQuantityUnit,
-                    priceIsSale = it[8] as Boolean,
+                    priceAmountText = it[6] as String,
+                    saleQuantityAmountText = it[7] as String,
+                    saleQuantityUnit = it[8] as SaleQuantityUnit,
+                    priceIsSale = it[9] as Boolean,
                     priceStoreId = productStoreId,
-                    isDiscardDialogShown = it[10] as Boolean,
-                    submitError = it[11] as SubmitError,
+                    isDiscardDialogShown = it[11] as Boolean,
+                    submitError = it[12] as SubmitError,
                 )
             }
         )
@@ -155,11 +161,12 @@ fun rememberNewPriceScreenState(
             isRequestingFirstFocus = true,
             wantToShowSuggestionBox = false,
             productName = "",
-            productDescription = "",
+            productQuantityAmountText = "",
+            productQuantityUnit = ProductQuantityUnit.Pounds,
             productCategoryId = args.categoryId,
             priceAmountText = "",
-            quantityText = "",
-            quantityUnit = PriceQuantityUnit.Pieces,
+            saleQuantityAmountText = "",
+            saleQuantityUnit = SaleQuantityUnit.One,
             priceIsSale = false,
             priceStoreId = null,
             isDiscardDialogShown = false,

@@ -125,11 +125,12 @@ class NewPriceScreenViewModel @Inject constructor(
 
     fun submitForm(
         productName: String,
-        productDescription: String,
+        productQuantityAmountText: String,
+        productQuantityUnit: ProductQuantityUnit,
         productCategoryId: CategoryId?,
         priceAmountText: String,
-        quantityAmountText: String,
-        quantityUnit: PriceQuantityUnit,
+        saleQuantityAmountText: String,
+        saleQuantityUnit: SaleQuantityUnit,
         isSale: Boolean,
         priceStoreId: StoreId,
     ) {
@@ -146,8 +147,8 @@ class NewPriceScreenViewModel @Inject constructor(
                         productDescription,
                         productCategoryId,
                         priceAmountText,
-                        quantityAmountText,
-                        quantityUnit,
+                        saleQuantityAmountText,
+                        saleQuantityUnit,
                         isSale,
                         priceStoreId,
                     )
@@ -163,8 +164,8 @@ class NewPriceScreenViewModel @Inject constructor(
                     priceRecordService.createPriceRecord(
                         existingProduct.id,
                         priceAmountText,
-                        quantityAmountText,
-                        quantityUnit,
+                        saleQuantityAmountText,
+                        saleQuantityUnit,
                         isSale,
                         priceStoreId,
                     )

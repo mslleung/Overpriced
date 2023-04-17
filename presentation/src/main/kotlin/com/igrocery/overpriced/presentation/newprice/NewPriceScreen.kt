@@ -47,8 +47,10 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
@@ -110,10 +112,12 @@ fun NewPriceScreen(
             with(state) {
                 if (productName.isEmpty()) {
                     submitError = SubmitError.ProductNameShouldNotBeEmpty
+                } else if (productQuantityAmountText.toDoubleOrNull() == null || productQuantityAmountText.toDouble() !in 0.0..1000000.0) {
+                    submitError = SubmitError.InvalidProductQuantityAmount
                 } else if (priceAmountText.toDoubleOrNull() == null || priceAmountText.toDouble() !in 0.0..1000000.0) {
                     submitError = SubmitError.InvalidPriceAmount
-                } else if (quantityText.toDoubleOrNull() == null || quantityText.toDouble() <= 0) {
-                    submitError = SubmitError.InvalidQuantityAmount
+                } else if (saleQuantityAmountText.toDoubleOrNull() == null || saleQuantityAmountText.toDouble() !in 0.0..1000000.0) {
+                    submitError = SubmitError.InvalidSaleQuantityAmount
                 } else {
                     val priceStoreId = priceStoreId
                     if (priceStoreId == null) {
@@ -121,12 +125,13 @@ fun NewPriceScreen(
                     } else {
                         state.submitError = SubmitError.None
                         newPriceScreenViewModel.submitForm(
-                            productName.trim(),
-                            productDescription.trim(),
+                            productName,
+                            productQuantityAmountText,
+                            productQuantityUnit,
                             productCategoryId,
-                            priceAmountText.trim(),
-                            quantityText.trim(),
-                            quantityUnit,
+                            priceAmountText,
+                            saleQuantityAmountText,
+                            saleQuantityUnit,
                             priceIsSale,
                             priceStoreId,
                         )
@@ -355,18 +360,18 @@ private fun MainLayout(
                     .fillMaxWidth()
             )
 
-            QuantityField(
-                amountText = state.quantityText,
+            SaleQuantityField(
+                amountText = state.saleQuantityAmountText,
                 onAmountTextChange = { text ->
                     if (text.length > 10) {
-                        state.quantityText = text.substring(0, 10)
+                        state.saleQuantityAmountText = text.substring(0, 10)
                     } else {
-                        state.quantityText = text
+                        state.saleQuantityAmountText = text
                     }
                 },
-                unit = state.quantityUnit,
+                unit = state.saleQuantityUnit,
                 onUnitChange = { unit ->
-                    state.quantityUnit = unit
+                    state.saleQuantityUnit = unit
                 },
                 scrollState = scrollState,
                 submitError = state.submitError,
@@ -574,7 +579,7 @@ private fun ProductNameTextField(
 }
 
 @Composable
-private fun ProductDescriptionTextField(
+private fun ProductQuantityTextField(
     productDescription: String,
     onProductDescriptionChange: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -706,11 +711,11 @@ private fun PriceTextFieldButton(
 }
 
 @Composable
-private fun QuantityField(
+private fun SaleQuantityField(
     amountText: String,
     onAmountTextChange: (String) -> Unit,
-    unit: PriceQuantityUnit,
-    onUnitChange: (PriceQuantityUnit) -> Unit,
+    unit: SaleQuantityUnit,
+    onUnitChange: (SaleQuantityUnit) -> Unit,
     scrollState: ScrollState,
     submitError: SubmitError,
     modifier: Modifier
@@ -773,7 +778,7 @@ private fun QuantityField(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    PriceQuantityUnit.values().map {
+                    SaleQuantityUnit.values().map {
                         val selectedColors = if (it == unit) {
                             MenuDefaults.itemColors(
                                 textColor = MaterialTheme.colorScheme.primary,
@@ -803,7 +808,7 @@ private fun QuantityField(
             }
         }
 
-        AnimatedVisibility(visible = submitError == SubmitError.InvalidQuantityAmount) {
+        AnimatedVisibility(visible = submitError == SubmitError.InvalidSaleQuantityAmount) {
             Text(
                 text = stringResource(id = R.string.new_price_quantity_input_error_text),
                 color = MaterialTheme.colorScheme.error,
@@ -811,7 +816,7 @@ private fun QuantityField(
             )
         }
 
-        if (submitError == SubmitError.InvalidQuantityAmount) {
+        if (submitError == SubmitError.InvalidSaleQuantityAmount) {
             LaunchedEffect(Unit) {
                 scrollState.animateScrollTo(quantityFieldScrollPosition.roundToInt())
             }
@@ -946,7 +951,7 @@ private fun DefaultPreview() {
                 Product(
                     id = ProductId(0),
                     name = "Apple",
-                    description = "Pack of 6",
+                    quantity = ProductQuantity(1.0, ProductQuantityUnit.Pounds),
                     categoryId = CategoryId(1),
                     creationTimestamp = 0,
                     updateTimestamp = 0,

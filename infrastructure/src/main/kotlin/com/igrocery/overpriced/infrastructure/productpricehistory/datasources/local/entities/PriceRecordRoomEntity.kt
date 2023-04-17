@@ -6,8 +6,8 @@ import com.igrocery.overpriced.domain.PriceRecordId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantity
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
 import java.util.*
 
@@ -73,7 +73,7 @@ internal fun PriceRecordRoomEntity.toDomain(): PriceRecord {
             amount = price,
             currency = Currency.getInstance(currency)
         ),
-        quantity = PriceQuantity(quantityAmount, PriceQuantityUnit.valueOf(quantityUnit)),
+        quantity = SaleQuantity(quantityAmount, SaleQuantityUnit.valueOf(quantityUnit)),
         storeId = StoreId(storeId),
         isSale = isSale
     )

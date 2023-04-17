@@ -12,15 +12,34 @@ data class Product(
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
     val name: String,
-    val description: String,   // the product brand, weight/size/flavor etc.
+    val quantity: ProductQuantity,
     val categoryId: CategoryId?,
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 
     init {
         require(name.isNotBlank())
         require(name.length <= 100)
-        require(description.length <= 100)
         categoryId?.let { require(it.value != 0L) {"use null instead of 0 to indicate empty"} }
     }
+}
 
+@Parcelize
+data class ProductQuantity(
+    val amount: Double,
+    val unit: ProductQuantityUnit
+) : Parcelable {
+
+    init {
+        require(amount > 0.0 && amount in 0.0..1000000.0)
+    }
+}
+
+enum class ProductQuantityUnit {
+    Pieces,
+    Pounds,
+    Grams,
+    Kilograms,
+    Litres,
+    MilliLitres,
+    Baskets,
 }

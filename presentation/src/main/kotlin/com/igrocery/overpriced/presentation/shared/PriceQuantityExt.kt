@@ -2,12 +2,12 @@ package com.igrocery.overpriced.presentation.shared
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit.*
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit.*
 import com.igrocery.overpriced.presentation.R
 
 @Composable
-fun PriceQuantityUnit.getDisplayString(): String {
+fun SaleQuantityUnit.getDisplayString(): String {
     return when(this) {
         Pieces -> stringResource(id = R.string.price_record_unit_pieces)
         Pounds -> stringResource(id = R.string.price_record_unit_pounds)
@@ -19,7 +19,7 @@ fun PriceQuantityUnit.getDisplayString(): String {
 }
 
 @Composable
-fun PriceQuantityUnit.getShortDisplayString(): String {
+fun SaleQuantityUnit.getShortDisplayString(): String {
     return when(this) {
         Pieces -> stringResource(id = R.string.price_record_unit_pieces_abbrev)
         Pounds -> stringResource(id = R.string.price_record_unit_pounds_abbrev)

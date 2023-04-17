@@ -5,8 +5,10 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
-import com.igrocery.overpriced.domain.productpricehistory.models.PriceQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
 import com.igrocery.overpriced.shared.Logger
@@ -27,18 +29,19 @@ class ProductService @Inject constructor(
 
     suspend fun createProductWithPriceRecord(
         productName: String,
-        productDescription: String,
+        productQuantityAmount: String,
+        productQuantityUnit: ProductQuantityUnit,
         categoryId: CategoryId?,
         priceAmountText: String,
         quantityAmountText: String,
-        quantityUnit: PriceQuantityUnit,
+        quantityUnit: SaleQuantityUnit,
         isSale: Boolean,
         storeId: StoreId,
     ) {
         transaction.execute {
             val product = Product(
                 name = productName.trim(),
-                description = productDescription.trim(),
+                quantity = ProductQuantity(productQuantityAmount.trim().toDouble(), productQuantityUnit),
                 categoryId = categoryId,
             )
 
