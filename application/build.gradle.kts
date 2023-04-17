@@ -30,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     namespace = "com.igrocery.overpriced.application"
 }
@@ -45,10 +45,9 @@ dependencies {
     implementation(project(":shared"))
 
     // hilt dependency injection
-    val hiltVersion: String by rootProject.extra
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("com.google.dagger:hilt-android:2.45")
     implementation("androidx.core:core-ktx:1.10.0")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // paging
     val pagingVersion = "3.1.1"

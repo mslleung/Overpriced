@@ -53,20 +53,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-compiler
-        kotlinCompilerExtensionVersion = "1.4.0-alpha02"
+        kotlinCompilerExtensionVersion = "1.4.5"
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -131,10 +131,9 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // hilt dependency injection
-    val hiltVersion: String by rootProject.extra
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("com.google.dagger:hilt-android:2.45")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // accompanist
     val accompanistVersion = "0.30.0"
@@ -147,7 +146,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
-    implementation("com.github.skydoves:landscapist-glide:2.1.10")
+    implementation("com.github.skydoves:landscapist-glide:2.1.11")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")

@@ -1,9 +1,7 @@
-import com.google.protobuf.gradle.*
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("com.google.protobuf")
+    id("com.google.protobuf") version "0.9.1"
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
 }
@@ -39,11 +37,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     namespace = "com.igrocery.overpriced.infrastructure"
     protobuf {
@@ -77,10 +75,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     // hilt dependency injection
-    val hiltVersion: String by rootProject.extra
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("com.google.dagger:hilt-android:2.45")
     implementation("androidx.core:core-ktx:1.10.0")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // room
     val roomVersion = "2.5.1"

@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
 rootProject.name = "Overpriced"
 include(":presentation")
 include(":application")
