@@ -2,6 +2,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
@@ -65,9 +66,9 @@ internal class LocalProductDataSource @Inject internal constructor(
 
     override fun getProduct(
         name: String,
-        description: String?
+        quantity: ProductQuantity
     ): Flow<ProductRoomEntity?> {
-        return db.productDao().getProduct(name, description)
+        return db.productDao().getProduct(name, quantity.amount, quantity.unit.name)
             .distinctUntilChanged()
     }
 

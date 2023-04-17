@@ -151,12 +151,16 @@ fun NewPriceScreen(
                 state.wantToShowSuggestionBox = false
             }
         },
-        onProductDescriptionChange = {
-            state.productDescription = it.take(100)
+        onProductQuantityAmountChange = {
+            state.productQuantityAmountText = it
+        },
+        onProductQuantityUnitChange = {
+            state.productQuantityUnit = it
         },
         onProductAutoSuggestClick = {
             state.productName = it.name
-            state.productDescription = it.description
+            state.productQuantityAmountText = it.quantity.amount.toString()
+            state.productQuantityUnit = it.quantity.unit
             state.productCategoryId = it.categoryId
             state.wantToShowSuggestionBox = false
             focusManager.clearFocus()
@@ -235,7 +239,8 @@ private fun MainLayout(
     onCloseButtonClick: () -> Unit,
     onSaveButtonClick: () -> Unit,
     onProductNameChange: (String) -> Unit,
-    onProductDescriptionChange: (String) -> Unit,
+    onProductQuantityAmountChange: (String) -> Unit,
+    onProductQuantityUnitChange: (ProductQuantityUnit) -> Unit,
     onProductAutoSuggestClick: (Product) -> Unit,
     onCategoryClick: () -> Unit,
     onStoreButtonClick: () -> Unit,
@@ -318,6 +323,7 @@ private fun MainLayout(
                     focusRequester.requestFocus()
                 }
             }
+
 
 //            ProductDescriptionTextField(
 //                productDescription = state.productDescription,
@@ -502,15 +508,13 @@ fun ProductSuggestionListItem(
             style = MaterialTheme.typography.bodyMedium
         )
 
-        if (product.description.isNotBlank()) {
-            Text(
-                text = product.description,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.alpha(0.6f)
-            )
-        }
+        Text(
+            text = product.quantity.getDisplayString(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.alpha(0.6f)
+        )
     }
 }
 
@@ -974,7 +978,8 @@ private fun DefaultPreview() {
         onCloseButtonClick = {},
         onSaveButtonClick = {},
         onProductNameChange = {},
-        onProductDescriptionChange = {},
+        onProductQuantityAmountChange = {},
+        onProductQuantityUnitChange = {},
         onProductAutoSuggestClick = {},
         onCategoryClick = {},
         onStoreButtonClick = {},

@@ -75,8 +75,8 @@ class ProductService @Inject constructor(
         return productRepository.searchProductsPaging(query, currency)
     }
 
-    fun getProduct(name: String, description: String?): Flow<Product?> {
-        return productRepository.getProduct(name, description)
+    fun getProduct(name: String, quantity: ProductQuantity): Flow<Product?> {
+        return productRepository.getProduct(name, quantity)
     }
 
     fun getProduct(productId: ProductId): Flow<Product> {

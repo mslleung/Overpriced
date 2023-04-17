@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.infrastructure.BaseDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import kotlinx.coroutines.flow.Flow
@@ -17,12 +18,13 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     @Query(
         """
             SELECT * FROM products
-            WHERE products.name = :name AND products.description = :description
+            WHERE products.name = :name AND products.quantity_amount = :quantity AND products.quantity_unit = :unit
         """
     )
     fun getProduct(
         name: String,
-        description: String?
+        quantity: Double,
+        unit: String,
     ): Flow<ProductRoomEntity?>
 
     @Query(
@@ -30,7 +32,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             SELECT products.*
             FROM products JOIN products_fts ON products.id = products_fts.rowid
             WHERE products_fts MATCH :query
-            ORDER BY name, description
+            ORDER BY name, quantity_amount
             LIMIT :pageSize OFFSET :offset
         """
     )
@@ -50,12 +52,12 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
                 SELECT products.*
                 FROM products JOIN products_fts ON products.id = products_fts.rowid
                 WHERE products_fts MATCH :query
-                ORDER BY name, description
+                ORDER BY name, quantity_amount
                 LIMIT :pageSize OFFSET :offset
             ) products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE price_records.currency = :currency
             GROUP BY products.id
-            ORDER BY name, description
+            ORDER BY name, quantity_amount
         """
     )
     suspend fun searchProductsWithMinMaxPricesPaging(
@@ -69,7 +71,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
         """
             SELECT * FROM products
             WHERE category_id = :categoryId OR (category_id IS NULL AND :categoryId IS NULL)
-            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+            ORDER BY name, quantity_amount LIMIT :pageSize OFFSET :offset
         """
     )
     suspend fun getProductPaging(
@@ -103,7 +105,7 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.category_id IS :categoryId AND price_records.currency = :currency
             GROUP BY products.id
-            ORDER BY name, description LIMIT :pageSize OFFSET :offset
+            ORDER BY name, quantity_amount LIMIT :pageSize OFFSET :offset
         """
     )
     suspend fun getProductsWithMinMaxPricesPaging(

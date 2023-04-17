@@ -139,12 +139,16 @@ class NewPriceScreenViewModel @Inject constructor(
                 submitResultState = LoadingState.Loading()
 
                 val existingProduct =
-                    productService.getProduct(productName, productDescription).first()
+                    productService.getProduct(
+                        productName,
+                        ProductQuantity(productQuantityAmountText.toDouble(), productQuantityUnit)
+                    ).first()
 
                 if (existingProduct == null) {
                     productService.createProductWithPriceRecord(
                         productName,
-                        productDescription,
+                        productQuantityAmountText,
+                        productQuantityUnit,
                         productCategoryId,
                         priceAmountText,
                         saleQuantityAmountText,

@@ -5,6 +5,7 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.createSimplePagingSource
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
@@ -109,9 +110,9 @@ class ProductRepository @Inject internal constructor(
 
     override fun getProduct(
         name: String,
-        description: String?
+        quantity: ProductQuantity
     ): Flow<Product?> {
-        return localProductDataSource.getProduct(name, description)
+        return localProductDataSource.getProduct(name, quantity)
             .map { it?.toDomain() }
     }
 
