@@ -793,7 +793,7 @@ private fun SaleQuantityField(
                 shape = RoundedCornerShape(4.dp),
             ) {
                 Text(
-                    text = saleQuantity.getShortDisplayString(),
+                    text = saleQuantity.getDisplayString(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -808,8 +808,8 @@ private fun SaleQuantityField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                ProductQuantityUnit.values().map {
-                    val selectedColors = if (it == unit) {
+                SaleQuantity.values().map {
+                    val selectedColors = if (it == saleQuantity) {
                         MenuDefaults.itemColors(
                             textColor = MaterialTheme.colorScheme.primary,
                             trailingIconColor = MaterialTheme.colorScheme.primary
@@ -820,7 +820,7 @@ private fun SaleQuantityField(
                     DropdownMenuItem(
                         text = { Text(text = it.getDisplayString()) },
                         trailingIcon = {
-                            if (it == unit) {
+                            if (it == saleQuantity) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_baseline_check_24),
                                     contentDescription = null
@@ -828,7 +828,7 @@ private fun SaleQuantityField(
                             }
                         },
                         onClick = {
-                            onUnitChange(it)
+                            onSaleQuantityChange(it)
                             expanded = false
                         },
                         colors = selectedColors
