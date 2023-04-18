@@ -5,10 +5,10 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
-import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
 import com.igrocery.overpriced.shared.Logger
@@ -33,8 +33,7 @@ class ProductService @Inject constructor(
         productQuantityUnit: ProductQuantityUnit,
         categoryId: CategoryId?,
         priceAmountText: String,
-        quantityAmountText: String,
-        quantityUnit: SaleQuantityUnit,
+        quantity: SaleQuantity,
         isSale: Boolean,
         storeId: StoreId,
     ) {
@@ -50,8 +49,7 @@ class ProductService @Inject constructor(
             priceRecordService.createPriceRecord(
                 productId = productId,
                 priceAmountText = priceAmountText,
-                quantityAmountText = quantityAmountText,
-                quantityUnit = quantityUnit,
+                quantity = quantity,
                 isSale = isSale,
                 storeId = storeId,
             )

@@ -35,11 +35,12 @@ data class ProductQuantity(
 }
 
 enum class ProductQuantityUnit {
-    Pieces,
-    Pounds,
+    Baskets,
+    Blocks,
     Grams,
     Kilograms,
     Litres,
     MilliLitres,
-    Baskets,
+    Pieces,
+    Pounds,
 }

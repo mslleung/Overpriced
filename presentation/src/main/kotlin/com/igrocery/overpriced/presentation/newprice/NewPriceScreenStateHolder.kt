@@ -1,13 +1,16 @@
 package com.igrocery.overpriced.presentation.newprice
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
-import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
 import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 
@@ -20,8 +23,7 @@ class NewPriceScreenStateHolder(
     productQuantityUnit: ProductQuantityUnit,
     productCategoryId: CategoryId?,
     priceAmountText: String,
-    saleQuantityAmountText: String,
-    saleQuantityUnit: SaleQuantityUnit,
+    saleQuantity: SaleQuantity,
     priceIsSale: Boolean,
     priceStoreId: StoreId?,
     isDiscardDialogShown: Boolean,
@@ -39,8 +41,7 @@ class NewPriceScreenStateHolder(
             newPriceScreenViewModel.updateCategoryId(value)
         }
     var priceAmountText by mutableStateOf(priceAmountText)
-    var saleQuantityAmountText by mutableStateOf(saleQuantityAmountText)
-    var saleQuantityUnit by mutableStateOf(saleQuantityUnit)
+    var saleQuantity by mutableStateOf(saleQuantity)
     var priceIsSale by mutableStateOf(priceIsSale)
 
     var priceStoreId: StoreId? = priceStoreId
@@ -62,7 +63,6 @@ class NewPriceScreenStateHolder(
         ProductNameShouldNotBeEmpty,
         InvalidProductQuantityAmount,
         InvalidPriceAmount,
-        InvalidSaleQuantityAmount,
         StoreCannotBeEmpty
     }
 
@@ -73,7 +73,6 @@ class NewPriceScreenStateHolder(
                 || productQuantityAmountText.isNotBlank()
                 || productCategoryId != null
                 || priceAmountText.isNotBlank()
-                || saleQuantityAmountText.isNotBlank()
                 || priceStoreId != null
     }
 
@@ -92,8 +91,7 @@ class NewPriceScreenStateHolder(
                     it.productQuantityUnit,
                     it.productCategoryId,
                     it.priceAmountText,
-                    it.saleQuantityAmountText,
-                    it.saleQuantityUnit,
+                    it.saleQuantity,
                     it.priceIsSale,
                     it.priceStoreId,
                     it.isDiscardDialogShown,
@@ -104,7 +102,7 @@ class NewPriceScreenStateHolder(
                 val productCategoryId =
                     selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(5) as? CategoryId
                 val productStoreId =
-                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(10) as? StoreId
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(9) as? StoreId
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
@@ -114,12 +112,11 @@ class NewPriceScreenStateHolder(
                     productQuantityUnit = it[4] as ProductQuantityUnit,
                     productCategoryId = productCategoryId,
                     priceAmountText = it[6] as String,
-                    saleQuantityAmountText = it[7] as String,
-                    saleQuantityUnit = it[8] as SaleQuantityUnit,
-                    priceIsSale = it[9] as Boolean,
+                    saleQuantity = it[7] as SaleQuantity,
+                    priceIsSale = it[8] as Boolean,
                     priceStoreId = productStoreId,
-                    isDiscardDialogShown = it[11] as Boolean,
-                    submitError = it[12] as SubmitError,
+                    isDiscardDialogShown = it[10] as Boolean,
+                    submitError = it[11] as SubmitError,
                 )
             }
         )
@@ -165,8 +162,7 @@ fun rememberNewPriceScreenState(
             productQuantityUnit = ProductQuantityUnit.Pounds,
             productCategoryId = args.categoryId,
             priceAmountText = "",
-            saleQuantityAmountText = "",
-            saleQuantityUnit = SaleQuantityUnit.One,
+            saleQuantity = SaleQuantity.One,
             priceIsSale = false,
             priceStoreId = null,
             isDiscardDialogShown = false,

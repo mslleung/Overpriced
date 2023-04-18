@@ -23,5 +23,22 @@ data class PriceRecord(
         require(productId.value > 0)
         require(storeId.value > 0)
     }
+}
 
+/**
+ * This is conceptually a multiple over the product quantity. As vendors typically sell some items
+ * in bulk. e.g. They usually sell apples in pack of 5 etc.
+ */
+enum class SaleQuantity {
+    Half,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Ten,
 }

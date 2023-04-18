@@ -63,12 +63,13 @@
     <string name="new_price_product_barcode_attach_button_text">Attach Barcode</string>
     <string name="new_price_product_barcode_label">Barcode:</string>
     <string name="new_price_product_barcode_icon_content_description">Open camera to scan barcode</string>
+    <string name="new_price_product_quantity_label">Quantity</string>
+    <string name="new_price_product_quantity_input_error_text">Invalid quantity input.</string>
     <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
     <string name="new_price_amount_input_error_text">Invalid amount input.</string>
-    <string name="new_price_quantity_label">Quantity</string>
-    <string name="new_price_quantity_input_error_text">Invalid quantity input.</string>
+    <string name="new_price_sale_quantity_label">For: </string>
     <string name="new_price_is_sale_label">Is this a sale price?</string>
     <string name="new_price_store_info_header">Store Location</string>
     <string name="new_price_store_icon_content_description">Store location</string>
@@ -77,10 +78,10 @@
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
-    <string name="price_record_unit_pieces">Pieces</string>
-    <string name="price_record_unit_pieces_abbrev">Pc</string>
-    <string name="price_record_unit_pounds">Pounds</string>
-    <string name="price_record_unit_pounds_abbrev">lb</string>
+    <string name="price_record_unit_baskets">Baskets</string>
+    <string name="price_record_unit_baskets_abbrev">bkt</string>
+    <string name="price_record_unit_blocks">Kilograms</string>
+    <string name="price_record_unit_blocks_abbrev">blk</string>
     <string name="price_record_unit_grams">Grams</string>
     <string name="price_record_unit_grams_abbrev">g</string>
     <string name="price_record_unit_kilograms">Kilograms</string>
@@ -89,6 +90,10 @@
     <string name="price_record_unit_litres_abbrev">L</string>
     <string name="price_record_unit_millilitres">MilliLitres</string>
     <string name="price_record_unit_millilitres_abbrev">mL</string>
+    <string name="price_record_unit_pieces">Pieces</string>
+    <string name="price_record_unit_pieces_abbrev">Pc</string>
+    <string name="price_record_unit_pounds">Pounds</string>
+    <string name="price_record_unit_pounds_abbrev">lb</string>
 
     <string name="no_category">No Category</string>
     <string name="select_category_title">Select Category</string>

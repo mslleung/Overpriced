@@ -47,10 +47,10 @@ import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newprice.NewPriceScreenStateHolder.SubmitError
@@ -116,8 +116,6 @@ fun NewPriceScreen(
                     submitError = SubmitError.InvalidProductQuantityAmount
                 } else if (priceAmountText.toDoubleOrNull() == null || priceAmountText.toDouble() !in 0.0..1000000.0) {
                     submitError = SubmitError.InvalidPriceAmount
-                } else if (saleQuantityAmountText.toDoubleOrNull() == null || saleQuantityAmountText.toDouble() !in 0.0..1000000.0) {
-                    submitError = SubmitError.InvalidSaleQuantityAmount
                 } else {
                     val priceStoreId = priceStoreId
                     if (priceStoreId == null) {
@@ -130,8 +128,7 @@ fun NewPriceScreen(
                             productQuantityUnit,
                             productCategoryId,
                             priceAmountText,
-                            saleQuantityAmountText,
-                            saleQuantityUnit,
+                            saleQuantity,
                             priceIsSale,
                             priceStoreId,
                         )
@@ -170,6 +167,15 @@ fun NewPriceScreen(
             keyboardController?.hide()
             navigateToSelectCategory(state.productCategoryId)
         },
+        onPriceAmountChange = {
+            state.priceAmountText = it
+        },
+        onSaleQuantityChange = {
+            state.saleQuantity = it
+        },
+        onIsSaleClick = {
+            state.priceIsSale = it
+        },
         onStoreButtonClick = {
             focusManager.clearFocus()
             keyboardController?.hide()
@@ -184,6 +190,7 @@ fun NewPriceScreen(
                 navigateUp()
             }
         }
+
         is LoadingState.Error -> {
             val unknownErrorMessage =
                 stringResource(id = R.string.new_price_submit_failed_message)
@@ -196,10 +203,12 @@ fun NewPriceScreen(
                     SnackbarResult.Dismissed -> {
                         newPriceScreenViewModel.clearError()
                     }
+
                     else -> {}
                 }
             }
         }
+
         else -> {}
     }
 
@@ -243,6 +252,9 @@ private fun MainLayout(
     onProductQuantityUnitChange: (ProductQuantityUnit) -> Unit,
     onProductAutoSuggestClick: (Product) -> Unit,
     onCategoryClick: () -> Unit,
+    onPriceAmountChange: (String) -> Unit,
+    onSaleQuantityChange: (SaleQuantity) -> Unit,
+    onIsSaleClick: (Boolean) -> Unit,
     onStoreButtonClick: () -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
@@ -298,7 +310,7 @@ private fun MainLayout(
 
             ProductInformationHeader(modifier = Modifier.padding(bottom = 4.dp))
 
-            ProductNameTextField(
+            ProductNameField(
                 productName = state.productName,
                 onProductNameChange = { text ->
                     onProductNameChange(text.take(100))
@@ -324,19 +336,20 @@ private fun MainLayout(
                 }
             }
 
-
-//            ProductDescriptionTextField(
-//                productDescription = state.productDescription,
-//                onProductDescriptionChange = { text ->
-//                    onProductDescriptionChange(text.take(100))
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 4.dp)
-//            )
+            ProductQuantityField(
+                amountText = state.productQuantityAmountText,
+                onAmountTextChange = { text -> onProductQuantityAmountChange(text.take(10)) },
+                unit = state.productQuantityUnit,
+                onUnitChange = { unit -> onProductQuantityUnitChange(unit) },
+                scrollState = scrollState,
+                submitError = state.submitError,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
+            )
 
             val category by viewModelState.categoryFlow.collectAsState()
-            ProductCategory(
+            ProductCategoryField(
                 productCategory = category,
                 onClick = onCategoryClick,
                 modifier = Modifier
@@ -350,15 +363,9 @@ private fun MainLayout(
             )
 
             val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
-            PriceTextFieldButton(
+            PriceAmountField(
                 text = state.priceAmountText,
-                onTextChange = { text ->
-                    if (text.length > 10) {
-                        state.priceAmountText = text.substring(0, 10)
-                    } else {
-                        state.priceAmountText = text
-                    }
-                },
+                onTextChange = { text -> onPriceAmountChange(text.take(10)) },
                 preferredCurrency = preferredCurrency,
                 scrollState = scrollState,
                 submitError = state.submitError,
@@ -367,30 +374,15 @@ private fun MainLayout(
             )
 
             SaleQuantityField(
-                amountText = state.saleQuantityAmountText,
-                onAmountTextChange = { text ->
-                    if (text.length > 10) {
-                        state.saleQuantityAmountText = text.substring(0, 10)
-                    } else {
-                        state.saleQuantityAmountText = text
-                    }
-                },
-                unit = state.saleQuantityUnit,
-                onUnitChange = { unit ->
-                    state.saleQuantityUnit = unit
-                },
-                scrollState = scrollState,
-                submitError = state.submitError,
+                saleQuantity = state.saleQuantity,
+                onSaleQuantityChange = onSaleQuantityChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 4.dp)
             )
 
-            PriceIsSaleCheckbox(
+            PriceIsSaleField(
                 isChecked = state.priceIsSale,
-                onCheckedChange = { isChecked ->
-                    state.priceIsSale = isChecked
-                },
+                onCheckedChange = { isChecked -> onIsSaleClick(isChecked) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -399,7 +391,7 @@ private fun MainLayout(
             )
 
             val store by viewModelState.storeFlow.collectAsState()
-            StoreLocation(
+            StoreLocationField(
                 selectedStore = store,
                 onStoreButtonClick = onStoreButtonClick,
                 scrollState = scrollState,
@@ -458,67 +450,6 @@ private fun MainLayout(
 }
 
 @Composable
-private fun PriceIsSaleCheckbox(
-    isChecked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .clickable { onCheckedChange(!isChecked) }
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = onCheckedChange,
-        )
-
-        Text(
-            text = stringResource(id = R.string.new_price_is_sale_label),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            style = MaterialTheme.typography.labelLarge
-        )
-    }
-}
-
-@Composable
-fun ProductSuggestionListItem(
-    query: String,
-    product: Product,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier.height(40.dp)
-    ) {
-        Text(
-            text = buildAnnotatedString {
-                // TODO bold the query
-//                val queryText = query.filter { it.isLetter() }
-//                product.name.find
-//                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-//                    append(query.())
-//                }
-                append(product.name)
-//                product.name
-            },
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Text(
-            text = product.quantity.getDisplayString(),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.alpha(0.6f)
-        )
-    }
-}
-
-@Composable
 private fun ProductInformationHeader(modifier: Modifier = Modifier) {
     Text(
         text = stringResource(id = R.string.new_price_product_info_header),
@@ -530,7 +461,7 @@ private fun ProductInformationHeader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ProductNameTextField(
+private fun ProductNameField(
     productName: String,
     onProductNameChange: (String) -> Unit,
     focusRequester: FocusRequester,
@@ -583,32 +514,157 @@ private fun ProductNameTextField(
 }
 
 @Composable
-private fun ProductQuantityTextField(
-    productDescription: String,
-    onProductDescriptionChange: (String) -> Unit,
+private fun ProductSuggestionListItem(
+    query: String,
+    product: Product,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
-    OutlinedTextField(
-        value = productDescription,
-        onValueChange = { text -> onProductDescriptionChange(text) },
-        modifier = modifier,
-        singleLine = true,
-        label = {
-            Text(text = stringResource(id = R.string.new_price_product_description_label))
-        },
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
-            imeAction = ImeAction.Next
-        ),
-        keyboardActions = KeyboardActions(onNext = {
-            focusManager.moveFocus(FocusDirection.Down)
-        }),
-    )
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier.height(40.dp)
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                // TODO bold the query
+//                val queryText = query.filter { it.isLetter() }
+//                product.name.find
+//                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+//                    append(query.())
+//                }
+                append(product.name)
+//                product.name
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Text(
+            text = product.quantity.getDisplayString(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.alpha(0.6f)
+        )
+    }
 }
 
 @Composable
-private fun ProductCategory(
+private fun ProductQuantityField(
+    amountText: String,
+    onAmountTextChange: (String) -> Unit,
+    unit: ProductQuantityUnit,
+    onUnitChange: (ProductQuantityUnit) -> Unit,
+    scrollState: ScrollState,
+    submitError: SubmitError,
+    modifier: Modifier
+) {
+    var quantityFieldScrollPosition by remember { mutableStateOf(0f) }
+    Column(
+        modifier = modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                quantityFieldScrollPosition = layoutCoordinates.positionInParent().y
+            }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val focusManager = LocalFocusManager.current
+            OutlinedTextField(
+                value = amountText,
+                onValueChange = onAmountTextChange,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp),
+                singleLine = true,
+                label = {
+                    Text(text = stringResource(id = R.string.new_price_product_quantity_label))
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                }),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                isError = submitError == SubmitError.InvalidPriceAmount
+            )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxWidth(0.21f)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                TextButton(
+                    onClick = { expanded = !expanded },
+                    shape = RoundedCornerShape(4.dp),
+                ) {
+                    Text(
+                        text = unit.getShortDisplayString(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    ProductQuantityUnit.values().map {
+                        val selectedColors = if (it == unit) {
+                            MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.primary,
+                                trailingIconColor = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            MenuDefaults.itemColors()
+                        }
+                        DropdownMenuItem(
+                            text = { Text(text = it.getDisplayString()) },
+                            trailingIcon = {
+                                if (it == unit) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            onClick = {
+                                onUnitChange(it)
+                                expanded = false
+                            },
+                            colors = selectedColors
+                        )
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(visible = submitError == SubmitError.InvalidProductQuantityAmount) {
+            Text(
+                text = stringResource(id = R.string.new_price_product_quantity_input_error_text),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        if (submitError == SubmitError.InvalidProductQuantityAmount) {
+            LaunchedEffect(Unit) {
+                scrollState.animateScrollTo(quantityFieldScrollPosition.roundToInt())
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductCategoryField(
     productCategory: LoadingState<Category?>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -653,7 +709,7 @@ private fun PriceHeader(
 }
 
 @Composable
-private fun PriceTextFieldButton(
+private fun PriceAmountField(
     text: String,
     onTextChange: (String) -> Unit,
     preferredCurrency: LoadingState<Currency>,
@@ -716,115 +772,95 @@ private fun PriceTextFieldButton(
 
 @Composable
 private fun SaleQuantityField(
-    amountText: String,
-    onAmountTextChange: (String) -> Unit,
-    unit: SaleQuantityUnit,
-    onUnitChange: (SaleQuantityUnit) -> Unit,
-    scrollState: ScrollState,
-    submitError: SubmitError,
+    saleQuantity: SaleQuantity,
+    onSaleQuantityChange: (SaleQuantity) -> Unit,
     modifier: Modifier
 ) {
-    var quantityFieldScrollPosition by remember { mutableStateOf(0f) }
-    Column(
+    Row(
         modifier = modifier
-            .onGloballyPositioned { layoutCoordinates ->
-                quantityFieldScrollPosition = layoutCoordinates.positionInParent().y
-            }
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val focusManager = LocalFocusManager.current
-            OutlinedTextField(
-                value = amountText,
-                onValueChange = onAmountTextChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp),
-                singleLine = true,
-                label = {
-                    Text(text = stringResource(id = R.string.new_price_quantity_label))
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Decimal,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = {
-                    focusManager.clearFocus()
-                }),
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                isError = submitError == SubmitError.InvalidPriceAmount
-            )
+        Text(
+            text = stringResource(id = R.string.new_price_sale_quantity_label),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxWidth(0.21f)
+        Box {
+            var expanded by remember { mutableStateOf(false) }
+            TextButton(
+                onClick = { expanded = !expanded },
+                shape = RoundedCornerShape(4.dp),
             ) {
-                var expanded by remember { mutableStateOf(false) }
-                TextButton(
-                    onClick = { expanded = !expanded },
-                    shape = RoundedCornerShape(4.dp),
-                ) {
-                    Text(
-                        text = unit.getShortDisplayString(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    SaleQuantityUnit.values().map {
-                        val selectedColors = if (it == unit) {
-                            MenuDefaults.itemColors(
-                                textColor = MaterialTheme.colorScheme.primary,
-                                trailingIconColor = MaterialTheme.colorScheme.primary
-                            )
-                        } else {
-                            MenuDefaults.itemColors()
-                        }
-                        DropdownMenuItem(
-                            text = { Text(text = it.getDisplayString()) },
-                            trailingIcon = {
-                                if (it == unit) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_baseline_check_24),
-                                        contentDescription = null
-                                    )
-                                }
-                            },
-                            onClick = {
-                                onUnitChange(it)
-                                expanded = false
-                            },
-                            colors = selectedColors
+                Text(
+                    text = saleQuantity.getShortDisplayString(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                ProductQuantityUnit.values().map {
+                    val selectedColors = if (it == unit) {
+                        MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.primary,
+                            trailingIconColor = MaterialTheme.colorScheme.primary
                         )
+                    } else {
+                        MenuDefaults.itemColors()
                     }
+                    DropdownMenuItem(
+                        text = { Text(text = it.getDisplayString()) },
+                        trailingIcon = {
+                            if (it == unit) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        onClick = {
+                            onUnitChange(it)
+                            expanded = false
+                        },
+                        colors = selectedColors
+                    )
                 }
             }
         }
+    }
+}
 
-        AnimatedVisibility(visible = submitError == SubmitError.InvalidSaleQuantityAmount) {
-            Text(
-                text = stringResource(id = R.string.new_price_quantity_input_error_text),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+@Composable
+private fun PriceIsSaleField(
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onCheckedChange(!isChecked) }
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+        )
 
-        if (submitError == SubmitError.InvalidSaleQuantityAmount) {
-            LaunchedEffect(Unit) {
-                scrollState.animateScrollTo(quantityFieldScrollPosition.roundToInt())
-            }
-        }
+        Text(
+            text = stringResource(id = R.string.new_price_is_sale_label),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
 
@@ -842,7 +878,7 @@ private fun StoreLocationHeader(
 }
 
 @Composable
-private fun StoreLocation(
+private fun StoreLocationField(
     selectedStore: LoadingState<Store?>,
     onStoreButtonClick: () -> Unit,
     scrollState: ScrollState,
@@ -982,6 +1018,9 @@ private fun DefaultPreview() {
         onProductQuantityUnitChange = {},
         onProductAutoSuggestClick = {},
         onCategoryClick = {},
+        onPriceAmountChange = {},
+        onSaleQuantityChange = {},
+        onIsSaleClick = {},
         onStoreButtonClick = {},
     )
 }

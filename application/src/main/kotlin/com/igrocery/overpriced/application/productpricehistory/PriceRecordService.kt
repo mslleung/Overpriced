@@ -5,9 +5,8 @@ import com.igrocery.overpriced.domain.PriceRecordId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
-import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
-import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.preference.IPreferenceRepository
 import com.igrocery.overpriced.infrastructure.productpricehistory.IPriceRecordRepository
@@ -26,8 +25,7 @@ class PriceRecordService @Inject constructor(
     suspend fun createPriceRecord(
         productId: ProductId,
         priceAmountText: String,
-        quantityAmountText: String,
-        quantityUnit: SaleQuantityUnit,
+        quantity: SaleQuantity,
         isSale: Boolean,
         storeId: StoreId,
     ): PriceRecordId {
@@ -39,7 +37,7 @@ class PriceRecordService @Inject constructor(
             val priceRecord = PriceRecord(
                 productId = productId,
                 price = Money(priceAmount, preferredCurrency),
-                quantity = SaleQuantity(quantityAmountText.trim().toDouble(), quantityUnit),
+                quantity = quantity,
                 isSale = isSale,
                 storeId = storeId,
             )
