@@ -30,15 +30,15 @@ data class PriceRecord(
  * in bulk. e.g. They usually sell apples in pack of 5 etc.
  */
 enum class SaleQuantity(val numeric: Double) {
-    Half(0.5),
+//    Half(0.5),
     One(1.0),
     Two(2.0),
     Three(3.0),
     Four(4.0),
     Five(5.0),
-//    Six(6.0),
-//    Seven(7.0),
-//    Eight(8.0),
+    Six(6.0),
+    Seven(7.0),
+    Eight(8.0),
 //    Nine(9.0),
 //    Ten(10.0),
 }
