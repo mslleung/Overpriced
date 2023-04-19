@@ -29,6 +29,8 @@ import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.productlist.ProductListItem
 import com.igrocery.overpriced.presentation.shared.BackButton
@@ -136,8 +138,10 @@ private fun MainContent(
                             }
                         ),
                         singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.Transparent,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                         )
@@ -265,7 +269,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                description = "Fuji",
+                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
                                 categoryId = null
                             ),
                             minPrice = 5.0,

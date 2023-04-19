@@ -371,6 +371,7 @@ private fun MainLayout(
                 submitError = state.submitError,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = 4.dp)
             )
 
             SaleQuantityField(
@@ -777,6 +778,7 @@ private fun SaleQuantityField(
     modifier: Modifier
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
         Text(
@@ -786,7 +788,10 @@ private fun SaleQuantityField(
             modifier = Modifier.weight(1f)
         )
 
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.21f)
+        ) {
             var expanded by remember { mutableStateOf(false) }
             TextButton(
                 onClick = { expanded = !expanded },
@@ -850,16 +855,16 @@ private fun PriceIsSaleField(
         modifier = modifier
             .clickable { onCheckedChange(!isChecked) }
     ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = onCheckedChange,
-        )
-
         Text(
             text = stringResource(id = R.string.new_price_is_sale_label),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            style = MaterialTheme.typography.labelLarge
+            modifier = Modifier.weight(1f)
+        )
+
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
         )
     }
 }

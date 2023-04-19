@@ -47,11 +47,11 @@ android {
     protobuf {
         generatedFilesBaseDir = "$projectDir/build/generated/source/proto"
         protoc {
-            artifact = "com.google.protobuf:protoc:4.0.0-rc-2"
+            artifact = "com.google.protobuf:protoc:21.0-rc-1"
         }
         generateProtoTasks {
             all().forEach { task ->
-                task.plugins{
+                task.builtins {
                     create("java") {
                         option("lite")
                     }
@@ -93,7 +93,7 @@ dependencies {
 
     // datastore
     implementation("androidx.datastore:datastore:1.0.0")
-    implementation("com.google.protobuf:protobuf-javalite:3.20.1")
+    implementation("com.google.protobuf:protobuf-javalite:4.0.0-rc-2")
 
     // date
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")

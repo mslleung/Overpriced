@@ -25,6 +25,8 @@ import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
@@ -233,15 +235,13 @@ fun ProductListItem(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            if (product.description.isNotBlank()) {
-                Text(
-                    text = product.description,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
+            Text(
+                text = product.quantity.getDisplayString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.alpha(0.6f)
+            )
         }
 
         if (currency is LoadingState.Success) {
@@ -304,7 +304,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                description = "Fuji",
+                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
                                 categoryId = null
                             ),
                             minPrice = null,

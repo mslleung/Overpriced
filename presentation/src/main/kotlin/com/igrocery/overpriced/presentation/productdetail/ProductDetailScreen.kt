@@ -158,18 +158,16 @@ private fun MainContent(
                     val productWithPricesLoadState by viewModelState.productWithPricesFlow.collectAsState()
                     currencyLoadState.ifLoaded { currency ->
                         productWithPricesLoadState.ifLoaded { (product, minPrice, maxPrice) ->
-                            if (product.description.isNotBlank()) {
-                                Text(
-                                    text = product.description,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .alpha(0.6f)
-                                        .padding(bottom = 8.dp, end = 8.dp),
-                                )
-                            }
+                            Text(
+                                text = product.quantity.getDisplayString(),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .alpha(0.6f)
+                                    .padding(bottom = 8.dp, end = 8.dp),
+                            )
 
                             val priceRangeText = if (minPrice == maxPrice) {
                                 "${currency.symbol} $minPrice"
@@ -328,7 +326,11 @@ private fun DefaultPreview() {
             get() = MutableStateFlow(
                 LoadingState.Success(
                     ProductWithMinMaxPrices(
-                        product = Product(name = "Apple", description = "", categoryId = null),
+                        product = Product(
+                            name = "Apple",
+                            quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                            categoryId = null
+                        ),
                         minPrice = 5.0,
                         maxPrice = 6.0,
                         lastUpdatedTimestamp = 0

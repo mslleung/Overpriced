@@ -144,17 +144,15 @@ private fun MainContent(
                             style = MaterialTheme.typography.bodyMedium
                         )
 
-                        if (product.description.isNotBlank()) {
-                            Text(
-                                text = product.description,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .alpha(0.6f)
-                            )
-                        }
+                        Text(
+                            text = product.quantity.getDisplayString(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .alpha(0.6f)
+                        )
                     }
 
                     if (priceRecords.isInitialLoadCompleted()) {
@@ -244,7 +242,7 @@ private fun DefaultPreview() {
         override val currencyFlow: StateFlow<LoadingState<Currency>> =
             MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
         override val productFlow: StateFlow<LoadingState<Product>> = MutableStateFlow(
-            LoadingState.Success(Product(name = "Apple", description = "", categoryId = null))
+            LoadingState.Success(Product(name = "Apple", quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets), categoryId = null))
         )
         override val storeFlow: StateFlow<LoadingState<Store>> = MutableStateFlow(
             LoadingState.Success(
@@ -260,7 +258,7 @@ private fun DefaultPreview() {
                     PriceRecord(
                         productId = ProductId(0),
                         price = Money(5.0, Currency.getInstance(Locale.US)),
-                        quantity = SaleQuantity(1.0, SaleQuantityUnit.Pieces),
+                        quantity = SaleQuantity.One,
                         storeId = StoreId(0),
                         isSale = false
                     )

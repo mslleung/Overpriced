@@ -12,10 +12,10 @@ fun SaleQuantity.getDisplayString(): String {
         SaleQuantity.Three -> "3"
         SaleQuantity.Four -> "4"
         SaleQuantity.Five -> "5"
-        SaleQuantity.Six -> "6"
-        SaleQuantity.Seven -> "7"
-        SaleQuantity.Eight -> "8"
-        SaleQuantity.Nine -> "9"
-        SaleQuantity.Ten -> "10"
+//        SaleQuantity.Six -> "6"
+//        SaleQuantity.Seven -> "7"
+//        SaleQuantity.Eight -> "8"
+//        SaleQuantity.Nine -> "9"
+//        SaleQuantity.Ten -> "10"
     }
 }
