@@ -9,36 +9,49 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 class SaveAlertDialogStateHolder(
-    initialStoreName: String,
-    initialAddress: String,
+    storeName: String,
+    address: String,
+    isRequestingFirstFocus: Boolean,
 ) {
-    var storeName by mutableStateOf(initialStoreName)
-    var address by mutableStateOf(initialAddress)
-    var isRequestingFirstFocus by mutableStateOf(true)
+    var storeName by mutableStateOf(storeName)
+    var address by mutableStateOf(address)
+    var isRequestingFirstFocus by mutableStateOf(isRequestingFirstFocus)
+
+    companion object {
+        fun Saver() = listSaver(
+            save = {
+                listOf(
+                    it.storeName,
+                    it.address,
+                    it.isRequestingFirstFocus,
+                )
+            },
+            restore = {
+                SaveAlertDialogStateHolder(
+                    it[0] as String,
+                    it[1] as String,
+                    it[2] as Boolean
+                )
+            }
+        )
+    }
 }
 
 @Composable
 fun rememberSaveAlertDialogState(
-    initialStoreName: String,
-    initialAddress: String,
+    storeName: String,
+    address: String,
 ) = rememberSaveable(
-    stateSaver =  listSaver(
-        save = {
-            listOf(
-                it.storeName,
-                it.address,
-                it.isRequestingFirstFocus,
-            )
-        },
-        restore = {
-            SaveAlertDialogStateHolder(
-                initialStoreName = it[0] as String,
-                initialAddress = it[1] as String
-            ).apply {
-                isRequestingFirstFocus = it[2] as Boolean
-            }
-        }
+    stateSaver = Saver(
+        save = { with(SaveAlertDialogStateHolder.Saver()) { save(it) } },
+        restore = { value -> with(SaveAlertDialogStateHolder.Saver()) { restore(value)!! } }
     )
 ) {
-    mutableStateOf(SaveAlertDialogStateHolder(initialStoreName, initialAddress))
+    mutableStateOf(
+        SaveAlertDialogStateHolder(
+            storeName = storeName,
+            address = address,
+            isRequestingFirstFocus = true
+        )
+    )
 }

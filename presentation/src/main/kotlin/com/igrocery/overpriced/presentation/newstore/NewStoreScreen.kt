@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
@@ -27,7 +28,7 @@ private val log = Logger {}
 fun NewStoreScreen(
     newStoreViewModel: NewStoreScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: (newStoreId: Long) -> Unit,
+    navigateDone: (newStoreId: StoreId) -> Unit,
 ) {
     log.debug("Composing NewStoreScreen")
 
@@ -49,8 +50,8 @@ fun NewStoreScreen(
 
     if (state.isSaveDialogShown) {
         val saveDialogState by rememberSaveAlertDialogState(
-            initialStoreName = "",
-            initialAddress = storeMapState.address
+            storeName = "",
+            address = storeMapState.address
         )
         SaveAlertDialog(
             state = saveDialogState,
@@ -91,7 +92,7 @@ fun NewStoreScreen(
     }
 
     BackHandler {
-        log.debug("Composing NewStoreScreen: BackHandler")
+        log.debug("NewStoreScreen: BackHandler")
         navigateUp()
     }
 }
@@ -160,9 +161,10 @@ private fun MainContent(
 @Preview
 @Composable
 private fun DefaultPreview() {
+    val state by rememberNewStoreScreenState()
     MainContent(
         snackbarHostState = SnackbarHostState(),
-        state = NewStoreScreenStateHolder(),
+        state = state,
         storeMapState = StoreGoogleMapStateHolder(LocalContext.current),
         onCameraPositionChanged = { },
         onBackButtonClick = { },

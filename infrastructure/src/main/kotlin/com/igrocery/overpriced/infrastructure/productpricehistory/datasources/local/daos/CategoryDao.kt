@@ -3,6 +3,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Query
+import com.igrocery.overpriced.infrastructure.BaseDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 internal interface CategoryDao : BaseDao<CategoryRoomEntity> {
 
     @Query("SELECT * FROM categories WHERE id = :id")
-    fun getCategoryById(id: Long): Flow<CategoryRoomEntity>
+    fun getCategory(id: Long): Flow<CategoryRoomEntity>
 
     @Query("SELECT * FROM categories ORDER BY name")
     fun getAllCategories(): Flow<List<CategoryRoomEntity>>  // no paging, it is likely going to be small

@@ -9,12 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,9 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
@@ -44,6 +45,7 @@ fun ProductListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,
     navigateToEditCategory: () -> Unit,
+    navigateToProductDetail: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     log.debug("Composing ProductListScreen")
@@ -55,12 +57,12 @@ fun ProductListScreen(
         onBackButtonClick = navigateUp,
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
-        onProductClick = {},
+        onProductClick = { navigateToProductDetail(it) },
         modifier = modifier
     )
 
     BackHandler {
-        log.debug("Composing ProductListScreen: BackHandler")
+        log.debug("ProductListScreen: BackHandler")
         navigateUp()
     }
 }
@@ -73,18 +75,18 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
-    onProductClick: (ProductWithMinMaxPrices) -> Unit,
+    onProductClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
-    val topBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
+    val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarState)
 
-    UseLinearInterpolatedTopBarColorForStatusBarColor(topBarState)
+    UseAnimatedFadeTopBarColorForStatusBarColor(topBarState)
+    UseDefaultSystemNavBarColor()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
                     val category by viewModelState.categoryFlow.collectAsState()
                     category.ifLoaded {
@@ -144,7 +146,6 @@ private fun MainContent(
                 windowInsets = WindowInsets.statusBars
             )
         },
-        contentWindowInsets = WindowInsets.statusBars,
         modifier = modifier
     ) {
         val productsPagingItems =
@@ -207,22 +208,21 @@ private fun EmptyListContent(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun ProductListItem(
+fun ProductListItem(
     item: ProductWithMinMaxPrices,
     currency: LoadingState<Currency>,
-    onClick: (ProductWithMinMaxPrices) -> Unit,
+    onClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable { onClick(item) }
+            .clickable { onClick(item.product.id) }
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
-        val (product, minPrice, maxPrice, lastUpdatedTimestamp) = item
+        val (product, minPrice, maxPrice, _) = item
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -235,15 +235,13 @@ private fun ProductListItem(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            if (product.description.isNotBlank()) {
-                Text(
-                    text = product.description,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
+            Text(
+                text = product.quantity.getDisplayString(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.alpha(0.6f)
+            )
         }
 
         if (currency is LoadingState.Success) {
@@ -264,52 +262,6 @@ private fun ProductListItem(
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                lastUpdatedTimestamp?.let {
-                    val secondsPassed by ticksEverySecond()
-                    secondsPassed.run {
-                        val timeAgo = System.nanoTime() - lastUpdatedTimestamp
-                        assert(timeAgo > 0)
-
-                        // note that the numbers are floored due to numerical precision
-                        val timeAgoInDays = (timeAgo / (24 * 60 * 60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoInHours = (timeAgo / (60 * 60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoInMinutes = (timeAgo / (60) / 1000 / 1000 / 1000).toInt()
-                        val timeAgoText = if (timeAgoInDays > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_days_ago,
-                                count = timeAgoInDays,
-                                timeAgoInDays
-                            )
-                        } else if (timeAgoInHours > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_hours_ago,
-                                count = timeAgoInHours,
-                                timeAgoInHours
-                            )
-                        } else if (timeAgoInMinutes > 0) {
-                            pluralStringResource(
-                                id = R.plurals.product_list_minutes_ago,
-                                count = timeAgoInMinutes,
-                                timeAgoInMinutes
-                            )
-                        } else {
-                            stringResource(id = R.string.product_list_moments_ago)
-                        }
-
-                        val updatedLabel =
-                            stringResource(id = R.string.product_list_updated_label)
-                        Text(
-                            text = "$updatedLabel $timeAgoText",
-                            maxLines = 1,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .alpha(0.6f)
-                        )
-                    }
-                }
             }
         }
     }
@@ -352,7 +304,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                description = "Fuji",
+                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
                                 categoryId = null
                             ),
                             minPrice = null,

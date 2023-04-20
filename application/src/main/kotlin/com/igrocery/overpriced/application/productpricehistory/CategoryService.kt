@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.application.productpricehistory
 
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
@@ -15,7 +16,7 @@ class CategoryService @Inject constructor(
     private val transaction: Transaction
 ) {
 
-    suspend fun createCategory(icon: CategoryIcon, name: String): Long {
+    suspend fun createCategory(icon: CategoryIcon, name: String): CategoryId {
         return transaction.execute {
             val category = Category(
                 icon = icon,
@@ -37,8 +38,8 @@ class CategoryService @Inject constructor(
         }
     }
 
-    fun getCategoryById(id: Long): Flow<Category?> {
-        return categoryRepository.getCategoryById(id)
+    fun getCategory(id: CategoryId): Flow<Category> {
+        return categoryRepository.getCategory(id)
     }
 
     fun getAllCategories(): Flow<List<Category>> {

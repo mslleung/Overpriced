@@ -5,9 +5,8 @@ plugins {
 
 android {
     compileSdk = 33
+//    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -29,15 +28,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     namespace = "com.igrocery.overpriced.shared"
 }
 
 dependencies {
-
+    implementation("androidx.core:core-ktx:1.10.0")
 }

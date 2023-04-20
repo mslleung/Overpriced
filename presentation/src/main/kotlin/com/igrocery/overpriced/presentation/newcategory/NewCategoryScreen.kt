@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.*
@@ -39,7 +40,7 @@ private val log = Logger { }
 fun NewCategoryScreen(
     viewModel: NewCategoryScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: (categoryId: Long) -> Unit,
+    navigateDone: (CategoryId) -> Unit,
 ) {
     log.debug("Composing NewCategoryScreen")
 
@@ -64,7 +65,7 @@ fun NewCategoryScreen(
     }
 
     BackHandler {
-        log.debug("Composing NewCategoryScreen: BackHandler")
+        log.debug("NewCategoryScreen: BackHandler")
         navigateUp()
     }
 }
@@ -254,12 +255,13 @@ fun CategoryIconGrid(
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : NewCategoryScreenViewModelState {
-        override val createCategoryResult: LoadingState<Long> = LoadingState.NotLoading()
+        override val createCategoryResult: LoadingState<CategoryId> = LoadingState.NotLoading()
     }
 
+    val state by rememberNewCategoryScreenState()
     MainLayout(
         viewModelState = viewModelState,
-        state = NewCategoryScreenStateHolder(),
+        state = state,
         onBackButtonClick = {},
         onSaveButtonClick = {}
     )

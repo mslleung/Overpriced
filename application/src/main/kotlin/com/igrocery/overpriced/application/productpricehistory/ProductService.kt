@@ -1,8 +1,14 @@
 package com.igrocery.overpriced.application.productpricehistory
 
 import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
 import com.igrocery.overpriced.shared.Logger
@@ -23,24 +29,29 @@ class ProductService @Inject constructor(
 
     suspend fun createProductWithPriceRecord(
         productName: String,
-        productDescription: String,
-        categoryId: Long?,
+        productQuantityAmount: String,
+        productQuantityUnit: ProductQuantityUnit,
+        categoryId: CategoryId?,
         priceAmountText: String,
-        storeId: Long,
+        quantity: SaleQuantity,
+        isSale: Boolean,
+        storeId: StoreId,
     ) {
         transaction.execute {
             val product = Product(
                 name = productName.trim(),
-                description = productDescription.trim(),
+                quantity = ProductQuantity(productQuantityAmount.trim().toDouble(), productQuantityUnit),
                 categoryId = categoryId,
             )
 
             val productId = productRepository.insert(product)
 
             priceRecordService.createPriceRecord(
-                priceAmountText = priceAmountText,
                 productId = productId,
-                storeId = storeId
+                priceAmountText = priceAmountText,
+                quantity = quantity,
+                isSale = isSale,
+                storeId = storeId,
             )
         }
     }
@@ -51,23 +62,44 @@ class ProductService @Inject constructor(
         }
     }
 
-    fun searchProductsByNamePaging(query: String): PagingSource<Int, Product> {
-        return productRepository.searchProductsByNamePaging(query)
+    fun searchProductsPaging(query: String): PagingSource<Int, Product> {
+        return productRepository.searchProductsPaging(query)
     }
 
-    fun getProduct(name: String, description: String?): Flow<Product?> {
-        return productRepository.getProductByNameAndDescription(name, description)
-    }
-
-    fun getProductsByCategoryIdPaging(categoryId: Long?): PagingSource<Int, Product> {
-        return productRepository.getProductsByCategoryIdPaging(categoryId)
-    }
-
-    fun getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-        categoryId: Long?,
+    fun searchProductsWithMinMaxPricesPaging(
+        query: String,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
-        return productRepository.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
+        return productRepository.searchProductsPaging(query, currency)
+    }
+
+    fun getProduct(name: String, quantity: ProductQuantity): Flow<Product?> {
+        return productRepository.getProduct(name, quantity)
+    }
+
+    fun getProduct(productId: ProductId): Flow<Product> {
+        return productRepository.getProduct(productId)
+    }
+
+    fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product> {
+        return productRepository.getProductsPaging(categoryId)
+    }
+
+    fun getProductWithMinMaxPrices(
+        productId: ProductId,
+        currency: Currency
+    ): Flow<ProductWithMinMaxPrices?> {
+        return productRepository.getProductWithMinMaxPrices(
+            productId,
+            currency
+        )
+    }
+
+    fun getProductsWithMinMaxPricesPaging(
+        categoryId: CategoryId?,
+        currency: Currency
+    ): PagingSource<Int, ProductWithMinMaxPrices> {
+        return productRepository.getProductsWithMinMaxPricesPaging(
             categoryId,
             currency
         )

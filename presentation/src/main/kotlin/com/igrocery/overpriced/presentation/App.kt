@@ -6,74 +6,48 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.igrocery.overpriced.presentation.NavDestinations.CategoryProduct
-import com.igrocery.overpriced.presentation.NavDestinations.EditCategory
-import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_Arg_CategoryId
-import com.igrocery.overpriced.presentation.NavDestinations.EditCategory_With_Args
-import com.igrocery.overpriced.presentation.NavDestinations.EditStore
-import com.igrocery.overpriced.presentation.NavDestinations.EditStore_Arg_StoreId
-import com.igrocery.overpriced.presentation.NavDestinations.EditStore_With_Args
-import com.igrocery.overpriced.presentation.NavDestinations.NewCategory
-import com.igrocery.overpriced.presentation.NavDestinations.NewPrice
-import com.igrocery.overpriced.presentation.NavDestinations.NewStore
-import com.igrocery.overpriced.presentation.NavDestinations.SearchProduct
-import com.igrocery.overpriced.presentation.NavDestinations.SelectCurrency
-import com.igrocery.overpriced.presentation.NavDestinations.Settings
-import com.igrocery.overpriced.presentation.NavRoutes.NewPriceRecordRoute
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
-import com.igrocery.overpriced.presentation.categorybase.CategoryBaseScreen
-import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreen
-import com.igrocery.overpriced.presentation.editcategory.EditCategoryScreenViewModel
-import com.igrocery.overpriced.presentation.editstore.EditStoreScreen
-import com.igrocery.overpriced.presentation.editstore.EditStoreScreenViewModel
-import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreen
-import com.igrocery.overpriced.presentation.newcategory.NewCategoryScreenViewModel
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreen
-import com.igrocery.overpriced.presentation.newprice.NewPriceScreenViewModel
-import com.igrocery.overpriced.presentation.newstore.NewStoreScreen
-import com.igrocery.overpriced.presentation.newstore.NewStoreScreenViewModel
-import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreen
-import com.igrocery.overpriced.presentation.searchproduct.SearchProductScreenViewModel
-import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreen
-import com.igrocery.overpriced.presentation.selectcurrency.SelectCurrencyScreenViewModel
-import com.igrocery.overpriced.presentation.settings.SettingsScreen
-import com.igrocery.overpriced.presentation.settings.SettingsScreenViewModel
+import com.igrocery.overpriced.presentation.editcategory.*
+import com.igrocery.overpriced.presentation.editgrocerylist.editGroceryListScreen
+import com.igrocery.overpriced.presentation.editgrocerylist.navigateToEditGroceryListScreen
+import com.igrocery.overpriced.presentation.editstore.editStoreScreen
+import com.igrocery.overpriced.presentation.editstore.navigateToEditStoreScreen
+import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigation
+import com.igrocery.overpriced.presentation.mainnavigation.mainBottomNavigationScreen
+import com.igrocery.overpriced.presentation.newcategory.*
+import com.igrocery.overpriced.presentation.newprice.navigateToNewPriceScreen
+import com.igrocery.overpriced.presentation.newprice.newPriceScreen
+import com.igrocery.overpriced.presentation.newstore.navigateToNewStoreScreen
+import com.igrocery.overpriced.presentation.newstore.newStoreScreen
+import com.igrocery.overpriced.presentation.productdetail.navigateToProductDetailScreen
+import com.igrocery.overpriced.presentation.productdetail.productDetailScreen
+import com.igrocery.overpriced.presentation.productlist.navigateToProductListScreen
+import com.igrocery.overpriced.presentation.productlist.productListScreen
+import com.igrocery.overpriced.presentation.searchproduct.navigateToSearchProductScreen
+import com.igrocery.overpriced.presentation.searchproduct.searchProductScreen
+import com.igrocery.overpriced.presentation.selectcategory.navigateToSelectCategoryScreen
+import com.igrocery.overpriced.presentation.selectcategory.selectCategoryScreen
+import com.igrocery.overpriced.presentation.selectcurrency.navigateToSelectCurrencyScreen
+import com.igrocery.overpriced.presentation.selectcurrency.selectCurrencyScreen
+import com.igrocery.overpriced.presentation.selectstore.navigateToSelectStoreScreen
+import com.igrocery.overpriced.presentation.selectstore.selectStoreScreen
+import com.igrocery.overpriced.presentation.settings.*
+import com.igrocery.overpriced.presentation.storepricedetail.navigateToStorePriceDetailScreen
+import com.igrocery.overpriced.presentation.storepricedetail.storePriceDetailScreen
 import com.igrocery.overpriced.presentation.ui.theme.AppTheme
 import com.igrocery.overpriced.shared.Logger
 
 @Suppress("unused")
 private val log = Logger { }
 
-object NavDestinations {
-
-    const val CategoryProduct = "categoryProduct"
-
-    const val EditCategory = "editCategory"
-    const val EditCategory_Arg_CategoryId = "categoryId"
-    const val EditCategory_With_Args = "editCategory/{$EditCategory_Arg_CategoryId}"
-
-    const val EditStore = "editStore"
-    const val EditStore_Arg_StoreId = "storeId"
-    const val EditStore_With_Args = "editStore/{$EditStore_Arg_StoreId}"
-
-    const val NewCategory = "newCategory"
-    const val NewPrice = "newPrice"
-    const val NewStore = "newStore"
-    const val SearchProduct = "searchProduct"
-    const val SelectCurrency = "selectCurrency"
-    const val Settings = "settings"
-
-}
-
 private object NavRoutes {
-    const val SettingsRoute = "settingsRoute"
-    const val NewPriceRecordRoute = "newPriceRecordRoute"
+    const val SettingsRoute = "SettingsRoute"
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -81,15 +55,14 @@ private object NavRoutes {
 @Composable
 fun App() {
     AppTheme {
+        // main app nav controller
         val navController = rememberAnimatedNavController()
-
-        val categoryProductNestedNavController = rememberAnimatedNavController()
 
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
         AnimatedNavHost(
             navController = navController,
-            startDestination = CategoryProduct,
+            startDestination = MainBottomNavigation,
             enterTransition = {
                 fadeIn(animationSpec) + scaleIn(
                     animationSpec,
@@ -115,187 +88,86 @@ fun App() {
                 )
             },
         ) {
-            composable(CategoryProduct) {
-                CategoryBaseScreen(
-                    navController = categoryProductNestedNavController,
-                    navigateToSettings = { navController.navigate(SettingsRoute) },
-                    navigateToSearchProduct = { navController.navigate(SearchProduct) },
-                    navigateToEditCategory = { categoryId ->
-                        navController.navigate("$EditCategory/$categoryId")
-                    },
-                    navigateToNewPrice = { navController.navigate(NewPriceRecordRoute) },
-                    navigateToShoppingList = { /*TODO*/ })
-            }
-            composable(SearchProduct) {
-                val searchProductScreenViewModel = hiltViewModel<SearchProductScreenViewModel>()
-
-                SearchProductScreen(
-                    viewModel = searchProductScreenViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateToProductDetails = { }
-                )
-            }
-            composable(
-                EditCategory_With_Args,
-                arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
-                    type = NavType.LongType
-                })
-            ) {
-                val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
-
-                EditCategoryScreen(
-                    viewModel = editCategoryViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateDone = {
-                        navController.navigateUp()
-                    }
-                )
-            }
-
-            settingsGraph(navController)
-            newPriceRecordGraph(navController)
+            navGraph(
+                navController = navController,
+            )
         }
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+private fun NavGraphBuilder.navGraph(
+    navController: NavHostController,
+) {
+    mainBottomNavigationScreen(
+        navigateToSettings = { navController.navigateToSettingsScreen() },
+        navigateToEditGroceryList = { navController.navigateToEditGroceryListScreen(it) },
+        navigateToSearchProduct = { navController.navigateToSearchProductScreen() },
+        navigateToProductList = { navController.navigateToProductListScreen(it) },
+        navigateToNewPrice = { navController.navigateToNewPriceScreen() },
+    )
+    editGroceryListScreen(
+        navigateUp = { navController.navigateUp() }
+    )
+    productListScreen(
+        navigateUp = { navController.navigateUp() },
+        navigateToSearchProduct = { navController.navigateToSearchProductScreen() },
+        navigateToEditCategory = { navController.navigateToEditCategoryScreen(it) },
+        navigateToProductDetail = { navController.navigateToProductDetailScreen(it) }
+    )
+    searchProductScreen(
+        navigateUp = { navController.navigateUp() },
+        navigateToProductDetails = { navController.navigateToProductDetailScreen(it) }
+    )
+    newPriceScreen(
+        navigateUp = { navController.navigateUp() },
+        navigateToSelectCategory = { navController.navigateToSelectCategoryScreen(it) },
+        navigateToSelectStore = { navController.navigateToSelectStoreScreen(it) },
+    )
+    newCategoryScreen(
+        navigateUp = { navController.navigateUp() },
+    )
+    editCategoryScreen(
+        navigateUp = { navController.navigateUp() },
+    )
+    selectCategoryScreen(
+        navController = navController,
+        navigateUp = { navController.navigateUp() },
+        navigateToNewCategory = { navController.navigateToNewCategoryScreen() },
+        navigateToEditCategory = { navController.navigateToEditCategoryScreen(it) }
+    )
+    newStoreScreen(
+        navigateUp = { navController.navigateUp() },
+    )
+    editStoreScreen(
+        navigateUp = { navController.navigateUp() },
+    )
+    selectStoreScreen(
+        navController = navController,
+        navigateUp = { navController.navigateUp() },
+        navigateToNewStore = { navController.navigateToNewStoreScreen() },
+        navigateToEditStore = { navController.navigateToEditStoreScreen(it) }
+    )
+    productDetailScreen(
+        navigateUp = { navController.navigateUp() },
+        navigateToStorePriceDetail = { productId, storeId ->
+            navController.navigateToStorePriceDetailScreen(productId, storeId)
+        }
+    )
+    storePriceDetailScreen(
+        navigateUp = { navController.navigateUp() },
+    )
+
+    settingsGraph(navController)
+}
+
 private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
     navigation(route = SettingsRoute, startDestination = Settings) {
-        composable(Settings) {
-            val settingsViewModel = hiltViewModel<SettingsScreenViewModel>()
-
-            SettingsScreen(
-                viewModel = settingsViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateToSelectCurrencyScreen = { navController.navigate(SelectCurrency) }
-            )
-        }
-        composable(SelectCurrency) {
-            val selectCurrencyViewModel = hiltViewModel<SelectCurrencyScreenViewModel>()
-
-            SelectCurrencyScreen(
-                viewModel = selectCurrencyViewModel,
-                navigateUp = { navController.navigateUp() },
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
-private fun NavGraphBuilder.newPriceRecordGraph(navController: NavHostController) {
-    navigation(route = NewPriceRecordRoute, startDestination = NewPrice) {
-        composable(NewPrice) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(NewPriceRecordRoute)
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-
-            NewPriceScreen(
-                newPriceScreenViewModel = newPriceViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateToNewCategory = { navController.navigate(NewCategory) },
-                navigateToEditCategory = { navController.navigate("$EditCategory/${it.id}") },
-                navigateToNewStore = { navController.navigate(NewStore) },
-                navigateToEditStore = { navController.navigate("$EditStore/${it.id}") },
-            )
-        }
-        composable(NewCategory) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val newCategoryViewModel = hiltViewModel<NewCategoryScreenViewModel>()
-
-            NewCategoryScreen(
-                viewModel = newCategoryViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateCategoryId(it)
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(
-            EditCategory_With_Args,
-            arguments = listOf(navArgument(EditCategory_Arg_CategoryId) {
-                type = NavType.LongType
-            })
-        ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val editCategoryViewModel = hiltViewModel<EditCategoryScreenViewModel>()
-
-            backStackEntry.arguments?.let { arg ->
-                val categoryId = arg.getLong(EditCategory_Arg_CategoryId).takeIf { it != 0L }
-
-                EditCategoryScreen(
-                    viewModel = editCategoryViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateDone = {
-                        newPriceViewModel.updateCategoryId(categoryId)
-                        navController.navigateUp()
-                    }
-                )
-            } ?: throw IllegalArgumentException("argument should not be null")
-        }
-        composable(NewStore) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(NewPriceRecordRoute)
-                }
-            val newPriceViewModel =
-                hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val newStoreViewModel = hiltViewModel<NewStoreScreenViewModel>()
-
-            NewStoreScreen(
-                newStoreViewModel = newStoreViewModel,
-                navigateUp = { navController.navigateUp() },
-                navigateDone = {
-                    newPriceViewModel.updateStoreId(it)
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(
-            EditStore_With_Args,
-            arguments = listOf(navArgument(EditStore_Arg_StoreId) {
-                type = NavType.LongType
-            })
-        ) { backStackEntry ->
-            val navGraphEntry =
-                remember(backStackEntry) {
-                    navController.getBackStackEntry(
-                        NewPriceRecordRoute
-                    )
-                }
-            val newPriceViewModel = hiltViewModel<NewPriceScreenViewModel>(navGraphEntry)
-            val editStoreViewModel = hiltViewModel<EditStoreScreenViewModel>()
-
-            backStackEntry.arguments?.let { arg ->
-                val storeId = arg.getLong(EditStore_Arg_StoreId).takeIf { it != 0L }
-
-                EditStoreScreen(
-                    viewModel = editStoreViewModel,
-                    navigateUp = { navController.navigateUp() },
-                    navigateDone = {
-                        newPriceViewModel.updateStoreId(storeId)
-                        navController.navigateUp()
-                    }
-                )
-            } ?: throw IllegalArgumentException("argument should not be null")
-        }
+        settingsScreen(
+            navigateUp = { navController.navigateUp() },
+            navigateToSelectCurrencyScreen = { navController.navigateToSelectCurrencyScreen() }
+        )
+        selectCurrencyScreen(
+            navigateUp = { navController.navigateUp() }
+        )
     }
 }

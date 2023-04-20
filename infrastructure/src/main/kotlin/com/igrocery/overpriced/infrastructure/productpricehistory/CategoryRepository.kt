@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.CategoryWithProductCount
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.infrastructure.Transaction
@@ -18,7 +19,7 @@ class CategoryRepository @Inject internal constructor(
     private val transaction: Transaction,
 ) : ICategoryRepository {
 
-    override suspend fun insert(item: Category): Long {
+    override suspend fun insert(item: Category): CategoryId {
         return transaction.execute {
             localCategoryDataSource.insert(item.toData())
         }
@@ -36,9 +37,9 @@ class CategoryRepository @Inject internal constructor(
         }
     }
 
-    override fun getCategoryById(id: Long): Flow<Category?> {
-        return localCategoryDataSource.getCategoryById(id)
-            .map { it?.toDomain() }
+    override fun getCategory(id: CategoryId): Flow<Category> {
+        return localCategoryDataSource.getCategory(id)
+            .map { it.toDomain() }
     }
 
     override fun getAllCategories(): Flow<List<Category>> {

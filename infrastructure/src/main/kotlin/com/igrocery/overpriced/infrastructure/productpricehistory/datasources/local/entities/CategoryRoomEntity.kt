@@ -3,6 +3,7 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.CategoryIcon
 
@@ -28,7 +29,7 @@ internal data class CategoryRoomEntity (
 // mapping functions
 internal fun CategoryRoomEntity.toDomain(): Category {
     return Category(
-        id = id,
+        id = CategoryId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         icon = CategoryIcon.valueOf(icon),
@@ -38,7 +39,7 @@ internal fun CategoryRoomEntity.toDomain(): Category {
 
 internal fun Category.toData(): CategoryRoomEntity {
     return CategoryRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         icon = icon.name,

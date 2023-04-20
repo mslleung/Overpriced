@@ -26,7 +26,6 @@ private val log = Logger { }
 fun EditCategoryScreen(
     viewModel: EditCategoryScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditCategoryScreen")
 
@@ -50,7 +49,7 @@ fun EditCategoryScreen(
         val categoryLoadState by viewModel.categoryFlow.collectAsState()
         categoryLoadState.let {
             if (it is LoadingState.Success) {
-                val category = it.data ?: NoCategory
+                val category = it.data
                 LaunchedEffect(key1 = Unit) {
                     state.categoryName = category.name
                     state.categoryIcon = category.icon
@@ -61,7 +60,7 @@ fun EditCategoryScreen(
     }
 
     if (state.isConfirmDeleteDialogShown) {
-        ConfirmDeleteDialog(
+        ConfirmDeleteCategoryDialog(
             onDismiss = {
                 state.isConfirmDeleteDialogShown = false
             },
@@ -71,19 +70,18 @@ fun EditCategoryScreen(
 
                 viewModel.deleteCategory()
             },
-            messageText = stringResource(id = R.string.edit_category_delete_dialog_message)
         )
     }
 
     LaunchedEffect(key1 = viewModel.updateCategoryResult) {
         val result = viewModel.updateCategoryResult
         if (result is LoadingState.Success) {
-            navigateDone()
+            navigateUp()
         }
     }
 
     BackHandler {
-        log.debug("Composing EditCategoryScreen: BackHandler")
+        log.debug("EditCategoryScreen: BackHandler")
         navigateUp()
     }
 }
@@ -169,18 +167,31 @@ private fun MainLayout(
     }
 }
 
+@Composable
+fun ConfirmDeleteCategoryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    ConfirmDeleteDialog(
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        messageText = stringResource(id = R.string.edit_category_delete_dialog_message)
+    )
+}
+
 @Preview
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : EditCategoryScreenViewModelState {
-        override val categoryFlow: StateFlow<LoadingState<Category?>> =
-            MutableStateFlow(LoadingState.Success(null))
+        override val categoryFlow: StateFlow<LoadingState<Category>> =
+            MutableStateFlow(LoadingState.NotLoading())
         override val updateCategoryResult: LoadingState<Unit> = LoadingState.NotLoading()
     }
 
+    val state by rememberEditCategoryScreenState()
     MainLayout(
         viewModelState = viewModelState,
-        state = EditCategoryScreenStateHolder(),
+        state = state,
         onBackButtonClick = {},
         onDeleteButtonClick = {},
         onSaveButtonClick = {},

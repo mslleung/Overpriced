@@ -17,11 +17,13 @@ android {
         }
     }
     compileSdk = 33
-
+//    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
-        applicationId = "com.igrocery.overpriced"
-        minSdk = 21
+//        targetSdkPreview = "UpsideDownCake"
         targetSdk = 33
+        minSdk = 21
+
+        applicationId = "com.igrocery.overpriced"
         versionCode = 1
         versionName = "1.0.0"   // {major.feature.patches}, preferably major version should never change
 
@@ -51,20 +53,20 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-compiler
-        kotlinCompilerExtensionVersion = "1.2.0"
+        kotlinCompilerExtensionVersion = "1.4.5"
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -91,20 +93,20 @@ dependencies {
     implementation(project(":application"))
     implementation(project(":domain"))
     implementation(project(":shared"))
+    implementation("androidx.core:core-ktx:1.10.0")
 
     // android core UI
-    val composeVersion = "1.4.0-alpha01"
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.5.1")
-    implementation("com.google.android.material:material:1.8.0-alpha02")
+    val composeVersion = "1.5.0-alpha02"
+    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.9.0-rc01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
+    implementation("androidx.compose.material3:material3:1.1.0-beta02")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.compose.runtime:runtime-livedata:$composeVersion")
-    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.activity:activity-compose:1.7.0")
 
-    val lifecycleVersion = "2.6.0-alpha03"
+    val lifecycleVersion = "2.6.1"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
@@ -123,19 +125,18 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // hilt dependency injection
-    val hiltVersion: String by rootProject.extra
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("com.google.dagger:hilt-android:2.45")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // accompanist
-    val accompanistVersion = "0.27.0"
+    val accompanistVersion = "0.31.0-alpha"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -143,24 +144,27 @@ dependencies {
     implementation("com.google.accompanist:accompanist-flowlayout:$accompanistVersion")
 
     // glide
-    implementation("com.github.bumptech.glide:glide:4.14.2")
-    kapt("com.github.bumptech.glide:compiler:4.14.2")
-    implementation("com.github.skydoves:landscapist-glide:2.1.0")
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("com.github.skydoves:landscapist-glide:2.1.11")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.7.2")
+    implementation("com.google.maps.android:maps-compose:2.11.4")
 
-    // MP Android Chart
-//    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    // graphs and charts
+    implementation("com.himanshoe:charty:1.0.1")
+
+    // date
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     // junit
     testImplementation("junit:junit:4.13.2")
 
     // instrumented tests
-    androidTestImplementation("androidx.test.ext:junit:1.1.4")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
 
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")

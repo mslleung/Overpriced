@@ -21,6 +21,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.MapProperties
+import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.format
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +29,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-class StoreGoogleMapStateHolder(context: Context) {
+class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: GeoCoordinates? = null) {
 
-    var initialPermissionRequest by mutableStateOf(true)
+    var initialCameraPlacementCompleted by mutableStateOf(false)
 
     private val settingsClient = LocationServices.getSettingsClient(context)
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -51,7 +52,6 @@ class StoreGoogleMapStateHolder(context: Context) {
         )
     )
 
-    var shouldMoveCamera by mutableStateOf(true)
     var liveLocationLoadState: LoadingState<Location> by mutableStateOf(LoadingState.NotLoading())
 
     var geocoderJob: Job? = null
@@ -153,23 +153,22 @@ class StoreGoogleMapStateHolder(context: Context) {
 }
 
 @Composable
-fun rememberStoreGoogleMapState(context: Context) = rememberSaveable(
+fun rememberStoreGoogleMapState(context: Context, initialCameraPosition: GeoCoordinates? = null) = rememberSaveable(
+    context, initialCameraPosition,
     stateSaver = listSaver(
         save = {
             listOf(
-                it.initialPermissionRequest,
-                it.shouldMoveCamera,
+                it.initialCameraPlacementCompleted,
                 it.liveLocationLoadState,
             )
         },
         restore = {
-            StoreGoogleMapStateHolder(context).apply {
-                initialPermissionRequest = it[0] as Boolean
-                shouldMoveCamera = it[1] as Boolean
-                liveLocationLoadState = it[2] as LoadingState<Location>
+            StoreGoogleMapStateHolder(context, initialCameraPosition).apply {
+                initialCameraPlacementCompleted = it[0] as Boolean
+                liveLocationLoadState = it[1] as LoadingState<Location>
             }
         }
     )
 ) {
-    mutableStateOf(StoreGoogleMapStateHolder(context))
+    mutableStateOf(StoreGoogleMapStateHolder(context, initialCameraPosition))
 }

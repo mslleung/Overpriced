@@ -1,12 +1,17 @@
 package com.igrocery.overpriced.application.productpricehistory
 
+import androidx.paging.PagingSource
+import com.igrocery.overpriced.domain.PriceRecordId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.preference.IPreferenceRepository
 import com.igrocery.overpriced.infrastructure.productpricehistory.IPriceRecordRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,33 +23,34 @@ class PriceRecordService @Inject constructor(
 ) {
 
     suspend fun createPriceRecord(
+        productId: ProductId,
         priceAmountText: String,
-        productId: Long,
-        storeId: Long,
-    ): Long {
+        quantity: SaleQuantity,
+        isSale: Boolean,
+        storeId: StoreId,
+    ): PriceRecordId {
         return transaction.execute {
             val priceAmount = priceAmountText.trim().toDouble()
-            val preferredCurrency = preferenceRepository.getAppPreference().first().preferredCurrency
+            val preferredCurrency =
+                preferenceRepository.getAppPreference().first().preferredCurrency
 
             val priceRecord = PriceRecord(
                 productId = productId,
                 price = Money(priceAmount, preferredCurrency),
-                storeId = storeId
+                quantity = quantity,
+                isSale = isSale,
+                storeId = storeId,
             )
             priceRecordRepository.insert(priceRecord)
         }
     }
 
-//    suspend fun createPriceRecord(priceRecord: PriceRecord) {
-//        priceRecordRepository.insert(priceRecord)
-//    }
-//
-//    suspend fun updatePriceRecord(priceRecord: PriceRecord) {
-//        priceRecordRepository.update(priceRecord)
-//    }
-
-    fun getPriceRecordsByProductId(productId: Long): Flow<List<PriceRecord>> {
-        return priceRecordRepository.getPriceRecordsByProductId(productId)
+    fun getPriceRecordsPaging(
+        productId: ProductId,
+        storeId: StoreId,
+        currency: Currency
+    ): PagingSource<Int, PriceRecord> {
+        return priceRecordRepository.getPriceRecordsPaging(productId, storeId, currency)
     }
 
 }

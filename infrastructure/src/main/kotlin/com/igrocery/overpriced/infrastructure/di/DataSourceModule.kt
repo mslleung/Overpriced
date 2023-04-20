@@ -1,11 +1,15 @@
 package com.igrocery.overpriced.infrastructure.di
 
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListItemDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.LocalGroceryListDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.LocalGroceryListItemDataSource
 import com.igrocery.overpriced.infrastructure.preference.datasources.IPreferenceDataSource
 import com.igrocery.overpriced.infrastructure.preference.datasources.datastore.PreferenceDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.*
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.IStoreDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalStoreDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalCategoryDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.LocalProductDataSource
@@ -46,7 +50,19 @@ internal abstract class DataSourceModule {
     @Binds
     abstract fun bindLocalStoreDataSource(
         localStoreDataSource: LocalStoreDataSource
-    ): IStoreDataSource
+    ): ILocalStoreDataSource
+
+    @LocalDataSource
+    @Binds
+    abstract fun bindLocalGroceryListDataSource(
+        localGroceryListDataSource: LocalGroceryListDataSource
+    ): ILocalGroceryListDataSource
+
+    @LocalDataSource
+    @Binds
+    abstract fun bindLocalGroceryListItemDataSource(
+        localGroceryListItemDataSource: LocalGroceryListItemDataSource
+    ): ILocalGroceryListItemDataSource
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)

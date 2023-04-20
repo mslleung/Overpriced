@@ -1,7 +1,11 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 
 @Entity(
     tableName = "products",
@@ -14,7 +18,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.Product
         ),
     ],
     indices = [
-        Index(value = ["name", "description"], unique = true),
+        Index(value = ["name", "quantity_amount", "quantity_unit"], unique = true),
         Index(value = ["category_id"]),
     ]
 )
@@ -28,8 +32,10 @@ internal data class ProductRoomEntity(
 
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "description")
-    val description: String,
+    @ColumnInfo(name = "quantity_amount")
+    val quantityAmount: Double,
+    @ColumnInfo(name = "quantity_unit")
+    val quantityUnit: String,
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
 )
@@ -40,22 +46,23 @@ internal data class ProductRoomEntity(
 
 internal fun ProductRoomEntity.toDomain(): Product {
     return Product(
-        id = id,
+        id = ProductId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
-        description = description,
-        categoryId = categoryId
+        quantity = ProductQuantity(quantityAmount, ProductQuantityUnit.valueOf(quantityUnit)),
+        categoryId = categoryId?.let { CategoryId(categoryId) }
     )
 }
 
 internal fun Product.toData(): ProductRoomEntity {
     return ProductRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
-        description = description,
-        categoryId = categoryId,
+        quantityAmount = quantity.amount,
+        quantityUnit = quantity.unit.name,
+        categoryId = categoryId?.value,
     )
 }

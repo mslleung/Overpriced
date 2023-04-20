@@ -1,10 +1,18 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.igrocery.overpriced.domain.PriceRecordId
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Money
 import com.igrocery.overpriced.domain.productpricehistory.models.PriceRecord
-import java.util.*
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
+import java.util.Currency
 
 @Entity(
     tableName = "price_records",
@@ -44,6 +52,12 @@ internal data class PriceRecordRoomEntity(
     val price: Double,
     @ColumnInfo(name = "currency")
     val currency: String,
+
+    @ColumnInfo(name = "quantity")
+    val quantity: Double,
+
+    @ColumnInfo(name = "is_sale")
+    val isSale: Boolean,
 )
 
 
@@ -52,26 +66,30 @@ internal data class PriceRecordRoomEntity(
 
 internal fun PriceRecordRoomEntity.toDomain(): PriceRecord {
     return PriceRecord(
-        id = id,
+        id = PriceRecordId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
-        productId = productId,
+        productId = ProductId(productId),
         price = Money(
             amount = price,
             currency = Currency.getInstance(currency)
         ),
-        storeId = storeId,
+        quantity = SaleQuantity.values().find { it.numeric == quantity }!!,
+        storeId = StoreId(storeId),
+        isSale = isSale
     )
 }
 
 internal fun PriceRecord.toData(): PriceRecordRoomEntity {
     return PriceRecordRoomEntity(
-        id = id,
+        id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
-        productId = productId,
+        productId = productId.value,
         price = price.amount,
         currency = price.currency.currencyCode,
-        storeId = storeId,
+        quantity = quantity.numeric,
+        isSale = isSale,
+        storeId = storeId.value,
     )
 }

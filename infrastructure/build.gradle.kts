@@ -1,18 +1,15 @@
-import com.google.protobuf.gradle.*
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("com.google.protobuf")
+    id("com.google.protobuf") version "0.9.1"
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
 }
 
 android {
     compileSdk = 33
+//    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
@@ -40,21 +37,21 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     namespace = "com.igrocery.overpriced.infrastructure"
     protobuf {
         generatedFilesBaseDir = "$projectDir/build/generated/source/proto"
         protoc {
-            artifact = "com.google.protobuf:protoc:4.0.0-rc-2"
+            artifact = "com.google.protobuf:protoc:21.0-rc-1"
         }
         generateProtoTasks {
             all().forEach { task ->
-                task.plugins{
+                task.builtins {
                     create("java") {
                         option("lite")
                     }
@@ -78,17 +75,17 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     // hilt dependency injection
-    val hiltVersion: String by rootProject.extra
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    implementation("com.google.dagger:hilt-android:2.45")
+    implementation("androidx.core:core-ktx:1.10.0")
+    kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // room
-    val roomVersion = "2.5.0-beta01"
+    val roomVersion = "2.5.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-paging:2.5.0-beta02")
+    implementation("androidx.room:room-paging:2.5.1")
 
     // paging
     val pagingVersion = "3.1.1"
@@ -96,16 +93,19 @@ dependencies {
 
     // datastore
     implementation("androidx.datastore:datastore:1.0.0")
-    implementation("com.google.protobuf:protobuf-javalite:3.20.1")
+    implementation("com.google.protobuf:protobuf-javalite:4.0.0-rc-2")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
+    // date
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
-    implementation("androidx.test.ext:junit-ktx:1.1.4")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.8.20")
+
+    implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")
 
-    val kotestVersion = "5.5.4"
+    val kotestVersion = "5.5.5"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
-    androidTestImplementation("androidx.test:runner:1.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
 }

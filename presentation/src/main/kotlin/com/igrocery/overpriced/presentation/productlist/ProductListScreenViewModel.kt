@@ -12,13 +12,12 @@ import com.igrocery.overpriced.application.productpricehistory.CategoryService
 import com.igrocery.overpriced.application.productpricehistory.ProductService
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
-import com.igrocery.overpriced.presentation.categorybase.NavDestinations.ProductList_Arg_CategoryId
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import java.util.Currency
+import java.util.*
 import javax.inject.Inject
 
 @Suppress("unused")
@@ -32,20 +31,20 @@ interface ProductListScreenViewModelState {
 
 @HiltViewModel
 class ProductListScreenViewModel @Inject constructor(
-    savedState: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     categoryService: CategoryService,
     private val productService: ProductService,
     preferenceService: PreferenceService,
 ) : ViewModel(), ProductListScreenViewModelState {
 
-    private val categoryId = savedState.get<Long>(ProductList_Arg_CategoryId).takeIf { it != 0L }
+    private val args = ProductListScreenArgs(savedStateHandle)
 
-    override val categoryFlow = if (categoryId == null)
+    override val categoryFlow = if (args.categoryId == null)
         MutableStateFlow<LoadingState<Category?>>(LoadingState.Success(null))
     else
-        categoryService.getCategoryById(categoryId)
+        categoryService.getCategory(args.categoryId)
             .map {
-                LoadingState.Success(it)
+                LoadingState.Success<Category?>(it)
             }
             .stateIn(
                 scope = viewModelScope,
@@ -72,8 +71,8 @@ class ProductListScreenViewModel @Inject constructor(
                     prefetchDistance = 30
                 )
             ) {
-                productService.getProductsWithMinMaxPricesByCategoryIdAndCurrencyPaging(
-                    categoryId,
+                productService.getProductsWithMinMaxPricesPaging(
+                    args.categoryId,
                     it.preferredCurrency
                 )
             }.flow

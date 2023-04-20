@@ -1,106 +1,94 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory
 
 import androidx.paging.PagingSource
-import androidx.paging.PagingState
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.StoreId
+import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.infrastructure.Transaction
+import com.igrocery.overpriced.infrastructure.createSimplePagingSource
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
 import com.igrocery.overpriced.infrastructure.di.IoDispatcher
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.IStoreDataSource
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.InvalidationObserverDelegate
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
+import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalStoreDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StoreRepository @Inject internal constructor(
-    @LocalDataSource private val localStoreDataSource: IStoreDataSource,
+    @LocalDataSource private val localStoreDataSource: ILocalStoreDataSource,
+    @LocalDataSource private val localPriceRecordDataSource: ILocalPriceRecordDataSource,
     private val transaction: Transaction,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IStoreRepository {
 
-    override suspend fun insert(item: Store): Long {
+    override suspend fun insert(item: Store): StoreId {
         return transaction.execute {
-            localStoreDataSource.insertStore(item.toData())
+            localStoreDataSource.insert(item.toData())
         }
     }
 
     override suspend fun update(item: Store) {
         transaction.execute {
-            localStoreDataSource.updateStore(item.toData())
+            localStoreDataSource.update(item.toData())
         }
     }
 
     override suspend fun delete(item: Store) {
         transaction.execute {
-            localStoreDataSource.deleteStore(item.toData())
+            localStoreDataSource.delete(item.toData())
         }
     }
 
-    override fun getStoresPagingSource(): PagingSource<Int, Store> {
-        return StorePagingSource(localStoreDataSource, ioDispatcher)
+    override fun getStoresPaging(): PagingSource<Int, Store> {
+        return createSimplePagingSource(
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localStoreDataSource.getStoresPaging(offset, loadSize)
+                    .map { it.toDomain() }
+            },
+            observedDataSources = listOf(localStoreDataSource)
+        )
     }
 
-    private class StorePagingSource(
-        private val localStoreDataSource: IStoreDataSource,
-        private val ioDispatcher: CoroutineDispatcher,
-    ) : PagingSource<Int, Store>(), InvalidationObserverDelegate.InvalidationObserver {
-
-        init {
-            localStoreDataSource.addInvalidationObserver(this)
-        }
-
-        override fun onInvalidate() {
-            // invalidates this datasource when the underlying tables change
-            invalidate()
-        }
-
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Store> {
-            return withContext(ioDispatcher) {
-                try {
-                    val pageNumber = params.key ?: 1
-                    val offset = (pageNumber - 1) * params.loadSize // all the previous pages
-                    val pageData = localStoreDataSource.getStoresPage(offset, params.loadSize)
-                        .map { it.toDomain() }
-                    LoadResult.Page(
-                        data = pageData,
-                        prevKey = if (pageNumber <= 1) null else pageNumber - 1,
-                        nextKey = if (pageData.isEmpty()) null else pageNumber + 1
-                    )
-                } catch (e: Exception) {
-                    LoadResult.Error(e)
-                }
-            }
-        }
-
-        override fun getRefreshKey(state: PagingState<Int, Store>): Int? {
-            // Try to find the page key of the closest page to anchorPosition, from
-            // either the prevKey or the nextKey, but you need to handle nullability
-            // here:
-            //  * prevKey == null -> anchorPage is the first page.
-            //  * nextKey == null -> anchorPage is the last page.
-            //  * both prevKey and nextKey null -> anchorPage is the initial page, so
-            //    just return null.
-            return state.anchorPosition?.let { anchorPosition ->
-                val anchorPage = state.closestPageToPosition(anchorPosition)
-                anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-            }
-        }
-
-    }
-
-    override fun getStoreById(id: Long): Flow<Store?> {
-        return localStoreDataSource.getStoreById(id)
-            .map { it?.toDomain() }
+    override fun getStore(id: StoreId): Flow<Store> {
+        return localStoreDataSource.getStore(id)
+            .map { it.toDomain() }
     }
 
     override fun getStoresCount(): Flow<Int> {
         return localStoreDataSource.getStoresCount()
+    }
+
+    override fun getStoresWithMinMaxPricesPaging(
+        productId: ProductId,
+        currency: Currency
+    ): PagingSource<Int, StoreWithMinMaxPrices> {
+        return createSimplePagingSource(
+            ioDispatcher = ioDispatcher,
+            pageDataCreator = { offset, loadSize ->
+                localStoreDataSource.getStoresWithMinMaxPricesPaging(
+                    productId,
+                    currency,
+                    offset,
+                    loadSize
+                ).map {
+                    StoreWithMinMaxPrices(
+                        it.storeRoomEntity.toDomain(),
+                        it.minPrice,
+                        it.maxPrice,
+                        it.lastUpdatedTimestamp
+                    )
+                }
+            },
+            observedDataSources = listOf(localStoreDataSource, localPriceRecordDataSource),
+        )
     }
 
 }

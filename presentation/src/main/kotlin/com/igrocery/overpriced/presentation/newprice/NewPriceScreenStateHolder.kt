@@ -1,122 +1,172 @@
 package com.igrocery.overpriced.presentation.newprice
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.igrocery.overpriced.presentation.shared.LoadingState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.setValue
+import com.igrocery.overpriced.domain.CategoryId
+import com.igrocery.overpriced.domain.StoreId
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
+import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenResultViewModel
+import com.igrocery.overpriced.presentation.selectstore.SelectStoreScreenResultViewModel
 
 class NewPriceScreenStateHolder(
-    coroutineScope: CoroutineScope,
-    newPriceScreenViewModel: NewPriceScreenViewModelState,
-    savedState: List<*>? = null
+    private val newPriceScreenViewModel: NewPriceScreenViewModelState,
+    isRequestingFirstFocus: Boolean,
+    wantToShowSuggestionBox: Boolean,
+    productName: String,
+    productQuantityAmountText: String,
+    productQuantityUnit: ProductQuantityUnit,
+    productCategoryId: CategoryId?,
+    priceAmountText: String,
+    saleQuantity: SaleQuantity,
+    priceIsSale: Boolean,
+    priceStoreId: StoreId?,
+    isDiscardDialogShown: Boolean,
+    submitError: SubmitError
 ) {
-    var isRequestingFirstFocus by mutableStateOf(savedState?.get(0) as? Boolean ?: true)
-    var wantToShowSuggestionBox by mutableStateOf(savedState?.get(1) as? Boolean ?: false)
+    var isRequestingFirstFocus by mutableStateOf(isRequestingFirstFocus)
+    var wantToShowSuggestionBox by mutableStateOf(wantToShowSuggestionBox)
 
-    var productName by mutableStateOf(savedState?.get(2) as? String ?: "")
-    var productDescription by mutableStateOf(savedState?.get(3) as? String ?: "")
-    var productCategoryId by mutableStateOf(savedState?.get(4) as? Long?)
-    var priceAmountText by mutableStateOf(savedState?.get(5) as? String ?: "")
-    var priceStoreId by mutableStateOf(savedState?.get(6) as? Long?)
+    var productName by mutableStateOf(productName)
+    var productQuantityAmountText by mutableStateOf(productQuantityAmountText)
+    var productQuantityUnit by mutableStateOf(productQuantityUnit)
+    var productCategoryId: CategoryId? = productCategoryId
+        set(value) {
+            field = value
+            newPriceScreenViewModel.updateCategoryId(value)
+        }
+    var priceAmountText by mutableStateOf(priceAmountText)
+    var saleQuantity by mutableStateOf(saleQuantity)
+    var priceIsSale by mutableStateOf(priceIsSale)
 
-    var isDiscardDialogShown by mutableStateOf(savedState?.get(7) as? Boolean ?: false)
-    var isSelectCategoryDialogShown by mutableStateOf(savedState?.get(8) as? Boolean ?: false)
-    var isSelectStoreDialogShown by mutableStateOf(savedState?.get(9) as? Boolean ?: false)
+    var priceStoreId: StoreId? = priceStoreId
+        set(value) {
+            field = value
+            newPriceScreenViewModel.updateStoreId(value)
+        }
+
+    var isDiscardDialogShown by mutableStateOf(isDiscardDialogShown)
+
+    init {
+        // trigger setters
+        this.productCategoryId = productCategoryId
+        this.priceStoreId = priceStoreId
+    }
 
     enum class SubmitError {
         None,
         ProductNameShouldNotBeEmpty,
+        InvalidProductQuantityAmount,
         InvalidPriceAmount,
         StoreCannotBeEmpty
     }
 
-    var submitError by mutableStateOf(savedState?.get(10) as? SubmitError ?: SubmitError.None)
-
-    init {
-        coroutineScope.launch {
-            when (val categoryLoadingState = newPriceScreenViewModel.categoryFlow.value) {
-                is LoadingState.Loading -> {
-                    val categoryResult = newPriceScreenViewModel.categoryFlow
-                        .filter { it is LoadingState.Success || it is LoadingState.Error }.first()
-                    if (categoryResult is LoadingState.Success) {
-                        productCategoryId = categoryResult.data?.id
-                    }
-                }
-                is LoadingState.Success -> {
-                    productCategoryId = categoryLoadingState.data?.id
-                }
-                else -> {}
-            }
-
-            snapshotFlow { productCategoryId }
-                .collectLatest {
-                    newPriceScreenViewModel.updateCategoryId(it)
-                }
-        }
-
-
-        coroutineScope.launch {
-            when (val storeLoadingState = newPriceScreenViewModel.storeFlow.value) {
-                is LoadingState.Loading -> {
-                    val storeResult = newPriceScreenViewModel.storeFlow
-                        .filter { it is LoadingState.Success || it is LoadingState.Error }.first()
-                    if (storeResult is LoadingState.Success) {
-                        priceStoreId = storeResult.data?.id
-                    }
-                }
-                is LoadingState.Success -> {
-                    priceStoreId = storeLoadingState.data?.id
-                }
-                else -> {}
-            }
-
-            snapshotFlow { priceStoreId }
-                .collectLatest {
-                    newPriceScreenViewModel.updateStoreId(it)
-                }
-        }
-
-    }
+    var submitError by mutableStateOf(submitError)
 
     fun hasModifications(): Boolean {
         return productName.isNotBlank()
-                || productDescription.isNotBlank()
+                || productQuantityAmountText.isNotBlank()
                 || productCategoryId != null
                 || priceAmountText.isNotBlank()
                 || priceStoreId != null
+    }
+
+    companion object {
+        fun Saver(
+            newPriceScreenViewModel: NewPriceScreenViewModelState,
+            selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
+            selectStoreResultViewModel: SelectStoreScreenResultViewModel
+        ) = listSaver<NewPriceScreenStateHolder, Any?>(
+            save = {
+                listOf(
+                    it.isRequestingFirstFocus,
+                    it.wantToShowSuggestionBox,
+                    it.productName,
+                    it.productQuantityAmountText,
+                    it.productQuantityUnit,
+                    it.productCategoryId,
+                    it.priceAmountText,
+                    it.saleQuantity,
+                    it.priceIsSale,
+                    it.priceStoreId,
+                    it.isDiscardDialogShown,
+                    it.submitError
+                )
+            },
+            restore = {
+                val productCategoryId =
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(5) as? CategoryId
+                val productStoreId =
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(9) as? StoreId
+                NewPriceScreenStateHolder(
+                    newPriceScreenViewModel = newPriceScreenViewModel,
+                    isRequestingFirstFocus = it[0] as Boolean,
+                    wantToShowSuggestionBox = it[1] as Boolean,
+                    productName = it[2] as String,
+                    productQuantityAmountText = it[3] as String,
+                    productQuantityUnit = it[4] as ProductQuantityUnit,
+                    productCategoryId = productCategoryId,
+                    priceAmountText = it[6] as String,
+                    saleQuantity = it[7] as SaleQuantity,
+                    priceIsSale = it[8] as Boolean,
+                    priceStoreId = productStoreId,
+                    isDiscardDialogShown = it[10] as Boolean,
+                    submitError = it[11] as SubmitError,
+                )
+            }
+        )
     }
 
 }
 
 @Composable
 fun rememberNewPriceScreenState(
-    coroutineScope: CoroutineScope,
-    newPriceScreenViewModel: NewPriceScreenViewModelState
+    args: NewPriceScreenArgs,
+    newPriceScreenViewModel: NewPriceScreenViewModelState,
+    selectCategoryResultViewModel: SelectCategoryScreenResultViewModel,
+    selectStoreResultViewModel: SelectStoreScreenResultViewModel
 ) = rememberSaveable(
-    inputs = arrayOf(coroutineScope, newPriceScreenViewModel),
-    stateSaver = listSaver(
+    stateSaver = Saver(
         save = {
-            listOf(
-                it.isRequestingFirstFocus,
-                it.wantToShowSuggestionBox,
-                it.productName,
-                it.productDescription,
-                it.productCategoryId,
-                it.priceAmountText,
-                it.priceStoreId,
-                it.isDiscardDialogShown,
-                it.isSelectCategoryDialogShown,
-                it.isSelectStoreDialogShown,
-                it.submitError
-            )
+            with(
+                NewPriceScreenStateHolder.Saver(
+                    newPriceScreenViewModel,
+                    selectCategoryResultViewModel,
+                    selectStoreResultViewModel
+                )
+            ) { save(it) }
         },
-        restore = { savedState ->
-            NewPriceScreenStateHolder(coroutineScope, newPriceScreenViewModel, savedState)
+        restore = { value ->
+            with(
+                NewPriceScreenStateHolder.Saver(
+                    newPriceScreenViewModel,
+                    selectCategoryResultViewModel,
+                    selectStoreResultViewModel
+                )
+            ) { restore(value)!! }
         }
     )
 ) {
-    mutableStateOf(NewPriceScreenStateHolder(coroutineScope, newPriceScreenViewModel))
+    mutableStateOf(
+        NewPriceScreenStateHolder(
+            newPriceScreenViewModel = newPriceScreenViewModel,
+            isRequestingFirstFocus = true,
+            wantToShowSuggestionBox = false,
+            productName = "",
+            productQuantityAmountText = "",
+            productQuantityUnit = ProductQuantityUnit.Pounds,
+            productCategoryId = args.categoryId,
+            priceAmountText = "",
+            saleQuantity = SaleQuantity.One,
+            priceIsSale = false,
+            priceStoreId = null,
+            isDiscardDialogShown = false,
+            submitError = NewPriceScreenStateHolder.SubmitError.None,
+        )
+    )
 }

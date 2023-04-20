@@ -2,7 +2,6 @@ package com.igrocery.overpriced.presentation.searchproduct
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
@@ -12,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -25,16 +23,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.ProductId
+import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.presentation.R
+import com.igrocery.overpriced.presentation.productlist.ProductListItem
 import com.igrocery.overpriced.presentation.shared.BackButton
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.UseAnimatedFadeTopBarColorForStatusBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultSystemNavBarColor
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
+import java.util.*
 
 @Suppress("unused")
 private val log = Logger { }
@@ -43,34 +48,31 @@ private val log = Logger { }
 fun SearchProductScreen(
     viewModel: SearchProductScreenViewModel,
     navigateUp: () -> Unit,
-    navigateToProductDetails: (Product) -> Unit,
+    navigateToProductDetails: (ProductId) -> Unit,
 ) {
     log.debug("Composing SearchProductScreen")
 
-    val state by rememberSearchProductScreenState(viewModel)
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModel.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModel,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = navigateUp,
         onFirstFocusRequest = {
             state.isRequestingFirstFocus = false
         },
         onQueryChanged = {
             state.query = it.take(100)
+            viewModel.query = state.query
+            productPagingItems.refresh()
         },
         onProductClick = navigateToProductDetails,
     )
 
-    LaunchedEffect(key1 = state) {
-        snapshotFlow { state.query }
-            .collect {
-                viewModel.query = it
-                state.productPagingItems.refresh()
-            }
-    }
-
     BackHandler {
-        log.debug("Composing SearchProductScreen: BackHandler")
+        log.debug("SearchProductScreen: BackHandler")
         navigateUp()
     }
 }
@@ -84,10 +86,11 @@ fun SearchProductScreen(
 private fun MainContent(
     viewModelState: SearchProductScreenViewModelState,
     state: SearchProductScreenStateHolder,
+    productPagingItems: LazyPagingItems<ProductWithMinMaxPrices>,
     onBackButtonClick: () -> Unit,
     onFirstFocusRequest: () -> Unit,
     onQueryChanged: (String) -> Unit,
-    onProductClick: (Product) -> Unit,
+    onProductClick: (ProductId) -> Unit,
 ) {
     val topBarScrollState = rememberTopAppBarState()
     val topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(state = topBarScrollState)
@@ -135,8 +138,10 @@ private fun MainContent(
                             }
                         ),
                         singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = Color.Transparent,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                         )
@@ -161,13 +166,14 @@ private fun MainContent(
         },
         contentWindowInsets = WindowInsets.safeDrawing
     ) {
-        if (state.productPagingItems.itemCount == 0) {
+        if (productPagingItems.itemCount == 0) {
             EmptyListContent(
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize()
             )
         } else {
+            val currency by viewModelState.currencyFlow.collectAsState()
             LazyColumn(
                 modifier = Modifier
                     .padding(it)
@@ -175,12 +181,13 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = state.productPagingItems,
-                    key = { product -> product.id }
-                ) { product ->
-                    if (product != null) {
+                    items = productPagingItems,
+                    key = { item -> item.product.id }
+                ) { item ->
+                    if (item != null) {
                         ProductListItem(
-                            product = product,
+                            item = item,
+                            currency = currency,
                             onClick = onProductClick,
                             modifier = Modifier
                                 .animateItemPlacement()
@@ -226,75 +233,62 @@ private fun EmptyListContent(
     }
 }
 
-@Composable
-private fun ProductListItem(
-    product: Product,
-    onClick: (Product) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .clickable { onClick(product) }
-            .padding(horizontal = 24.dp)
-    ) {
-        Text(
-            text = product.name,
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        if (product.description.isNotBlank()) {
-            Text(
-                text = product.description,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.alpha(0.6f)
-            )
-        }
-    }
-}
-
 @Preview
 @Composable
 private fun EmptyPreview() {
     val viewModelState = object : SearchProductScreenViewModelState {
-        override val productsPagingDataFlow: Flow<PagingData<Product>>
+        override val currencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = emptyFlow()
     }
-    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
+
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
-        onProductClick = {},
-    )
+    ) {}
 }
 
 @Preview
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : SearchProductScreenViewModelState {
-        override val productsPagingDataFlow: Flow<PagingData<Product>>
+        override val currencyFlow: StateFlow<LoadingState<Currency>>
+            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
             get() = flowOf(
                 PagingData.from(
                     listOf(
-                        Product(name = "Apple", description = "Fuji", categoryId = null)
+                        ProductWithMinMaxPrices(
+                            product = Product(
+                                name = "Apple",
+                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                                categoryId = null
+                            ),
+                            minPrice = 5.0,
+                            maxPrice = 8.0,
+                            lastUpdatedTimestamp = 1668651806992000L
+                        )
                     )
                 )
             )
     }
-    val state by rememberSearchProductScreenState(viewModelState = viewModelState)
+    val state by rememberSearchProductScreenState()
+    val productPagingItems =
+        viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        productPagingItems = productPagingItems,
         onBackButtonClick = {},
         onFirstFocusRequest = {},
         onQueryChanged = {},
-        onProductClick = {},
-    )
+    ) {}
 }

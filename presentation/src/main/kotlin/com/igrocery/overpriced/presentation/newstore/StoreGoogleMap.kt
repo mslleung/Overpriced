@@ -78,20 +78,28 @@ fun StoreGoogleMap(
         }
     )
 
-    if (state.initialPermissionRequest) {
-        LaunchedEffect(key1 = Unit) {
-            locationPermissionsState.launchMultiplePermissionRequest()
-            state.initialPermissionRequest = false
-        }
-    }
-
     Box(
         modifier = modifier
     ) {
         val cameraPositionState = rememberCameraPositionState {
-            // initial default camera position
-            val unitedStates = LatLng(37.0902, 95.7129)
-            position = CameraPosition.fromLatLngZoom(unitedStates, 0f)
+            if (state.initialCameraPosition != null) {
+                val latLng = LatLng(
+                    state.initialCameraPosition.latitude,
+                    state.initialCameraPosition.longitude
+                )
+                position = CameraPosition.fromLatLngZoom(latLng, 16f)
+                state.initialCameraPlacementCompleted = true
+            } else {
+                // initial default camera position
+                val unitedStates = LatLng(37.0902, 95.7129)
+                position = CameraPosition.fromLatLngZoom(unitedStates, 0f)
+            }
+        }
+
+        if (!state.initialCameraPlacementCompleted && state.initialCameraPosition == null) {
+            LaunchedEffect(key1 = Unit) {
+                locationPermissionsState.launchMultiplePermissionRequest()
+            }
         }
 
         val context = LocalContext.current
@@ -165,7 +173,6 @@ fun StoreGoogleMap(
         ) {
             MyLocationButton(
                 onMyLocationClick = {
-                    state.shouldMoveCamera = false
                     locationPermissionsState.launchMultiplePermissionRequest()
                 },
                 liveLocationLoadState = state.liveLocationLoadState,
@@ -181,11 +188,11 @@ fun StoreGoogleMap(
                 if (it is LoadingState.Success) {
                     val location = it.data
                     val newCameraPositionLatLng = LatLng(location.latitude, location.longitude)
-                    if (state.shouldMoveCamera) {
+                    if (!state.initialCameraPlacementCompleted) {
                         cameraPositionState.move(
                             CameraUpdateFactory.newLatLngZoom(newCameraPositionLatLng, 16f)
                         )
-                        state.shouldMoveCamera = false
+                        state.initialCameraPlacementCompleted = true
                     } else {
                         val newZoom = cameraPositionState.position.zoom.coerceIn(16f, 20f)
                         cameraPositionState.animate(

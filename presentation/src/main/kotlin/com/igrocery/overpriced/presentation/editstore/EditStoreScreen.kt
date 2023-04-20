@@ -28,78 +28,75 @@ import kotlinx.coroutines.flow.StateFlow
 @Suppress("unused")
 private val log = Logger {}
 
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun EditStoreScreen(
     viewModel: EditStoreScreenViewModel,
     navigateUp: () -> Unit,
-    navigateDone: () -> Unit,
 ) {
     log.debug("Composing EditStoreScreen")
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by rememberEditStoreScreenState()
-    val storeMapState by rememberStoreGoogleMapState(context = LocalContext.current)
-    MainContent(
-        viewModelState = viewModel,
-        snackbarHostState = snackbarHostState,
-        state = state,
-        storeMapState = storeMapState,
-        onCameraPositionChanged = {
-            state.cameraPosition = it
-        },
-        onBackButtonClick = navigateUp,
-        onDeleteButtonClick = {
-            state.isConfirmDeleteDialogShown = true
-        },
-        onSaveButtonClick = {
-            state.isSaveDialogShown = true
-        }
-    )
+    val storeState by viewModel.storeFlow.collectAsState()
+    storeState.ifLoaded { store ->
+        val storeMapState by rememberStoreGoogleMapState(
+            context = LocalContext.current,
+            initialCameraPosition = store.address.geoCoordinates
+        )
+        MainContent(
+            viewModelState = viewModel,
+            snackbarHostState = snackbarHostState,
+            state = state,
+            storeMapState = storeMapState,
+            onCameraPositionChanged = {
+                state.cameraPosition = it
+            },
+            onBackButtonClick = navigateUp,
+            onDeleteButtonClick = {
+                state.isConfirmDeleteDialogShown = true
+            },
+            onSaveButtonClick = {
+                state.isSaveDialogShown = true
+            }
+        )
 
-    if (state.isConfirmDeleteDialogShown) {
-        val store by viewModel.storeFlow.collectAsState()
-        store.ifLoaded {
-            ConfirmDeleteDialog(
+        if (state.isConfirmDeleteDialogShown) {
+            ConfirmDeleteStoreDialog(
                 onDismiss = {
                     state.isConfirmDeleteDialogShown = false
                 },
                 onConfirm = {
                     state.isConfirmDeleteDialogShown = false
                     navigateUp()
-                    viewModel.deleteStore(it)
+                    viewModel.deleteStore(store)
                 },
-                messageText = stringResource(id = R.string.store_delete_dialog_message)
             )
         }
-    }
 
-    viewModel.deleteStoreResult.let {
-        when (it) {
-            is LoadingState.Success -> {
-                LaunchedEffect(key1 = Unit) {
-                    navigateDone()
+        viewModel.deleteStoreResult.let {
+            when (it) {
+                is LoadingState.Success -> {
+                    LaunchedEffect(key1 = Unit) {
+                        navigateUp()
+                    }
                 }
-            }
-            is LoadingState.Error -> {
-                val message = stringResource(id = R.string.edit_store_delete_failed_message)
-                LaunchedEffect(it) {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true
-                    )
+                is LoadingState.Error -> {
+                    val message = stringResource(id = R.string.edit_store_delete_failed_message)
+                    LaunchedEffect(it) {
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            withDismissAction = true
+                        )
+                    }
                 }
+                else -> {}
             }
-            else -> {}
         }
-    }
 
-    if (state.isSaveDialogShown) {
-        val store by viewModel.storeFlow.collectAsState()
-        store.ifLoaded {
+        if (state.isSaveDialogShown) {
             val saveDialogState by rememberSaveAlertDialogState(
-                initialStoreName = it.name,
-                initialAddress = storeMapState.address
+                storeName = store.name,
+                address = storeMapState.address
             )
             SaveAlertDialog(
                 state = saveDialogState,
@@ -118,36 +115,35 @@ fun EditStoreScreen(
                 },
             )
         }
-    }
 
-    viewModel.updateStoreResult.let {
-        when (it) {
-            is LoadingState.Success -> {
-                LaunchedEffect(key1 = Unit) {
-                    navigateDone()
+        viewModel.updateStoreResult.let {
+            when (it) {
+                is LoadingState.Success -> {
+                    LaunchedEffect(key1 = Unit) {
+                        navigateUp()
+                    }
                 }
-            }
-            is LoadingState.Error -> {
-                val message = stringResource(id = R.string.edit_store_update_failed_message)
-                LaunchedEffect(it) {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        withDismissAction = true
-                    )
+                is LoadingState.Error -> {
+                    val message = stringResource(id = R.string.edit_store_update_failed_message)
+                    LaunchedEffect(it) {
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            withDismissAction = true
+                        )
+                    }
                 }
+                else -> {}
             }
-            else -> {}
         }
     }
 
     BackHandler {
-        log.debug("Composing EditStoreScreen: BackHandler")
+        log.debug("EditStoreScreen: BackHandler")
         navigateUp()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 private fun MainContent(
     viewModelState: EditStoreScreenViewModelState,
@@ -236,6 +232,18 @@ private fun MainContent(
     }
 }
 
+@Composable
+fun ConfirmDeleteStoreDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    ConfirmDeleteDialog(
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        messageText = stringResource(id = R.string.edit_store_delete_dialog_message)
+    )
+}
+
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Preview
 @Composable
@@ -259,10 +267,12 @@ private fun DefaultPreview() {
             get() = LoadingState.NotLoading()
     }
 
+    val state by rememberEditStoreScreenState()
+
     MainContent(
         viewModelState = viewModelState,
         snackbarHostState = SnackbarHostState(),
-        state = EditStoreScreenStateHolder(),
+        state = state,
         storeMapState = StoreGoogleMapStateHolder(LocalContext.current),
         onBackButtonClick = {},
         onDeleteButtonClick = {},
