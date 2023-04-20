@@ -168,7 +168,7 @@ private fun MainContent(
                                 0,
                                 LineData(
                                     xValue = "${date.dayOfMonth}/${date.monthNumber}",
-                                    yValue = priceRecord.price.amount.toFloat()
+                                    yValue = priceRecord.price.amount.toFloat() / priceRecord.quantity.numeric.toFloat()
                                 )
                             )
                         }
@@ -194,6 +194,7 @@ private fun MainContent(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
 //                            .clickable {  }
+                            .height(32.dp)
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
@@ -219,15 +220,32 @@ private fun MainContent(
                                 .fillMaxWidth(0.6f)
                         )
 
-                        Text(
-                            text = "${priceRecord.price.currency.symbol} ${priceRecord.price.amount}",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.End,
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.End,
                             modifier = Modifier
-                                .fillMaxWidth()
-                        )
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = "${priceRecord.price.currency.symbol} ${priceRecord.price.amount / priceRecord.quantity.numeric} ",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.End,
+                            )
+
+                            if (priceRecord.quantity != SaleQuantity.One) {
+                                Text(
+                                    text = "${priceRecord.price.currency.symbol} ${priceRecord.price.amount} / ${priceRecord.quantity.numeric}",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier
+                                        .alpha(0.6f)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -242,7 +260,13 @@ private fun DefaultPreview() {
         override val currencyFlow: StateFlow<LoadingState<Currency>> =
             MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
         override val productFlow: StateFlow<LoadingState<Product>> = MutableStateFlow(
-            LoadingState.Success(Product(name = "Apple", quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets), categoryId = null))
+            LoadingState.Success(
+                Product(
+                    name = "Apple",
+                    quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                    categoryId = null
+                )
+            )
         )
         override val storeFlow: StateFlow<LoadingState<Store>> = MutableStateFlow(
             LoadingState.Success(

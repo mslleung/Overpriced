@@ -45,8 +45,8 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     @Query(
         """
             SELECT products.*,
-                MIN(price_records.price) AS minPrice,
-                MAX(price_records.price) AS maxPrice,
+                MIN(price_records.price / price_records.quantity) AS minPrice,
+                MAX(price_records.price / price_records.quantity) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM (
                 SELECT products.*
@@ -83,8 +83,8 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     @Query(
         """
             SELECT products.*,
-                MIN(price_records.price) AS minPrice,
-                MAX(price_records.price) AS maxPrice,
+                MIN(price_records.price / price_records.quantity) AS minPrice,
+                MAX(price_records.price / price_records.quantity) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.id = :productId AND price_records.currency = :currency
@@ -99,8 +99,8 @@ internal interface ProductDao : BaseDao<ProductRoomEntity> {
     @Query(
         """
             SELECT products.*,
-                MIN(price_records.price) AS minPrice,
-                MAX(price_records.price) AS maxPrice,
+                MIN(price_records.price / price_records.quantity) AS minPrice,
+                MAX(price_records.price / price_records.quantity) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM products LEFT JOIN price_records ON products.id = price_records.product_id
             WHERE products.category_id IS :categoryId AND price_records.currency = :currency

@@ -23,8 +23,8 @@ internal interface StoreDao: BaseDao<StoreRoomEntity> {
     @Query(
         """
             SELECT stores.*,
-                MIN(price_records.price) AS minPrice,
-                MAX(price_records.price) AS maxPrice,
+                MIN(price_records.price / price_records.quantity) AS minPrice,
+                MAX(price_records.price / price_records.quantity) AS maxPrice,
                 MAX(price_records.update_timestamp) AS lastUpdatedTimestamp
             FROM stores
             INNER JOIN price_records ON price_records.store_id = stores.id
