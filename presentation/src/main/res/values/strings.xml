@@ -165,7 +165,6 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
-    <string name="grocery_lists_new_grocery_list_default_name">Untitled List</string>
 
     <string name="grocery_list_name_dialog_new_title_text">New Grocery List</string>
     <string name="grocery_list_name_dialog_edit_title_text">Edit Grocery List</string>
@@ -173,7 +172,8 @@
     <string name="grocery_list_name_dialog_confirm_button_text">Confirm</string>
     <string name="grocery_list_name_dialog_dismiss_button_text">Cancel</string>
 
-    <string name="edit_grocery_list_title">Cancel</string>
+    <string name="edit_grocery_list_default_name">Untitled List</string>
+    <string name="edit_grocery_list_edit_button_content_description">Edit Grocery List Name</string>
     <string name="edit_grocery_list_empty_text">The grocery list is empty…</string>
     <string name="edit_grocery_list_fab_text">Add Item</string>
 

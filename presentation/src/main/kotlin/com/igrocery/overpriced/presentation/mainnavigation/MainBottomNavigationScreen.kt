@@ -299,8 +299,6 @@ private fun DefaultPreview() {
             MutableStateFlow(LoadingState.Success(0))
         override var createNewGroceryListResultState: LoadingState<GroceryListId> =
             LoadingState.NotLoading()
-
-        override fun createNewGroceryList(groceryListName: String) {}
     }
 
     val state by rememberMainBottomNavigationScreenState()

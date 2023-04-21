@@ -1,23 +1,31 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import kotlinx.parcelize.Parcelize
 
-class EditGroceryListScreenStateHolder() {
-    // placeholder...
+class EditGroceryListScreenStateHolder(
+    isGroceryListNameDialogShown: Boolean
+) {
+    var isGroceryListNameDialogShown by mutableStateOf(isGroceryListNameDialogShown)
 
     companion object {
         fun Saver() = listSaver(
             save = {
                 listOf(
-                    false
+                    it.isGroceryListNameDialogShown
                 )
             },
             restore = {
-                EditGroceryListScreenStateHolder()
+                EditGroceryListScreenStateHolder(
+                    isGroceryListNameDialogShown = it[0]
+                )
             }
         )
     }
@@ -30,5 +38,9 @@ fun rememberEditGroceryListScreenState() = rememberSaveable(
         restore = { value -> with(EditGroceryListScreenStateHolder.Saver()) { restore(value)!! } }
     )
 ) {
-    mutableStateOf(EditGroceryListScreenStateHolder())
+    mutableStateOf(
+        EditGroceryListScreenStateHolder(
+            isGroceryListNameDialogShown = false
+        )
+    )
 }

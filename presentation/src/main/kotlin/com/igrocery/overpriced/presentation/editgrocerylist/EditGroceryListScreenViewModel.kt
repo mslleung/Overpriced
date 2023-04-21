@@ -1,5 +1,8 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,19 +14,26 @@ import com.igrocery.overpriced.application.grocerylist.GroceryListService
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+@Suppress("unused")
+private val log = Logger { }
 
 interface EditGroceryListScreenViewModelState {
     val groceryListFlow: StateFlow<LoadingState<GroceryList>>
     val groceryListItemFlow: Flow<PagingData<GroceryListItem>>
+
+    var editGroceryListResultState: LoadingState<Unit>
 }
 
 @HiltViewModel
 class EditGroceryListScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    groceryListService: GroceryListService,
+    private val groceryListService: GroceryListService,
 ) : ViewModel(), EditGroceryListScreenViewModelState {
 
     private val args = EditGroceryListScreenArgs(savedStateHandle)
@@ -45,5 +55,20 @@ class EditGroceryListScreenViewModel @Inject constructor(
         groceryListService.getAllGroceryListItemsPaging(args.groceryListId)
     }.flow
         .cachedIn(viewModelScope)
+
+    override var editGroceryListResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+
+    fun editGroceryList(editedGroceryList: GroceryList) {
+        viewModelScope.launch {
+            editGroceryListResultState = LoadingState.Loading()
+            editGroceryListResultState = try {
+                groceryListService.editGroceryList(editedGroceryList)
+                LoadingState.Success(Unit)
+            } catch (e: Exception) {
+                log.error(e.toString())
+                LoadingState.Error(e)
+            }
+        }
+    }
 
 }

@@ -46,6 +46,9 @@ fun EditGroceryListScreen(
         viewModelState = editGroceryListViewModel,
         state = state,
         onBackButtonClick = navigateUp,
+        onEditButtonClick = {
+            state.isGroceryListNameDialogShown = true
+        },
         onGroceryListItemCheckChange = { groceryListItemId, checked ->
 
         },
@@ -53,6 +56,23 @@ fun EditGroceryListScreen(
             // TODO edit item?
         }
     )
+
+    if (state.isGroceryListNameDialogShown) {
+        val groceryList by editGroceryListViewModel.groceryListFlow.collectAsState()
+        groceryList.ifLoaded {
+            val groceryListNameDialogState by rememberGroceryListNameDialogState(initialName = it.name)
+            EditGroceryListNameDialog(
+                state = groceryListNameDialogState,
+                onConfirm = {
+                    state.isGroceryListNameDialogShown = false
+                    editGroceryListViewModel.editGroceryList(
+                        it.copy(name = groceryListNameDialogState.groceryListName.text)
+                    )
+                },
+                onDismiss = { state.isGroceryListNameDialogShown = false }
+            )
+        }
+    }
 
     BackHandler {
         log.debug("EditGroceryListScreen: BackHandler")
@@ -66,6 +86,7 @@ private fun MainContent(
     viewModelState: EditGroceryListScreenViewModelState,
     state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
+    onEditButtonClick: () -> Unit,
     onGroceryListItemCheckChange: (GroceryListItemId, Boolean) -> Unit,
     onGroceryListItemClick: (GroceryListItemId) -> Unit,
     modifier: Modifier = Modifier
@@ -94,10 +115,16 @@ private fun MainContent(
                     }
                 },
                 actions = {
-//                    SaveButton(
-//                        onClick = onSaveButtonClick,
-//                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 10.dp)
-//                    )
+                    IconButton(
+                        onClick = onEditButtonClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_edit_24),
+                            contentDescription = stringResource(id = R.string.edit_grocery_list_edit_button_content_description)
+                        )
+                    }
                 },
                 scrollBehavior = topBarScrollBehavior,
             )

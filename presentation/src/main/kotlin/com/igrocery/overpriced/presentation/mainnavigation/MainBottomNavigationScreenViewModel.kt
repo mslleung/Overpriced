@@ -5,10 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
 import com.igrocery.overpriced.domain.GroceryListId
-import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +21,6 @@ interface MainBottomNavigationScreenViewModelState {
     val groceryListCountFlow: StateFlow<LoadingState<Int>>
 
     var createNewGroceryListResultState: LoadingState<GroceryListId>
-
-    fun createNewGroceryList(groceryListName: String)
 }
 
 @HiltViewModel
@@ -44,7 +40,7 @@ class MainBottomNavigationScreenViewModel @Inject constructor(
 
     override var createNewGroceryListResultState: LoadingState<GroceryListId> by mutableStateOf(LoadingState.NotLoading())
 
-    override fun createNewGroceryList(groceryListName: String) {
+    fun createNewGroceryList(groceryListName: String) {
         viewModelScope.launch {
             createNewGroceryListResultState = LoadingState.Loading()
             createNewGroceryListResultState = try {

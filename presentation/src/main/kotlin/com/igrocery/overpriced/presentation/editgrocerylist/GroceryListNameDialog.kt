@@ -42,7 +42,6 @@ fun EditGroceryListNameDialog(
     GroceryListNameDialog(state, title, onConfirm, onDismiss, modifier)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GroceryListNameDialog(
     state: GroceryListNameDialogStateHolder,

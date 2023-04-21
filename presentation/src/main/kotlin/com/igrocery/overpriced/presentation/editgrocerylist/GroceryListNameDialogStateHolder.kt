@@ -44,9 +44,9 @@ class GroceryListNameDialogStateHolder(
 }
 
 @Composable
-fun rememberGroceryListNameDialogState(): MutableState<GroceryListNameDialogStateHolder> {
-    val defaultGroceryListName =
-        stringResource(id = R.string.grocery_lists_new_grocery_list_default_name)
+fun rememberGroceryListNameDialogState(
+    initialName: String = stringResource(id = R.string.edit_grocery_list_default_name)
+): MutableState<GroceryListNameDialogStateHolder> {
     return rememberSaveable(
         stateSaver = Saver(
             save = { with(GroceryListNameDialogStateHolder.Saver()) { save(it) } },
@@ -57,8 +57,8 @@ fun rememberGroceryListNameDialogState(): MutableState<GroceryListNameDialogStat
             GroceryListNameDialogStateHolder(
                 isRequestingFirstFocus = true,
                 groceryListName = TextFieldValue(
-                    text = defaultGroceryListName,
-                    selection = TextRange(0, defaultGroceryListName.length)
+                    text = initialName,
+                    selection = TextRange(0, initialName.length)
                 )
             )
         )
