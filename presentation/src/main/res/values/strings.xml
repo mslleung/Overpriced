@@ -59,11 +59,7 @@
     <string name="new_price_product_info_header">Product Information</string>
     <string name="new_price_product_name_label">Product Name</string>
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
-    <string name="new_price_product_description_label">Product Description (optional)</string>
-    <string name="new_price_product_barcode_attach_button_text">Attach Barcode</string>
-    <string name="new_price_product_barcode_label">Barcode:</string>
-    <string name="new_price_product_barcode_icon_content_description">Open camera to scan barcode</string>
-    <string name="new_price_product_quantity_label">Quantity</string>
+    <string name="new_price_product_quantity_label">Item Quantity</string>
     <string name="new_price_product_quantity_input_error_text">Invalid quantity input.</string>
     <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
