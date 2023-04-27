@@ -688,7 +688,7 @@ private fun ProductCategoryField(
         )
 
         Text(
-            text = category.name,
+            text = if (category == NoCategory) stringResource(R.string.new_price_product_no_category) else category.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = MaterialTheme.typography.labelLarge

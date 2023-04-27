@@ -61,6 +61,7 @@
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
     <string name="new_price_product_quantity_label">Item Quantity</string>
     <string name="new_price_product_quantity_input_error_text">Invalid quantity input.</string>
+    <string name="new_price_product_no_category">Select category</string>
     <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
@@ -92,6 +93,7 @@
     <string name="price_record_unit_pounds_abbrev">lb</string>
 
     <string name="no_category">No Category</string>
+
     <string name="select_category_title">Select Category</string>
     <string name="select_category_category_icon_content_description">Category icon</string>
     <string name="select_category_empty_icon_content_description">No category</string>
