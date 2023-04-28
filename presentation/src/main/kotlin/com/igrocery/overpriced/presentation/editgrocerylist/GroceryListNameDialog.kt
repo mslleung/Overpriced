@@ -27,8 +27,15 @@ fun NewGroceryListNameDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val title = stringResource(id = R.string.grocery_list_name_dialog_new_title_text)
-    GroceryListNameDialog(state, title, onConfirm, onDismiss, modifier)
+    GroceryListNameDialog(
+        state = state,
+        title = {
+            Text(text = stringResource(id = R.string.grocery_list_name_dialog_new_title_text))
+        },
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -38,14 +45,19 @@ fun EditGroceryListNameDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val title = stringResource(id = R.string.grocery_list_name_dialog_edit_title_text)
-    GroceryListNameDialog(state, title, onConfirm, onDismiss, modifier)
+    GroceryListNameDialog(
+        state = state,
+        title = {},
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        modifier = modifier
+    )
 }
 
 @Composable
 private fun GroceryListNameDialog(
     state: GroceryListNameDialogStateHolder,
-    title: String,
+    title: @Composable () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -67,9 +79,7 @@ private fun GroceryListNameDialog(
                 Text(text = stringResource(id = R.string.grocery_list_name_dialog_dismiss_button_text))
             }
         },
-        title = {
-            Text(text = title)
-        },
+        title = title,
         text = {
             Column(
                 modifier = Modifier
