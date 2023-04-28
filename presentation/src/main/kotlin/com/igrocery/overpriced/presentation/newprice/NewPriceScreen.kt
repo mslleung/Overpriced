@@ -363,22 +363,17 @@ private fun MainLayout(
             )
 
             val preferredCurrency by viewModelState.preferredCurrencyFlow.collectAsState()
-            PriceAmountField(
+            PriceAmountAndSaleQuantityField(
                 text = state.priceAmountText,
                 onTextChange = { text -> onPriceAmountChange(text.take(10)) },
+                saleQuantity = state.saleQuantity,
+                onSaleQuantityChange = onSaleQuantityChange,
                 preferredCurrency = preferredCurrency,
                 scrollState = scrollState,
                 submitError = state.submitError,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 4.dp)
-            )
-
-            SaleQuantityField(
-                saleQuantity = state.saleQuantity,
-                onSaleQuantityChange = onSaleQuantityChange,
-                modifier = Modifier
-                    .fillMaxWidth()
             )
 
             PriceIsSaleField(
@@ -710,9 +705,11 @@ private fun PriceHeader(
 }
 
 @Composable
-private fun PriceAmountField(
+private fun PriceAmountAndSaleQuantityField(
     text: String,
     onTextChange: (String) -> Unit,
+    saleQuantity: SaleQuantity,
+    onSaleQuantityChange: (SaleQuantity) -> Unit,
     preferredCurrency: LoadingState<Currency>,
     scrollState: ScrollState,
     submitError: SubmitError,
@@ -733,7 +730,7 @@ private fun PriceAmountField(
                 value = text,
                 onValueChange = { text -> onTextChange(text) },
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(4f),
                 singleLine = true,
                 label = {
                     Text(text = stringResource(id = R.string.new_price_amount_label))
@@ -753,6 +750,66 @@ private fun PriceAmountField(
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                 isError = submitError == SubmitError.InvalidPriceAmount
             )
+
+            Text(
+                text = "/",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                TextButton(
+                    onClick = { expanded = !expanded },
+                    shape = RoundedCornerShape(4.dp),
+                ) {
+                    Text(
+                        text = saleQuantity.getDisplayString(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    SaleQuantity.values().map {
+                        val selectedColors = if (it == saleQuantity) {
+                            MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.primary,
+                                trailingIconColor = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            MenuDefaults.itemColors()
+                        }
+                        DropdownMenuItem(
+                            text = { Text(text = it.getDisplayString()) },
+                            trailingIcon = {
+                                if (it == saleQuantity) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_check_24),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            onClick = {
+                                onSaleQuantityChange(it)
+                                expanded = false
+                            },
+                            colors = selectedColors
+                        )
+                    }
+                }
+            }
         }
 
         AnimatedVisibility(visible = submitError == SubmitError.InvalidPriceAmount) {
@@ -766,79 +823,6 @@ private fun PriceAmountField(
         if (submitError == SubmitError.InvalidPriceAmount) {
             LaunchedEffect(Unit) {
                 scrollState.animateScrollTo(priceTextFieldScrollPosition.roundToInt())
-            }
-        }
-    }
-}
-
-@Composable
-private fun SaleQuantityField(
-    saleQuantity: SaleQuantity,
-    onSaleQuantityChange: (SaleQuantity) -> Unit,
-    modifier: Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Text(
-            text = stringResource(id = R.string.new_price_sale_quantity_label),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.21f)
-        ) {
-            var expanded by remember { mutableStateOf(false) }
-            TextButton(
-                onClick = { expanded = !expanded },
-                shape = RoundedCornerShape(4.dp),
-            ) {
-                Text(
-                    text = saleQuantity.getDisplayString(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                SaleQuantity.values().map {
-                    val selectedColors = if (it == saleQuantity) {
-                        MenuDefaults.itemColors(
-                            textColor = MaterialTheme.colorScheme.primary,
-                            trailingIconColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        MenuDefaults.itemColors()
-                    }
-                    DropdownMenuItem(
-                        text = { Text(text = it.getDisplayString()) },
-                        trailingIcon = {
-                            if (it == saleQuantity) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_baseline_check_24),
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        onClick = {
-                            onSaleQuantityChange(it)
-                            expanded = false
-                        },
-                        colors = selectedColors
-                    )
-                }
             }
         }
     }

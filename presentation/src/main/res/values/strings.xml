@@ -66,7 +66,6 @@
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
     <string name="new_price_amount_input_error_text">Invalid amount input.</string>
-    <string name="new_price_sale_quantity_label">For number of items: </string>
     <string name="new_price_is_sale_label">Is this a sale price?</string>
     <string name="new_price_store_info_header">Store Location</string>
     <string name="new_price_store_icon_content_description">Store location</string>
