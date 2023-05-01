@@ -244,10 +244,9 @@ private fun MainContent(
 
         Text(
             text = groceryListItem.name,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.labelLarge,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1
+            maxLines = 1,
+            modifier = Modifier.weight(1f),
         )
     }
 }

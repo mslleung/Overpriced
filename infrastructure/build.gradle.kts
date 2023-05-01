@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("com.google.protobuf") version "0.9.1"
+    id("com.google.protobuf") version "0.9.3"
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
 }
@@ -45,9 +45,8 @@ android {
     }
     namespace = "com.igrocery.overpriced.infrastructure"
     protobuf {
-        generatedFilesBaseDir = "$projectDir/build/generated/source/proto"
         protoc {
-            artifact = "com.google.protobuf:protoc:21.0-rc-1"
+            artifact = "com.google.protobuf:protoc:3.22.3"
         }
         generateProtoTasks {
             all().forEach { task ->
@@ -55,6 +54,9 @@ android {
                     create("java") {
                         option("lite")
                     }
+//                    create("kotlin") {
+//                        option("lite")
+//                    }
                 }
             }
         }
@@ -75,7 +77,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.45")
+    implementation("com.google.dagger:hilt-android:2.45")   // do not update to 2.46 as it interferes with protobuf
     implementation("androidx.core:core-ktx:1.10.0")
     kapt("com.google.dagger:hilt-android-compiler:2.45")
 
@@ -94,6 +96,7 @@ dependencies {
     // datastore
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:4.0.0-rc-2")
+//    implementation("com.google.protobuf:protobuf-kotlin-lite:3.22.3")
 
     // date
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")

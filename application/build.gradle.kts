@@ -45,9 +45,9 @@ dependencies {
     implementation(project(":shared"))
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.45")
+    implementation("com.google.dagger:hilt-android:2.46")
     implementation("androidx.core:core-ktx:1.10.0")
-    kapt("com.google.dagger:hilt-android-compiler:2.45")
+    kapt("com.google.dagger:hilt-android-compiler:2.46")
 
     // paging
     val pagingVersion = "3.1.1"

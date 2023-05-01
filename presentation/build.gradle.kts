@@ -131,9 +131,9 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.45")
+    implementation("com.google.dagger:hilt-android:2.46")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:2.45")
+    kapt("com.google.dagger:hilt-android-compiler:2.46")
 
     // accompanist
     val accompanistVersion = "0.31.1-alpha"
