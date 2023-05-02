@@ -11,25 +11,34 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.GroceryListItemId
+import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 
 @Suppress("unused")
 private val log = Logger {}
@@ -251,31 +260,49 @@ private fun MainContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun DefaultPreview() {
-//    val topBarState = rememberTopAppBarState()
-//    val topBarScrollBehavior =
-//        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
-//    val viewModelState = object : GroceryListScreenViewModelState {
-//        override val groceryListsWithItemCountFlow = flowOf(
-//            PagingData.from(
-//                listOf(
-//                    GroceryListWithItemCount(
-//                        groceryList = GroceryList(name = "Grocery list 1"),
-//                        itemCount = 5
-//                    )
-//                )
-//            )
-//        )
-//    }
-//
-//    MainContent(
-//        topBarScrollBehavior = topBarScrollBehavior,
-//        viewModelState = viewModelState,
-//        state = GroceryListScreenStateHolder(),
-//        onNewGroceryListClick = {},
-//        onItemCountChanged = {}
-//    )
+    val viewModelState = object : EditGroceryListScreenViewModelState {
+        override val groceryListFlow: StateFlow<LoadingState<GroceryList>> =
+            MutableStateFlow(
+                LoadingState.Success(
+                    GroceryList(name = "Grocery list 1")
+                )
+            )
+        override val groceryListItemFlow: Flow<PagingData<GroceryListItem>> = flowOf(
+            PagingData.from(
+                listOf(
+                    GroceryListItem(
+                        groceryListId = GroceryListId(1L),
+                        name = "Apples",
+                        quantity = "",
+                        isChecked = false
+                    ),
+                    GroceryListItem(
+                        groceryListId = GroceryListId(1L),
+                        name = "Oranges",
+                        quantity = "5 pieces",
+                        isChecked = true
+                    ),
+                )
+            )
+        )
+        override var editGroceryListResultState: LoadingState<Unit> by remember {
+            mutableStateOf(
+                LoadingState.NotLoading()
+            )
+        }
+    }
+
+    val state by rememberEditGroceryListScreenState()
+
+    MainContent(
+        viewModelState = viewModelState,
+        state = state,
+        onBackButtonClick = {},
+        onEditButtonClick = {},
+        onGroceryListItemCheckChange = { _, _ -> },
+        onGroceryListItemClick = {},
+    )
 }

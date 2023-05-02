@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities
 
 import androidx.room.*
+import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 
@@ -43,7 +44,7 @@ internal fun GroceryListItemRoomEntity.toDomain(): GroceryListItem {
         id = GroceryListItemId(id),
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
-        groceryListId = groceryListId,
+        groceryListId = GroceryListId(groceryListId),
         name = name,
         quantity = quantity,
         isChecked = isChecked
@@ -55,7 +56,7 @@ internal fun GroceryListItem.toData(): GroceryListItemRoomEntity {
         id = id.value,
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
-        groceryListId = groceryListId,
+        groceryListId = groceryListId.value,
         name = name,
         quantity = quantity,
         isChecked = isChecked

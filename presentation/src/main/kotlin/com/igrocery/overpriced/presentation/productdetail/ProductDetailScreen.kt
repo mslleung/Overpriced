@@ -219,7 +219,7 @@ private fun StoreListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.6f)
+            modifier = Modifier.fillMaxWidth(0.5f)
         ) {
             Text(
                 text = store.name,
