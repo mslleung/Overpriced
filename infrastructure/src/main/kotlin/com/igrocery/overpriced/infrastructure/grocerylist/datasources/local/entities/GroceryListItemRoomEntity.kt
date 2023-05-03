@@ -31,8 +31,8 @@ internal data class GroceryListItemRoomEntity(
     val groceryListId: Long,
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "quantity")
-    val quantity: String,
+    @ColumnInfo(name = "description")
+    val description: String,
     @ColumnInfo(name = "is_checked")
     val isChecked: Boolean,
 )
@@ -46,7 +46,7 @@ internal fun GroceryListItemRoomEntity.toDomain(): GroceryListItem {
         updateTimestamp = updateTimestamp,
         groceryListId = GroceryListId(groceryListId),
         name = name,
-        quantity = quantity,
+        description = description,
         isChecked = isChecked
     )
 }
@@ -58,7 +58,7 @@ internal fun GroceryListItem.toData(): GroceryListItemRoomEntity {
         updateTimestamp = updateTimestamp,
         groceryListId = groceryListId.value,
         name = name,
-        quantity = quantity,
+        description = description,
         isChecked = isChecked
     )
 }

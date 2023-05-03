@@ -11,20 +11,24 @@ import androidx.compose.runtime.setValue
 import kotlinx.parcelize.Parcelize
 
 class EditGroceryListScreenStateHolder(
-    isGroceryListNameDialogShown: Boolean
+    isGroceryListNameDialogShown: Boolean,
+    isAddGroceryListItemDialogShown: Boolean
 ) {
     var isGroceryListNameDialogShown by mutableStateOf(isGroceryListNameDialogShown)
+    var isAddGroceryListItemDialogShown by mutableStateOf(isAddGroceryListItemDialogShown)
 
     companion object {
         fun Saver() = listSaver(
             save = {
                 listOf(
-                    it.isGroceryListNameDialogShown
+                    it.isGroceryListNameDialogShown,
+                    it.isAddGroceryListItemDialogShown
                 )
             },
             restore = {
                 EditGroceryListScreenStateHolder(
-                    isGroceryListNameDialogShown = it[0]
+                    isGroceryListNameDialogShown = it[0],
+                    isAddGroceryListItemDialogShown = it[1]
                 )
             }
         )
@@ -40,7 +44,8 @@ fun rememberEditGroceryListScreenState() = rememberSaveable(
 ) {
     mutableStateOf(
         EditGroceryListScreenStateHolder(
-            isGroceryListNameDialogShown = false
+            isGroceryListNameDialogShown = false,
+            isAddGroceryListItemDialogShown = false
         )
     )
 }

@@ -40,7 +40,6 @@ class GroceryListNameDialogStateHolder(
             }
         )
     }
-
 }
 
 @Composable

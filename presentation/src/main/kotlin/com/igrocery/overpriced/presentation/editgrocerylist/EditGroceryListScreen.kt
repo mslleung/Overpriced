@@ -83,6 +83,23 @@ fun EditGroceryListScreen(
         }
     }
 
+    if (state.isAddGroceryListItemDialogShown) {
+        val groceryList by editGroceryListViewModel.groceryListFlow.collectAsState()
+        groceryList.ifLoaded {
+            val groceryListNameDialogState by rememberGroceryListNameDialogState(initialName = it.name)
+            EditGroceryListNameDialog(
+                state = groceryListNameDialogState,
+                onConfirm = {
+                    state.isGroceryListNameDialogShown = false
+                    editGroceryListViewModel.editGroceryList(
+                        it.copy(name = groceryListNameDialogState.groceryListName.text)
+                    )
+                },
+                onDismiss = { state.isGroceryListNameDialogShown = false }
+            )
+        }
+    }
+
     BackHandler {
         log.debug("EditGroceryListScreen: BackHandler")
         navigateUp()
@@ -98,6 +115,7 @@ private fun MainContent(
     onEditButtonClick: () -> Unit,
     onGroceryListItemCheckChange: (GroceryListItemId, Boolean) -> Unit,
     onGroceryListItemClick: (GroceryListItemId) -> Unit,
+    onAddItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val topBarScrollState = rememberTopAppBarState()
