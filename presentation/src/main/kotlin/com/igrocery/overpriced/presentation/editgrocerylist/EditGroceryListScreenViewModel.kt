@@ -71,4 +71,10 @@ class EditGroceryListScreenViewModel @Inject constructor(
         }
     }
 
+    fun addItem(itemName: String, itemDescription: String) {
+        viewModelScope.launch {
+            groceryListService.addItemToGroceryList(args.groceryListId, itemName, itemDescription)
+        }
+    }
+
 }

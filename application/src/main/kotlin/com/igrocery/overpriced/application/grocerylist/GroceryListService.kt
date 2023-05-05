@@ -53,4 +53,20 @@ class GroceryListService @Inject constructor(
         return groceryListItemRepository.getAllGroceryListItemsPaging(groceryListId)
     }
 
+    suspend fun addItemToGroceryList(
+        groceryListId: GroceryListId,
+        itemName: String,
+        itemDescription: String
+    ) {
+        return transaction.execute {
+            val newItem = GroceryListItem(
+                groceryListId = groceryListId,
+                name = itemName,
+                description = itemDescription
+            )
+
+            groceryListItemRepository.insert(newItem)
+        }
+    }
+
 }

@@ -63,6 +63,9 @@ fun EditGroceryListScreen(
         },
         onGroceryListItemClick = {
             // TODO edit item?
+        },
+        onAddItemClick = {
+            state.isAddGroceryListItemDialogShown = true
         }
     )
 
@@ -84,20 +87,18 @@ fun EditGroceryListScreen(
     }
 
     if (state.isAddGroceryListItemDialogShown) {
-        val groceryList by editGroceryListViewModel.groceryListFlow.collectAsState()
-        groceryList.ifLoaded {
-            val groceryListNameDialogState by rememberGroceryListNameDialogState(initialName = it.name)
-            EditGroceryListNameDialog(
-                state = groceryListNameDialogState,
-                onConfirm = {
-                    state.isGroceryListNameDialogShown = false
-                    editGroceryListViewModel.editGroceryList(
-                        it.copy(name = groceryListNameDialogState.groceryListName.text)
-                    )
-                },
-                onDismiss = { state.isGroceryListNameDialogShown = false }
-            )
-        }
+        val addGroceryListItemDialogState by rememberAddGroceryListItemDialogState()
+        AddGroceryListItemDialog(
+            state = addGroceryListItemDialogState,
+            onConfirm = {
+                state.isAddGroceryListItemDialogShown = false
+                editGroceryListViewModel.addItem(
+                    itemName = addGroceryListItemDialogState.itemName.text,
+                    itemDescription = addGroceryListItemDialogState.itemDescription
+                )
+            },
+            onDismiss = { state.isAddGroceryListItemDialogShown = false }
+        )
     }
 
     BackHandler {
@@ -294,13 +295,13 @@ private fun DefaultPreview() {
                     GroceryListItem(
                         groceryListId = GroceryListId(1L),
                         name = "Apples",
-                        quantity = "",
+                        description = "",
                         isChecked = false
                     ),
                     GroceryListItem(
                         groceryListId = GroceryListId(1L),
                         name = "Oranges",
-                        quantity = "5 pieces",
+                        description = "5 pieces",
                         isChecked = true
                     ),
                 )
@@ -322,5 +323,6 @@ private fun DefaultPreview() {
         onEditButtonClick = {},
         onGroceryListItemCheckChange = { _, _ -> },
         onGroceryListItemClick = {},
+        onAddItemClick = {}
     )
 }

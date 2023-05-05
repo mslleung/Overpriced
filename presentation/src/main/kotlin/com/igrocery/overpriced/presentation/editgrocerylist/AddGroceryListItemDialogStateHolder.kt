@@ -47,8 +47,8 @@ class AddGroceryListItemDialogStateHolder(
 
 @Composable
 fun rememberAddGroceryListItemDialogState(
-    initialName: String,
-    initialDescription: String
+    initialName: String = "",
+    initialDescription: String = ""
 ): MutableState<AddGroceryListItemDialogStateHolder> {
     return rememberSaveable(
         stateSaver = Saver(
