@@ -11,6 +11,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
+import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.shared.LoadingState
@@ -74,6 +75,18 @@ class EditGroceryListScreenViewModel @Inject constructor(
     fun addItem(itemName: String, itemDescription: String) {
         viewModelScope.launch {
             groceryListService.addItemToGroceryList(args.groceryListId, itemName, itemDescription)
+        }
+    }
+
+    fun updateItem(item: GroceryListItem) {
+        viewModelScope.launch {
+            groceryListService.updateGroceryListItem(item)
+        }
+    }
+
+    fun deleteItem(item: GroceryListItem) {
+        viewModelScope.launch {
+            groceryListService.updateGroceryListItem(item)
         }
     }
 

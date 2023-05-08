@@ -28,14 +28,14 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.shared.Logger
-import com.igrocery.overpriced.presentation.editgrocerylist.AddGroceryListItemDialogStateHolder.ErrorState
+import com.igrocery.overpriced.presentation.editgrocerylist.GroceryListItemDialogStateHolder.ErrorState
 
 @Suppress("unused")
 private val log = Logger { }
 
 @Composable
-fun AddGroceryListItemDialog(
-    state: AddGroceryListItemDialogStateHolder,
+fun GroceryListItemDialog(
+    state: GroceryListItemDialogStateHolder,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier

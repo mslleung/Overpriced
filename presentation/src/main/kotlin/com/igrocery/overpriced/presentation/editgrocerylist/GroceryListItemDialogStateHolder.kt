@@ -11,7 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
-class AddGroceryListItemDialogStateHolder(
+class GroceryListItemDialogStateHolder(
     itemName: TextFieldValue,
     itemDescription: String
 ) {
@@ -35,7 +35,7 @@ class AddGroceryListItemDialogStateHolder(
                 )
             },
             restore = {
-                AddGroceryListItemDialogStateHolder(
+                GroceryListItemDialogStateHolder(
                     with(TextFieldValue.Saver) { restore(it[0])!! },
                     it[1] as String
                 )
@@ -46,18 +46,18 @@ class AddGroceryListItemDialogStateHolder(
 }
 
 @Composable
-fun rememberAddGroceryListItemDialogState(
+fun rememberGroceryListItemDialogState(
     initialName: String = "",
     initialDescription: String = ""
-): MutableState<AddGroceryListItemDialogStateHolder> {
+): MutableState<GroceryListItemDialogStateHolder> {
     return rememberSaveable(
         stateSaver = Saver(
-            save = { with(AddGroceryListItemDialogStateHolder.Saver()) { save(it) } },
-            restore = { value -> with(AddGroceryListItemDialogStateHolder.Saver()) { restore(value)!! } }
+            save = { with(GroceryListItemDialogStateHolder.Saver()) { save(it) } },
+            restore = { value -> with(GroceryListItemDialogStateHolder.Saver()) { restore(value)!! } }
         )
     ) {
         mutableStateOf(
-            AddGroceryListItemDialogStateHolder(
+            GroceryListItemDialogStateHolder(
                 itemName = TextFieldValue(
                     text = initialName,
                     selection = TextRange(0, initialName.length)

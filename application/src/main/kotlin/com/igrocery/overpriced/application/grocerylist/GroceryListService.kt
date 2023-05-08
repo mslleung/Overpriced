@@ -69,4 +69,16 @@ class GroceryListService @Inject constructor(
         }
     }
 
+    suspend fun updateGroceryListItem(item: GroceryListItem) {
+        return transaction.execute {
+            groceryListItemRepository.update(item)
+        }
+    }
+
+    suspend fun deleteGroceryListItem(item: GroceryListItem) {
+        return transaction.execute {
+            groceryListItemRepository.delete(item)
+        }
+    }
+
 }

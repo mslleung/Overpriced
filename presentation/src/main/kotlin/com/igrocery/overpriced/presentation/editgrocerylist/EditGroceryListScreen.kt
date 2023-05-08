@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -34,6 +36,7 @@ import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
+import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenStateHolder
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
@@ -59,12 +62,21 @@ fun EditGroceryListScreen(
         onEditButtonClick = {
             state.isGroceryListNameDialogShown = true
         },
-        onGroceryListItemCheckChange = { groceryListItemId, checked ->
-
+        onGroceryListItemCheckChange = { groceryListItem, isChecked ->
+            editGroceryListViewModel.updateItem(
+                item = groceryListItem.copy(
+                    isChecked = isChecked,
+                )
+            )
         },
         onGroceryListItemClick = {
-            state.isAddGroceryListItemDialogShown = true
-            
+            state.editingGroceryListItem = it
+        },
+        onGroceryListItemLongClick = {
+            state.longClickGroceryListItem = it
+        },
+        onGroceryListItemSearchPricesClick = {
+
         },
         onAddItemClick = {
             state.isAddGroceryListItemDialogShown = true
@@ -89,17 +101,62 @@ fun EditGroceryListScreen(
     }
 
     if (state.isAddGroceryListItemDialogShown) {
-        val addGroceryListItemDialogState by rememberAddGroceryListItemDialogState()
-        AddGroceryListItemDialog(
-            state = addGroceryListItemDialogState,
+        val groceryListItemDialogState by rememberGroceryListItemDialogState()
+        GroceryListItemDialog(
+            state = groceryListItemDialogState,
             onConfirm = {
                 state.isAddGroceryListItemDialogShown = false
                 editGroceryListViewModel.addItem(
-                    itemName = addGroceryListItemDialogState.itemName.text,
-                    itemDescription = addGroceryListItemDialogState.itemDescription
+                    itemName = groceryListItemDialogState.itemName.text,
+                    itemDescription = groceryListItemDialogState.itemDescription
                 )
             },
             onDismiss = { state.isAddGroceryListItemDialogShown = false }
+        )
+    }
+
+    state.editingGroceryListItem?.let {
+        val groceryListItemDialogState by rememberGroceryListItemDialogState(
+            initialName = it.name,
+            initialDescription = it.description
+        )
+        GroceryListItemDialog(
+            state = groceryListItemDialogState,
+            onConfirm = {
+                state.editingGroceryListItem = null
+                editGroceryListViewModel.updateItem(
+                    item = it.copy(
+                        name = groceryListItemDialogState.itemName.text,
+                        description = groceryListItemDialogState.itemDescription
+                    )
+                )
+            },
+            onDismiss = { state.editingGroceryListItem = null }
+        )
+    }
+
+    state.longClickGroceryListItem?.let { item ->
+        ListSelectionDialog(
+            selections = listOf(
+                stringResource(id = R.string.edit_grocery_list_item_more_edit),
+                stringResource(id = R.string.edit_grocery_list_item_more_delete)
+            ),
+            onDismiss = {
+                state.longClickGroceryListItem = null
+            },
+            onSelected = {
+                when (it) {
+                    0 -> {
+                        state.longClickGroceryListItem = null
+                        state.editingGroceryListItem = item
+                    }
+                    1 -> {
+                        state.longClickGroceryListItem = null
+                        editGroceryListViewModel.deleteItem(item)
+                    }
+                    else -> { throw NotImplementedError("selection $it not handled") }
+                }
+            }
         )
     }
 
@@ -116,8 +173,10 @@ private fun MainContent(
     state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
-    onGroceryListItemCheckChange: (GroceryListItemId, Boolean) -> Unit,
+    onGroceryListItemCheckChange: (GroceryListItem, Boolean) -> Unit,
     onGroceryListItemClick: (GroceryListItem) -> Unit,
+    onGroceryListItemLongClick: (GroceryListItem) -> Unit,
+    onGroceryListItemSearchPricesClick: (GroceryListItem) -> Unit,
     onAddItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -202,8 +261,10 @@ private fun MainContent(
                         if (item != null) {
                             GroceryListItemContent(
                                 groceryListItem = item,
-                                onItemCheckChange = { onGroceryListItemCheckChange(item.id, it) },
+                                onItemCheckChange = { onGroceryListItemCheckChange(item, it) },
                                 onItemClick = { onGroceryListItemClick(item) },
+                                onItemLongClick = { onGroceryListItemLongClick(item) },
+                                onItemSearchPricesClick = { onGroceryListItemSearchPricesClick(item) },
                                 modifier = Modifier
                                     .animateItemPlacement()
                                     .wrapContentHeight()
@@ -249,36 +310,64 @@ private fun EmptyContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GroceryListItemContent(
     groceryListItem: GroceryListItem,
     onItemCheckChange: (Boolean) -> Unit,
     onItemClick: () -> Unit,
+    onItemLongClick: () -> Unit,
+    onItemSearchPricesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
-            .clickable { onItemClick() }
+            .combinedClickable(
+                onClick = onItemClick,
+                onLongClick = onItemLongClick,
+            )
     ) {
         Checkbox(
             checked = groceryListItem.isChecked,
             colors = CheckboxDefaults.colors(
-                checkedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                checkedColor = MaterialTheme.colorScheme.secondary,
                 uncheckedColor = MaterialTheme.colorScheme.primary,
-                checkmarkColor = MaterialTheme.colorScheme.onSurfaceVariant
+                checkmarkColor = MaterialTheme.colorScheme.secondary
             ),
             onCheckedChange = onItemCheckChange,
             modifier = Modifier.size(24.dp)
         )
 
-        Text(
-            text = groceryListItem.name,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
+        Column(
             modifier = Modifier
                 .padding(start = 8.dp)
-                .weight(1f),
-        )
+                .alpha(if (groceryListItem.isChecked) 0.6f else 1f)
+                .weight(1f)
+        ) {
+            Text(
+                text = groceryListItem.name,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+            )
+
+            Text(
+                text = groceryListItem.description,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                modifier = Modifier
+                    .alpha(0.6f)
+            )
+        }
+
+        IconButton(
+            onClick = onItemSearchPricesClick,
+            modifier = modifier
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                contentDescription = stringResource(R.string.edit_grocery_list_item_search_prices),
+            )
+        }
     }
 }
 
@@ -326,6 +415,8 @@ private fun DefaultPreview() {
         onEditButtonClick = {},
         onGroceryListItemCheckChange = { _, _ -> },
         onGroceryListItemClick = {},
+        onGroceryListItemLongClick = {},
+        onGroceryListItemSearchPricesClick = {},
         onAddItemClick = {}
     )
 }

@@ -74,22 +74,46 @@
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
-    <string name="price_record_unit_baskets">Baskets</string>
-    <string name="price_record_unit_baskets_abbrev">bkt</string>
-    <string name="price_record_unit_blocks">Kilograms</string>
-    <string name="price_record_unit_blocks_abbrev">blk</string>
-    <string name="price_record_unit_grams">Grams</string>
-    <string name="price_record_unit_grams_abbrev">g</string>
-    <string name="price_record_unit_kilograms">Kilograms</string>
-    <string name="price_record_unit_kilograms_abbrev">Kg</string>
-    <string name="price_record_unit_litres">Litres</string>
-    <string name="price_record_unit_litres_abbrev">L</string>
-    <string name="price_record_unit_millilitres">MilliLitres</string>
-    <string name="price_record_unit_millilitres_abbrev">mL</string>
-    <string name="price_record_unit_pieces">Pieces</string>
-    <string name="price_record_unit_pieces_abbrev">Pc</string>
-    <string name="price_record_unit_pounds">Pounds</string>
-    <string name="price_record_unit_pounds_abbrev">lb</string>
+    <plurals name="price_quantity_unit_baskets">
+        <item quantity="one">Basket</item>
+        <item quantity="other">Baskets</item>
+    </plurals>
+    <plurals name="price_quantity_unit_blocks">
+        <item quantity="one">Block</item>
+        <item quantity="other">Blocks</item>
+    </plurals>
+    <plurals name="price_quantity_unit_grams">
+        <item quantity="one">Gram</item>
+        <item quantity="other">Grams</item>
+    </plurals>
+    <plurals name="price_quantity_unit_kilograms">
+        <item quantity="one">Kilogram</item>
+        <item quantity="other">Kilograms</item>
+    </plurals>
+    <plurals name="price_quantity_unit_litres">
+        <item quantity="one">Litre</item>
+        <item quantity="other">Litres</item>
+    </plurals>
+    <plurals name="price_quantity_unit_millilitres">
+        <item quantity="one">MilliLitre</item>
+        <item quantity="other">MilliLitres</item>
+    </plurals>
+    <plurals name="price_quantity_unit_pieces">
+        <item quantity="one">Piece</item>
+        <item quantity="other">Pieces</item>
+    </plurals>
+    <plurals name="price_quantity_unit_pounds">
+        <item quantity="one">Pound</item>
+        <item quantity="other">Pounds</item>
+    </plurals>
+    <string name="price_quantity_unit_baskets_abbrev">bkt</string>
+    <string name="price_quantity_unit_blocks_abbrev">blk</string>
+    <string name="price_quantity_unit_grams_abbrev">g</string>
+    <string name="price_quantity_unit_kilograms_abbrev">Kg</string>
+    <string name="price_quantity_unit_litres_abbrev">L</string>
+    <string name="price_quantity_unit_millilitres_abbrev">mL</string>
+    <string name="price_quantity_unit_pieces_abbrev">Pc</string>
+    <string name="price_quantity_unit_pounds_abbrev">lb</string>
 
     <string name="no_category">No Category</string>
 
@@ -179,6 +203,9 @@
     <string name="edit_grocery_list_edit_button_content_description">Edit Grocery List Name</string>
     <string name="edit_grocery_list_empty_text">The grocery list is empty…</string>
     <string name="edit_grocery_list_fab_text">Add Item</string>
+    <string name="edit_grocery_list_item_more_edit">Edit</string>
+    <string name="edit_grocery_list_item_more_delete">Delete</string>
+    <string name="edit_grocery_list_item_search_prices">Search for prices</string>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>
