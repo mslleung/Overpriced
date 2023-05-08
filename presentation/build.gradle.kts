@@ -125,7 +125,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha19")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -146,7 +146,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
-    implementation("com.github.skydoves:landscapist-glide:2.1.11")
+    implementation("com.github.skydoves:landscapist-glide:2.1.12")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")

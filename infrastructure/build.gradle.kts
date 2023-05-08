@@ -74,7 +74,7 @@ dependencies {
     implementation(project(":shared"))
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
 
     // hilt dependency injection
     implementation("com.google.dagger:hilt-android:2.45")   // do not update to 2.46 as it interferes with protobuf

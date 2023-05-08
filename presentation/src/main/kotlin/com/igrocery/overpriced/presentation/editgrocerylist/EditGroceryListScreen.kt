@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.editgrocerylist
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -62,7 +63,8 @@ fun EditGroceryListScreen(
 
         },
         onGroceryListItemClick = {
-            // TODO edit item?
+            state.isAddGroceryListItemDialogShown = true
+            
         },
         onAddItemClick = {
             state.isAddGroceryListItemDialogShown = true
@@ -115,7 +117,7 @@ private fun MainContent(
     onBackButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onGroceryListItemCheckChange: (GroceryListItemId, Boolean) -> Unit,
-    onGroceryListItemClick: (GroceryListItemId) -> Unit,
+    onGroceryListItemClick: (GroceryListItem) -> Unit,
     onAddItemClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -169,9 +171,7 @@ private fun MainContent(
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                onClick = {
-                    // TODO
-                },
+                onClick = onAddItemClick,
                 modifier = Modifier.padding(
                     WindowInsets.navigationBars.only(WindowInsetsSides.End)
                         .asPaddingValues()
@@ -200,10 +200,10 @@ private fun MainContent(
                         key = { it.id }
                     ) { item ->
                         if (item != null) {
-                            MainContent(
+                            GroceryListItemContent(
                                 groceryListItem = item,
                                 onItemCheckChange = { onGroceryListItemCheckChange(item.id, it) },
-                                onItemClick = { onGroceryListItemClick(item.id) },
+                                onItemClick = { onGroceryListItemClick(item) },
                                 modifier = Modifier
                                     .animateItemPlacement()
                                     .wrapContentHeight()
@@ -250,7 +250,7 @@ private fun EmptyContent(
 }
 
 @Composable
-private fun MainContent(
+private fun GroceryListItemContent(
     groceryListItem: GroceryListItem,
     onItemCheckChange: (Boolean) -> Unit,
     onItemClick: () -> Unit,
@@ -258,6 +258,7 @@ private fun MainContent(
 ) {
     Row(
         modifier = modifier
+            .clickable { onItemClick() }
     ) {
         Checkbox(
             checked = groceryListItem.isChecked,
@@ -274,7 +275,9 @@ private fun MainContent(
             text = groceryListItem.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .weight(1f),
         )
     }
 }

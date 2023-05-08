@@ -54,7 +54,7 @@ dependencies {
     implementation("androidx.paging:paging-runtime:$pagingVersion")
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
 
     testImplementation("junit:junit:4.13.2")
 }
