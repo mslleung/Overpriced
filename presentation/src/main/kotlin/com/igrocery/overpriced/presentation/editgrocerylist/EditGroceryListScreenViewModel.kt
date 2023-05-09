@@ -86,7 +86,7 @@ class EditGroceryListScreenViewModel @Inject constructor(
 
     fun deleteItem(item: GroceryListItem) {
         viewModelScope.launch {
-            groceryListService.updateGroceryListItem(item)
+            groceryListService.deleteGroceryListItem(item)
         }
     }
 

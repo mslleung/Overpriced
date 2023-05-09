@@ -269,7 +269,6 @@ private fun MainContent(
                                     .animateItemPlacement()
                                     .wrapContentHeight()
                                     .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
                             )
                         }
                     }
@@ -321,27 +320,28 @@ private fun GroceryListItemContent(
     modifier: Modifier = Modifier
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .combinedClickable(
                 onClick = onItemClick,
                 onLongClick = onItemLongClick,
             )
+            .padding(horizontal = 4.dp)
+            .alpha(if (groceryListItem.isChecked) 0.6f else 1f) // fade out the whole row if checked
     ) {
         Checkbox(
             checked = groceryListItem.isChecked,
             colors = CheckboxDefaults.colors(
                 checkedColor = MaterialTheme.colorScheme.secondary,
                 uncheckedColor = MaterialTheme.colorScheme.primary,
-                checkmarkColor = MaterialTheme.colorScheme.secondary
+                checkmarkColor = MaterialTheme.colorScheme.onSecondary
             ),
             onCheckedChange = onItemCheckChange,
-            modifier = Modifier.size(24.dp)
         )
 
         Column(
             modifier = Modifier
-                .padding(start = 8.dp)
-                .alpha(if (groceryListItem.isChecked) 0.6f else 1f)
+                .padding(start = 4.dp)
                 .weight(1f)
         ) {
             Text(
@@ -350,22 +350,24 @@ private fun GroceryListItemContent(
                 maxLines = 1,
             )
 
-            Text(
-                text = groceryListItem.description,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                modifier = Modifier
-                    .alpha(0.6f)
-            )
+            if (groceryListItem.description.isNotBlank()) {
+                Text(
+                    text = groceryListItem.description,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .alpha(0.6f)
+                )
+            }
         }
 
         IconButton(
             onClick = onItemSearchPricesClick,
-            modifier = modifier
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_search_24),
+                painter = painterResource(id = R.drawable.search_money_svgrepo_com),
                 contentDescription = stringResource(R.string.edit_grocery_list_item_search_prices),
+                tint = if (groceryListItem.isChecked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
             )
         }
     }

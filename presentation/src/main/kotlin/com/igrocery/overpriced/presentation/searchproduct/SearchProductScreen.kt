@@ -64,8 +64,7 @@ fun SearchProductScreen(
             state.isRequestingFirstFocus = false
         },
         onQueryChanged = {
-            state.query = it.take(100)
-            viewModel.query = state.query
+            viewModel.queryFlow. = state.query
             productPagingItems.refresh()
         },
         onProductClick = navigateToProductDetails,
