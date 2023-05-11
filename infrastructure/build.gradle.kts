@@ -78,7 +78,7 @@ dependencies {
 
     // hilt dependency injection
     implementation("com.google.dagger:hilt-android:2.45")   // do not update to 2.46 as it interferes with protobuf
-    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.core:core-ktx:1.10.1")
     kapt("com.google.dagger:hilt-android-compiler:2.45")
 
     // room
@@ -106,7 +106,7 @@ dependencies {
     implementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("junit:junit:4.13.2")
 
-    val kotestVersion = "5.6.1"
+    val kotestVersion = "5.6.2"
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     androidTestImplementation("androidx.test:runner:1.5.2")

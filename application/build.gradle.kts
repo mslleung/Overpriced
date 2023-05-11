@@ -46,7 +46,7 @@ dependencies {
 
     // hilt dependency injection
     implementation("com.google.dagger:hilt-android:2.46")
-    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.core:core-ktx:1.10.1")
     kapt("com.google.dagger:hilt-android-compiler:2.46")
 
     // paging

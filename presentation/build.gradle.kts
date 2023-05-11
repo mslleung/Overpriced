@@ -93,16 +93,16 @@ dependencies {
     implementation(project(":application"))
     implementation(project(":domain"))
     implementation(project(":shared"))
-    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 
     // android core UI
-    val composeVersion = "1.5.0-alpha03"
-    implementation("androidx.core:core-ktx:1.10.0")
+    val composeVersion = "1.5.0-alpha04"
+    implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-rc01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-rc01")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.7.1")
 
@@ -146,7 +146,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
-    implementation("com.github.skydoves:landscapist-glide:2.1.12")
+    implementation("com.github.skydoves:landscapist-glide:2.1.13")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
