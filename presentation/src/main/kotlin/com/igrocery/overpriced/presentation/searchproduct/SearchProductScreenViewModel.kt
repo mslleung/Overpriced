@@ -1,8 +1,5 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +23,7 @@ private val log = Logger { }
 
 interface SearchProductScreenViewModelState {
     val currencyFlow: StateFlow<LoadingState<Currency>>
+    val queryFlow: StateFlow<String>
     val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
@@ -50,7 +48,11 @@ class SearchProductScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    val queryFlow = savedStateHandle.getStateFlow(KEY_QUERY, args.query)
+    override val queryFlow = savedStateHandle.getStateFlow(KEY_QUERY, args.query)
+
+    fun updateQuery(query: String) {
+        savedStateHandle[KEY_QUERY] = query
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val productsWithMinMaxPricesPagingDataFlow =

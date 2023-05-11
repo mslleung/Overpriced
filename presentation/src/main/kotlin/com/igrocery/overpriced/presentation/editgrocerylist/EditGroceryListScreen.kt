@@ -3,7 +3,6 @@ package com.igrocery.overpriced.presentation.editgrocerylist
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,12 +30,10 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.GroceryListId
-import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.newstore.*
-import com.igrocery.overpriced.presentation.selectcategory.SelectCategoryScreenStateHolder
 import com.igrocery.overpriced.presentation.shared.*
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
@@ -51,6 +48,7 @@ private val log = Logger {}
 fun EditGroceryListScreen(
     editGroceryListViewModel: EditGroceryListScreenViewModel,
     navigateUp: () -> Unit,
+    navigateToSearchProduct: (query: String) -> Unit
 ) {
     log.debug("Composing EditGroceryListScreen")
 
@@ -76,7 +74,7 @@ fun EditGroceryListScreen(
             state.longClickGroceryListItem = it
         },
         onGroceryListItemSearchPricesClick = {
-
+            navigateToSearchProduct(it.name)
         },
         onAddItemClick = {
             state.isAddGroceryListItemDialogShown = true

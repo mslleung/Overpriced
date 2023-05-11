@@ -106,7 +106,8 @@ private fun NavGraphBuilder.navGraph(
         navigateToNewPrice = { navController.navigateToNewPriceScreen() },
     )
     editGroceryListScreen(
-        navigateUp = { navController.navigateUp() }
+        navigateUp = { navController.navigateUp() },
+        navigateToSearchProduct = { navController.navigateToSearchProductScreen(it) }
     )
     productListScreen(
         navigateUp = { navController.navigateUp() },
