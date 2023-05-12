@@ -9,13 +9,17 @@ import com.igrocery.overpriced.domain.ProductId
 
 private const val SearchProduct = "searchProduct"
 private const val SearchProduct_Arg_Query = "query"
-private const val SearchProduct_With_Args = "$SearchProduct/{$SearchProduct_Arg_Query}"
+private const val SearchProduct_With_Args = "$SearchProduct?$SearchProduct_Arg_Query={$SearchProduct_Arg_Query}"
 
 fun NavController.navigateToSearchProductScreen(
-    query: String = "",
+    query: String? = null,
     builder: NavOptionsBuilder.() -> Unit = {}
 ) {
-    navigate("$SearchProduct/${query}", builder)
+    var navString = SearchProduct
+    if (query != null) {
+        navString += "?$SearchProduct_Arg_Query=${query}"
+    }
+    navigate(navString, builder)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
