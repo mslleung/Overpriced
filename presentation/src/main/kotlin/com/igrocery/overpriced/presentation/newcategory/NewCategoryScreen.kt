@@ -154,7 +154,7 @@ private fun MainLayout(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CategoryNameTextField(
     categoryName: String,

@@ -74,12 +74,12 @@ dependencies {
     implementation(project(":shared"))
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.45")   // do not update to 2.46 as it interferes with protobuf
+    implementation("com.google.dagger:hilt-android:2.46.1")   // do not update to 2.46 as it interferes with protobuf
     implementation("androidx.core:core-ktx:1.10.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.45")
+    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
 
     // room
     val roomVersion = "2.5.1"

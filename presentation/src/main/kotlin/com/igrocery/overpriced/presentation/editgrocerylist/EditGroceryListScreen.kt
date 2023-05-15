@@ -60,6 +60,10 @@ fun EditGroceryListScreen(
         onEditButtonClick = {
             state.isGroceryListNameDialogShown = true
         },
+        onDeleteButtonClick = {
+            editGroceryListViewModel.deleteGroceryList()
+            navigateUp()
+        },
         onGroceryListItemCheckChange = { groceryListItem, isChecked ->
             editGroceryListViewModel.updateItem(
                 item = groceryListItem.copy(
@@ -148,11 +152,15 @@ fun EditGroceryListScreen(
                         state.longClickGroceryListItem = null
                         state.editingGroceryListItem = item
                     }
+
                     1 -> {
                         state.longClickGroceryListItem = null
                         editGroceryListViewModel.deleteItem(item)
                     }
-                    else -> { throw NotImplementedError("selection $it not handled") }
+
+                    else -> {
+                        throw NotImplementedError("selection $it not handled")
+                    }
                 }
             }
         )
@@ -171,6 +179,7 @@ private fun MainContent(
     state: EditGroceryListScreenStateHolder,
     onBackButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit,
     onGroceryListItemCheckChange: (GroceryListItem, Boolean) -> Unit,
     onGroceryListItemClick: (GroceryListItem) -> Unit,
     onGroceryListItemLongClick: (GroceryListItem) -> Unit,
@@ -202,6 +211,8 @@ private fun MainContent(
                     }
                 },
                 actions = {
+                    var isOverflowShown by remember { mutableStateOf(false) }
+
                     IconButton(
                         onClick = onEditButtonClick,
                         modifier = Modifier
@@ -210,6 +221,32 @@ private fun MainContent(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_edit_24),
                             contentDescription = stringResource(id = R.string.edit_grocery_list_edit_button_content_description)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { isOverflowShown = !isOverflowShown },
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_more_vert_24),
+                            contentDescription = stringResource(id = R.string.edit_grocery_list_overflow_button_content_description)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = isOverflowShown,
+                        onDismissRequest = { isOverflowShown = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = stringResource(id = R.string.edit_grocery_list_delete_action),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
+                                )
+                            },
+                            onClick = { onDeleteButtonClick() }
                         )
                     }
                 },
@@ -400,9 +437,10 @@ private fun DefaultPreview() {
             )
         )
         override var editGroceryListResultState: LoadingState<Unit> by remember {
-            mutableStateOf(
-                LoadingState.NotLoading()
-            )
+            mutableStateOf(LoadingState.NotLoading())
+        }
+        override var deleteGroceryListResultState: LoadingState<Unit> by remember {
+            mutableStateOf(LoadingState.NotLoading())
         }
     }
 
@@ -413,6 +451,7 @@ private fun DefaultPreview() {
         state = state,
         onBackButtonClick = {},
         onEditButtonClick = {},
+        onDeleteButtonClick = {},
         onGroceryListItemCheckChange = { _, _ -> },
         onGroceryListItemClick = {},
         onGroceryListItemLongClick = {},

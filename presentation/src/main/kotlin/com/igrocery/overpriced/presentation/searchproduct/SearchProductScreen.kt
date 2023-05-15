@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
@@ -182,9 +183,11 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = productPagingItems,
-                    key = { item -> item.product.id }
-                ) { item ->
+                    count = productPagingItems.itemCount,
+                    key = productPagingItems.itemKey(key = { item -> item.product.id }),
+                    contentType = productPagingItems.itemContentType()
+                ) { index ->
+                    val item = productPagingItems[index]
                     if (item != null) {
                         ProductListItem(
                             item = item,

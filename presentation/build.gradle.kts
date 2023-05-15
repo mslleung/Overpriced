@@ -131,12 +131,12 @@ dependencies {
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.46")
+    implementation("com.google.dagger:hilt-android:2.46.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:2.46")
+    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
 
     // accompanist
-    val accompanistVersion = "0.31.1-alpha"
+    val accompanistVersion = "0.31.2-alpha"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")

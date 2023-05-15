@@ -3,6 +3,7 @@ package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
@@ -97,9 +100,11 @@ private fun MainContent(
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
-                        items = groceryListsWithItemCount,
-                        key = { it.groceryList.id }
-                    ) { item ->
+                        count = groceryListsWithItemCount.itemCount,
+                        key = groceryListsWithItemCount.itemKey(key = { it.groceryList.id }),
+                        contentType = groceryListsWithItemCount.itemContentType()
+                    ) { index ->
+                        val item = groceryListsWithItemCount[index]
                         if (item != null) {
                             GroceryListContent(
                                 groceryListWithItemCount = item,

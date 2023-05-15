@@ -15,6 +15,8 @@ import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.shared.LoadingState
+import com.igrocery.overpriced.presentation.shared.ifLoaded
+import com.igrocery.overpriced.presentation.shared.requireLoaded
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -29,6 +31,7 @@ interface EditGroceryListScreenViewModelState {
     val groceryListItemFlow: Flow<PagingData<GroceryListItem>>
 
     var editGroceryListResultState: LoadingState<Unit>
+    var deleteGroceryListResultState: LoadingState<Unit>
 }
 
 @HiltViewModel
@@ -58,12 +61,27 @@ class EditGroceryListScreenViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     override var editGroceryListResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
+    override var deleteGroceryListResultState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
 
     fun editGroceryList(editedGroceryList: GroceryList) {
         viewModelScope.launch {
             editGroceryListResultState = LoadingState.Loading()
             editGroceryListResultState = try {
                 groceryListService.editGroceryList(editedGroceryList)
+                LoadingState.Success(Unit)
+            } catch (e: Exception) {
+                log.error(e.toString())
+                LoadingState.Error(e)
+            }
+        }
+    }
+
+    fun deleteGroceryList() {
+        viewModelScope.launch {
+            deleteGroceryListResultState = LoadingState.Loading()
+            deleteGroceryListResultState = try {
+                val groceryList = groceryListFlow.first().requireLoaded()
+                groceryListService.deleteGroceryList(groceryList)
                 LoadingState.Success(Unit)
             } catch (e: Exception) {
                 log.error(e.toString())

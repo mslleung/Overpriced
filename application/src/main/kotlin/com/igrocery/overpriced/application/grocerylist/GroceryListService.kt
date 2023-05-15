@@ -35,6 +35,12 @@ class GroceryListService @Inject constructor(
         }
     }
 
+    suspend fun deleteGroceryList(groceryList: GroceryList) {
+        return transaction.execute {
+            groceryListRepository.delete(groceryList)
+        }
+    }
+
     fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
         return groceryListRepository.getGroceryList(id)
     }

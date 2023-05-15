@@ -166,7 +166,6 @@ private fun EmptyListContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchBar(
     onClick: () -> Unit,

@@ -200,7 +200,9 @@
     <string name="add_grocery_list_item_dialog_dismiss_button_text">Cancel</string>
 
     <string name="edit_grocery_list_default_name">Untitled List</string>
+    <string name="edit_grocery_list_delete_action">Delete</string>
     <string name="edit_grocery_list_edit_button_content_description">Edit Grocery List Name</string>
+    <string name="edit_grocery_list_overflow_button_content_description">More</string>
     <string name="edit_grocery_list_empty_text">The grocery list is empty…</string>
     <string name="edit_grocery_list_fab_text">Add Item</string>
     <string name="edit_grocery_list_item_more_edit">Edit</string>
