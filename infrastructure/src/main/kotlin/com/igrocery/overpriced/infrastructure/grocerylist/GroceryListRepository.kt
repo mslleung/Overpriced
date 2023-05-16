@@ -9,6 +9,7 @@ import com.igrocery.overpriced.infrastructure.createSimplePagingSource
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule
 import com.igrocery.overpriced.infrastructure.di.IoDispatcher
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListDataSource
+import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListItemDataSource
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toDomain
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class GroceryListRepository @Inject internal constructor(
     @DataSourceModule.LocalDataSource private val localGroceryListDataSource: ILocalGroceryListDataSource,
+    @DataSourceModule.LocalDataSource private val localGroceryListItemDataSource: ILocalGroceryListItemDataSource,
     private val transaction: Transaction,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IGroceryListRepository {
@@ -67,7 +69,7 @@ class GroceryListRepository @Inject internal constructor(
                     )
                 }
             },
-            observedDataSources = listOf(localGroceryListDataSource),
+            observedDataSources = listOf(localGroceryListDataSource, localGroceryListItemDataSource),
             onDataSourcesInvalidated = onDataSourcesInvalidated
         )
     }
