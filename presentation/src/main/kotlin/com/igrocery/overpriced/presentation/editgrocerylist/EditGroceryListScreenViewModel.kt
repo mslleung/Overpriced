@@ -11,11 +11,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.igrocery.overpriced.application.grocerylist.GroceryListService
-import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
 import com.igrocery.overpriced.presentation.shared.LoadingState
-import com.igrocery.overpriced.presentation.shared.ifLoaded
 import com.igrocery.overpriced.presentation.shared.requireLoaded
 import com.igrocery.overpriced.shared.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,7 +41,12 @@ class EditGroceryListScreenViewModel @Inject constructor(
     private val args = EditGroceryListScreenArgs(savedStateHandle)
 
     override val groceryListFlow = groceryListService.getGroceryList(args.groceryListId)
-        .map { LoadingState.Success(it) }
+        .map {
+            if (it != null)
+                LoadingState.Success(it)
+            else
+                LoadingState.Error(Exception("Grocery list not found."))
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 internal interface ILocalGroceryListDataSource :
     IBaseLocalDataSource<GroceryListId, GroceryListRoomEntity> {
 
-    fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity>
+    fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity?>
 
     fun getGroceryListCount(): Flow<Int>
 

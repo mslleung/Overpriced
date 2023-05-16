@@ -13,12 +13,14 @@ class EditGroceryListScreenStateHolder(
     isGroceryListNameDialogShown: Boolean,
     isAddGroceryListItemDialogShown: Boolean,
     editingGroceryListItem: GroceryListItem?,
-    longClickGroceryListItem: GroceryListItem?
+    longClickGroceryListItem: GroceryListItem?,
+    isConfirmDeleteDialogShown: Boolean
 ) {
     var isGroceryListNameDialogShown by mutableStateOf(isGroceryListNameDialogShown)
     var isAddGroceryListItemDialogShown by mutableStateOf(isAddGroceryListItemDialogShown)
     var editingGroceryListItem by mutableStateOf(editingGroceryListItem)
     var longClickGroceryListItem by mutableStateOf(longClickGroceryListItem)
+    var isConfirmDeleteDialogShown by mutableStateOf(isConfirmDeleteDialogShown)
 
     companion object {
         fun Saver() = listSaver(
@@ -27,7 +29,8 @@ class EditGroceryListScreenStateHolder(
                     it.isGroceryListNameDialogShown,
                     it.isAddGroceryListItemDialogShown,
                     it.editingGroceryListItem,
-                    it.longClickGroceryListItem
+                    it.longClickGroceryListItem,
+                    it.isConfirmDeleteDialogShown
                 )
             },
             restore = {
@@ -36,6 +39,7 @@ class EditGroceryListScreenStateHolder(
                     isAddGroceryListItemDialogShown = it[1],
                     editingGroceryListItem = it[2] as? GroceryListItem,
                     longClickGroceryListItem = it[3] as? GroceryListItem,
+                    isConfirmDeleteDialogShown = it[4]
                 )
             }
         )
@@ -54,7 +58,8 @@ fun rememberEditGroceryListScreenState() = rememberSaveable(
             isGroceryListNameDialogShown = false,
             isAddGroceryListItemDialogShown = false,
             editingGroceryListItem = null,
-            longClickGroceryListItem = null
+            longClickGroceryListItem = null,
+            isConfirmDeleteDialogShown = false
         )
     )
 }

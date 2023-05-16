@@ -42,9 +42,9 @@ class GroceryListRepository @Inject internal constructor(
         }
     }
 
-    override fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
+    override fun getGroceryList(id: GroceryListId): Flow<GroceryList?> {
         return localGroceryListDataSource.getGroceryList(id)
-            .map { it.toDomain() }
+            .map { it?.toDomain() }
     }
 
     override fun getGroceryListCount(): Flow<Int> {

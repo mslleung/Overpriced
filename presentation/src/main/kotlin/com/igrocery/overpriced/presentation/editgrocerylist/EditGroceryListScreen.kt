@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -14,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
@@ -61,8 +65,7 @@ fun EditGroceryListScreen(
             state.isGroceryListNameDialogShown = true
         },
         onDeleteButtonClick = {
-            editGroceryListViewModel.deleteGroceryList()
-            navigateUp()
+            state.isConfirmDeleteDialogShown = true
         },
         onGroceryListItemCheckChange = { groceryListItem, isChecked ->
             editGroceryListViewModel.updateItem(
@@ -166,6 +169,20 @@ fun EditGroceryListScreen(
         )
     }
 
+    if (state.isConfirmDeleteDialogShown) {
+        ConfirmDeleteDialog(
+            onDismiss = {
+                state.isConfirmDeleteDialogShown = false
+            },
+            onConfirm = {
+                state.isConfirmDeleteDialogShown = false
+                editGroceryListViewModel.deleteGroceryList()
+                navigateUp()
+            },
+            messageText = stringResource(id = R.string.edit_grocery_list_delete_dialog_message)
+        )
+    }
+
     BackHandler {
         log.debug("EditGroceryListScreen: BackHandler")
         navigateUp()
@@ -211,7 +228,9 @@ private fun MainContent(
                     }
                 },
                 actions = {
-                    var isOverflowShown by remember { mutableStateOf(false) }
+                    var isOverflowShown by rememberSaveable(inputs = arrayOf()) {
+                        mutableStateOf(false)
+                    }
 
                     IconButton(
                         onClick = onEditButtonClick,
@@ -236,7 +255,7 @@ private fun MainContent(
                     }
                     DropdownMenu(
                         expanded = isOverflowShown,
-                        onDismissRequest = { isOverflowShown = false }
+                        onDismissRequest = { isOverflowShown = false },
                     ) {
                         DropdownMenuItem(
                             text = {
@@ -246,7 +265,10 @@ private fun MainContent(
                                     maxLines = 1
                                 )
                             },
-                            onClick = { onDeleteButtonClick() }
+                            onClick = {
+                                isOverflowShown = false
+                                onDeleteButtonClick()
+                            }
                         )
                     }
                 },
@@ -290,9 +312,11 @@ private fun MainContent(
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
-                        items = groceryListItems,
-                        key = { it.id }
-                    ) { item ->
+                        count = groceryListItems.itemCount,
+                        key = groceryListItems.itemKey(key = { it.id }),
+                        contentType = groceryListItems.itemContentType()
+                    ) { index ->
+                        val item = groceryListItems[index]
                         if (item != null) {
                             GroceryListItemContent(
                                 groceryListItem = item,
@@ -400,7 +424,7 @@ private fun GroceryListItemContent(
             onClick = onItemSearchPricesClick,
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.search_money_svgrepo_com),
+                painter = painterResource(id = R.drawable.ic_baseline_search_24),
                 contentDescription = stringResource(R.string.edit_grocery_list_item_search_prices),
                 tint = if (groceryListItem.isChecked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
             )

@@ -49,7 +49,7 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
         require(rowsDeleted == 1)
     }
 
-    override fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity> {
+    override fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity?> {
         return db.groceryListDao().getGroceryList(id.value).distinctUntilChanged()
     }
 
