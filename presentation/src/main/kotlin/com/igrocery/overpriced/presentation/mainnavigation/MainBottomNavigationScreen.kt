@@ -6,6 +6,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -53,9 +55,11 @@ fun MainBottomNavigationScreen(
     log.debug("Composing MainBottomNavigationScreen")
 
     val state by rememberMainBottomNavigationScreenState()
+    val groceryListLazyListState = rememberLazyListState()
     MainContent(
         viewModelState = mainBottomNavigationScreenViewModel,
         state = state,
+        groceryListLazyListState = groceryListLazyListState,
         navigateToSettings = navigateToSettings,
         navigateToEditGroceryList = navigateToEditGroceryList,
         navigateToNewPrice = navigateToNewPrice,
@@ -81,9 +85,8 @@ fun MainBottomNavigationScreen(
         mainBottomNavigationScreenViewModel.createNewGroceryListResultState
     LaunchedEffect(createNewGroceryListResult) {
         if (createNewGroceryListResult is LoadingState.Success) {
-            navigateToEditGroceryList(createNewGroceryListResult.data)
-            mainBottomNavigationScreenViewModel.createNewGroceryListResultState =
-                LoadingState.NotLoading()
+            // assume the newly created list is placed at the top
+            groceryListLazyListState.scrollToItem(0)
         }
     }
 
@@ -100,6 +103,7 @@ fun MainBottomNavigationScreen(
 private fun MainContent(
     viewModelState: MainBottomNavigationScreenViewModelState,
     state: MainBottomNavigationScreenStateHolder,
+    groceryListLazyListState: LazyListState,
     navigateToSettings: () -> Unit,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
     navigateToNewPrice: () -> Unit,
@@ -262,6 +266,7 @@ private fun MainContent(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     mainBottomNavigationState = { state },
                     topBarScrollBehavior = topBarScrollBehavior,
+                    lazyListState = groceryListLazyListState,
                     navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(
@@ -305,6 +310,7 @@ private fun DefaultPreview() {
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        rememberLazyListState(),
         navigateToSettings = {},
         navigateToEditGroceryList = {},
         navigateToNewPrice = {},

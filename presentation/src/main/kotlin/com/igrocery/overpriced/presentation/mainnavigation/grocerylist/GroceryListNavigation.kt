@@ -1,6 +1,7 @@
 package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,6 +24,7 @@ fun NavGraphBuilder.groceryListScreen(
     previousBackStackEntry: () -> NavBackStackEntry,
     mainBottomNavigationState: () -> MainBottomNavigationScreenStateHolder,
     topBarScrollBehavior: TopAppBarScrollBehavior,
+    lazyListState: LazyListState,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
 ) {
     composable(GroceryList) {
@@ -31,6 +33,7 @@ fun NavGraphBuilder.groceryListScreen(
 
         GroceryListScreen(
             topBarScrollBehavior = topBarScrollBehavior,
+            lazyListState = lazyListState,
             mainBottomNavigationState = mainBottomNavigationState(),
             groceryListScreenViewModel = groceryListScreenViewModel,
             navigateToEditGroceryList = navigateToEditGroceryList

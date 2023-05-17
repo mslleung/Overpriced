@@ -19,7 +19,7 @@ internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
 
     @Query(
         """
-            SELECT grocery_lists.*, Count(grocery_list_items.grocery_list_id) AS itemCount
+            SELECT grocery_lists.*, Count(grocery_list_items.grocery_list_id) AS totalItemCount
             FROM grocery_lists LEFT JOIN grocery_list_items 
                 ON grocery_lists.id = grocery_list_items.grocery_list_id
             GROUP BY grocery_lists.id
@@ -34,7 +34,8 @@ internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
 
     data class GroceryListWithItemCount(
         @Embedded val groceryListRoomEntity: GroceryListRoomEntity,
-        val itemCount: Int
+        val checkedItemCount: Int,
+        val totalItemCount: Int
     )
 
 }

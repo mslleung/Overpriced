@@ -3,6 +3,8 @@ package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +24,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
-import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
@@ -44,6 +45,7 @@ private val log = Logger { }
 @Composable
 fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
+    lazyListState: LazyListState,
     mainBottomNavigationState: MainBottomNavigationScreenStateHolder,
     groceryListScreenViewModel: GroceryListScreenViewModel,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
@@ -56,6 +58,7 @@ fun GroceryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
+        lazyListState = lazyListState,
         onNewGroceryListClick = {
             mainBottomNavigationState.isGroceryListNameDialogShown = true
         },
@@ -70,6 +73,7 @@ private fun MainContent(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: GroceryListScreenViewModelState,
     state: GroceryListScreenStateHolder,
+    lazyListState: LazyListState,
     onNewGroceryListClick: () -> Unit,
     onGroceryListClick: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier
@@ -93,6 +97,7 @@ private fun MainContent(
                 )
             } else {
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier
                         .padding(scaffoldPaddings)
                         .fillMaxSize()
@@ -247,6 +252,7 @@ private fun DefaultPreview() {
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = GroceryListScreenStateHolder(),
+        lazyListState = rememberLazyListState(),
         onNewGroceryListClick = {},
         onGroceryListClick = {}
     )
