@@ -19,7 +19,9 @@ internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
 
     @Query(
         """
-            SELECT grocery_lists.*, Count(grocery_list_items.grocery_list_id) AS totalItemCount
+            SELECT grocery_lists.*,
+                COUNT(CASE WHEN grocery_list_items.is_checked = 1 THEN 1 ELSE NULL END) AS checkedItemCount,
+                COUNT(grocery_list_items.grocery_list_id) AS totalItemCount
             FROM grocery_lists LEFT JOIN grocery_list_items 
                 ON grocery_lists.id = grocery_list_items.grocery_list_id
             GROUP BY grocery_lists.id

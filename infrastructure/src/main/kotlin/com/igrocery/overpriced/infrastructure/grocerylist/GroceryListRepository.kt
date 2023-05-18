@@ -65,7 +65,8 @@ class GroceryListRepository @Inject internal constructor(
                 ).map {
                     GroceryListWithItemCount(
                         it.groceryListRoomEntity.toDomain(),
-                        it.itemCount
+                        it.checkedItemCount,
+                        it.totalItemCount
                     )
                 }
             },

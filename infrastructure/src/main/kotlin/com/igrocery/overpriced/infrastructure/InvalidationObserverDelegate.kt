@@ -22,7 +22,7 @@ internal class InvalidationObserverDelegate(
     private val invalidationObserver = object : InvalidationTracker.Observer(firstTable, *remainingTables) {
 
         override fun onInvalidated(tables: Set<String>) {
-            log.error("Tables invalidated: $tables")
+            log.error("Tables invalidated: $tables, notifying ${weakInvalidationObservers.size} observers.")
             weakInvalidationObservers.let { observers ->    // use let{} to prevent concurrent modifications
                 observers.forEach {
                     it.get()?.onInvalidate()

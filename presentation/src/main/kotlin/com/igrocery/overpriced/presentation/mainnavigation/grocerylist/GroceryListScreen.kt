@@ -210,12 +210,18 @@ private fun GroceryListContent(
                 )
             }
 
-            Text(
-                text = pluralStringResource(
+            val itemCountString = if (groceryListWithItemCount.totalItemCount == 0) {
+                stringResource(id = R.string.grocery_lists_item_count_empty)
+            } else {
+                pluralStringResource(
                     id = R.plurals.grocery_lists_item_count,
-                    count = groceryListWithItemCount.itemCount,
-                    groceryListWithItemCount.itemCount
-                ),
+                    count = groceryListWithItemCount.totalItemCount,
+                    groceryListWithItemCount.checkedItemCount,
+                    groceryListWithItemCount.totalItemCount
+                )
+            }
+            Text(
+                text = itemCountString,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium,
@@ -241,7 +247,8 @@ private fun DefaultPreview() {
                 listOf(
                     GroceryListWithItemCount(
                         groceryList = GroceryList(name = "Grocery list 1"),
-                        itemCount = 5
+                        checkedItemCount = 5,
+                        totalItemCount = 9
                     )
                 )
             )
