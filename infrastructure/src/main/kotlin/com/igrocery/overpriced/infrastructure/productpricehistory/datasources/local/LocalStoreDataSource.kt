@@ -1,9 +1,9 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.infrastructure.AppDatabase
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.StoreDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
 import com.igrocery.overpriced.shared.Logger
@@ -21,12 +21,6 @@ private val log = Logger { }
 internal class LocalStoreDataSource @Inject constructor(
     private val db: AppDatabase,
 ) : ILocalStoreDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "stores")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: StoreRoomEntity): StoreId {
         val time = Clock.System.now().toEpochMilliseconds()
@@ -54,21 +48,17 @@ internal class LocalStoreDataSource @Inject constructor(
         require(rowsDeleted == 1)
     }
 
-    override suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity> {
-        return db.storeDao().getStoresPaging(offset, pageSize)
+    override fun getStoresPaging(): PagingSource<Int, StoreRoomEntity> {
+        return db.storeDao().getStoresPaging()
     }
 
-    override suspend fun getStoresWithMinMaxPricesPaging(
+    override fun getStoresWithMinMaxPricesPaging(
         productId: ProductId,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<StoreDao.StoreWithMinMaxPrices> {
+    ): PagingSource<Int, StoreDao.StoreWithMinMaxPrices> {
         return db.storeDao().getStoresWithMinMaxPricesPaging(
             productId.value,
             currency.currencyCode,
-            offset,
-            pageSize
         )
     }
 

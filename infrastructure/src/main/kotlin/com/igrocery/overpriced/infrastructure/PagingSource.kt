@@ -2,69 +2,42 @@ package com.igrocery.overpriced.infrastructure
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 
-internal open class SimplePagingSource<T : Any> constructor(
-    private val ioDispatcher: CoroutineDispatcher,
-    private val pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>,
-    observedDataSources: List<IBaseLocalDataSource<*, *>>,
-    private val onDataSourcesInvalidated: PagingSource<Int, T>.() -> Unit = { invalidate() }
-) : PagingSource<Int, T>(), InvalidationObserverDelegate.InvalidationObserver {
+internal class MappedPagingSource<DomainT : Any, DataT : Any>(
+    private val dataPagingSource: PagingSource<Int, DataT>,
+    private val mapper: (DataT) -> DomainT
+) : PagingSource<Int, DomainT>() {
 
     init {
-        observedDataSources.forEach {
-            it.addInvalidationObserver(this)
+        dataPagingSource.registerInvalidatedCallback {
+            invalidate()
         }
     }
 
-    override fun onInvalidate() {
-        onDataSourcesInvalidated(this)
-    }
-
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
-        return withContext(ioDispatcher) {
-            try {
-                val pageNumber = params.key ?: 1
-                val offset = (pageNumber - 1) * params.loadSize // all the previous pages
-                val pageData = pageDataCreator(offset, params.loadSize)
-                LoadResult.Page(
-                    data = pageData,
-                    prevKey = if (pageNumber <= 1) null else pageNumber - 1,
-                    nextKey = if (pageData.isEmpty()) null else pageNumber + 1
-                )
-            } catch (e: Exception) {
-                LoadResult.Error(e)
-            }
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DomainT> {
+        return when (val dataResult = dataPagingSource.load(params)) {
+            is LoadResult.Error -> LoadResult.Error(dataResult.throwable)
+            is LoadResult.Invalid -> LoadResult.Invalid()
+            is LoadResult.Page -> LoadResult.Page(
+                data = dataResult.data.map(mapper),
+                prevKey = dataResult.prevKey,
+                nextKey = dataResult.nextKey,
+            )
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, T>): Int? {
-        // Try to find the page key of the closest page to anchorPosition, from
-        // either the prevKey or the nextKey, but you need to handle nullability
-        // here:
-        //  * prevKey == null -> anchorPage is the first page.
-        //  * nextKey == null -> anchorPage is the last page.
-        //  * both prevKey and nextKey null -> anchorPage is the initial page, so
-        //    just return null.
-        return state.anchorPosition?.let { anchorPosition ->
-            val anchorPage = state.closestPageToPosition(anchorPosition)
-            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-        }
+    override fun getRefreshKey(state: PagingState<Int, DomainT>): Int? {
+        return dataPagingSource.getRefreshKey(
+            PagingState(
+                pages = emptyList(),
+                leadingPlaceholderCount = 0,
+                anchorPosition = state.anchorPosition,
+                config = state.config,
+            )
+        )
     }
 
-}
+    override val jumpingSupported = dataPagingSource.jumpingSupported
 
-internal fun <T : Any> createSimplePagingSource(
-    ioDispatcher: CoroutineDispatcher,
-    pageDataCreator: suspend (offset: Int, loadSize: Int) -> List<T>,
-    observedDataSources: List<IBaseLocalDataSource<*, *>>,
-    onDataSourcesInvalidated: PagingSource<Int, T>.() -> Unit = { invalidate() }
-): SimplePagingSource<T> {
-    return SimplePagingSource(
-        ioDispatcher,
-        pageDataCreator,
-        observedDataSources,
-        onDataSourcesInvalidated
-    )
+    override val keyReuseSupported = dataPagingSource.keyReuseSupported
 }

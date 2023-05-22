@@ -1,10 +1,10 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
 import com.igrocery.overpriced.infrastructure.AppDatabase
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.ProductDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.ProductRoomEntity
 import com.igrocery.overpriced.shared.Logger
@@ -22,12 +22,6 @@ private val log = Logger { }
 internal class LocalProductDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalProductDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "products")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: ProductRoomEntity): ProductId {
         val time = Clock.System.now().toEpochMilliseconds()
@@ -55,8 +49,8 @@ internal class LocalProductDataSource @Inject internal constructor(
         require(rowsDeleted == 1)
     }
 
-    override suspend fun getProductsPaging(offset: Int, pageSize: Int): List<ProductRoomEntity> {
-        return db.productDao().getProductsPaging(offset, pageSize)
+    override fun getProductsPaging(): PagingSource<Int, ProductRoomEntity> {
+        return db.productDao().getProductsPaging()
     }
 
     override fun getProduct(productId: ProductId): Flow<ProductRoomEntity> {
@@ -72,38 +66,26 @@ internal class LocalProductDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override suspend fun searchProductsPaging(
+    override fun searchProductsPaging(
         query: String,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductRoomEntity> {
+    ): PagingSource<Int, ProductRoomEntity> {
         return db.productDao().searchProductsPaging(
-            query,
-            offset,
-            pageSize
+            query
         )
     }
 
-    override suspend fun searchProductsWithMinMaxPricesPaging(
+    override fun searchProductsWithMinMaxPricesPaging(
         query: String,
-        currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductDao.ProductWithMinMaxPrices> {
+        currency: Currency
+    ): PagingSource<Int, ProductDao.ProductWithMinMaxPrices> {
         return db.productDao().searchProductsWithMinMaxPricesPaging(
             query,
-            currency.currencyCode,
-            offset,
-            pageSize
+            currency.currencyCode
         )
     }
 
-    override suspend fun getProductPaging(
-        categoryId: CategoryId?,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductRoomEntity> {
-        return db.productDao().getProductPaging(categoryId?.value, offset, pageSize)
+    override fun getProductPaging(categoryId: CategoryId?): PagingSource<Int, ProductRoomEntity> {
+        return db.productDao().getProductPaging(categoryId?.value)
     }
 
     override fun getProductWithMinMaxPrices(
@@ -116,17 +98,13 @@ internal class LocalProductDataSource @Inject internal constructor(
         )
     }
 
-    override suspend fun getProductsWithMinMaxPricesPaging(
+    override fun getProductsWithMinMaxPricesPaging(
         categoryId: CategoryId?,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductDao.ProductWithMinMaxPrices> {
+    ): PagingSource<Int, ProductDao.ProductWithMinMaxPrices> {
         return db.productDao().getProductsWithMinMaxPricesPaging(
             categoryId?.value,
             currency.currencyCode,
-            offset,
-            pageSize
         )
     }
 }

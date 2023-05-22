@@ -1,12 +1,10 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.infrastructure.AppDatabase
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
-import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListItemRoomEntity
-import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,12 +13,6 @@ import javax.inject.Singleton
 internal class LocalGroceryListItemDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalGroceryListItemDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "grocery_list_items")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: GroceryListItemRoomEntity): GroceryListItemId {
         val time = Clock.System.now().toEpochMilliseconds()
@@ -48,16 +40,8 @@ internal class LocalGroceryListItemDataSource @Inject internal constructor(
         require(rowsDeleted == 1)
     }
 
-    override suspend fun getAllGroceryListItemsPaging(
-        groceryListId: GroceryListId,
-        offset: Int,
-        pageSize: Int
-    ): List<GroceryListItemRoomEntity> {
-        return db.groceryListItemDao().getAllGroceryListItemsPaging(
-            groceryListId.value,
-            offset,
-            pageSize
-        )
+    override fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItemRoomEntity> {
+        return db.groceryListItemDao().getAllGroceryListItemsPaging(groceryListId.value)
     }
 
 }

@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Query
@@ -11,8 +12,8 @@ import java.util.*
 @Dao
 internal interface StoreDao: BaseDao<StoreRoomEntity> {
 
-    @Query("SELECT * FROM stores ORDER BY name, creation_timestamp LIMIT :pageSize OFFSET :offset")
-    suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity>
+    @Query("SELECT * FROM stores ORDER BY name, creation_timestamp")
+    fun getStoresPaging(): PagingSource<Int, StoreRoomEntity>
 
     @Query("SELECT * FROM stores WHERE id = :id")
     fun getStoreById(id: Long) : Flow<StoreRoomEntity>
@@ -31,15 +32,12 @@ internal interface StoreDao: BaseDao<StoreRoomEntity> {
             WHERE price_records.product_id = :productId AND price_records.currency = :currency
             GROUP BY stores.id
             ORDER BY stores.name, stores.address_lines
-            LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getStoresWithMinMaxPricesPaging(
+    fun getStoresWithMinMaxPricesPaging(
         productId: Long,
         currency: String,
-        offset: Int,
-        pageSize: Int
-    ): List<StoreWithMinMaxPrices>
+    ): PagingSource<Int, StoreWithMinMaxPrices>
 
     data class StoreWithMinMaxPrices(
         @Embedded val storeRoomEntity: StoreRoomEntity,

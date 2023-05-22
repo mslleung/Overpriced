@@ -1,11 +1,11 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Query
 import com.igrocery.overpriced.infrastructure.BaseDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.StoreRoomEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -26,13 +26,9 @@ internal interface GroceryListDao : BaseDao<GroceryListRoomEntity> {
                 ON grocery_lists.id = grocery_list_items.grocery_list_id
             GROUP BY grocery_lists.id
             ORDER BY grocery_lists.update_timestamp DESC
-            LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getGroceryListsWithItemCountPaging(
-        offset: Int,
-        pageSize: Int
-    ): List<GroceryListWithItemCount>
+    fun getGroceryListsWithItemCountPaging(): PagingSource<Int, GroceryListWithItemCount>
 
     data class GroceryListWithItemCount(
         @Embedded val groceryListRoomEntity: GroceryListRoomEntity,

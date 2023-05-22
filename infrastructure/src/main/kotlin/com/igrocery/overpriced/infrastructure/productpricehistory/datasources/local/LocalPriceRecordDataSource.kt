@@ -1,10 +1,10 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.PriceRecordId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.infrastructure.AppDatabase
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.PriceRecordRoomEntity
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.Flow
@@ -21,12 +21,6 @@ private val log = Logger { }
 internal class LocalPriceRecordDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalPriceRecordDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "price_records")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: PriceRecordRoomEntity): PriceRecordId {
         val time = Clock.System.now().toEpochMilliseconds()
@@ -59,21 +53,16 @@ internal class LocalPriceRecordDataSource @Inject internal constructor(
             .distinctUntilChanged()
     }
 
-    override suspend fun getPriceRecordsPaging(
+    override fun getPriceRecordsPaging(
         productId: ProductId,
         storeId: StoreId,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<PriceRecordRoomEntity> {
-        return db.priceRecordDao()
-            .getPriceRecordsPaging(
-                productId.value,
-                storeId.value,
-                currency.currencyCode,
-                offset,
-                pageSize
-            )
+    ): PagingSource<Int, PriceRecordRoomEntity> {
+        return db.priceRecordDao().getPriceRecordsPaging(
+            productId.value,
+            storeId.value,
+            currency.currencyCode,
+        )
     }
 
 }

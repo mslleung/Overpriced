@@ -4,14 +4,12 @@ import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.GroceryListItemId
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
+import com.igrocery.overpriced.infrastructure.MappedPagingSource
 import com.igrocery.overpriced.infrastructure.Transaction
-import com.igrocery.overpriced.infrastructure.createSimplePagingSource
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule
-import com.igrocery.overpriced.infrastructure.di.IoDispatcher
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.ILocalGroceryListItemDataSource
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.toDomain
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +17,6 @@ import javax.inject.Singleton
 class GroceryListItemRepository @Inject internal constructor(
     @DataSourceModule.LocalDataSource private val localGroceryListItemDataSource: ILocalGroceryListItemDataSource,
     private val transaction: Transaction,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IGroceryListItemRepository {
 
     override suspend fun insert(item: GroceryListItem): GroceryListItemId {
@@ -41,16 +38,11 @@ class GroceryListItemRepository @Inject internal constructor(
     }
 
     override fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {
-        return createSimplePagingSource(
-            ioDispatcher = ioDispatcher,
-            pageDataCreator = { offset, loadSize ->
-                localGroceryListItemDataSource.getAllGroceryListItemsPaging(
-                    groceryListId,
-                    offset,
-                    loadSize
-                ).map { it.toDomain() }
-            },
-            observedDataSources = listOf(localGroceryListItemDataSource),
+        return MappedPagingSource(
+            dataPagingSource = localGroceryListItemDataSource.getAllGroceryListItemsPaging(
+                groceryListId
+            ),
+            mapper = { it.toDomain() }
         )
     }
 
