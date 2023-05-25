@@ -96,7 +96,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     // android core UI
-    val composeVersion = "1.5.0-alpha04"
+    val composeVersion = "1.5.0-beta01"
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-rc01")
