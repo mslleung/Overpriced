@@ -102,9 +102,9 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0-rc01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.2.0-alpha01")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha02")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.activity:activity-compose:1.7.1")
+    implementation("androidx.activity:activity-compose:1.7.2")
 
     val lifecycleVersion = "2.6.1"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
@@ -125,7 +125,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha19")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha20")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
