@@ -34,10 +34,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.shared.LoadingState
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -103,6 +106,7 @@ fun StoreGoogleMap(
         }
 
         val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             properties = state.mapProperties.copy(
@@ -119,21 +123,34 @@ fun StoreGoogleMap(
                 tiltGesturesEnabled = false,
                 zoomControlsEnabled = false
             ),
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            onPOIClick = {
+                coroutineScope.launch {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLng(it.latLng)
+                    )
+                }
+                state.focusedPOI = it
+            },
         ) {
+            state.focusedPOI?.let {
+                Marker(state = MarkerState(it.latLng))
+            }
+
             content()
         }
 
-        val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(key1 = Unit) {
             snapshotFlow { cameraPositionState.position }
                 .map { cameraPosition -> cameraPosition.target }
+                .distinctUntilChanged()
                 .collectLatest { latLng ->
                     state.geocoderJob?.cancel()
                     state.geocoderJob = coroutineScope.launch {
                         state.resolveAddress(latLng)
                     }
 
+//                    state.focusedPOI = null
                     onCameraPositionChanged(latLng)
                 }
         }
@@ -156,15 +173,17 @@ fun StoreGoogleMap(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_baseline_place_24),
-                contentDescription = stringResource(id = R.string.store_map_selected_location_image_content_description),
-                modifier = Modifier
-                    .padding(bottom = 48.dp)
-                    .size(48.dp),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-            )
+            if (state.focusedPOI == null) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_place_24),
+                    contentDescription = stringResource(id = R.string.store_map_selected_location_image_content_description),
+                    modifier = Modifier
+                        .padding(bottom = 48.dp)
+                        .size(48.dp),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                )
+            }
         }
 
         Box(

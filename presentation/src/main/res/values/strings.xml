@@ -199,6 +199,7 @@
     <string name="add_grocery_list_item_dialog_item_description">Item description (optional)</string>
     <string name="add_grocery_list_item_dialog_confirm_button_text">Confirm</string>
     <string name="add_grocery_list_item_dialog_dismiss_button_text">Cancel</string>
+    <string name="edit_grocery_list_item_dialog_title">Edit Item</string>
 
     <string name="edit_grocery_list_default_name">Untitled List</string>
     <string name="edit_grocery_list_delete_action">Delete</string>

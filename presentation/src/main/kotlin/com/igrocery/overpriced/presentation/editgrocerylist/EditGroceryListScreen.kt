@@ -107,6 +107,9 @@ fun EditGroceryListScreen(
         val groceryListItemDialogState by rememberGroceryListItemDialogState()
         GroceryListItemDialog(
             state = groceryListItemDialogState,
+            title = {
+                Text(text = stringResource(id = R.string.add_grocery_list_item_dialog_title))
+            },
             onConfirm = {
                 state.isAddGroceryListItemDialogShown = false
                 editGroceryListViewModel.addItem(
@@ -125,6 +128,9 @@ fun EditGroceryListScreen(
         )
         GroceryListItemDialog(
             state = groceryListItemDialogState,
+            title = {
+                Text(text = stringResource(id = R.string.edit_grocery_list_item_dialog_title))
+            },
             onConfirm = {
                 state.editingGroceryListItem = null
                 editGroceryListViewModel.updateItem(

@@ -36,6 +36,7 @@ private val log = Logger { }
 @Composable
 fun GroceryListItemDialog(
     state: GroceryListItemDialogStateHolder,
+    title: @Composable () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -56,9 +57,7 @@ fun GroceryListItemDialog(
                 Text(text = stringResource(id = R.string.add_grocery_list_item_dialog_dismiss_button_text))
             }
         },
-        title = {
-            Text(text = stringResource(id = R.string.add_grocery_list_item_dialog_title))
-        },
+        title = title,
         text = {
             Column(
                 modifier = Modifier
