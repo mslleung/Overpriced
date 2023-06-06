@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -29,9 +30,9 @@ import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
-import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
@@ -87,7 +88,7 @@ private fun MainContent(
     ) { scaffoldPaddings ->
         val groceryListsWithItemCount =
             viewModelState.groceryListsWithItemCountFlow.collectAsLazyPagingItems()
-        if (groceryListsWithItemCount.isInitialLoadCompleted()) {
+        if (groceryListsWithItemCount.loadState.refresh is LoadState.NotLoading) {
             if (groceryListsWithItemCount.itemCount == 0) {
                 EmptyContent(
                     onNewGroceryListClick = onNewGroceryListClick,

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -152,7 +153,7 @@ private fun MainContent(
         val productsPagingItems =
             viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
         val currency by viewModelState.currencyFlow.collectAsState()
-        if (productsPagingItems.isInitialLoadCompleted()) {
+        if (productsPagingItems.loadState.refresh is LoadState.NotLoading) {
             if (productsPagingItems.itemCount == 0) {
                 val scrollState = rememberScrollState()
                 EmptyListContent(

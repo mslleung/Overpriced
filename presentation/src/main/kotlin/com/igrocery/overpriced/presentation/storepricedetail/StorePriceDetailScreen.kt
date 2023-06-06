@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -156,7 +157,7 @@ private fun MainContent(
                         )
                     }
 
-                    if (priceRecords.isInitialLoadCompleted()) {
+                    if (priceRecords.loadState.refresh is LoadState.NotLoading) {
                         // we just show 10 points for now, note that the pager loads 100 * 3 items initially
                         val lineDataList = mutableListOf<LineData>()
                         val numOfDataPoints = priceRecords.itemCount.coerceAtMost(10)
