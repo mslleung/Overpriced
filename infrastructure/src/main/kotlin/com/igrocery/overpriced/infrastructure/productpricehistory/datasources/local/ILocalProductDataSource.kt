@@ -18,7 +18,7 @@ internal interface ILocalProductDataSource : IBaseLocalDataSource<ProductId, Pro
 
     fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<ProductRoomEntity?>
 
     fun searchProductsPaging(query: String): PagingSource<Int, ProductRoomEntity>

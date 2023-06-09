@@ -193,6 +193,7 @@ private fun MainContent(
                             item = item,
                             currency = currency,
                             onClick = onProductClick,
+                            onLongClick = {},
                             modifier = Modifier
                                 .animateItemPlacement()
                                 .fillMaxWidth()
@@ -275,7 +276,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                                quantity = "1 pound",
                                 categoryId = null
                             ),
                             minPrice = 5.0,

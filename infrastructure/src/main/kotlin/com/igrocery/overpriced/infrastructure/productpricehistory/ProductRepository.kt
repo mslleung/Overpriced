@@ -82,7 +82,7 @@ class ProductRepository @Inject internal constructor(
 
     override fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<Product?> {
         return localProductDataSource.getProduct(name, quantity)
             .map { it?.toDomain() }

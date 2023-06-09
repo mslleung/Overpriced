@@ -60,6 +60,9 @@ fun ProductListScreen(
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
         onProductClick = { navigateToProductDetail(it) },
+        onProductLongClick = {
+
+        },
         modifier = modifier
     )
 
@@ -78,6 +81,7 @@ private fun MainContent(
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onProductClick: (ProductId) -> Unit,
+    onProductLongClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -182,6 +186,7 @@ private fun MainContent(
                                 item = item,
                                 currency = currency,
                                 onClick = onProductClick,
+                                onLongClick = onProductLongClick,
                                 modifier = Modifier
                                     .animateItemPlacement()
                                     .fillMaxWidth()
@@ -212,17 +217,22 @@ private fun EmptyListContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductListItem(
     item: ProductWithMinMaxPrices,
     currency: LoadingState<Currency>,
     onClick: (ProductId) -> Unit,
+    onLongClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable { onClick(item.product.id) }
+            .combinedClickable(
+                onClick = { onClick(item.product.id) },
+                onLongClick = { onLongClick(item.product.id) },
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
@@ -240,7 +250,7 @@ fun ProductListItem(
             )
 
             Text(
-                text = product.quantity.getDisplayString(),
+                text = product.quantity,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
@@ -290,6 +300,7 @@ private fun EmptyPreview() {
         onSearchButtonClick = {},
         onEditButtonClick = {},
         onProductClick = {},
+        onProductLongClick = {}
     )
 }
 
@@ -308,7 +319,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                                quantity = "Bag of 8",
                                 categoryId = null
                             ),
                             minPrice = null,
@@ -327,5 +338,6 @@ private fun DefaultPreview() {
         onSearchButtonClick = {},
         onEditButtonClick = {},
         onProductClick = {},
+        onProductLongClick = {}
     )
 }

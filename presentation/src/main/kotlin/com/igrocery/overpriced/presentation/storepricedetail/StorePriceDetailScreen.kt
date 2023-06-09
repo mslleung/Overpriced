@@ -147,7 +147,7 @@ private fun MainContent(
                         )
 
                         Text(
-                            text = product.quantity.getDisplayString(),
+                            text = product.quantity,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodyMedium,
@@ -267,7 +267,7 @@ private fun DefaultPreview() {
             LoadingState.Success(
                 Product(
                     name = "Apple",
-                    quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                    quantity = "1 pound",
                     categoryId = null
                 )
             )

@@ -60,9 +60,9 @@ internal class LocalProductDataSource @Inject internal constructor(
 
     override fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<ProductRoomEntity?> {
-        return db.productDao().getProduct(name, quantity.amount, quantity.unit.name)
+        return db.productDao().getProduct(name, quantity)
             .distinctUntilChanged()
     }
 

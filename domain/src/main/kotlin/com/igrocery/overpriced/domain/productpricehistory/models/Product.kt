@@ -12,7 +12,7 @@ data class Product(
     override val creationTimestamp: Long = 0,
     override val updateTimestamp: Long = 0,
     val name: String,
-    val quantity: ProductQuantity,
+    val quantity: String,
     val categoryId: CategoryId?,
 ) : AggregateRoot(id, creationTimestamp, updateTimestamp), Parcelable {
 

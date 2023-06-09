@@ -160,7 +160,7 @@ private fun MainContent(
                     currencyLoadState.ifLoaded { currency ->
                         productWithPricesLoadState.ifLoaded { (product, minPrice, maxPrice) ->
                             Text(
-                                text = product.quantity.getDisplayString(),
+                                text = product.quantity,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 style = MaterialTheme.typography.bodyLarge,
                                 maxLines = 3,
@@ -331,7 +331,7 @@ private fun DefaultPreview() {
                     ProductWithMinMaxPrices(
                         product = Product(
                             name = "Apple",
-                            quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                            quantity = "1 pound",
                             categoryId = null
                         ),
                         minPrice = 5.0,
