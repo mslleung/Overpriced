@@ -18,7 +18,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
         ),
     ],
     indices = [
-        Index(value = ["name", "quantity_amount", "quantity_unit"], unique = true),
+        Index(value = ["name", "quantity"], unique = true),
         Index(value = ["category_id"]),
     ]
 )

@@ -96,7 +96,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     // android core UI
-    val composeVersion = "1.5.0-beta01"
+    val composeVersion = "1.5.0-beta02"
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-rc01")
@@ -116,7 +116,7 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.5.3"
+    val navigationVersion = "2.6.0"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")
@@ -125,7 +125,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha20")
+    implementation("androidx.paging:paging-compose:3.2.0-beta01")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -146,7 +146,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
-    implementation("com.github.skydoves:landscapist-glide:2.2.1")
+    implementation("com.github.skydoves:landscapist-glide:2.2.2")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
