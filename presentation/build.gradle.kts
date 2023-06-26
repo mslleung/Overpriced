@@ -136,7 +136,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.46.1")
 
     // accompanist
-    val accompanistVersion = "0.31.3-beta"
+    val accompanistVersion = "0.31.4-beta"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")

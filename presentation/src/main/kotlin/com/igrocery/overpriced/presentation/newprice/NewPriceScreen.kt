@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,14 +43,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
-import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
-import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.presentation.R
@@ -558,8 +556,7 @@ private fun ProductQuantityField(
                 value = text,
                 onValueChange = onTextChange,
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp),
+                    .weight(1f),
                 singleLine = true,
                 label = {
                     Text(text = stringResource(id = R.string.new_price_product_quantity_label))
