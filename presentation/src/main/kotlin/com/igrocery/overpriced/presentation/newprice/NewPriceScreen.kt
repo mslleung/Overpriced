@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -43,6 +42,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
@@ -412,9 +412,10 @@ private fun MainLayout(
                 ) {
                     LazyColumn {
                         items(
-                            items = productSuggestionsPagingItems,
-                            key = { product -> product.id }
-                        ) { product ->
+                            productSuggestionsPagingItems.itemCount,
+                            key = productSuggestionsPagingItems.itemKey { product -> product.id }
+                        ) { index ->
+                            val product = productSuggestionsPagingItems[index]
                             if (product != null) {
                                 ProductSuggestionListItem(
                                     query = state.productName,
@@ -556,7 +557,8 @@ private fun ProductQuantityField(
                 value = text,
                 onValueChange = onTextChange,
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .padding(end = 4.dp),
                 singleLine = true,
                 label = {
                     Text(text = stringResource(id = R.string.new_price_product_quantity_label))
