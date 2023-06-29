@@ -15,10 +15,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.R
@@ -99,7 +99,7 @@ fun MainBottomNavigationScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun MainContent(
     viewModelState: MainBottomNavigationScreenViewModelState,
     state: MainBottomNavigationScreenStateHolder,
@@ -114,7 +114,7 @@ private fun MainContent(
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
-    val bottomNavController = rememberAnimatedNavController()
+    val bottomNavController = rememberNavController()
 
     Scaffold(
         topBar = {
@@ -244,7 +244,7 @@ private fun MainContent(
         // transition animation.
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
-        AnimatedNavHost(
+        NavHost(
             navController = bottomNavController,
             startDestination = BottomNavRoute,
             enterTransition = {

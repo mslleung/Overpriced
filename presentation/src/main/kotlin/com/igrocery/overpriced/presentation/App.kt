@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.igrocery.overpriced.presentation.NavRoutes.SettingsRoute
 import com.igrocery.overpriced.presentation.editcategory.*
 import com.igrocery.overpriced.presentation.editgrocerylist.editGroceryListScreen
@@ -50,17 +50,16 @@ private object NavRoutes {
     const val SettingsRoute = "SettingsRoute"
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
 @Composable
 fun App() {
     AppTheme {
         // main app nav controller
-        val navController = rememberAnimatedNavController()
+        val navController = rememberNavController()
 
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
-        AnimatedNavHost(
+        NavHost(
             navController = navController,
             startDestination = MainBottomNavigation,
             enterTransition = {
