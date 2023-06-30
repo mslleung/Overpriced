@@ -125,8 +125,7 @@ class NewPriceScreenViewModel @Inject constructor(
 
     fun submitForm(
         productName: String,
-        productQuantityAmountText: String,
-        productQuantityUnit: ProductQuantityUnit,
+        productQuantity: String,
         productCategoryId: CategoryId?,
         priceAmountText: String,
         saleQuantity: SaleQuantity,
@@ -140,14 +139,13 @@ class NewPriceScreenViewModel @Inject constructor(
                 val existingProduct =
                     productService.getProduct(
                         productName,
-                        ProductQuantity(productQuantityAmountText.toDouble(), productQuantityUnit)
+                        productQuantity
                     ).first()
 
                 if (existingProduct == null) {
                     productService.createProductWithPriceRecord(
                         productName,
-                        productQuantityAmountText,
-                        productQuantityUnit,
+                        productQuantity,
                         productCategoryId,
                         priceAmountText,
                         saleQuantity,

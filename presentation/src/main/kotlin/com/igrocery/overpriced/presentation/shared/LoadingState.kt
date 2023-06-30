@@ -44,3 +44,8 @@ fun <T> LoadingState<T>.ifLoadFailed(content: @Composable (Throwable) -> Unit): 
     }
     return this
 }
+
+fun <T> LoadingState<T>.requireLoaded(): T {
+    require(this is LoadingState.Success)
+    return data;
+}

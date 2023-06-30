@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -22,14 +23,20 @@ private val log = Logger { }
 
 interface SearchProductScreenViewModelState {
     val currencyFlow: StateFlow<LoadingState<Currency>>
+    val queryFlow: StateFlow<String>
     val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
 }
 
+private const val KEY_QUERY = "KEY_QUERY"
+
 @HiltViewModel
 class SearchProductScreenViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val productService: ProductService,
     preferenceService: PreferenceService,
 ) : ViewModel(), SearchProductScreenViewModelState {
+
+    private val args = SearchProductScreenArgs(savedStateHandle)
 
     override val currencyFlow = preferenceService.getAppPreference()
         .map {
@@ -41,7 +48,11 @@ class SearchProductScreenViewModel @Inject constructor(
             initialValue = LoadingState.Loading()
         )
 
-    var query = ""
+    override val queryFlow = savedStateHandle.getStateFlow(KEY_QUERY, args.query)
+
+    fun updateQuery(query: String) {
+        savedStateHandle[KEY_QUERY] = query
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val productsWithMinMaxPricesPagingDataFlow =
@@ -53,7 +64,7 @@ class SearchProductScreenViewModel @Inject constructor(
                 )
             ) {
                 productService.searchProductsWithMinMaxPricesPaging(
-                    "$query*",
+                    "${queryFlow.value}*",
                     it.preferredCurrency
                 )
             }.flow

@@ -15,9 +15,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.himanshoe.charty.line.LineChart
 import com.himanshoe.charty.line.config.LineConfig
 import com.himanshoe.charty.line.model.LineData
@@ -117,12 +119,12 @@ private fun MainContent(
             )
         },
         modifier = modifier
-    ) {
+    ) { scaffoldPadding ->
         val priceRecords =
             viewModelState.priceRecordsPagingDataFlow.collectAsLazyPagingItems()
         LazyColumn(
             modifier = Modifier
-                .padding(it)
+                .padding(scaffoldPadding)
                 .fillMaxSize()
                 .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
         ) {
@@ -145,7 +147,7 @@ private fun MainContent(
                         )
 
                         Text(
-                            text = product.quantity.getDisplayString(),
+                            text = product.quantity,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodyMedium,
@@ -155,7 +157,7 @@ private fun MainContent(
                         )
                     }
 
-                    if (priceRecords.isInitialLoadCompleted()) {
+                    if (priceRecords.loadState.refresh is LoadState.NotLoading) {
                         // we just show 10 points for now, note that the pager loads 100 * 3 items initially
                         val lineDataList = mutableListOf<LineData>()
                         val numOfDataPoints = priceRecords.itemCount.coerceAtMost(10)
@@ -186,9 +188,11 @@ private fun MainContent(
             }
 
             items(
-                items = priceRecords,
-                key = { priceRecord -> priceRecord.id }
-            ) { priceRecord ->
+                count = priceRecords.itemCount,
+                key = priceRecords.itemKey(key = { it.id }),
+                contentType = priceRecords.itemContentType()
+            ) { index ->
+                val priceRecord = priceRecords[index]
                 if (priceRecord != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -263,7 +267,7 @@ private fun DefaultPreview() {
             LoadingState.Success(
                 Product(
                     name = "Apple",
-                    quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                    quantity = "1 pound",
                     categoryId = null
                 )
             )

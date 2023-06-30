@@ -4,5 +4,6 @@ import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 
 data class GroceryListWithItemCount(
     val groceryList: GroceryList,
-    val itemCount: Int
+    val checkedItemCount: Int,
+    val totalItemCount: Int
 )

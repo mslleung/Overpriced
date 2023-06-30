@@ -93,18 +93,18 @@ dependencies {
     implementation(project(":application"))
     implementation(project(":domain"))
     implementation(project(":shared"))
-    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 
     // android core UI
-    val composeVersion = "1.5.0-alpha02"
-    implementation("androidx.core:core-ktx:1.10.0")
+    val composeVersion = "1.5.0-beta02"
+    implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-rc01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.1.0-beta02")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha02")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.activity:activity-compose:1.7.0")
+    implementation("androidx.activity:activity-compose:1.7.2")
 
     val lifecycleVersion = "2.6.1"
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
@@ -116,7 +116,7 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.5.3"
+    val navigationVersion = "2.6.0"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")
@@ -125,18 +125,18 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
+    implementation("androidx.paging:paging-compose:3.2.0-beta01")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.45")
+    implementation("com.google.dagger:hilt-android:2.46.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    kapt("com.google.dagger:hilt-android-compiler:2.45")
+    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
 
     // accompanist
-    val accompanistVersion = "0.31.0-alpha"
+    val accompanistVersion = "0.31.4-beta"
     implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
@@ -146,7 +146,7 @@ dependencies {
     // glide
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
-    implementation("com.github.skydoves:landscapist-glide:2.1.11")
+    implementation("com.github.skydoves:landscapist-glide:2.2.2")
 
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")

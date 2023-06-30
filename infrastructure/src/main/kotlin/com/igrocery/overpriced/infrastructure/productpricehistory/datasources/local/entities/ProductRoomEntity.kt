@@ -18,7 +18,7 @@ import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
         ),
     ],
     indices = [
-        Index(value = ["name", "quantity_amount", "quantity_unit"], unique = true),
+        Index(value = ["name", "quantity"], unique = true),
         Index(value = ["category_id"]),
     ]
 )
@@ -32,10 +32,8 @@ internal data class ProductRoomEntity(
 
     @ColumnInfo(name = "name")
     val name: String,
-    @ColumnInfo(name = "quantity_amount")
-    val quantityAmount: Double,
-    @ColumnInfo(name = "quantity_unit")
-    val quantityUnit: String,
+    @ColumnInfo(name = "quantity")
+    val quantity: String,
     @ColumnInfo(name = "category_id")
     val categoryId: Long?,
 )
@@ -50,7 +48,7 @@ internal fun ProductRoomEntity.toDomain(): Product {
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
-        quantity = ProductQuantity(quantityAmount, ProductQuantityUnit.valueOf(quantityUnit)),
+        quantity = quantity,
         categoryId = categoryId?.let { CategoryId(categoryId) }
     )
 }
@@ -61,8 +59,7 @@ internal fun Product.toData(): ProductRoomEntity {
         creationTimestamp = creationTimestamp,
         updateTimestamp = updateTimestamp,
         name = name,
-        quantityAmount = quantity.amount,
-        quantityUnit = quantity.unit.name,
+        quantity = quantity,
         categoryId = categoryId?.value,
     )
 }

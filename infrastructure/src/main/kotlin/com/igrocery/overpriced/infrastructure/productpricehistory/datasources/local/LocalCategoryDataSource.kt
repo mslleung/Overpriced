@@ -2,7 +2,6 @@ package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.l
 
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.infrastructure.AppDatabase
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.daos.CategoryDao
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.CategoryRoomEntity
 import kotlinx.coroutines.flow.Flow
@@ -14,12 +13,6 @@ import javax.inject.Singleton
 internal class LocalCategoryDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ): ILocalCategoryDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "categories")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: CategoryRoomEntity): CategoryId {
         val time = Clock.System.now().toEpochMilliseconds()

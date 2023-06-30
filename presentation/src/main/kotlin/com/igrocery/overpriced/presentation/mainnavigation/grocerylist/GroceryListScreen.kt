@@ -3,6 +3,8 @@ package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,17 +20,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.presentation.R
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
+import com.igrocery.overpriced.presentation.shared.LoadingState
 import com.igrocery.overpriced.presentation.shared.UseDefaultBottomNavBarColourForSystemNavBarColor
 import com.igrocery.overpriced.presentation.shared.UseDefaultStatusBarColor
-import com.igrocery.overpriced.presentation.shared.isInitialLoadCompleted
 import com.igrocery.overpriced.shared.Logger
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Instant
@@ -42,6 +46,7 @@ private val log = Logger { }
 @Composable
 fun GroceryListScreen(
     topBarScrollBehavior: TopAppBarScrollBehavior,
+    lazyListState: LazyListState,
     mainBottomNavigationState: MainBottomNavigationScreenStateHolder,
     groceryListScreenViewModel: GroceryListScreenViewModel,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
@@ -54,6 +59,7 @@ fun GroceryListScreen(
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = groceryListScreenViewModel,
         state = state,
+        lazyListState = lazyListState,
         onNewGroceryListClick = {
             mainBottomNavigationState.isGroceryListNameDialogShown = true
         },
@@ -68,6 +74,7 @@ private fun MainContent(
     topBarScrollBehavior: TopAppBarScrollBehavior,
     viewModelState: GroceryListScreenViewModelState,
     state: GroceryListScreenStateHolder,
+    lazyListState: LazyListState,
     onNewGroceryListClick: () -> Unit,
     onGroceryListClick: (GroceryListId) -> Unit,
     modifier: Modifier = Modifier
@@ -81,7 +88,7 @@ private fun MainContent(
     ) { scaffoldPaddings ->
         val groceryListsWithItemCount =
             viewModelState.groceryListsWithItemCountFlow.collectAsLazyPagingItems()
-        if (groceryListsWithItemCount.isInitialLoadCompleted()) {
+        if (groceryListsWithItemCount.loadState.refresh is LoadState.NotLoading) {
             if (groceryListsWithItemCount.itemCount == 0) {
                 EmptyContent(
                     onNewGroceryListClick = onNewGroceryListClick,
@@ -91,15 +98,18 @@ private fun MainContent(
                 )
             } else {
                 LazyColumn(
+                    state = lazyListState,
                     modifier = Modifier
                         .padding(scaffoldPaddings)
                         .fillMaxSize()
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
-                        items = groceryListsWithItemCount,
-                        key = { it.groceryList.id }
-                    ) { item ->
+                        count = groceryListsWithItemCount.itemCount,
+                        key = groceryListsWithItemCount.itemKey(key = { it.groceryList.id }),
+                        contentType = groceryListsWithItemCount.itemContentType()
+                    ) { index ->
+                        val item = groceryListsWithItemCount[index]
                         if (item != null) {
                             GroceryListContent(
                                 groceryListWithItemCount = item,
@@ -201,12 +211,18 @@ private fun GroceryListContent(
                 )
             }
 
-            Text(
-                text = pluralStringResource(
+            val itemCountString = if (groceryListWithItemCount.totalItemCount == 0) {
+                stringResource(id = R.string.grocery_lists_item_count_empty)
+            } else {
+                pluralStringResource(
                     id = R.plurals.grocery_lists_item_count,
-                    count = groceryListWithItemCount.itemCount,
-                    groceryListWithItemCount.itemCount
-                ),
+                    count = groceryListWithItemCount.totalItemCount,
+                    groceryListWithItemCount.checkedItemCount,
+                    groceryListWithItemCount.totalItemCount
+                )
+            }
+            Text(
+                text = itemCountString,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelMedium,
@@ -232,7 +248,8 @@ private fun DefaultPreview() {
                 listOf(
                     GroceryListWithItemCount(
                         groceryList = GroceryList(name = "Grocery list 1"),
-                        itemCount = 5
+                        checkedItemCount = 5,
+                        totalItemCount = 9
                     )
                 )
             )
@@ -243,6 +260,7 @@ private fun DefaultPreview() {
         topBarScrollBehavior = topBarScrollBehavior,
         viewModelState = viewModelState,
         state = GroceryListScreenStateHolder(),
+        lazyListState = rememberLazyListState(),
         onNewGroceryListClick = {},
         onGroceryListClick = {}
     )

@@ -59,17 +59,13 @@
     <string name="new_price_product_info_header">Product Information</string>
     <string name="new_price_product_name_label">Product Name</string>
     <string name="new_price_product_name_empty_error_text">Product name cannot be empty.</string>
-    <string name="new_price_product_description_label">Product Description (optional)</string>
-    <string name="new_price_product_barcode_attach_button_text">Attach Barcode</string>
-    <string name="new_price_product_barcode_label">Barcode:</string>
-    <string name="new_price_product_barcode_icon_content_description">Open camera to scan barcode</string>
-    <string name="new_price_product_quantity_label">Quantity</string>
+    <string name="new_price_product_quantity_label">Item Quantity</string>
     <string name="new_price_product_quantity_input_error_text">Invalid quantity input.</string>
+    <string name="new_price_product_no_category">Select category</string>
     <string name="new_price_product_category_icon_content_description">Category</string>
     <string name="new_price_price_info_header">Price</string>
     <string name="new_price_amount_label">Amount (e.g. 4.99)</string>
     <string name="new_price_amount_input_error_text">Invalid amount input.</string>
-    <string name="new_price_sale_quantity_label">For number of items: </string>
     <string name="new_price_is_sale_label">Is this a sale price?</string>
     <string name="new_price_store_info_header">Store Location</string>
     <string name="new_price_store_icon_content_description">Store location</string>
@@ -78,24 +74,49 @@
     <string name="new_price_store_not_selected_error_text">Select a store location.</string>
     <string name="new_price_submit_failed_message">Failed to create price.</string>
 
-    <string name="price_record_unit_baskets">Baskets</string>
-    <string name="price_record_unit_baskets_abbrev">bkt</string>
-    <string name="price_record_unit_blocks">Kilograms</string>
-    <string name="price_record_unit_blocks_abbrev">blk</string>
-    <string name="price_record_unit_grams">Grams</string>
-    <string name="price_record_unit_grams_abbrev">g</string>
-    <string name="price_record_unit_kilograms">Kilograms</string>
-    <string name="price_record_unit_kilograms_abbrev">Kg</string>
-    <string name="price_record_unit_litres">Litres</string>
-    <string name="price_record_unit_litres_abbrev">L</string>
-    <string name="price_record_unit_millilitres">MilliLitres</string>
-    <string name="price_record_unit_millilitres_abbrev">mL</string>
-    <string name="price_record_unit_pieces">Pieces</string>
-    <string name="price_record_unit_pieces_abbrev">Pc</string>
-    <string name="price_record_unit_pounds">Pounds</string>
-    <string name="price_record_unit_pounds_abbrev">lb</string>
+    <plurals name="price_quantity_unit_baskets">
+        <item quantity="one">Basket</item>
+        <item quantity="other">Baskets</item>
+    </plurals>
+    <plurals name="price_quantity_unit_blocks">
+        <item quantity="one">Block</item>
+        <item quantity="other">Blocks</item>
+    </plurals>
+    <plurals name="price_quantity_unit_grams">
+        <item quantity="one">Gram</item>
+        <item quantity="other">Grams</item>
+    </plurals>
+    <plurals name="price_quantity_unit_kilograms">
+        <item quantity="one">Kilogram</item>
+        <item quantity="other">Kilograms</item>
+    </plurals>
+    <plurals name="price_quantity_unit_litres">
+        <item quantity="one">Litre</item>
+        <item quantity="other">Litres</item>
+    </plurals>
+    <plurals name="price_quantity_unit_millilitres">
+        <item quantity="one">MilliLitre</item>
+        <item quantity="other">MilliLitres</item>
+    </plurals>
+    <plurals name="price_quantity_unit_pieces">
+        <item quantity="one">Piece</item>
+        <item quantity="other">Pieces</item>
+    </plurals>
+    <plurals name="price_quantity_unit_pounds">
+        <item quantity="one">Pound</item>
+        <item quantity="other">Pounds</item>
+    </plurals>
+    <string name="price_quantity_unit_baskets_abbrev">bkt</string>
+    <string name="price_quantity_unit_blocks_abbrev">blk</string>
+    <string name="price_quantity_unit_grams_abbrev">g</string>
+    <string name="price_quantity_unit_kilograms_abbrev">Kg</string>
+    <string name="price_quantity_unit_litres_abbrev">L</string>
+    <string name="price_quantity_unit_millilitres_abbrev">mL</string>
+    <string name="price_quantity_unit_pieces_abbrev">Pc</string>
+    <string name="price_quantity_unit_pounds_abbrev">lb</string>
 
     <string name="no_category">No Category</string>
+
     <string name="select_category_title">Select Category</string>
     <string name="select_category_category_icon_content_description">Category icon</string>
     <string name="select_category_empty_icon_content_description">No category</string>
@@ -161,21 +182,35 @@
     <string name="grocery_lists_empty_add_button_text">Create Grocery List</string>
     <string name="grocery_lists_new_grocery_list_fab_text">New Grocery List</string>
     <string name="grocery_lists_new_grocery_list_fab_content_description">New Grocery List</string>
+    <string name="grocery_lists_item_count_empty">No items</string>
     <plurals name="grocery_lists_item_count">
-        <item quantity="one">%1$d item</item>
-        <item quantity="other">%1$d items</item>
+        <item quantity="one">%1$d/%2$d item</item>
+        <item quantity="other">%1$d/%2$d items</item>
     </plurals>
-    <string name="grocery_lists_new_grocery_list_default_name">Untitled List</string>
 
     <string name="grocery_list_name_dialog_new_title_text">New Grocery List</string>
-    <string name="grocery_list_name_dialog_edit_title_text">Edit Grocery List</string>
     <string name="grocery_list_name_dialog_name_input_label_text">Grocery List Name</string>
     <string name="grocery_list_name_dialog_confirm_button_text">Confirm</string>
     <string name="grocery_list_name_dialog_dismiss_button_text">Cancel</string>
 
-    <string name="edit_grocery_list_title">Cancel</string>
+    <string name="add_grocery_list_item_dialog_title">Add Item</string>
+    <string name="add_grocery_list_item_dialog_item_name">Item name</string>
+    <string name="add_grocery_list_item_dialog_item_name_empty_error">Item name cannot be empty.</string>
+    <string name="add_grocery_list_item_dialog_item_description">Item description (optional)</string>
+    <string name="add_grocery_list_item_dialog_confirm_button_text">Confirm</string>
+    <string name="add_grocery_list_item_dialog_dismiss_button_text">Cancel</string>
+    <string name="edit_grocery_list_item_dialog_title">Edit Item</string>
+
+    <string name="edit_grocery_list_default_name">Untitled List</string>
+    <string name="edit_grocery_list_delete_action">Delete</string>
+    <string name="edit_grocery_list_delete_dialog_message">Are you sure you want to delete this grocery list?</string>
+    <string name="edit_grocery_list_edit_button_content_description">Edit Grocery List Name</string>
+    <string name="edit_grocery_list_overflow_button_content_description">More</string>
     <string name="edit_grocery_list_empty_text">The grocery list is empty…</string>
     <string name="edit_grocery_list_fab_text">Add Item</string>
+    <string name="edit_grocery_list_item_more_edit">Edit</string>
+    <string name="edit_grocery_list_item_more_delete">Delete</string>
+    <string name="edit_grocery_list_item_search_prices">Search for prices</string>
 
     <string name="confirm_delete_dialog_confirm_button_text">Delete</string>
     <string name="confirm_delete_dialog_dismiss_button_text">Cancel</string>

@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Query
 import com.igrocery.overpriced.infrastructure.BaseDao
@@ -14,9 +15,8 @@ internal interface GroceryListItemDao : BaseDao<GroceryListItemRoomEntity> {
             FROM grocery_list_items
             WHERE grocery_list_id = :groceryListId
             ORDER BY name, update_timestamp
-            LIMIT :pageSize OFFSET :offset
         """
     )
-    suspend fun getAllGroceryListItemsPaging(groceryListId: Long, offset: Int, pageSize: Int): List<GroceryListItemRoomEntity>
+    fun getAllGroceryListItemsPaging(groceryListId: Long): PagingSource<Int, GroceryListItemRoomEntity>
 
 }

@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
@@ -11,44 +12,34 @@ import java.util.Currency
 
 internal interface ILocalProductDataSource : IBaseLocalDataSource<ProductId, ProductRoomEntity> {
 
-    suspend fun getProductsPaging(offset: Int, pageSize: Int): List<ProductRoomEntity>
+    fun getProductsPaging(): PagingSource<Int, ProductRoomEntity>
 
     fun getProduct(productId: ProductId): Flow<ProductRoomEntity>
 
     fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<ProductRoomEntity?>
 
-    suspend fun searchProductsPaging(
-        query: String,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductRoomEntity>
+    fun searchProductsPaging(query: String): PagingSource<Int, ProductRoomEntity>
 
-    suspend fun searchProductsWithMinMaxPricesPaging(
+    fun searchProductsWithMinMaxPricesPaging(
         query: String,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductDao.ProductWithMinMaxPrices>
+    ): PagingSource<Int, ProductDao.ProductWithMinMaxPrices>
 
-    suspend fun getProductPaging(
+    fun getProductPaging(
         categoryId: CategoryId?,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductRoomEntity>
+    ): PagingSource<Int, ProductRoomEntity>
 
     fun getProductWithMinMaxPrices(
         productId: ProductId,
         currency: Currency
     ): Flow<ProductDao.ProductWithMinMaxPrices?>
 
-    suspend fun getProductsWithMinMaxPricesPaging(
+    fun getProductsWithMinMaxPricesPaging(
         categoryId: CategoryId?,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<ProductDao.ProductWithMinMaxPrices>
+    ): PagingSource<Int, ProductDao.ProductWithMinMaxPrices>
 
 }

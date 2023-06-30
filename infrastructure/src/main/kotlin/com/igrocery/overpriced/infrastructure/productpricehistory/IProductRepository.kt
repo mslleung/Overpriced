@@ -23,7 +23,7 @@ interface IProductRepository : BaseRepository<ProductId, Product> {
 
     fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<Product?>
 
     fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product>

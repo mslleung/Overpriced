@@ -7,7 +7,6 @@ import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
-import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantityUnit
 import com.igrocery.overpriced.domain.productpricehistory.models.SaleQuantity
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.productpricehistory.IProductRepository
@@ -29,8 +28,7 @@ class ProductService @Inject constructor(
 
     suspend fun createProductWithPriceRecord(
         productName: String,
-        productQuantityAmount: String,
-        productQuantityUnit: ProductQuantityUnit,
+        productQuantity: String,
         categoryId: CategoryId?,
         priceAmountText: String,
         quantity: SaleQuantity,
@@ -40,7 +38,7 @@ class ProductService @Inject constructor(
         transaction.execute {
             val product = Product(
                 name = productName.trim(),
-                quantity = ProductQuantity(productQuantityAmount.trim().toDouble(), productQuantityUnit),
+                quantity = productQuantity,
                 categoryId = categoryId,
             )
 
@@ -73,7 +71,7 @@ class ProductService @Inject constructor(
         return productRepository.searchProductsPaging(query, currency)
     }
 
-    fun getProduct(name: String, quantity: ProductQuantity): Flow<Product?> {
+    fun getProduct(name: String, quantity: String): Flow<Product?> {
         return productRepository.getProduct(name, quantity)
     }
 

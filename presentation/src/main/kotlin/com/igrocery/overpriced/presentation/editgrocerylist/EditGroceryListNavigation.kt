@@ -22,6 +22,7 @@ fun NavController.navigateToEditGroceryListScreen(
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.editGroceryListScreen(
     navigateUp: () -> Unit,
+    navigateToSearchProduct: (query: String) -> Unit
 ) {
     composable(
         route = EditGroceryList_With_Args,
@@ -38,6 +39,7 @@ fun NavGraphBuilder.editGroceryListScreen(
         EditGroceryListScreen(
             editGroceryListViewModel = editGroceryListScreenViewModel,
             navigateUp = navigateUp,
+            navigateToSearchProduct = navigateToSearchProduct
         )
     }
 }

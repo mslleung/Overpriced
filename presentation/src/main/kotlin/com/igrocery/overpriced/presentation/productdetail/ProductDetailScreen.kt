@@ -20,7 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.dtos.StoreWithMinMaxPrices
@@ -159,7 +160,7 @@ private fun MainContent(
                     currencyLoadState.ifLoaded { currency ->
                         productWithPricesLoadState.ifLoaded { (product, minPrice, maxPrice) ->
                             Text(
-                                text = product.quantity.getDisplayString(),
+                                text = product.quantity,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 style = MaterialTheme.typography.bodyLarge,
                                 maxLines = 3,
@@ -186,9 +187,11 @@ private fun MainContent(
             }
 
             items(
-                items = storesWithMinMaxPrices,
-                key = { item -> item.store.id },
-            ) { item ->
+                count = storesWithMinMaxPrices.itemCount,
+                key = storesWithMinMaxPrices.itemKey(key = { item -> item.store.id }),
+                contentType = storesWithMinMaxPrices.itemContentType()
+            ) { index ->
+                val item = storesWithMinMaxPrices[index]
                 if (item != null) {
                     StoreListItem(
                         item = item,
@@ -219,7 +222,7 @@ private fun StoreListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.6f)
+            modifier = Modifier.fillMaxWidth(0.5f)
         ) {
             Text(
                 text = store.name,
@@ -328,7 +331,7 @@ private fun DefaultPreview() {
                     ProductWithMinMaxPrices(
                         product = Product(
                             name = "Apple",
-                            quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                            quantity = "1 pound",
                             categoryId = null
                         ),
                         minPrice = 5.0,

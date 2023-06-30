@@ -23,9 +23,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.productpricehistory.models.*
 import com.igrocery.overpriced.presentation.R
@@ -77,10 +79,12 @@ internal fun SelectStoreScreen(
                         navigateToEditStore(dialogData.store.id)
                         state.storeMoreDialogData = null
                     }
+
                     1 -> {
                         state.deleteStoreDialogData = DeleteStoreDialogData(dialogData.store)
                         state.storeMoreDialogData = null
                     }
+
                     else -> {
                         throw NotImplementedError("selection $it not handled")
                     }
@@ -162,7 +166,7 @@ private fun MainLayout(
             )
         },
     ) { scaffoldPadding ->
-        if (storesPagingItems.isInitialLoadCompleted()) {
+        if (storesPagingItems.loadState.refresh is LoadState.NotLoading) {
             if (storesPagingItems.itemCount == 0) {
                 EmptyLayout(
                     onNewStoreClick = onNewStoreClick,
@@ -181,13 +185,15 @@ private fun MainLayout(
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
-                        items = storesPagingItems,
-                        key = { store -> store.id }
-                    ) { store ->
-                        if (store != null) {
+                        count = storesPagingItems.itemCount,
+                        key = storesPagingItems.itemKey(key = { store -> store.id }),
+                        contentType = storesPagingItems.itemContentType()
+                    ) { index ->
+                        val item = storesPagingItems[index]
+                        if (item != null) {
                             StoreLocationOptionLayout(
-                                store = store,
-                                isSelected = state.selectedStoreId == store.id,
+                                store = item,
+                                isSelected = state.selectedStoreId == item.id,
                                 onStoreClick = onStoreClick,
                                 onMoreClick = onStoreMoreClick,
                                 modifier = Modifier

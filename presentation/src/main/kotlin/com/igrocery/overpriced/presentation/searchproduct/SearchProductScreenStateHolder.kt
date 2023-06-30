@@ -7,24 +7,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 
 class SearchProductScreenStateHolder(
     isRequestingFirstFocus: Boolean,
-    query: String
 ) {
 
     var isRequestingFirstFocus by mutableStateOf(isRequestingFirstFocus)
-    var query by mutableStateOf(query)
 
     companion object {
         fun Saver() = listSaver(
             save = {
                 listOf(
                     it.isRequestingFirstFocus,
-                    it.query,
                 )
             },
             restore = {
                 SearchProductScreenStateHolder(
                     it[0] as Boolean,
-                    it[1] as String,
                 )
             }
         )
@@ -42,7 +38,6 @@ fun rememberSearchProductScreenState(): MutableState<SearchProductScreenStateHol
         mutableStateOf(
             SearchProductScreenStateHolder(
                 isRequestingFirstFocus = true,
-                query = ""
             )
         )
     }

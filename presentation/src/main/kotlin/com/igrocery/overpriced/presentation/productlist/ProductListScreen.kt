@@ -18,9 +18,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Category
@@ -58,6 +60,9 @@ fun ProductListScreen(
         onSearchButtonClick = navigateToSearchProduct,
         onEditButtonClick = navigateToEditCategory,
         onProductClick = { navigateToProductDetail(it) },
+        onProductLongClick = {
+
+        },
         modifier = modifier
     )
 
@@ -76,6 +81,7 @@ private fun MainContent(
     onSearchButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     onProductClick: (ProductId) -> Unit,
+    onProductLongClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val topBarState = rememberTopAppBarState()
@@ -151,7 +157,7 @@ private fun MainContent(
         val productsPagingItems =
             viewModelState.productsWithMinMaxPricesPagingDataFlow.collectAsLazyPagingItems()
         val currency by viewModelState.currencyFlow.collectAsState()
-        if (productsPagingItems.isInitialLoadCompleted()) {
+        if (productsPagingItems.loadState.refresh is LoadState.NotLoading) {
             if (productsPagingItems.itemCount == 0) {
                 val scrollState = rememberScrollState()
                 EmptyListContent(
@@ -170,14 +176,17 @@ private fun MainContent(
                         .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
                 ) {
                     items(
-                        items = productsPagingItems,
-                        key = { item -> item.product.id }
-                    ) { item ->
+                        count = productsPagingItems.itemCount,
+                        key = productsPagingItems.itemKey(key = { item -> item.product.id }),
+                        contentType = productsPagingItems.itemContentType()
+                    ) { index ->
+                        val item = productsPagingItems[index]
                         if (item != null) {
                             ProductListItem(
                                 item = item,
                                 currency = currency,
                                 onClick = onProductClick,
+                                onLongClick = onProductLongClick,
                                 modifier = Modifier
                                     .animateItemPlacement()
                                     .fillMaxWidth()
@@ -208,17 +217,22 @@ private fun EmptyListContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductListItem(
     item: ProductWithMinMaxPrices,
     currency: LoadingState<Currency>,
     onClick: (ProductId) -> Unit,
+    onLongClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clickable { onClick(item.product.id) }
+            .combinedClickable(
+                onClick = { onClick(item.product.id) },
+                onLongClick = { onLongClick(item.product.id) },
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(40.dp)
     ) {
@@ -236,7 +250,7 @@ fun ProductListItem(
             )
 
             Text(
-                text = product.quantity.getDisplayString(),
+                text = product.quantity,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
@@ -286,6 +300,7 @@ private fun EmptyPreview() {
         onSearchButtonClick = {},
         onEditButtonClick = {},
         onProductClick = {},
+        onProductLongClick = {}
     )
 }
 
@@ -304,7 +319,7 @@ private fun DefaultPreview() {
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                                quantity = "Bag of 8",
                                 categoryId = null
                             ),
                             minPrice = null,
@@ -323,5 +338,6 @@ private fun DefaultPreview() {
         onSearchButtonClick = {},
         onEditButtonClick = {},
         onProductClick = {},
+        onProductLongClick = {}
     )
 }

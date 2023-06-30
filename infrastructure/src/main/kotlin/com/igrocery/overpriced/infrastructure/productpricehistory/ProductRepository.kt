@@ -6,16 +6,13 @@ import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
 import com.igrocery.overpriced.domain.productpricehistory.models.ProductQuantity
+import com.igrocery.overpriced.infrastructure.MappedPagingSource
 import com.igrocery.overpriced.infrastructure.Transaction
-import com.igrocery.overpriced.infrastructure.createSimplePagingSource
 import com.igrocery.overpriced.infrastructure.di.DataSourceModule.LocalDataSource
-import com.igrocery.overpriced.infrastructure.di.IoDispatcher
-import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalPriceRecordDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.ILocalProductDataSource
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toData
 import com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local.entities.toDomain
 import com.igrocery.overpriced.shared.Logger
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -29,9 +26,7 @@ private val log = Logger { }
 @Singleton
 class ProductRepository @Inject internal constructor(
     @LocalDataSource private val localProductDataSource: ILocalProductDataSource,
-    @LocalDataSource private val localPriceRecordDataSource: ILocalPriceRecordDataSource,
     private val transaction: Transaction,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : IProductRepository {
 
     override suspend fun insert(item: Product): ProductId {
@@ -53,20 +48,9 @@ class ProductRepository @Inject internal constructor(
     }
 
     override fun searchProductsPaging(query: String): PagingSource<Int, Product> {
-        return createSimplePagingSource(
-            ioDispatcher = ioDispatcher,
-            pageDataCreator = { offset, loadSize ->
-                if (query.isBlank()) {
-                    emptyList()
-                } else {
-                    localProductDataSource.searchProductsPaging(
-                        query,
-                        offset,
-                        loadSize
-                    ).map { it.toDomain() }
-                }
-            },
-            observedDataSources = listOf(localProductDataSource)
+        return MappedPagingSource(
+            dataPagingSource = localProductDataSource.searchProductsPaging(query),
+            mapper = { it.toDomain() }
         )
     }
 
@@ -74,31 +58,19 @@ class ProductRepository @Inject internal constructor(
         query: String,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
-        return createSimplePagingSource(
-            ioDispatcher = ioDispatcher,
-            pageDataCreator = { offset, loadSize ->
-                if (query.isBlank()) {
-                    emptyList()
-                } else {
-                    localProductDataSource.searchProductsWithMinMaxPricesPaging(
-                        query,
-                        currency,
-                        offset,
-                        loadSize
-                    ).map {
-                        ProductWithMinMaxPrices(
-                            it.productRoomEntity.toDomain(),
-                            it.minPrice,
-                            it.maxPrice,
-                            it.lastUpdatedTimestamp
-                        )
-                    }
-                }
-            },
-            observedDataSources = listOf(
-                localProductDataSource,
-                localPriceRecordDataSource
+        return MappedPagingSource(
+            dataPagingSource = localProductDataSource.searchProductsWithMinMaxPricesPaging(
+                query,
+                currency
             ),
+            mapper = {
+                ProductWithMinMaxPrices(
+                    it.productRoomEntity.toDomain(),
+                    it.minPrice,
+                    it.maxPrice,
+                    it.lastUpdatedTimestamp
+                )
+            }
         )
     }
 
@@ -110,23 +82,16 @@ class ProductRepository @Inject internal constructor(
 
     override fun getProduct(
         name: String,
-        quantity: ProductQuantity
+        quantity: String
     ): Flow<Product?> {
         return localProductDataSource.getProduct(name, quantity)
             .map { it?.toDomain() }
     }
 
     override fun getProductsPaging(categoryId: CategoryId?): PagingSource<Int, Product> {
-        return createSimplePagingSource(
-            ioDispatcher = ioDispatcher,
-            pageDataCreator = { offset, loadSize ->
-                localProductDataSource.getProductPaging(
-                    categoryId,
-                    offset,
-                    loadSize
-                ).map { it.toDomain() }
-            },
-            observedDataSources = listOf(localProductDataSource)
+        return MappedPagingSource(
+            dataPagingSource = localProductDataSource.getProductPaging(categoryId),
+            mapper = { it.toDomain() }
         )
     }
 
@@ -153,24 +118,19 @@ class ProductRepository @Inject internal constructor(
         categoryId: CategoryId?,
         currency: Currency
     ): PagingSource<Int, ProductWithMinMaxPrices> {
-        return createSimplePagingSource(
-            ioDispatcher = ioDispatcher,
-            pageDataCreator = { offset, loadSize ->
-                localProductDataSource.getProductsWithMinMaxPricesPaging(
-                    categoryId,
-                    currency,
-                    offset,
-                    loadSize
-                ).map {
-                    ProductWithMinMaxPrices(
-                        it.productRoomEntity.toDomain(),
-                        it.minPrice,
-                        it.maxPrice,
-                        it.lastUpdatedTimestamp
-                    )
-                }
-            },
-            observedDataSources = listOf(localProductDataSource, localPriceRecordDataSource),
+        return MappedPagingSource(
+            dataPagingSource = localProductDataSource.getProductsWithMinMaxPricesPaging(
+                categoryId,
+                currency
+            ),
+            mapper = {
+                ProductWithMinMaxPrices(
+                    it.productRoomEntity.toDomain(),
+                    it.minPrice,
+                    it.maxPrice,
+                    it.lastUpdatedTimestamp
+                )
+            }
         )
     }
 }

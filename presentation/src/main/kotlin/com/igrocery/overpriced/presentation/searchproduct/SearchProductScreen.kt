@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.productpricehistory.dtos.ProductWithMinMaxPrices
 import com.igrocery.overpriced.domain.productpricehistory.models.Product
@@ -64,8 +65,7 @@ fun SearchProductScreen(
             state.isRequestingFirstFocus = false
         },
         onQueryChanged = {
-            state.query = it.take(100)
-            viewModel.query = state.query
+            viewModel.updateQuery(it.take(100))
             productPagingItems.refresh()
         },
         onProductClick = navigateToProductDetails,
@@ -104,8 +104,10 @@ private fun MainContent(
                 title = {
                     val focusRequester = remember { FocusRequester() }
                     val keyboardController = LocalSoftwareKeyboardController.current
+
+                    val query by viewModelState.queryFlow.collectAsState()
                     TextField(
-                        value = state.query,
+                        value = query,
                         onValueChange = onQueryChanged,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -120,7 +122,7 @@ private fun MainContent(
                             )
                         },
                         trailingIcon = {
-                            if (state.query.isNotEmpty()) {
+                            if (query.isNotEmpty()) {
                                 ClearButton(
                                     onClick = {
                                         onQueryChanged("")
@@ -181,14 +183,17 @@ private fun MainContent(
                     .nestedScroll(topBarScrollBehavior.nestedScrollConnection)
             ) {
                 items(
-                    items = productPagingItems,
-                    key = { item -> item.product.id }
-                ) { item ->
+                    count = productPagingItems.itemCount,
+                    key = productPagingItems.itemKey(key = { item -> item.product.id }),
+                    contentType = productPagingItems.itemContentType()
+                ) { index ->
+                    val item = productPagingItems[index]
                     if (item != null) {
                         ProductListItem(
                             item = item,
                             currency = currency,
                             onClick = onProductClick,
+                            onLongClick = {},
                             modifier = Modifier
                                 .animateItemPlacement()
                                 .fillMaxWidth()
@@ -237,10 +242,11 @@ private fun EmptyListContent(
 @Composable
 private fun EmptyPreview() {
     val viewModelState = object : SearchProductScreenViewModelState {
-        override val currencyFlow: StateFlow<LoadingState<Currency>>
-            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
-        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
-            get() = emptyFlow()
+        override val currencyFlow: StateFlow<LoadingState<Currency>> =
+            MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
+        override val queryFlow: StateFlow<String> = MutableStateFlow("apple")
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>> =
+            emptyFlow()
     }
 
     val state by rememberSearchProductScreenState()
@@ -260,16 +266,17 @@ private fun EmptyPreview() {
 @Composable
 private fun DefaultPreview() {
     val viewModelState = object : SearchProductScreenViewModelState {
-        override val currencyFlow: StateFlow<LoadingState<Currency>>
-            get() = MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
-        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>>
-            get() = flowOf(
+        override val currencyFlow: StateFlow<LoadingState<Currency>> =
+            MutableStateFlow(LoadingState.Success(Currency.getInstance(Locale.US)))
+        override val queryFlow: StateFlow<String> = MutableStateFlow("apple")
+        override val productsWithMinMaxPricesPagingDataFlow: Flow<PagingData<ProductWithMinMaxPrices>> =
+            flowOf(
                 PagingData.from(
                     listOf(
                         ProductWithMinMaxPrices(
                             product = Product(
                                 name = "Apple",
-                                quantity = ProductQuantity(1.0, ProductQuantityUnit.Baskets),
+                                quantity = "1 pound",
                                 categoryId = null
                             ),
                             minPrice = 5.0,

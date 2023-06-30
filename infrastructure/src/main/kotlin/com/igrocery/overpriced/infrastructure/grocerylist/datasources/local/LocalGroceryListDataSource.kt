@@ -1,11 +1,10 @@
 package com.igrocery.overpriced.infrastructure.grocerylist.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
-import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.infrastructure.AppDatabase
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.daos.GroceryListDao
 import com.igrocery.overpriced.infrastructure.grocerylist.datasources.local.entities.GroceryListRoomEntity
-import com.igrocery.overpriced.infrastructure.InvalidationObserverDelegate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.datetime.Clock
@@ -16,12 +15,6 @@ import javax.inject.Singleton
 internal class LocalGroceryListDataSource @Inject internal constructor(
     private val db: AppDatabase,
 ) : ILocalGroceryListDataSource {
-
-    private val invalidationObserverDelegate = InvalidationObserverDelegate(db, "grocery_lists")
-
-    override fun addInvalidationObserver(invalidationObserver: InvalidationObserverDelegate.InvalidationObserver) {
-        invalidationObserverDelegate.addWeakInvalidationObserver(invalidationObserver)
-    }
 
     override suspend fun insert(entity: GroceryListRoomEntity): GroceryListId {
         val time = Clock.System.now().toEpochMilliseconds()
@@ -49,7 +42,7 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
         require(rowsDeleted == 1)
     }
 
-    override fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity> {
+    override fun getGroceryList(id: GroceryListId): Flow<GroceryListRoomEntity?> {
         return db.groceryListDao().getGroceryList(id.value).distinctUntilChanged()
     }
 
@@ -57,14 +50,8 @@ internal class LocalGroceryListDataSource @Inject internal constructor(
         return db.groceryListDao().getGroceryListCount()
     }
 
-    override suspend fun getAllGroceryListsWithItemCountPaging(
-        offset: Int,
-        pageSize: Int
-    ): List<GroceryListDao.GroceryListWithItemCount> {
-        return db.groceryListDao().getGroceryListsWithItemCountPaging(
-            offset,
-            pageSize
-        )
+    override fun getAllGroceryListsWithItemCountPaging(): PagingSource<Int, GroceryListDao.GroceryListWithItemCount> {
+        return db.groceryListDao().getGroceryListsWithItemCountPaging()
     }
 
 }

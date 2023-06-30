@@ -19,8 +19,7 @@ class NewPriceScreenStateHolder(
     isRequestingFirstFocus: Boolean,
     wantToShowSuggestionBox: Boolean,
     productName: String,
-    productQuantityAmountText: String,
-    productQuantityUnit: ProductQuantityUnit,
+    productQuantity: String,
     productCategoryId: CategoryId?,
     priceAmountText: String,
     saleQuantity: SaleQuantity,
@@ -33,8 +32,7 @@ class NewPriceScreenStateHolder(
     var wantToShowSuggestionBox by mutableStateOf(wantToShowSuggestionBox)
 
     var productName by mutableStateOf(productName)
-    var productQuantityAmountText by mutableStateOf(productQuantityAmountText)
-    var productQuantityUnit by mutableStateOf(productQuantityUnit)
+    var productQuantity by mutableStateOf(productQuantity)
     var productCategoryId: CategoryId? = productCategoryId
         set(value) {
             field = value
@@ -61,7 +59,6 @@ class NewPriceScreenStateHolder(
     enum class SubmitError {
         None,
         ProductNameShouldNotBeEmpty,
-        InvalidProductQuantityAmount,
         InvalidPriceAmount,
         StoreCannotBeEmpty
     }
@@ -70,7 +67,7 @@ class NewPriceScreenStateHolder(
 
     fun hasModifications(): Boolean {
         return productName.isNotBlank()
-                || productQuantityAmountText.isNotBlank()
+                || productQuantity.isNotBlank()
                 || productCategoryId != null
                 || priceAmountText.isNotBlank()
                 || priceStoreId != null
@@ -87,8 +84,7 @@ class NewPriceScreenStateHolder(
                     it.isRequestingFirstFocus,
                     it.wantToShowSuggestionBox,
                     it.productName,
-                    it.productQuantityAmountText,
-                    it.productQuantityUnit,
+                    it.productQuantity,
                     it.productCategoryId,
                     it.priceAmountText,
                     it.saleQuantity,
@@ -100,23 +96,22 @@ class NewPriceScreenStateHolder(
             },
             restore = {
                 val productCategoryId =
-                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(5) as? CategoryId
+                    selectCategoryResultViewModel.consumeResults()?.categoryId ?: it.getOrNull(4) as? CategoryId
                 val productStoreId =
-                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(9) as? StoreId
+                    selectStoreResultViewModel.consumeResults()?.storeId ?: it.getOrNull(8) as? StoreId
                 NewPriceScreenStateHolder(
                     newPriceScreenViewModel = newPriceScreenViewModel,
                     isRequestingFirstFocus = it[0] as Boolean,
                     wantToShowSuggestionBox = it[1] as Boolean,
                     productName = it[2] as String,
-                    productQuantityAmountText = it[3] as String,
-                    productQuantityUnit = it[4] as ProductQuantityUnit,
+                    productQuantity = it[3] as String,
                     productCategoryId = productCategoryId,
-                    priceAmountText = it[6] as String,
-                    saleQuantity = it[7] as SaleQuantity,
-                    priceIsSale = it[8] as Boolean,
+                    priceAmountText = it[5] as String,
+                    saleQuantity = it[6] as SaleQuantity,
+                    priceIsSale = it[7] as Boolean,
                     priceStoreId = productStoreId,
-                    isDiscardDialogShown = it[10] as Boolean,
-                    submitError = it[11] as SubmitError,
+                    isDiscardDialogShown = it[9] as Boolean,
+                    submitError = it[10] as SubmitError,
                 )
             }
         )
@@ -158,8 +153,7 @@ fun rememberNewPriceScreenState(
             isRequestingFirstFocus = true,
             wantToShowSuggestionBox = false,
             productName = "",
-            productQuantityAmountText = "",
-            productQuantityUnit = ProductQuantityUnit.Pounds,
+            productQuantity = "",
             productCategoryId = args.categoryId,
             priceAmountText = "",
             saleQuantity = SaleQuantity.One,

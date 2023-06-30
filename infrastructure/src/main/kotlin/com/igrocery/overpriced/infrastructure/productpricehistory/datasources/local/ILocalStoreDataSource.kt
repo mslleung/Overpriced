@@ -1,5 +1,6 @@
 package com.igrocery.overpriced.infrastructure.productpricehistory.datasources.local
 
+import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.infrastructure.IBaseLocalDataSource
@@ -10,14 +11,12 @@ import java.util.Currency
 
 internal interface ILocalStoreDataSource : IBaseLocalDataSource<StoreId, StoreRoomEntity> {
 
-    suspend fun getStoresPaging(offset: Int, pageSize: Int): List<StoreRoomEntity>
+    fun getStoresPaging(): PagingSource<Int, StoreRoomEntity>
 
-    suspend fun getStoresWithMinMaxPricesPaging(
+    fun getStoresWithMinMaxPricesPaging(
         productId: ProductId,
         currency: Currency,
-        offset: Int,
-        pageSize: Int
-    ): List<StoreDao.StoreWithMinMaxPrices>
+    ): PagingSource<Int, StoreDao.StoreWithMinMaxPrices>
 
     fun getStore(id: StoreId): Flow<StoreRoomEntity>
 

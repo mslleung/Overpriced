@@ -6,6 +6,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,10 +15,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.R
@@ -53,9 +55,11 @@ fun MainBottomNavigationScreen(
     log.debug("Composing MainBottomNavigationScreen")
 
     val state by rememberMainBottomNavigationScreenState()
+    val groceryListLazyListState = rememberLazyListState()
     MainContent(
         viewModelState = mainBottomNavigationScreenViewModel,
         state = state,
+        groceryListLazyListState = groceryListLazyListState,
         navigateToSettings = navigateToSettings,
         navigateToEditGroceryList = navigateToEditGroceryList,
         navigateToNewPrice = navigateToNewPrice,
@@ -81,9 +85,8 @@ fun MainBottomNavigationScreen(
         mainBottomNavigationScreenViewModel.createNewGroceryListResultState
     LaunchedEffect(createNewGroceryListResult) {
         if (createNewGroceryListResult is LoadingState.Success) {
-            navigateToEditGroceryList(createNewGroceryListResult.data)
-            mainBottomNavigationScreenViewModel.createNewGroceryListResultState =
-                LoadingState.NotLoading()
+            // assume the newly created list is placed at the top
+            groceryListLazyListState.scrollToItem(0)
         }
     }
 
@@ -96,10 +99,11 @@ fun MainBottomNavigationScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun MainContent(
     viewModelState: MainBottomNavigationScreenViewModelState,
     state: MainBottomNavigationScreenStateHolder,
+    groceryListLazyListState: LazyListState,
     navigateToSettings: () -> Unit,
     navigateToEditGroceryList: (GroceryListId) -> Unit,
     navigateToNewPrice: () -> Unit,
@@ -110,7 +114,7 @@ private fun MainContent(
     val topBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = topBarState)
 
-    val bottomNavController = rememberAnimatedNavController()
+    val bottomNavController = rememberNavController()
 
     Scaffold(
         topBar = {
@@ -240,7 +244,7 @@ private fun MainContent(
         // transition animation.
         val animationSpec: FiniteAnimationSpec<Float> =
             spring(stiffness = Spring.StiffnessMediumLow)
-        AnimatedNavHost(
+        NavHost(
             navController = bottomNavController,
             startDestination = BottomNavRoute,
             enterTransition = {
@@ -262,6 +266,7 @@ private fun MainContent(
                     previousBackStackEntry = { bottomNavController.getBackStackEntry(BottomNavRoute) },
                     mainBottomNavigationState = { state },
                     topBarScrollBehavior = topBarScrollBehavior,
+                    lazyListState = groceryListLazyListState,
                     navigateToEditGroceryList = navigateToEditGroceryList
                 )
                 categoryListScreen(
@@ -299,14 +304,13 @@ private fun DefaultPreview() {
             MutableStateFlow(LoadingState.Success(0))
         override var createNewGroceryListResultState: LoadingState<GroceryListId> =
             LoadingState.NotLoading()
-
-        override fun createNewGroceryList(groceryListName: String) {}
     }
 
     val state by rememberMainBottomNavigationScreenState()
     MainContent(
         viewModelState = viewModelState,
         state = state,
+        rememberLazyListState(),
         navigateToSettings = {},
         navigateToEditGroceryList = {},
         navigateToNewPrice = {},

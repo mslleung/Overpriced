@@ -2,11 +2,9 @@ package com.igrocery.overpriced.application.grocerylist
 
 import androidx.paging.PagingSource
 import com.igrocery.overpriced.domain.GroceryListId
-import com.igrocery.overpriced.domain.StoreId
 import com.igrocery.overpriced.domain.grocerylist.dtos.GroceryListWithItemCount
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryList
 import com.igrocery.overpriced.domain.grocerylist.models.GroceryListItem
-import com.igrocery.overpriced.domain.productpricehistory.models.Store
 import com.igrocery.overpriced.infrastructure.Transaction
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListItemRepository
 import com.igrocery.overpriced.infrastructure.grocerylist.IGroceryListRepository
@@ -31,7 +29,19 @@ class GroceryListService @Inject constructor(
         }
     }
 
-    fun getGroceryList(id: GroceryListId): Flow<GroceryList> {
+    suspend fun editGroceryList(editedGroceryList: GroceryList) {
+        return transaction.execute {
+            groceryListRepository.update(editedGroceryList)
+        }
+    }
+
+    suspend fun deleteGroceryList(groceryList: GroceryList) {
+        return transaction.execute {
+            groceryListRepository.delete(groceryList)
+        }
+    }
+
+    fun getGroceryList(id: GroceryListId): Flow<GroceryList?> {
         return groceryListRepository.getGroceryList(id)
     }
 
@@ -47,6 +57,34 @@ class GroceryListService @Inject constructor(
 
     fun getAllGroceryListItemsPaging(groceryListId: GroceryListId): PagingSource<Int, GroceryListItem> {
         return groceryListItemRepository.getAllGroceryListItemsPaging(groceryListId)
+    }
+
+    suspend fun addItemToGroceryList(
+        groceryListId: GroceryListId,
+        itemName: String,
+        itemDescription: String
+    ) {
+        return transaction.execute {
+            val newItem = GroceryListItem(
+                groceryListId = groceryListId,
+                name = itemName,
+                description = itemDescription
+            )
+
+            groceryListItemRepository.insert(newItem)
+        }
+    }
+
+    suspend fun updateGroceryListItem(item: GroceryListItem) {
+        return transaction.execute {
+            groceryListItemRepository.update(item)
+        }
+    }
+
+    suspend fun deleteGroceryListItem(item: GroceryListItem) {
+        return transaction.execute {
+            groceryListItemRepository.delete(item)
+        }
     }
 
 }

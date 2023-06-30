@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.MapProperties
 import com.igrocery.overpriced.domain.productpricehistory.models.GeoCoordinates
@@ -29,7 +30,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: GeoCoordinates? = null) {
+class StoreGoogleMapStateHolder(
+    context: Context,
+    val initialCameraPosition: GeoCoordinates? = null
+) {
 
     var initialCameraPlacementCompleted by mutableStateOf(false)
 
@@ -53,6 +57,8 @@ class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: Geo
     )
 
     var liveLocationLoadState: LoadingState<Location> by mutableStateOf(LoadingState.NotLoading())
+
+    var focusedPOI by mutableStateOf<PointOfInterest?>(null)
 
     var geocoderJob: Job? = null
     var geocoderLoadState: LoadingState<Unit> by mutableStateOf(LoadingState.NotLoading())
@@ -97,6 +103,7 @@ class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: Geo
                             updateCurrentLocation()
                         }
                 }
+
                 else -> {
                     // subsequent loads, user is actively trying to locate himself/herself
                     // use a more up-to-date position
@@ -134,7 +141,7 @@ class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: Geo
                 // use blocking api so we can perform coroutine cancellation
                 val resultAddresses =
                     geoCoder.getFromLocation(latLng.latitude, latLng.longitude, 1)  // blocking
-                if (resultAddresses != null && resultAddresses.isNotEmpty()) {
+                if (!resultAddresses.isNullOrEmpty()) {
                     val resultAddress = resultAddresses[0]
                     var addressLines = ""
                     for (i in 0..resultAddress.maxAddressLineIndex) {
@@ -153,22 +160,25 @@ class StoreGoogleMapStateHolder(context: Context, val initialCameraPosition: Geo
 }
 
 @Composable
-fun rememberStoreGoogleMapState(context: Context, initialCameraPosition: GeoCoordinates? = null) = rememberSaveable(
-    context, initialCameraPosition,
-    stateSaver = listSaver(
-        save = {
-            listOf(
-                it.initialCameraPlacementCompleted,
-                it.liveLocationLoadState,
-            )
-        },
-        restore = {
-            StoreGoogleMapStateHolder(context, initialCameraPosition).apply {
-                initialCameraPlacementCompleted = it[0] as Boolean
-                liveLocationLoadState = it[1] as LoadingState<Location>
+fun rememberStoreGoogleMapState(context: Context, initialCameraPosition: GeoCoordinates? = null) =
+    rememberSaveable(
+        context, initialCameraPosition,
+        stateSaver = listSaver(
+            save = {
+                listOf(
+                    it.initialCameraPlacementCompleted,
+                    it.liveLocationLoadState,
+                    it.focusedPOI
+                )
+            },
+            restore = {
+                StoreGoogleMapStateHolder(context, initialCameraPosition).apply {
+                    initialCameraPlacementCompleted = it[0] as Boolean
+                    liveLocationLoadState = it[1] as LoadingState<Location>
+                    focusedPOI = it[2] as? PointOfInterest
+                }
             }
-        }
-    )
-) {
-    mutableStateOf(StoreGoogleMapStateHolder(context, initialCameraPosition))
-}
+        )
+    ) {
+        mutableStateOf(StoreGoogleMapStateHolder(context, initialCameraPosition))
+    }
