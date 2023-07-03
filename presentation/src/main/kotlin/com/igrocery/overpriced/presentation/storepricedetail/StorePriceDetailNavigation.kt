@@ -1,10 +1,9 @@
 package com.igrocery.overpriced.presentation.storepricedetail
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.ProductId
 import com.igrocery.overpriced.domain.StoreId
 
@@ -24,7 +23,6 @@ fun NavController.navigateToStorePriceDetailScreen(
     navigate("$StorePriceDetail/${productId.value}/${storeId.value}", builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.storePriceDetailScreen(
     navigateUp: () -> Unit,
 ) {

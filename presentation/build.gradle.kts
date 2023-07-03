@@ -116,7 +116,7 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.6.0"
+    val navigationVersion = "2.7.0-beta02"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")

@@ -1,12 +1,10 @@
 package com.igrocery.overpriced.presentation.editstore
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.presentation.editcategory.*
 
 private const val EditStore = "editStore"
 private const val EditStore_Arg_StoreId = "storeId"
@@ -20,7 +18,6 @@ fun NavController.navigateToEditStoreScreen(
     navigate("$EditStore/${storeId.value}", builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.editStoreScreen(
     navigateUp: () -> Unit,
 ) {

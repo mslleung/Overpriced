@@ -1,6 +1,5 @@
 package com.igrocery.overpriced.presentation.mainnavigation.grocerylist
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -9,7 +8,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.presentation.mainnavigation.MainBottomNavigationScreenStateHolder
 
@@ -19,7 +18,7 @@ fun NavController.navigateToGroceryListScreen(builder: NavOptionsBuilder.() -> U
     navigate(GroceryList, builder)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.groceryListScreen(
     previousBackStackEntry: () -> NavBackStackEntry,
     mainBottomNavigationState: () -> MainBottomNavigationScreenStateHolder,

@@ -1,9 +1,8 @@
 package com.igrocery.overpriced.presentation.selectcurrency
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 
 private const val SelectCurrency = "selectCurrency"
 
@@ -13,7 +12,6 @@ fun NavController.navigateToSelectCurrencyScreen(
     navigate(SelectCurrency, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.selectCurrencyScreen(
     navigateUp: () -> Unit,
 ) {

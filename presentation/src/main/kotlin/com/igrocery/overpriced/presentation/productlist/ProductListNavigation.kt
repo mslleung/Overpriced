@@ -1,10 +1,9 @@
 package com.igrocery.overpriced.presentation.productlist
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.ProductId
 
@@ -25,7 +24,6 @@ fun NavController.navigateToProductListScreen(
     navigate(navString, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.productListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: () -> Unit,

@@ -1,9 +1,8 @@
 package com.igrocery.overpriced.presentation.settings
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 
 const val Settings = "settings"
 
@@ -13,7 +12,6 @@ fun NavController.navigateToSettingsScreen(
     navigate(Settings, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.settingsScreen(
     navigateUp: () -> Unit,
     navigateToSelectCurrencyScreen: () -> Unit,

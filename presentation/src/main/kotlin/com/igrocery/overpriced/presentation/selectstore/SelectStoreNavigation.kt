@@ -1,10 +1,9 @@
 package com.igrocery.overpriced.presentation.selectstore
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.StoreId
 
 private const val SelectStore = "selectStore"
@@ -24,7 +23,6 @@ fun NavController.navigateToSelectStoreScreen(
     navigate(navString, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.selectStoreScreen(
     navController: NavController,
     navigateUp: () -> Unit,

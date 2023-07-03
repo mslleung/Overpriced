@@ -1,10 +1,9 @@
 package com.igrocery.overpriced.presentation.searchproduct
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.ProductId
 
 private const val SearchProduct = "searchProduct"
@@ -22,7 +21,6 @@ fun NavController.navigateToSearchProductScreen(
     navigate(navString, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.searchProductScreen(
     navigateUp: () -> Unit,
     navigateToProductDetails: (ProductId) -> Unit,

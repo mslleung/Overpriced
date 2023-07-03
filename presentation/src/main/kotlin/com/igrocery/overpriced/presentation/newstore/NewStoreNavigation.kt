@@ -1,11 +1,8 @@
 package com.igrocery.overpriced.presentation.newstore
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
-import com.igrocery.overpriced.domain.StoreId
-import com.igrocery.overpriced.presentation.editcategory.*
+import androidx.navigation.compose.composable
 
 private const val NewStore = "newStore"
 
@@ -15,7 +12,6 @@ fun NavController.navigateToNewStoreScreen(
     navigate(NewStore, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.newStoreScreen(
     navigateUp: () -> Unit,
 ) {

@@ -1,10 +1,9 @@
 package com.igrocery.overpriced.presentation.editgrocerylist
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.*
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.GroceryListId
 
 private const val EditGroceryList = "editGroceryList"
@@ -19,7 +18,6 @@ fun NavController.navigateToEditGroceryListScreen(
     navigate("$EditGroceryList/${groceryListId.value}", builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.editGroceryListScreen(
     navigateUp: () -> Unit,
     navigateToSearchProduct: (query: String) -> Unit
