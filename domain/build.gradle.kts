@@ -5,8 +5,7 @@ plugins {
 }
 
 android {
-    compileSdk = 33
-//    compileSdkPreview = "UpsideDownCake"
+    compileSdk = 34
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

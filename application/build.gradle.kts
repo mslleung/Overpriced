@@ -6,8 +6,7 @@ plugins {
 }
 
 android {
-    compileSdk = 33
-//    compileSdkPreview = "UpsideDownCake"
+    compileSdk = 34
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -54,7 +53,7 @@ dependencies {
     implementation("androidx.paging:paging-runtime:$pagingVersion")
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 
     testImplementation("junit:junit:4.13.2")
 }

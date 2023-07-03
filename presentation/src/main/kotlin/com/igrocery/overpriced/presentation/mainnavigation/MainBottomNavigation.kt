@@ -5,7 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 import com.igrocery.overpriced.domain.CategoryId
 import com.igrocery.overpriced.domain.GroceryListId
 import com.igrocery.overpriced.shared.Logger
@@ -19,7 +19,6 @@ fun NavController.navigateToMainBottomNavigationScreen(builder: NavOptionsBuilde
     navigate(MainBottomNavigation, builder)
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.mainBottomNavigationScreen(
     navigateToSettings: () -> Unit,
 

@@ -16,11 +16,11 @@ android {
             keyAlias = "release"
         }
     }
-    compileSdk = 33
+    compileSdk = 34
 //    compileSdkPreview = "UpsideDownCake"
     defaultConfig {
 //        targetSdkPreview = "UpsideDownCake"
-        targetSdk = 33
+        targetSdk = 34
         minSdk = 21
 
         applicationId = "com.igrocery.overpriced"
@@ -125,7 +125,7 @@ dependencies {
     // paging
     val pagingVersion = "3.1.1"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:3.2.0-beta01")
+    implementation("androidx.paging:paging-compose:3.2.0-rc01")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -137,7 +137,6 @@ dependencies {
 
     // accompanist
     val accompanistVersion = "0.31.4-beta"
-    implementation("com.google.accompanist:accompanist-navigation-animation:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
