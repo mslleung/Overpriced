@@ -76,9 +76,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 
     // hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.46.1")   // do not update to 2.46 as it interferes with protobuf
+    implementation("com.google.dagger:hilt-android:2.47")
     implementation("androidx.core:core-ktx:1.10.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.47")
 
     // room
     val roomVersion = "2.5.2"
