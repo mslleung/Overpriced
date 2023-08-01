@@ -49,11 +49,11 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.47")
 
     // paging
-    val pagingVersion = "3.1.1"
+    val pagingVersion = "3.2.0"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     testImplementation("junit:junit:4.13.2")
 }

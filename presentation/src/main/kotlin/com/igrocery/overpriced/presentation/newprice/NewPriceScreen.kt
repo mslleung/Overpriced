@@ -63,7 +63,7 @@ import kotlin.math.roundToInt
 @Suppress("unused")
 private val log = Logger { }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NewPriceScreen(
     args: NewPriceScreenArgs,
@@ -702,7 +702,7 @@ private fun PriceAmountAndSaleQuantityField(
     submitError: SubmitError,
     modifier: Modifier = Modifier
 ) {
-    var priceTextFieldScrollPosition by remember { mutableStateOf(0f) }
+    var priceTextFieldScrollPosition by remember { mutableFloatStateOf(0f) }
     Column(
         modifier = modifier
             .onGloballyPositioned { layoutCoordinates ->
@@ -861,7 +861,7 @@ private fun StoreLocationField(
     submitError: SubmitError,
     modifier: Modifier = Modifier
 ) {
-    var storeLocationFieldScrollPosition by remember { mutableStateOf(0f) }
+    var storeLocationFieldScrollPosition by remember { mutableFloatStateOf(0f) }
     Column(
         modifier = modifier
             .onGloballyPositioned { layoutCoordinates ->

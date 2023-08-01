@@ -73,7 +73,7 @@ dependencies {
     implementation(project(":shared"))
 
     // kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // hilt dependency injection
     implementation("com.google.dagger:hilt-android:2.47")
@@ -89,7 +89,7 @@ dependencies {
     implementation("androidx.room:room-paging:2.5.2")
 
     // paging
-    val pagingVersion = "3.1.1"
+    val pagingVersion = "3.2.0"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
 
     // datastore

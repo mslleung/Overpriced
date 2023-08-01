@@ -96,13 +96,13 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     // android core UI
-    val composeVersion = "1.6.0-alpha01"
+    val composeVersion = "1.6.0-alpha02"
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0-alpha01")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.material:material:$composeVersion")
-    implementation("androidx.compose.material3:material3:1.2.0-alpha03")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha04")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.7.2")
 
@@ -116,16 +116,16 @@ dependencies {
     implementation("androidx.datastore:datastore:1.0.0")
 
     // navigation component
-    val navigationVersion = "2.7.0-beta02"
+    val navigationVersion = "2.7.0-rc01"
     implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion")
     implementation("androidx.navigation:navigation-compose:$navigationVersion")
 
     // paging
-    val pagingVersion = "3.1.1"
+    val pagingVersion = "3.2.0"
     implementation("androidx.paging:paging-runtime:$pagingVersion")
-    implementation("androidx.paging:paging-compose:3.2.0-rc01")
+    implementation("androidx.paging:paging-compose:3.2.0")
 
     // app startup
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -136,7 +136,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.47")
 
     // accompanist
-    val accompanistVersion = "0.31.5-beta"
+    val accompanistVersion = "0.31.6-rc"
     implementation("com.google.accompanist:accompanist-permissions:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
     implementation("com.google.accompanist:accompanist-placeholder-material:$accompanistVersion")
@@ -150,7 +150,7 @@ dependencies {
     // google play services
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.maps.android:maps-compose:2.11.4")
+    implementation("com.google.maps.android:maps-compose:2.12.0")
 
     // graphs and charts
     implementation("com.himanshoe:charty:1.0.1")
